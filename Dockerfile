@@ -21,12 +21,9 @@ COPY . .
 # 创建数据目录
 RUN mkdir -p ./data ./reports
 
-# 暴露端口（Railway会自动分配）
-EXPOSE $PORT
-
 # 环境变量
 ENV PYTHONUNBUFFERED=1
 ENV HOST=0.0.0.0
 
-# 启动命令（Railway会覆盖PORT环境变量）
+# 启动命令（Railway会自动设置PORT环境变量）
 CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
