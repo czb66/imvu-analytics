@@ -251,8 +251,8 @@ def _generate_report_html(
     # 准备图表数据（转换为JSON安全格式）
     top_product_names = json.dumps([(p.get('product_name', 'N/A') or 'N/A')[:12] for p in (top_products[:10] or [])])
     top_product_sales = json.dumps([(p.get('direct_sales', 0) or 0) + (p.get('indirect_sales', 0) or 0) + (p.get('promoted_sales', 0) or 0) for p in (top_products[:10] or [])])
-    price_ranges = json.dumps([p['range'] for p in (price_range or [])])
-    price_counts = json.dumps([p['count'] for p in (price_range or [])])
+    price_ranges = json.dumps([str(p.get('range', 'N/A') or 'N/A') for p in (price_range or [])])
+    price_counts = json.dumps([int(p.get('count', 0) or 0) for p in (price_range or [])])
     
     # 辅助函数：HTML转义
     def escape_html(text):
@@ -334,39 +334,39 @@ def _generate_report_html(
         <div class="metrics-grid">
             <div class="metric-card">
                 <div class="label">直接销售</div>
-                <div class="value">{summary.get('direct_sales', 0):,} 个</div>
+                <div class="value">{(summary or {{}}).get('direct_sales', 0):,} 个</div>
             </div>
             <div class="metric-card">
                 <div class="label">间接销售</div>
-                <div class="value">{summary.get('indirect_sales', 0):,} 个</div>
+                <div class="value">{(summary or {{}}).get('indirect_sales', 0):,} 个</div>
             </div>
             <div class="metric-card">
                 <div class="label">推广销售</div>
-                <div class="value">{summary.get('promoted_sales', 0):,} 个</div>
+                <div class="value">{(summary or {{}}).get('promoted_sales', 0):,} 个</div>
             </div>
             <div class="metric-card">
                 <div class="label">总销售数量</div>
-                <div class="value">{summary.get('total_sales', 0):,} 个</div>
+                <div class="value">{(summary or {{}}).get('total_sales', 0):,} 个</div>
             </div>
             <div class="metric-card">
                 <div class="label">总利润 (Credits)</div>
-                <div class="value green">{summary.get('total_profit', 0):,.0f} c</div>
+                <div class="value green">{(summary or {{}}).get('total_profit', 0):,.0f} c</div>
             </div>
             <div class="metric-card">
                 <div class="label">总利润 (USD)</div>
-                <div class="value green">${(summary.get('total_profit_usd', 0) or 0):,.2f}</div>
+                <div class="value green">${((summary or {{}}).get('total_profit_usd', 0) or 0):,.2f}</div>
             </div>
             <div class="metric-card">
                 <div class="label">可见产品</div>
-                <div class="value">{summary.get('visible_products', 0)}</div>
+                <div class="value">{(summary or {{}}).get('visible_products', 0)}</div>
             </div>
             <div class="metric-card">
                 <div class="label">隐藏产品</div>
-                <div class="value red">{summary.get('hidden_products', 0)}</div>
+                <div class="value red">{(summary or {{}}).get('hidden_products', 0)}</div>
             </div>
             <div class="metric-card">
                 <div class="label">总产品数</div>
-                <div class="value">{summary.get('total_products', 0)}</div>
+                <div class="value">{(summary or {{}}).get('total_products', 0)}</div>
             </div>
         </div>
         
@@ -388,27 +388,27 @@ def _generate_report_html(
             <div class="section-title">转化漏斗</div>
             <div class="funnel-container">
                 <div class="funnel-step">
-                    <div class="num">{funnel.get('impressions', 0):,}</div>
+                    <div class="num">{(funnel or {{}}).get('impressions', 0):,}</div>
                     <div class="label">展示次数</div>
                 </div>
                 <div class="funnel-arrow">-&gt;</div>
                 <div class="funnel-step">
-                    <div class="num">{funnel.get('cart_adds', 0):,}</div>
+                    <div class="num">{(funnel or {{}}).get('cart_adds', 0):,}</div>
                     <div class="label">加购数</div>
                 </div>
                 <div class="funnel-arrow">-&gt;</div>
                 <div class="funnel-step">
-                    <div class="num">{funnel.get('wishlist_adds', 0):,}</div>
+                    <div class="num">{(funnel or {{}}).get('wishlist_adds', 0):,}</div>
                     <div class="label">收藏数</div>
                 </div>
                 <div class="funnel-arrow">-&gt;</div>
                 <div class="funnel-step">
-                    <div class="num">{funnel.get('sales', 0):,.0f} 个</div>
+                    <div class="num">{(funnel or {{}}).get('sales', 0):,.0f} 个</div>
                     <div class="label">销售数</div>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 15px; color: #666;">
-                <span>转化率: 展示-&gt;加购 {funnel.get('impression_to_cart_rate', 0):.2f}% | 加购-&gt;收藏 {funnel.get('cart_to_wishlist_rate', 0):.2f}% | 收藏-&gt;下单 {funnel.get('wishlist_to_sales_rate', 0):.2f}%</span>
+                <span>转化率: 展示-&gt;加购 {(funnel or {{}}).get('impression_to_cart_rate', 0):.2f}% | 加购-&gt;收藏 {(funnel or {{}}).get('cart_to_wishlist_rate', 0):.2f}% | 收藏-&gt;下单 {(funnel or {{}}).get('wishlist_to_sales_rate', 0):.2f}%</span>
             </div>
         </div>
         
@@ -505,8 +505,8 @@ def _generate_report_html(
                     type: 'pie',
                     radius: ['40%', '70%'],
                     data: [
-                        {{ value: {visible_data.get('count', 0)}, name: '可见产品' }},
-                        {{ value: {hidden_data.get('count', 0)}, name: '隐藏产品' }}
+                        {{ value: {(visible_data or {{}}).get('count', 0)}, name: '可见产品' }},
+                        {{ value: {(hidden_data or {{}}).get('count', 0)}, name: '隐藏产品' }}
                     ]
                 }}]
             }});
@@ -520,8 +520,8 @@ def _generate_report_html(
                     type: 'pie',
                     radius: ['40%', '70%'],
                     data: [
-                        {{ value: {organic_data.get('total_impressions', 0)}, name: '自然流量' }},
-                        {{ value: {paid_data.get('total_impressions', 0)}, name: '付费流量' }}
+                        {{ value: {(organic_data or {{}}).get('total_impressions', 0)}, name: '自然流量' }},
+                        {{ value: {(paid_data or {{}}).get('total_impressions', 0)}, name: '付费流量' }}
                     ]
                 }}]
             }});
