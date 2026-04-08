@@ -6,7 +6,7 @@ from fastapi import APIRouter, Query, HTTPException
 from typing import Optional
 import logging
 
-from app.database import get_db, ProductDataRepository
+from app.database import get_db_context, ProductDataRepository
 from app.services.analytics import AnalyticsService
 
 logger = logging.getLogger(__name__)

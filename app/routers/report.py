@@ -11,7 +11,7 @@ import logging
 from datetime import datetime
 
 import config
-from app.database import get_db, ProductDataRepository, ReportHistoryRepository
+from app.database import get_db_context, ProductDataRepository, ReportHistoryRepository
 from app.services.analytics import AnalyticsService
 from app.services.email_service import email_service
 
