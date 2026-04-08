@@ -15,7 +15,7 @@ import config
 from app.database import get_db_context, ProductDataRepository, ReportHistoryRepository
 from app.services.analytics import AnalyticsService
 from app.services.email_service import email_service
-import html
+import html as html_module
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/report", tags=["报告"])
@@ -271,7 +271,7 @@ def _generate_report_html(
     
     # 辅助函数：HTML转义
     def escape_html(text):
-        return html.escape(str(text)) if text else 'N/A'
+        return html_module.escape(str(text)) if text else 'N/A'
     
     html = f"""
 <!DOCTYPE html>
