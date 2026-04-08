@@ -76,14 +76,22 @@ class AnalyticsService:
             }
         
         try:
+            # 计算每个产品的总销量
+            self.df['total_sales_per_product'] = (
+                self.df['direct_sales'].fillna(0) + 
+                self.df['indirect_sales'].fillna(0) + 
+                self.df['promoted_sales'].fillna(0)
+            )
+            
             # 计算各项销售总和
             direct_sales = int(self.df['direct_sales'].sum())
             indirect_sales = int(self.df['indirect_sales'].sum())
             promoted_sales = int(self.df['promoted_sales'].sum())
             total_sales = direct_sales + indirect_sales  # 总销售数量 = 直接 + 间接
             
-            # 计算总利润并转换为美元
-            total_profit_credits = round(self.df['profit'].sum(), 2)
+            # 计算总利润 = 单件利润 × 销量
+            self.df['total_profit_per_product'] = self.df['profit'] * self.df['total_sales_per_product']
+            total_profit_credits = round(self.df['total_profit_per_product'].sum(), 2)
             total_profit_usd = round(total_profit_credits * 0.0004, 2)  # 12000 Credits = $4.8
             
             return {
