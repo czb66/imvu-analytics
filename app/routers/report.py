@@ -33,42 +33,50 @@ class ReportRequest(BaseModel):
 @router.get("/generate")
 async def generate_report_html():
     """生成HTML报告"""
-    with get_db_context() as db:
-        repo = ProductDataRepository(db)
-        products = repo.get_all()
-        
-        if not products:
-            return HTMLResponse(
-                content="<html><body><h1>暂无数据</h1><p>请先上传数据。</p></body></html>",
-                status_code=200
+    try:
+        with get_db_context() as db:
+            repo = ProductDataRepository(db)
+            products = repo.get_all()
+            
+            if not products:
+                return HTMLResponse(
+                    content="<html><body><h1>暂无数据</h1><p>请先上传数据。</p></body></html>",
+                    status_code=200
+                )
+            
+            product_dicts = [_product_to_dict(p) for p in products]
+            analytics = AnalyticsService(product_dicts)
+            
+            # 收集所有数据
+            summary = analytics.get_summary_metrics()
+            top_products = analytics.get_top_products(10, metric='sales')
+            bottom_products = analytics.get_bottom_products(10)
+            visibility = analytics.get_visibility_analysis()
+            traffic = analytics.get_traffic_analysis()
+            conversion_funnel = analytics.get_conversion_funnel()
+            anomalies = analytics.detect_sales_anomalies()
+            price_range = analytics.get_price_range_analysis()
+            
+            # 生成HTML
+            html = _generate_report_html(
+                summary=summary,
+                top_products=top_products,
+                bottom_products=bottom_products,
+                visibility=visibility,
+                traffic=traffic,
+                conversion_funnel=conversion_funnel,
+                anomalies=anomalies,
+                price_range=price_range
             )
-        
-        product_dicts = [_product_to_dict(p) for p in products]
-        analytics = AnalyticsService(product_dicts)
-        
-        # 收集所有数据
-        summary = analytics.get_summary_metrics()
-        top_products = analytics.get_top_products(10, metric='sales')
-        bottom_products = analytics.get_bottom_products(10)
-        visibility = analytics.get_visibility_analysis()
-        traffic = analytics.get_traffic_analysis()
-        conversion_funnel = analytics.get_conversion_funnel()
-        anomalies = analytics.detect_sales_anomalies()
-        price_range = analytics.get_price_range_analysis()
-        
-        # 生成HTML
-        html = _generate_report_html(
-            summary=summary,
-            top_products=top_products,
-            bottom_products=bottom_products,
-            visibility=visibility,
-            traffic=traffic,
-            conversion_funnel=conversion_funnel,
-            anomalies=anomalies,
-            price_range=price_range
+            
+            return HTMLResponse(content=html, status_code=200)
+    except Exception as e:
+        import traceback
+        logger.error(f"生成报告失败: {str(e)}\n{traceback.format_exc()}")
+        return HTMLResponse(
+            content=f"<html><body><h1>生成报告失败</h1><p>错误: {str(e)}</p><pre>{traceback.format_exc()}</pre></body></html>",
+            status_code=500
         )
-        
-        return HTMLResponse(content=html, status_code=200)
 
 
 @router.post("/generate")
@@ -82,29 +90,30 @@ async def create_report(request: ReportRequest, background_tasks: BackgroundTask
     - **send_email**: 发送邮件
     - **email_recipients**: 邮件收件人列表
     """
-    with get_db_context() as db:
-        repo = ProductDataRepository(db)
-        report_repo = ReportHistoryRepository(db)
-        products = repo.get_all()
-        
-        if not products:
-            raise HTTPException(status_code=400, detail="暂无数据")
-        
-        product_dicts = [_product_to_dict(p) for p in products]
-        analytics = AnalyticsService(product_dicts)
-        
-        # 收集数据
-        summary = analytics.get_summary_metrics()
-        top_products = analytics.get_top_products(request.top_limit, metric='sales') if request.include_top_bottom else []
-        bottom_products = analytics.get_bottom_products(request.top_limit) if request.include_top_bottom else []
-        anomalies = analytics.detect_sales_anomalies() if request.include_anomalies else []
-        
-        # 保存报告记录
-        report_record = report_repo.create({
-            'report_type': 'manual',
-            'content_preview': f"总销量: {summary.get('total_sales', 0)} 个",
-            'status': 'pending'
-        })
+    try:
+        with get_db_context() as db:
+            repo = ProductDataRepository(db)
+            report_repo = ReportHistoryRepository(db)
+            products = repo.get_all()
+            
+            if not products:
+                raise HTTPException(status_code=400, detail="暂无数据")
+            
+            product_dicts = [_product_to_dict(p) for p in products]
+            analytics = AnalyticsService(product_dicts)
+            
+            # 收集数据
+            summary = analytics.get_summary_metrics()
+            top_products = analytics.get_top_products(request.top_limit, metric='sales') if request.include_top_bottom else []
+            bottom_products = analytics.get_bottom_products(request.top_limit) if request.include_top_bottom else []
+            anomalies = analytics.detect_sales_anomalies() if request.include_anomalies else []
+            
+            # 保存报告记录
+            report_record = report_repo.create({
+                'report_type': 'manual',
+                'content_preview': f"总销量: {(summary or {}).get('total_sales', 0)} 个",
+                'status': 'pending'
+            })
         
         # 生成报告文件
         os.makedirs(config.REPORT_DIR, exist_ok=True)
@@ -165,6 +174,12 @@ async def create_report(request: ReportRequest, background_tasks: BackgroundTask
                 "download_url": f"/api/report/download/{report_filename}"
             }
         }
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        logger.error(f"创建报告失败: {str(e)}\n{traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"生成报告失败: {str(e)}")
 
 
 @router.get("/download/{filename}")
