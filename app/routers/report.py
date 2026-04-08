@@ -46,7 +46,7 @@ async def generate_report_html():
         
         # 收集所有数据
         summary = analytics.get_summary_metrics()
-        top_products = analytics.get_top_products(10)
+        top_products = analytics.get_top_products(10, metric='sales')
         bottom_products = analytics.get_bottom_products(10)
         visibility = analytics.get_visibility_analysis()
         traffic = analytics.get_traffic_analysis()
@@ -93,14 +93,14 @@ async def create_report(request: ReportRequest, background_tasks: BackgroundTask
         
         # 收集数据
         summary = analytics.get_summary_metrics()
-        top_products = analytics.get_top_products(request.top_limit) if request.include_top_bottom else []
+        top_products = analytics.get_top_products(request.top_limit, metric='sales') if request.include_top_bottom else []
         bottom_products = analytics.get_bottom_products(request.top_limit) if request.include_top_bottom else []
         anomalies = analytics.detect_sales_anomalies() if request.include_anomalies else []
         
         # 保存报告记录
         report_record = report_repo.create({
             'report_type': 'manual',
-            'content_preview': f"总销售额: {summary.get('total_sales', 0)}",
+            'content_preview': f"总销量: {summary.get('total_sales', 0)} 个",
             'status': 'pending'
         })
         
@@ -322,20 +322,28 @@ def _generate_report_html(
         <!-- 核心指标 -->
         <div class="metrics-grid">
             <div class="metric-card">
-                <div class="label">总销售额</div>
-                <div class="value">¥{summary.get('total_sales', 0):,.2f}</div>
+                <div class="label">直接销售</div>
+                <div class="value">{summary.get('direct_sales', 0):,} 个</div>
             </div>
             <div class="metric-card">
-                <div class="label">总利润</div>
-                <div class="value green">¥{summary.get('total_profit', 0):,.2f}</div>
+                <div class="label">间接销售</div>
+                <div class="value">{summary.get('indirect_sales', 0):,} 个</div>
             </div>
             <div class="metric-card">
-                <div class="label">总订单（估算）</div>
-                <div class="value">{summary.get('total_orders', 0):,}</div>
+                <div class="label">推广销售</div>
+                <div class="value">{summary.get('promoted_sales', 0):,} 个</div>
             </div>
             <div class="metric-card">
-                <div class="label">平均转化率</div>
-                <div class="value">{summary.get('avg_conversion_rate', 0):.4f}%</div>
+                <div class="label">总销售数量</div>
+                <div class="value">{summary.get('total_sales', 0):,} 个</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">总利润 (Credits)</div>
+                <div class="value green">{summary.get('total_profit', 0):,.0f} c</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">总利润 (USD)</div>
+                <div class="value green">${(summary.get('total_profit_usd', 0) or 0):,.2f}</div>
             </div>
             <div class="metric-card">
                 <div class="label">可见产品</div>
@@ -344,6 +352,10 @@ def _generate_report_html(
             <div class="metric-card">
                 <div class="label">隐藏产品</div>
                 <div class="value red">{summary.get('hidden_products', 0)}</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">总产品数</div>
+                <div class="value">{summary.get('total_products', 0)}</div>
             </div>
         </div>
         
@@ -362,7 +374,7 @@ def _generate_report_html(
         
         <!-- 转化漏斗 -->
         <div class="section">
-            <div class="section-title">🔍 转化漏斗</div>
+            <div class="section-title">转化漏斗</div>
             <div class="funnel-container">
                 <div class="funnel-step">
                     <div class="num">{funnel.get('impressions', 0):,}</div>
@@ -391,16 +403,16 @@ def _generate_report_html(
         
         <!-- Top产品 -->
         <div class="section">
-            <div class="section-title">Top 10 产品（按利润）</div>
+            <div class="section-title">Top 10 产品（按销量）</div>
             <table>
                 <thead>
                     <tr>
                         <th>排名</th>
                         <th>产品ID</th>
                         <th>产品名称</th>
+                        <th>销量</th>
                         <th>价格</th>
                         <th>利润</th>
-                        <th>利润率</th>
                         <th>可见性</th>
                     </tr>
                 </thead>
@@ -409,9 +421,9 @@ def _generate_report_html(
                         <td>{i+1}</td>
                         <td>{{p['product_id']}}</td>
                         <td>{{p.get('product_name', 'N/A')[:40]}}...</td>
-                        <td>¥{{p.get('price', 0):,.2f}}</td>
-                        <td>¥{{p.get('profit', 0):,.2f}}</td>
-                        <td>{{(p.get('profit', 0) / p.get('price', 1) * 100):.1f}}%</td>
+                        <td>{{(p.get('direct_sales', 0) or 0) + (p.get('indirect_sales', 0) or 0) + (p.get('promoted_sales', 0) or 0)}} 个</td>
+                        <td>{{p.get('price', 0):,.0f}} c</td>
+                        <td>{{p.get('profit', 0):,.0f}} c</td>
                         <td>{'可见' if p.get('visible') == 'Y' else '隐藏'}</td>
                     </tr>''' for i, p in enumerate(top_products[:10])])}
                 </tbody>
@@ -420,16 +432,16 @@ def _generate_report_html(
         
         <!-- Bottom产品 -->
         <div class="section">
-            <div class="section-title">📉 Bottom 10 产品（按利润）</div>
+            <div class="section-title">Bottom 10 产品（按利润）</div>
             <table>
                 <thead>
                     <tr>
                         <th>排名</th>
                         <th>产品ID</th>
                         <th>产品名称</th>
+                        <th>销量</th>
                         <th>价格</th>
                         <th>利润</th>
-                        <th>利润率</th>
                         <th>可见性</th>
                     </tr>
                 </thead>
@@ -438,9 +450,9 @@ def _generate_report_html(
                         <td>{i+1}</td>
                         <td>{{p['product_id']}}</td>
                         <td>{{p.get('product_name', 'N/A')[:40]}}...</td>
-                        <td>¥{{p.get('price', 0):,.2f}}</td>
-                        <td>¥{{p.get('profit', 0):,.2f}}</td>
-                        <td>{{(p.get('profit', 0) / p.get('price', 1) * 100):.1f}}%</td>
+                        <td>{{(p.get('direct_sales', 0) or 0) + (p.get('indirect_sales', 0) or 0) + (p.get('promoted_sales', 0) or 0)}} 个</td>
+                        <td>{{p.get('price', 0):,.0f}} c</td>
+                        <td>{{p.get('profit', 0):,.0f}} c</td>
                         <td>{'可见' if p.get('visible') == 'Y' else '隐藏'}</td>
                     </tr>''' for i, p in enumerate(bottom_products[:10])])}
                 </tbody>
@@ -450,7 +462,7 @@ def _generate_report_html(
         <!-- 异常预警 -->
         {f'''
         <div class="section">
-            <div class="section-title">⚠️ 异常检测 ({len(anomalies)} 个问题)</div>
+            <div class="section-title">异常检测 ({len(anomalies)} 个问题)</div>
             <div class="alert-box danger">
                 <div class="alert-title">销量异常产品</div>
                 <p>检测到以下产品的销量存在异常波动：</p>
@@ -471,16 +483,16 @@ def _generate_report_html(
     <script>
         // 初始化图表
         document.addEventListener('DOMContentLoaded', function() {{
-            // 销售额Top10图表
+            // 销量Top10图表
             var salesChart = echarts.init(document.getElementById('chart-sales'));
             salesChart.setOption({{
-                title: {{ text: 'Top 10 产品利润', left: 'center' }},
+                title: {{ text: 'Top 10 产品销量', left: 'center' }},
                 tooltip: {{ trigger: 'axis' }},
-                xAxis: {{ type: 'category', data: {top_products[:10] and [p['product_id'][:8] for p in top_products[:10]] or []}, axisLabel: {{ rotate: 30 }} }},
-                yAxis: {{ type: 'value', name: '利润' }},
+                xAxis: {{ type: 'category', data: {top_products[:10] and [(p.get('product_name', 'N/A') or 'N/A')[:12] for p in top_products[:10]] or []}, axisLabel: {{ rotate: 30 }} }},
+                yAxis: {{ type: 'value', name: '销量 (个)' }},
                 series: [{{
                     type: 'bar',
-                    data: {top_products[:10] and [p.get('profit', 0) for p in top_products[:10]] or []},
+                    data: {top_products[:10] and [(p.get('direct_sales', 0) or 0) + (p.get('indirect_sales', 0) or 0) + (p.get('promoted_sales', 0) or 0) for p in top_products[:10]] or []},
                     itemStyle: {{ color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                         {{ offset: 0, color: '#667eea' }},
                         {{ offset: 1, color: '#764ba2' }}
