@@ -19,7 +19,11 @@ HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", "8000"))
 
 # ==================== 数据库配置 ====================
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./marketing_analytics.db")
+# 使用绝对路径，确保在容器中有写权限
+import os
+DATA_DIR = os.getenv("DATA_DIR", "./data")
+os.makedirs(DATA_DIR, exist_ok=True)
+DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DATA_DIR}/marketing_analytics.db")
 
 # ==================== 邮件配置 ====================
 # SMTP服务器设置
