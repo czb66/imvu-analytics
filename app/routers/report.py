@@ -8,12 +8,14 @@ from pydantic import BaseModel
 from typing import Optional, List
 import os
 import logging
+import json
 from datetime import datetime
 
 import config
 from app.database import get_db_context, ProductDataRepository, ReportHistoryRepository
 from app.services.analytics import AnalyticsService
 from app.services.email_service import email_service
+import html
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/report", tags=["报告"])
@@ -242,10 +244,19 @@ def _generate_report_html(
     # 流量数据
     organic_data = traffic.get('organic', {})
     paid_data = traffic.get('paid', {})
-    ratio_data = traffic.get('ratio', {})
     
     # 转化漏斗
     funnel = conversion_funnel
+    
+    # 准备图表数据（转换为JSON安全格式）
+    top_product_names = json.dumps([(p.get('product_name', 'N/A') or 'N/A')[:12] for p in (top_products[:10] or [])])
+    top_product_sales = json.dumps([(p.get('direct_sales', 0) or 0) + (p.get('indirect_sales', 0) or 0) + (p.get('promoted_sales', 0) or 0) for p in (top_products[:10] or [])])
+    price_ranges = json.dumps([p['range'] for p in (price_range or [])])
+    price_counts = json.dumps([p['count'] for p in (price_range or [])])
+    
+    # 辅助函数：HTML转义
+    def escape_html(text):
+        return html.escape(str(text)) if text else 'N/A'
     
     html = f"""
 <!DOCTYPE html>
@@ -420,7 +431,7 @@ def _generate_report_html(
                     {''.join([f'''<tr>
                         <td>{i+1}</td>
                         <td>{{p['product_id']}}</td>
-                        <td>{{p.get('product_name', 'N/A')[:40]}}...</td>
+                        <td>{{escape_html(p.get('product_name', 'N/A'))[:40]}}...</td>
                         <td>{{(p.get('direct_sales', 0) or 0) + (p.get('indirect_sales', 0) or 0) + (p.get('promoted_sales', 0) or 0)}} 个</td>
                         <td>{{p.get('price', 0):,.0f}} c</td>
                         <td>{{p.get('profit', 0):,.0f}} c</td>
@@ -449,7 +460,7 @@ def _generate_report_html(
                     {''.join([f'''<tr>
                         <td>{i+1}</td>
                         <td>{{p['product_id']}}</td>
-                        <td>{{p.get('product_name', 'N/A')[:40]}}...</td>
+                        <td>{{escape_html(p.get('product_name', 'N/A'))[:40]}}...</td>
                         <td>{{(p.get('direct_sales', 0) or 0) + (p.get('indirect_sales', 0) or 0) + (p.get('promoted_sales', 0) or 0)}} 个</td>
                         <td>{{p.get('price', 0):,.0f}} c</td>
                         <td>{{p.get('profit', 0):,.0f}} c</td>
@@ -467,7 +478,7 @@ def _generate_report_html(
                 <div class="alert-title">销量异常产品</div>
                 <p>检测到以下产品的销量存在异常波动：</p>
                 <ul style="margin-top: 10px; padding-left: 20px;">
-                    {''.join([f"<li><strong>{{p['product_id']}}</strong> ({{p.get('product_name', 'N/A')[:30]}}...): {{p.get('anomaly_type', '未知')}} (Z-score: {{abs(p.get('z_score', 0)):.2f}})</li>" for p in anomalies[:10]])}
+                    {''.join([f"<li><strong>{{p['product_id']}}</strong> ({{escape_html(p.get('product_name', 'N/A'))[:30]}}...): {{p.get('anomaly_type', '未知')}} (Z-score: {{abs(p.get('z_score', 0)):.2f}})</li>" for p in anomalies[:10]])}
                 </ul>
             </div>
         </div>
@@ -488,11 +499,11 @@ def _generate_report_html(
             salesChart.setOption({{
                 title: {{ text: 'Top 10 产品销量', left: 'center' }},
                 tooltip: {{ trigger: 'axis' }},
-                xAxis: {{ type: 'category', data: {top_products[:10] and [(p.get('product_name', 'N/A') or 'N/A')[:12] for p in top_products[:10]] or []}, axisLabel: {{ rotate: 30 }} }},
+                xAxis: {{ type: 'category', data: {top_product_names}, axisLabel: {{ rotate: 30 }} }},
                 yAxis: {{ type: 'value', name: '销量 (个)' }},
                 series: [{{
                     type: 'bar',
-                    data: {top_products[:10] and [(p.get('direct_sales', 0) or 0) + (p.get('indirect_sales', 0) or 0) + (p.get('promoted_sales', 0) or 0) for p in top_products[:10]] or []},
+                    data: {top_product_sales},
                     itemStyle: {{ color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                         {{ offset: 0, color: '#667eea' }},
                         {{ offset: 1, color: '#764ba2' }}
@@ -536,11 +547,11 @@ def _generate_report_html(
             priceRangeChart.setOption({{
                 title: {{ text: '价格区间产品分布', left: 'center' }},
                 tooltip: {{ trigger: 'axis' }},
-                xAxis: {{ type: 'category', data: {[p['range'] for p in price_range] or []} }},
+                xAxis: {{ type: 'category', data: {price_ranges} }},
                 yAxis: {{ type: 'value', name: '产品数量' }},
                 series: [{{
                     type: 'bar',
-                    data: {[p['count'] for p in price_range] or []},
+                    data: {price_counts},
                     itemStyle: {{ color: '#667eea' }}
                 }}]
             }});
