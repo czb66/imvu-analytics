@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # 营销数据分析服务
+  marketing-analytics:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marketing-analytics
+    ports:
+      - "8000:8000"
+    volumes:
+      # 持久化数据
+      - ./data:/app/data
+      - ./reports:/app/reports
+      # 环境变量文件
+      - ./.env:/app/.env:ro
+    environment:
+      # 默认配置（会被.env覆盖）
+      - DEBUG=False
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DATABASE_URL=sqlite:///./data/marketing_analytics.db
+      - REPORT_DIR=/app/reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# 网络配置
+networks:
+  default:
+    name: marketing-network

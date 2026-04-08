@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深度诊断 - {{ app_name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #52c41a;
+            --danger: #ff4d4f;
+            --warning: #faad14;
+        }
+        body {
+            background: #f5f7fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 20px 0;
+            color: white;
+        }
+        .sidebar h4 {
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+        .metric-box {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .metric-box.success {
+            background: linear-gradient(135deg, #52c41a, #389e0d);
+        }
+        .metric-box.warning {
+            background: linear-gradient(135deg, #faad14, #d48806);
+        }
+        .metric-box.danger {
+            background: linear-gradient(135deg, #ff4d4f, #cf1322);
+        }
+        .metric-number {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .metric-desc {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .funnel-step {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 8px;
+            margin: 5px;
+        }
+        .funnel-step .num {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .alert-card {
+            background: #fff1f0;
+            border: 1px solid #ffa39e;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .alert-card.warning {
+            background: #fffbe6;
+            border-color: #ffe58f;
+        }
+        .alert-card h6 {
+            color: #cf1322;
+            margin-bottom: 10px;
+        }
+        .alert-card.warning h6 {
+            color: #d48806;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; }
+        .badge-custom {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+        <h4><i class="bi bi-graph-up"></i> {{ app_name }}</h4>
+        <a href="/dashboard"><i class="bi bi-speedometer2 me-2"></i>仪表盘</a>
+        <a href="/diagnosis" class="active"><i class="bi bi-search me-2"></i>深度诊断</a>
+        <a href="/report"><i class="bi bi-file-earmark-text me-2"></i>报告中心</a>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <h4 class="mb-4"><i class="bi bi-search"></i> 深度诊断分析</h4>
+
+        <!-- 转化漏斗 -->
+        <div class="section-card">
+            <div class="section-title">🔍 转化漏斗分析</div>
+            <div id="funnelContainer" class="text-center mb-4"></div>
+            <div class="row g-3" id="funnelStats"></div>
+        </div>
+
+        <!-- 销售诊断 -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="metric-box" id="salesBox">
+                    <div class="metric-number" id="totalSales">-</div>
+                    <div class="metric-desc">总销售额</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-box success">
+                    <div class="metric-number" id="totalProfit">-</div>
+                    <div class="metric-desc">总利润</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-box warning">
+                    <div class="metric-number" id="profitMargin">-</div>
+                    <div class="metric-desc">平均利润率</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 价格区间分析 -->
+        <div class="section-card">
+            <div class="section-title">💰 价格区间分析</div>
+            <canvas id="priceRangeChart" height="100"></canvas>
+            <div class="table-responsive mt-3">
+                <table class="table table-sm">
+                    <thead>
+                        <tr><th>价格区间</th><th>产品数</th><th>总销售额</th><th>总利润</th><th>平均利润</th></tr>
+                    </thead>
+                    <tbody id="priceRangeTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 流量与ROI -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="section-card">
+                    <div class="section-title">🌐 流量分析</div>
+                    <canvas id="trafficChart"></canvas>
+                    <div class="mt-3">
+                        <p><strong>自然流量:</strong> <span id="organicTraffic">-</span> (占比 <span id="organicPct">-</span>)</p>
+                        <p><strong>付费流量:</strong> <span id="paidTraffic">-</span> (占比 <span id="paidPct">-</span>)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="section-card">
+                    <div class="section-title">📈 ROI分析</div>
+                    <div id="roiContent">
+                        <p><strong>自然流量收入:</strong> ¥<span id="organicRevenue">-</span></p>
+                        <p><strong>付费流量收入:</strong> ¥<span id="paidRevenue">-</span></p>
+                        <p><strong>预估付费成本:</strong> ¥<span id="paidCost">-</span></p>
+                        <p><strong>预估ROI:</strong> <span id="roiValue" class="text-success">-</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户行为 -->
+        <div class="section-card">
+            <div class="section-title">👤 用户行为分析</div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                        <div class="text-primary fw-bold" id="cartToSales">-</div>
+                        <small>加购→下单转化率</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                        <div class="text-primary fw-bold" id="cartToWishlist">-</div>
+                        <small>加购→收藏转化率</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded">
+                        <div class="text-primary fw-bold" id="wishlistToSales">-</div>
+                        <small>收藏→下单转化率</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 高利润产品 -->
+        <div class="section-card">
+            <div class="section-title">🏆 高利润产品</div>
+            <table class="table">
+                <thead>
+                    <tr><th>产品ID</th><th>产品名称</th><th>价格</th><th>利润</th><th>利润率</th></tr>
+                </thead>
+                <tbody id="highProfitTable"></tbody>
+            </table>
+        </div>
+
+        <!-- 异常检测 -->
+        <div class="section-card">
+            <div class="section-title">⚠️ 异常检测</div>
+            <div id="anomaliesContainer">
+                <p class="text-muted">正在加载...</p>
+            </div>
+        </div>
+
+        <!-- 低转化预警 -->
+        <div class="section-card">
+            <div class="section-title">🚨 低转化预警</div>
+            <div id="lowConversionContainer">
+                <p class="text-muted">正在加载...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let trafficChart;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAllData();
+        });
+
+        async function loadAllData() {
+            try {
+                const res = await fetch('/api/diagnosis/full-report');
+                const data = await res.json();
+                
+                if (data.success) {
+                    const d = data.data;
+                    updateSummary(d.summary);
+                    updateFunnel(d.conversion_funnel);
+                    updatePriceRange(d.price_range);
+                    updateTraffic(d.traffic);
+                    updateROI(d.roi);
+                    updateUserBehavior(d.summary);
+                    updateHighProfit(d.high_profit);
+                    updateAnomalies(d.anomalies);
+                    updateLowConversion(d.low_conversion_alerts);
+                }
+            } catch (error) {
+                console.error('加载失败:', error);
+            }
+        }
+
+        function updateSummary(s) {
+            document.getElementById('totalSales').textContent = '¥' + formatNumber(s.total_sales);
+            document.getElementById('totalProfit').textContent = '¥' + formatNumber(s.total_profit);
+            const margin = s.total_sales > 0 ? (s.total_profit / s.total_sales * 100) : 0;
+            document.getElementById('profitMargin').textContent = margin.toFixed(1) + '%';
+        }
+
+        function updateFunnel(f) {
+            const container = document.getElementById('funnelContainer');
+            container.innerHTML = `
+                <div class="funnel-step"><div class="num">${formatNumber(f.impressions)}</div><small>展示</small></div>
+                <span class="mx-2">→</span>
+                <div class="funnel-step"><div class="num">${formatNumber(f.cart_adds)}</div><small>加购</small></div>
+                <span class="mx-2">→</span>
+                <div class="funnel-step"><div class="num">${formatNumber(f.wishlist_adds)}</div><small>收藏</small></div>
+                <span class="mx-2">→</span>
+                <div class="funnel-step"><div class="num">¥${formatNumber(f.sales)}</div><small>销售</small></div>
+            `;
+            
+            document.getElementById('funnelStats').innerHTML = `
+                <div class="col-md-4"><div class="p-3 bg-light rounded text-center">
+                    <div class="text-primary fw-bold">${f.impression_to_cart_rate.toFixed(2)}%</div>
+                    <small>展示→加购</small>
+                </div></div>
+                <div class="col-md-4"><div class="p-3 bg-light rounded text-center">
+                    <div class="text-primary fw-bold">${f.cart_to_wishlist_rate.toFixed(2)}%</div>
+                    <small>加购→收藏</small>
+                </div></div>
+                <div class="col-md-4"><div class="p-3 bg-light rounded text-center">
+                    <div class="text-primary fw-bold">${f.wishlist_to_sales_rate.toFixed(2)}%</div>
+                    <small>收藏→下单</small>
+                </div></div>
+            `;
+        }
+
+        function updatePriceRange(data) {
+            // 图表
+            const ctx = document.getElementById('priceRangeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.range),
+                    datasets: [{
+                        label: '产品数量',
+                        data: data.map(d => d.count),
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+            
+            // 表格
+            document.getElementById('priceRangeTable').innerHTML = data.map(d => `
+                <tr>
+                    <td>${d.range}</td>
+                    <td>${d.count}</td>
+                    <td>¥${formatNumber(d.total_sales)}</td>
+                    <td>¥${formatNumber(d.total_profit)}</td>
+                    <td>¥${formatNumber(d.avg_profit)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateTraffic(t) {
+            document.getElementById('organicTraffic').textContent = formatNumber(t.organic?.total_impressions);
+            document.getElementById('paidTraffic').textContent = formatNumber(t.paid?.total_impressions);
+            document.getElementById('organicPct').textContent = t.ratio?.organic_pct + '%';
+            document.getElementById('paidPct').textContent = t.ratio?.paid_pct + '%';
+            
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            trafficChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['自然流量', '付费流量'],
+                    datasets: [{
+                        data: [t.organic?.total_impressions || 0, t.paid?.total_impressions || 0],
+                        backgroundColor: ['#667eea', '#764ba2']
+                    }]
+                }
+            });
+        }
+
+        function updateROI(r) {
+            document.getElementById('organicRevenue').textContent = formatNumber(r.total_organic_revenue);
+            document.getElementById('paidRevenue').textContent = formatNumber(r.total_paid_revenue);
+            document.getElementById('paidCost').textContent = formatNumber(r.estimated_paid_cost);
+            const roiEl = document.getElementById('roiValue');
+            roiEl.textContent = r.estimated_roi + '%';
+            roiEl.className = r.estimated_roi >= 0 ? 'text-success' : 'text-danger';
+        }
+
+        function updateUserBehavior(s) {
+            // 从汇总数据计算
+            const totalSales = s.total_sales || 0;
+            const totalCart = 0; // 需要从原始数据获取
+            
+            document.getElementById('cartToSales').textContent = '-';
+            document.getElementById('cartToWishlist').textContent = '-';
+            document.getElementById('wishlistToSales').textContent = '-';
+        }
+
+        function updateHighProfit(products) {
+            document.getElementById('highProfitTable').innerHTML = products.slice(0, 10).map(p => `
+                <tr>
+                    <td>${p.product_id}</td>
+                    <td>${(p.product_name || 'N/A').substring(0, 30)}...</td>
+                    <td>¥${formatNumber(p.price)}</td>
+                    <td class="text-success">¥${formatNumber(p.profit)}</td>
+                    <td class="text-success">${((p.profit / p.price) * 100).toFixed(1)}%</td>
+                </tr>
+            `).join('') || '<tr><td colspan="5" class="text-muted">无高利润产品</td></tr>';
+        }
+
+        function updateAnomalies(anomalies) {
+            const container = document.getElementById('anomaliesContainer');
+            if (!anomalies || anomalies.length === 0) {
+                container.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle"></i> 未检测到销量异常</div>';
+                return;
+            }
+            container.innerHTML = anomalies.map(a => `
+                <div class="alert-card">
+                    <h6><i class="bi bi-exclamation-triangle"></i> ${a.product_id}</h6>
+                    <p><strong>${a.product_name || 'N/A'}</strong></p>
+                    <p>类型: ${a.anomaly_type} | Z-score: ${Math.abs(a.z_score).toFixed(2)}</p>
+                    <p>销售额: ¥${formatNumber(a.total_sales)} | 利润: ¥${formatNumber(a.profit)}</p>
+                </div>
+            `).join('');
+        }
+
+        function updateLowConversion(alerts) {
+            const container = document.getElementById('lowConversionContainer');
+            if (!alerts || alerts.length === 0) {
+                container.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle"></i> 无低转化预警</div>';
+                return;
+            }
+            container.innerHTML = alerts.map(a => `
+                <div class="alert-card warning">
+                    <h6><i class="bi bi-exclamation-circle"></i> ${a.product_id}</h6>
+                    <p><strong>${a.product_name || 'N/A'}</strong></p>
+                    <p>加购数: ${a.cart_adds} | 转化率: ${((a.conversion_rate || 0) * 100).toFixed(4)}%</p>
+                </div>
+            `).join('');
+        }
+
+        function formatNumber(num) {
+            if (num === undefined || num === null) return '-';
+            if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(2) + 'K';
+            return num.toFixed(2);
+        }
+    </script>
+</body>
+</html>

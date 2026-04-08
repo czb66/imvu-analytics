@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.venv/
+
+# 数据库
+*.db
+*.sqlite
+*.sqlite3
+
+# 日志
+*.log
+logs/
+
+# 环境变量
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 报告和上传
+data/
+reports/
+uploads/
+
+# Docker
+.docker/
+
+# 临时文件
+*.tmp
+*.bak
+.DS_Store
+
+# 节点（如果有）
+node_modules/
+package-lock.json
