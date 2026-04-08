@@ -245,6 +245,12 @@
             </div>
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
+                    <div class="metric-value" style="color: var(--success);" id="totalProfitUsd">-</div>
+                    <div class="metric-label"><i class="bi bi-currency-dollar"></i> 总利润 (USD)</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <div class="metric-card">
                     <div class="metric-value" style="color: var(--success);" id="visibleProducts">-</div>
                     <div class="metric-label"><i class="bi bi-eye"></i> 可见产品</div>
                 </div>
@@ -420,6 +426,7 @@
                     document.getElementById('promotedSales').textContent = formatNumber(s.promoted_sales) + ' 个';
                     document.getElementById('totalSales').textContent = formatNumber(s.total_sales) + ' 个';
                     document.getElementById('totalProfit').textContent = formatNumber(s.total_profit);
+                    document.getElementById('totalProfitUsd').textContent = '$' + formatNumber(s.total_profit_usd);
                     document.getElementById('visibleProducts').textContent = s.visible_products;
                     document.getElementById('hiddenProducts').textContent = s.hidden_products;
                     document.getElementById('totalProducts').textContent = s.total_products;

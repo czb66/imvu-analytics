@@ -69,6 +69,7 @@ class AnalyticsService:
                 'promoted_sales': 0,
                 'total_sales': 0,
                 'total_profit': 0,
+                'total_profit_usd': 0,
                 'total_products': 0,
                 'visible_products': 0,
                 'hidden_products': 0,
@@ -81,12 +82,17 @@ class AnalyticsService:
             promoted_sales = int(self.df['promoted_sales'].sum())
             total_sales = direct_sales + indirect_sales  # 总销售数量 = 直接 + 间接
             
+            # 计算总利润并转换为美元
+            total_profit_credits = round(self.df['profit'].sum(), 2)
+            total_profit_usd = round(total_profit_credits * 0.0004, 2)  # 12000 Credits = $4.8
+            
             return {
                 'direct_sales': direct_sales,
                 'indirect_sales': indirect_sales,
                 'promoted_sales': promoted_sales,
                 'total_sales': total_sales,
-                'total_profit': round(self.df['profit'].sum(), 2),
+                'total_profit': total_profit_credits,
+                'total_profit_usd': total_profit_usd,
                 'total_products': len(self.df),
                 'visible_products': len(self.df[self.df['visible'] == 'Y']),
                 'hidden_products': len(self.df[self.df['visible'] == 'N']),
@@ -99,6 +105,7 @@ class AnalyticsService:
                 'promoted_sales': 0,
                 'total_sales': 0,
                 'total_profit': 0,
+                'total_profit_usd': 0,
                 'total_products': 0,
                 'visible_products': 0,
                 'hidden_products': 0,
