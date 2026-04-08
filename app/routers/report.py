@@ -462,7 +462,7 @@ def _generate_report_html(
                 <div class="alert-title">销量异常产品</div>
                 <p>检测到以下产品的销量存在异常波动：</p>
                 <ul style="margin-top: 10px; padding-left: 20px;">
-                    {''.join([f'<li><strong>{p.get("product_id", "N/A")}</strong> ({escape_html(p.get("product_name") or "N/A")[:30]}...): {p.get("anomaly_type") or "未知"} (Z-score: {abs(p.get("z_score") or 0):.2f})</li>' for p in anomalies[:10]])}
+                    {''.join([f'<li><strong>{p.get("product_id") or "N/A"}</strong> ({escape_html(p.get("product_name") or "N/A")[:30]}...): {p.get("anomaly_type") or "未知"} (Z-score: {(abs(p.get("z_score") or 0)):.2f})</li>' for p in anomalies[:10]])}
                 </ul>
             </div>
         </div>
