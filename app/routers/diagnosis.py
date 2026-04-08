@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/diagnosis", tags=["诊断"])
 @router.get("/price-range")
 async def get_price_range_analysis():
     """价格区间分析"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -35,7 +35,7 @@ async def get_price_range_analysis():
 @router.get("/conversion-funnel")
 async def get_conversion_funnel():
     """转化漏斗分析"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -60,7 +60,7 @@ async def get_high_profit_products(
     
     - **margin_threshold**: 利润率阈值（默认0.3，即30%）
     """
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -79,7 +79,7 @@ async def get_high_profit_products(
 @router.get("/traffic-comparison")
 async def get_traffic_comparison():
     """自然流量 vs 付费流量效果对比"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -98,7 +98,7 @@ async def get_traffic_comparison():
 @router.get("/roi")
 async def get_roi_analysis():
     """ROI分析"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -117,7 +117,7 @@ async def get_roi_analysis():
 @router.get("/user-behavior")
 async def get_user_behavior_analysis():
     """用户行为转化分析"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -142,7 +142,7 @@ async def get_low_conversion_alerts(
     
     - **threshold**: 转化率阈值
     """
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -167,7 +167,7 @@ async def detect_anomalies(
     
     - **threshold**: 标准差倍数阈值（默认2.0）
     """
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -193,7 +193,7 @@ async def detect_anomalies(
 @router.get("/full-report")
 async def get_full_diagnosis_report():
     """获取完整诊断报告"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
