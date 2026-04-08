@@ -426,7 +426,7 @@
                     document.getElementById('promotedSales').textContent = formatNumber(s.promoted_sales) + ' 个';
                     document.getElementById('totalSales').textContent = formatNumber(s.total_sales) + ' 个';
                     document.getElementById('totalProfit').textContent = formatNumber(s.total_profit);
-                    document.getElementById('totalProfitUsd').textContent = '$' + formatNumber(s.total_profit_usd);
+                    document.getElementById('totalProfitUsd').textContent = '$' + s.total_profit_usd.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                     document.getElementById('visibleProducts').textContent = s.visible_products;
                     document.getElementById('hiddenProducts').textContent = s.hidden_products;
                     document.getElementById('totalProducts').textContent = s.total_products;
