@@ -18,8 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 复制应用代码
 COPY . .
 
-# 创建数据目录
-RUN mkdir -p ./data ./reports
+# 创建数据目录并设置权限
+RUN mkdir -p ./data ./reports && chmod 777 ./data ./reports
 
 # 环境变量
 ENV PYTHONUNBUFFERED=1
