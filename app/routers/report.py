@@ -428,7 +428,7 @@ def _generate_report_html(
                     </tr>
                 </thead>
                 <tbody>
-                    {''.join([f'<tr><td>{i+1}</td><td>{p["product_id"]}</td><td>{escape_html(p.get("product_name", "N/A"))[:40]}...</td><td>{(p.get("direct_sales", 0) or 0) + (p.get("indirect_sales", 0) or 0) + (p.get("promoted_sales", 0) or 0)} 个</td><td>{p.get("price", 0):,.0f} c</td><td>{p.get("profit", 0):,.0f} c</td><td>{"可见" if p.get("visible") == "Y" else "隐藏"}</td></tr>' for i, p in enumerate(top_products[:10])])}
+                    {''.join([f'<tr><td>{i+1}</td><td>{p.get("product_id", "N/A")}</td><td>{escape_html(p.get("product_name") or "N/A")[:40]}...</td><td>{(p.get("direct_sales") or 0) + (p.get("indirect_sales") or 0) + (p.get("promoted_sales") or 0)} 个</td><td>{p.get("price") or 0:,.0f} c</td><td>{p.get("profit") or 0:,.0f} c</td><td>{"可见" if p.get("visible") == "Y" else "隐藏"}</td></tr>' for i, p in enumerate(top_products[:10])])}
                 </tbody>
             </table>
         </div>
@@ -449,7 +449,7 @@ def _generate_report_html(
                     </tr>
                 </thead>
                 <tbody>
-                    {''.join([f'<tr><td>{i+1}</td><td>{p["product_id"]}</td><td>{escape_html(p.get("product_name", "N/A"))[:40]}...</td><td>{(p.get("direct_sales", 0) or 0) + (p.get("indirect_sales", 0) or 0) + (p.get("promoted_sales", 0) or 0)} 个</td><td>{p.get("price", 0):,.0f} c</td><td>{p.get("profit", 0):,.0f} c</td><td>{"可见" if p.get("visible") == "Y" else "隐藏"}</td></tr>' for i, p in enumerate(bottom_products[:10])])}
+                    {''.join([f'<tr><td>{i+1}</td><td>{p.get("product_id", "N/A")}</td><td>{escape_html(p.get("product_name") or "N/A")[:40]}...</td><td>{(p.get("direct_sales") or 0) + (p.get("indirect_sales") or 0) + (p.get("promoted_sales") or 0)} 个</td><td>{p.get("price") or 0:,.0f} c</td><td>{p.get("profit") or 0:,.0f} c</td><td>{"可见" if p.get("visible") == "Y" else "隐藏"}</td></tr>' for i, p in enumerate(bottom_products[:10])])}
                 </tbody>
             </table>
         </div>
@@ -462,7 +462,7 @@ def _generate_report_html(
                 <div class="alert-title">销量异常产品</div>
                 <p>检测到以下产品的销量存在异常波动：</p>
                 <ul style="margin-top: 10px; padding-left: 20px;">
-                    {''.join([f'<li><strong>{p["product_id"]}</strong> ({escape_html(p.get("product_name", "N/A"))[:30]}...): {p.get("anomaly_type", "未知")} (Z-score: {abs(p.get("z_score", 0)):.2f})</li>' for p in anomalies[:10]])}
+                    {''.join([f'<li><strong>{p.get("product_id", "N/A")}</strong> ({escape_html(p.get("product_name") or "N/A")[:30]}...): {p.get("anomaly_type") or "未知"} (Z-score: {abs(p.get("z_score") or 0):.2f})</li>' for p in anomalies[:10]])}
                 </ul>
             </div>
         </div>
