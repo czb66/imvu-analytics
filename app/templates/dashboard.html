@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>仪表盘 - {{ app_name }}</title>
+    <title>Dashboard - {{ app_name }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+    <script src="/static/i18n.js"></script>
     <style>
         :root {
             --primary: #667eea;
@@ -79,6 +80,36 @@
         }
         .chart-container canvas {
             max-height: 260px;
+        }
+        /* Language Switcher */
+        .lang-switcher {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 5px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .lang-btn {
+            padding: 5px 12px;
+            border-radius: 15px;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover {
+            background: #f0f0f0;
+        }
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
         }
         /* 加载状态 */
         .loading-overlay {
@@ -176,35 +207,42 @@
     </style>
 </head>
 <body>
+    <!-- 语言切换器 -->
+    <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <span style="color: #ccc;">|</span>
+        <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">中文</button>
+    </div>
+
     <!-- 侧边栏 -->
     <nav class="sidebar">
         <h4><i class="bi bi-graph-up"></i> {{ app_name }}</h4>
-        <a href="/dashboard" class="active"><i class="bi bi-speedometer2 me-2"></i>仪表盘</a>
-        <a href="/diagnosis"><i class="bi bi-search me-2"></i>深度诊断</a>
-        <a href="/report"><i class="bi bi-file-earmark-text me-2"></i>报告中心</a>
+        <a href="/dashboard" class="active"><i class="bi bi-speedometer2 me-2"></i><span data-i18n="nav.dashboard">Dashboard</span></a>
+        <a href="/diagnosis"><i class="bi bi-search me-2"></i><span data-i18n="nav.diagnosis">Deep Analysis</span></a>
+        <a href="/report"><i class="bi bi-file-earmark-text me-2"></i><span data-i18n="nav.report">Reports</span></a>
     </nav>
 
     <!-- 加载状态 -->
     <div id="loadingOverlay" class="loading-overlay" style="display: none;">
         <div class="loading-spinner"></div>
-        <p style="margin-top: 20px; color: #666;">正在加载数据...</p>
+        <p style="margin-top: 20px; color: #666;" data-i18n="dashboard.loading">Loading data...</p>
     </div>
 
     <!-- 主内容 -->
     <main class="main-content">
-        <div class="header-title">📊 数据概览</div>
+        <div class="header-title">📊 <span data-i18n="pageTitles.dashboard">Data Overview</span></div>
         
         <!-- 上传区域 -->
         <div class="upload-zone mb-4" id="uploadZone">
             <i class="bi bi-cloud-upload fs-1 text-primary"></i>
-            <h5 class="mt-3">上传XML数据文件</h5>
-            <p class="text-muted">拖拽文件到此处或点击选择</p>
+            <h5 class="mt-3" data-i18n="dashboard.uploadTitle">Upload XML Data</h5>
+            <p class="text-muted" data-i18n="dashboard.uploadHint">Drag file here or click to select</p>
             <input type="file" id="fileInput" accept=".xml" style="display: none;">
             <button class="btn btn-primary mt-2" onclick="document.getElementById('fileInput').click()">
-                <i class="bi bi-upload"></i> 选择文件
+                <i class="bi bi-upload"></i> <span data-i18n="dashboard.selectFile">Select File</span>
             </button>
             <a href="/api/upload/template" class="btn btn-outline-secondary mt-2 ms-2" download>
-                <i class="bi bi-download"></i> 下载模板
+                <i class="bi bi-download"></i> <span data-i18n="dashboard.downloadTemplate">Download Template</span>
             </a>
         </div>
         
@@ -216,55 +254,55 @@
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" id="directSales">-</div>
-                    <div class="metric-label"><i class="bi bi-cart-check"></i> 直接销售</div>
+                    <div class="metric-label"><i class="bi bi-cart-check"></i> <span data-i18n="dashboard.directSales">Direct Sales</span></div>
                 </div>
             </div>
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" id="indirectSales">-</div>
-                    <div class="metric-label"><i class="bi bi-cart-plus"></i> 间接销售</div>
+                    <div class="metric-label"><i class="bi bi-cart-plus"></i> <span data-i18n="dashboard.indirectSales">Indirect Sales</span></div>
                 </div>
             </div>
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" id="promotedSales">-</div>
-                    <div class="metric-label"><i class="bi bi-megaphone"></i> 推广销售</div>
+                    <div class="metric-label"><i class="bi bi-megaphone"></i> <span data-i18n="dashboard.promotedSales">Promoted Sales</span></div>
                 </div>
             </div>
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" style="color: var(--primary);" id="totalSales">-</div>
-                    <div class="metric-label"><i class="bi bi-bag-check"></i> 总销售数量</div>
+                    <div class="metric-label"><i class="bi bi-bag-check"></i> <span data-i18n="dashboard.totalSales">Total Sales</span></div>
                 </div>
             </div>
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" style="color: var(--success);" id="totalProfit">-</div>
-                    <div class="metric-label"><i class="bi bi-wallet2"></i> 总利润 (Credits)</div>
+                    <div class="metric-label"><i class="bi bi-wallet2"></i> <span data-i18n="dashboard.totalProfitCredits">Total Profit (Credits)</span></div>
                 </div>
             </div>
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" style="color: var(--success);" id="totalProfitUsd">-</div>
-                    <div class="metric-label"><i class="bi bi-currency-dollar"></i> 总利润 (USD)</div>
+                    <div class="metric-label"><i class="bi bi-currency-dollar"></i> <span data-i18n="dashboard.totalProfitUsd">Total Profit (USD)</span></div>
                 </div>
             </div>
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" style="color: var(--success);" id="visibleProducts">-</div>
-                    <div class="metric-label"><i class="bi bi-eye"></i> 可见产品</div>
+                    <div class="metric-label"><i class="bi bi-eye"></i> <span data-i18n="dashboard.visibleProducts">Visible Products</span></div>
                 </div>
             </div>
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" style="color: var(--danger);" id="hiddenProducts">-</div>
-                    <div class="metric-label"><i class="bi bi-eye-slash"></i> 隐藏产品</div>
+                    <div class="metric-label"><i class="bi bi-eye-slash"></i> <span data-i18n="dashboard.hiddenProducts">Hidden Products</span></div>
                 </div>
             </div>
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" id="totalProducts">-</div>
-                    <div class="metric-label"><i class="bi bi-box"></i> 总产品数</div>
+                    <div class="metric-label"><i class="bi bi-box"></i> <span data-i18n="dashboard.totalProducts">Total Products</span></div>
                 </div>
             </div>
         </div>
@@ -273,13 +311,13 @@
         <div class="row g-4 mb-4">
             <div class="col-lg-6">
                 <div class="chart-container">
-                    <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Top 10 产品（销量）</h5>
+                    <h5 class="mb-3"><i class="bi bi-bar-chart"></i> <span data-i18n="dashboard.topProductsBySales">Top 10 Products (Sales)</span></h5>
                     <canvas id="topProductsChart"></canvas>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="chart-container">
-                    <h5 class="mb-3"><i class="bi bi-pie-chart"></i> 可见性分布</h5>
+                    <h5 class="mb-3"><i class="bi bi-pie-chart"></i> <span data-i18n="dashboard.visibilityDistribution">Visibility Distribution</span></h5>
                     <canvas id="visibilityChart"></canvas>
                 </div>
             </div>
@@ -288,13 +326,13 @@
         <div class="row g-4 mb-4">
             <div class="col-lg-6">
                 <div class="chart-container">
-                    <h5 class="mb-3"><i class="bi bi-globe"></i> 流量对比</h5>
+                    <h5 class="mb-3"><i class="bi bi-globe"></i> <span data-i18n="dashboard.trafficComparison">Traffic Comparison</span></h5>
                     <canvas id="trafficChart"></canvas>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="chart-container">
-                    <h5 class="mb-3"><i class="bi bi-currency-exchange"></i> 价格区间分布</h5>
+                    <h5 class="mb-3"><i class="bi bi-currency-exchange"></i> <span data-i18n="dashboard.priceRangeDistribution">Price Range Distribution</span></h5>
                     <canvas id="priceRangeChart"></canvas>
                 </div>
             </div>
@@ -302,20 +340,20 @@
 
         <!-- 产品表格 -->
         <div class="chart-container">
-            <h5 class="mb-3"><i class="bi bi-table"></i> 产品列表</h5>
+            <h5 class="mb-3"><i class="bi bi-table"></i> <span data-i18n="dashboard.productList">Product List</span></h5>
             <div class="mb-3">
-                <input type="text" class="form-control" id="searchInput" placeholder="搜索产品ID或名称...">
+                <input type="text" class="form-control" id="searchInput" data-i18n-placeholder="dashboard.searchPlaceholder" placeholder="Search by ID or name...">
             </div>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>产品ID</th>
-                            <th>产品名称</th>
-                            <th>价格</th>
-                            <th>利润</th>
-                            <th>利润率</th>
-                            <th>可见性</th>
+                            <th data-i18n="dashboard.productId">Product ID</th>
+                            <th data-i18n="dashboard.productName">Product Name</th>
+                            <th data-i18n="dashboard.price">Price</th>
+                            <th data-i18n="dashboard.profit">Profit</th>
+                            <th data-i18n="dashboard.profitMargin">Profit Margin</th>
+                            <th data-i18n="dashboard.visibility">Visibility</th>
                         </tr>
                     </thead>
                     <tbody id="productsTable"></tbody>
@@ -355,7 +393,7 @@
             } catch (error) {
                 clearTimeout(timeoutId);
                 if (error.name === 'AbortError') {
-                    throw new Error('请求超时，请检查网络连接');
+                    throw new Error(t('dashboard.requestTimeout'));
                 }
                 throw error;
             }
@@ -394,7 +432,7 @@
                 <i class="bi bi-exclamation-triangle" style="font-size: 48px; color: #ff4d4f;"></i>
                 <p style="margin-top: 20px; color: #666;">${message}</p>
                 <button class="error-retry-btn" onclick="retryLoad()">
-                    <i class="bi bi-arrow-clockwise"></i> 重试
+                    <i class="bi bi-arrow-clockwise"></i> <span data-i18n="dashboard.retry">Retry</span>
                 </button>
             `;
             overlay.style.display = 'flex';
@@ -405,7 +443,7 @@
             hideLoading();
             document.getElementById('loadingOverlay').innerHTML = `
                 <div class="loading-spinner"></div>
-                <p style="margin-top: 20px; color: #666;">正在加载数据...</p>
+                <p style="margin-top: 20px; color: #666;" data-i18n="dashboard.loading">Loading data...</p>
             `;
             loadDashboardData();
         }
@@ -421,10 +459,11 @@
                 
                 if (summaryData.success) {
                     const s = summaryData.data;
-                    document.getElementById('directSales').textContent = formatNumber(s.direct_sales) + ' 个';
-                    document.getElementById('indirectSales').textContent = formatNumber(s.indirect_sales) + ' 个';
-                    document.getElementById('promotedSales').textContent = formatNumber(s.promoted_sales) + ' 个';
-                    document.getElementById('totalSales').textContent = formatNumber(s.total_sales) + ' 个';
+                    const itemsText = t('dashboard.items');
+                    document.getElementById('directSales').textContent = formatNumber(s.direct_sales) + ' ' + itemsText;
+                    document.getElementById('indirectSales').textContent = formatNumber(s.indirect_sales) + ' ' + itemsText;
+                    document.getElementById('promotedSales').textContent = formatNumber(s.promoted_sales) + ' ' + itemsText;
+                    document.getElementById('totalSales').textContent = formatNumber(s.total_sales) + ' ' + itemsText;
                     document.getElementById('totalProfit').textContent = formatNumber(s.total_profit);
                     const usdValue = s.total_profit_usd || 0;
                     document.getElementById('totalProfitUsd').textContent = '$' + usdValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -467,7 +506,7 @@
 
             } catch (error) {
                 console.error('加载数据失败:', error);
-                showError(error.message || '加载数据失败，请稍后重试');
+                showError(error.message || t('dashboard.loadingFailed'));
             }
         }
 
@@ -483,25 +522,25 @@
 
             topProductsChart = new Chart(document.getElementById('topProductsChart'), {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: '销量', data: [], backgroundColor: '#667eea' }] },
+                data: { labels: [], datasets: [{ label: t('dashboard.sales'), data: [], backgroundColor: '#667eea' }] },
                 options: { ...chartOptions }
             });
 
             visibilityChart = new Chart(document.getElementById('visibilityChart'), {
                 type: 'doughnut',
-                data: { labels: ['可见', '隐藏'], datasets: [{ data: [0, 0], backgroundColor: ['#52c41a', '#ff4d4f'] }] },
+                data: { labels: [t('dashboard.visibleLabel'), t('dashboard.hiddenLabel')], datasets: [{ data: [0, 0], backgroundColor: ['#52c41a', '#ff4d4f'] }] },
                 options: chartOptions
             });
 
             trafficChart = new Chart(document.getElementById('trafficChart'), {
                 type: 'pie',
-                data: { labels: ['自然流量', '付费流量'], datasets: [{ data: [0, 0], backgroundColor: ['#667eea', '#764ba2'] }] },
+                data: { labels: [t('dashboard.organicTraffic'), t('dashboard.paidTraffic')], datasets: [{ data: [0, 0], backgroundColor: ['#667eea', '#764ba2'] }] },
                 options: chartOptions
             });
 
             priceRangeChart = new Chart(document.getElementById('priceRangeChart'), {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: '产品数量', data: [], backgroundColor: '#faad14' }] },
+                data: { labels: [], datasets: [{ label: t('diagnosis.productCount'), data: [], backgroundColor: '#faad14' }] },
                 options: chartOptions
             });
         }
@@ -510,16 +549,18 @@
             topProductsChart.data.labels = products.map(p => (p.product_name || 'N/A').substring(0, 15));
             const salesData = products.map(p => (p.direct_sales || 0) + (p.indirect_sales || 0) + (p.promoted_sales || 0));
             topProductsChart.data.datasets[0].data = salesData;
-            topProductsChart.data.datasets[0].label = '销量 (个)';
+            topProductsChart.data.datasets[0].label = t('dashboard.sales');
             topProductsChart.update();
         }
 
         function updateVisibilityChart(data) {
+            visibilityChart.data.labels = [t('dashboard.visibleLabel'), t('dashboard.hiddenLabel')];
             visibilityChart.data.datasets[0].data = [data.visible?.count || 0, data.hidden?.count || 0];
             visibilityChart.update();
         }
 
         function updateTrafficChart(data) {
+            trafficChart.data.labels = [t('dashboard.organicTraffic'), t('dashboard.paidTraffic')];
             trafficChart.data.datasets[0].data = [
                 data.organic?.total_impressions || 0,
                 data.paid?.total_impressions || 0
@@ -529,7 +570,7 @@
 
         function updatePriceRangeChart(data) {
             if (!data || data.length === 0) {
-                priceRangeChart.data.labels = ['暂无数据'];
+                priceRangeChart.data.labels = [t('dashboard.noData')];
                 priceRangeChart.data.datasets[0].data = [0];
             } else {
                 priceRangeChart.data.labels = data.map(d => d.range);
@@ -541,7 +582,7 @@
         function updateProductsTable(products) {
             const tbody = document.getElementById('productsTable');
             if (!products || products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">暂无数据</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">' + t('dashboard.noData') + '</td></tr>';
                 return;
             }
             tbody.innerHTML = products.map(p => {
@@ -553,7 +594,7 @@
                         <td>${formatNumber(p.price)} c</td>
                         <td>${formatNumber(p.profit)} c</td>
                         <td>${profitRate}%</td>
-                        <td>${p.visible === 'Y' ? '<span class="badge bg-success">可见</span>' : '<span class="badge bg-danger">隐藏</span>'}</td>
+                        <td>${p.visible === 'Y' ? '<span class="badge bg-success">' + t('dashboard.visible') + '</span>' : '<span class="badge bg-danger">' + t('dashboard.hidden') + '</span>'}</td>
                     </tr>
                 `;
             }).join('');
@@ -590,7 +631,7 @@
         async function uploadFile(file) {
             const status = document.getElementById('uploadStatus');
             status.className = 'alert alert-info';
-            status.textContent = '正在上传和解析...';
+            status.textContent = t('dashboard.uploading');
             status.classList.remove('d-none');
 
             const formData = new FormData();
@@ -602,15 +643,15 @@
 
                 if (data.success) {
                     status.className = 'alert alert-success';
-                    status.innerHTML = `<i class="bi bi-check-circle"></i> ${data.message}`;
+                    status.innerHTML = `<i class="bi bi-check-circle"></i> ${t('dashboard.uploadSuccess')}`;
                     loadDashboardData();
                 } else {
                     status.className = 'alert alert-danger';
-                    status.textContent = data.detail || '上传失败';
+                    status.textContent = data.detail || t('dashboard.uploadFailed');
                 }
             } catch (error) {
                 status.className = 'alert alert-danger';
-                status.textContent = '上传出错: ' + error.message;
+                status.textContent = t('dashboard.uploadFailed') + ': ' + error.message;
             }
 
             setTimeout(() => status.classList.add('d-none'), 5000);
@@ -649,6 +690,12 @@
             if (num >= 1000) return (num / 1000).toFixed(2) + 'K';
             return num.toFixed(2);
         }
+
+        // 语言切换后更新图表标签
+        window.addEventListener('languageChanged', () => {
+            updateVisibilityChart({ visible: visibilityChart.data.datasets[0].data[0], hidden: visibilityChart.data.datasets[0].data[1] });
+            updateTrafficChart({ organic: { total_impressions: trafficChart.data.datasets[0].data[0] }, paid: { total_impressions: trafficChart.data.datasets[0].data[1] } });
+        });
     </script>
 </body>
 </html>

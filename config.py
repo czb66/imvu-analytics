@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ==================== 应用配置 ====================
-APP_NAME = "Azen 营销数据分析平台"
+APP_NAME = "IMVU Analytics Platform"
 APP_VERSION = "1.0.0"
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 

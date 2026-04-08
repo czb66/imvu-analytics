@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>报告中心 - {{ app_name }}</title>
+    <title>Reports - {{ app_name }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="/static/i18n.js"></script>
     <style>
         :root {
             --primary: #667eea;
@@ -44,6 +45,36 @@
         .main-content {
             margin-left: 250px;
             padding: 20px;
+        }
+        /* Language Switcher */
+        .lang-switcher {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 5px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .lang-btn {
+            padding: 5px 12px;
+            border-radius: 15px;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover {
+            background: #f0f0f0;
+        }
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
         }
         .card {
             background: white;
@@ -109,46 +140,53 @@
     </style>
 </head>
 <body>
+    <!-- 语言切换器 -->
+    <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <span style="color: #ccc;">|</span>
+        <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">中文</button>
+    </div>
+
     <!-- 侧边栏 -->
     <nav class="sidebar">
         <h4><i class="bi bi-graph-up"></i> {{ app_name }}</h4>
-        <a href="/dashboard"><i class="bi bi-speedometer2 me-2"></i>仪表盘</a>
-        <a href="/diagnosis"><i class="bi bi-search me-2"></i>深度诊断</a>
-        <a href="/report" class="active"><i class="bi bi-file-earmark-text me-2"></i>报告中心</a>
+        <a href="/dashboard"><i class="bi bi-speedometer2 me-2"></i><span data-i18n="nav.dashboard">Dashboard</span></a>
+        <a href="/diagnosis"><i class="bi bi-search me-2"></i><span data-i18n="nav.diagnosis">Deep Analysis</span></a>
+        <a href="/report" class="active"><i class="bi bi-file-earmark-text me-2"></i><span data-i18n="nav.report">Reports</span></a>
     </nav>
 
     <!-- 加载遮罩 -->
     <div id="loadingOverlay" class="loading-overlay d-none">
         <div class="text-center">
             <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
-            <h5>正在生成报告...</h5>
+            <h5 data-i18n="report.generating">Generating report...</h5>
         </div>
     </div>
 
     <!-- 主内容 -->
     <main class="main-content">
-        <h4 class="mb-4"><i class="bi bi-file-earmark-text"></i> 报告中心</h4>
+        <h4 class="mb-4"><i class="bi bi-file-earmark-text"></i> <span data-i18n="pageTitles.report">Reports Center</span></h4>
 
         <!-- 快速操作 -->
         <div class="card">
-            <div class="card-title"><i class="bi bi-lightning"></i> 快速操作</div>
+            <div class="card-title"><i class="bi bi-lightning"></i> <span data-i18n="report.quickActions">Quick Actions</span></div>
             <div class="row g-3">
                 <div class="col-md-4">
                     <button class="btn btn-primary w-100 py-3" onclick="generateReport()">
                         <i class="bi bi-file-earmark-plus fs-4 d-block mb-2"></i>
-                        生成完整报告
+                        <span data-i18n="report.generateFullReport">Generate Full Report</span>
                     </button>
                 </div>
                 <div class="col-md-4">
                     <a href="/api/report/generate" target="_blank" class="btn btn-outline-primary w-100 py-3">
                         <i class="bi bi-eye fs-4 d-block mb-2"></i>
-                        查看HTML报告
+                        <span data-i18n="report.viewHtmlReport">View HTML Report</span>
                     </a>
                 </div>
                 <div class="col-md-4">
                     <button class="btn btn-outline-secondary w-100 py-3" onclick="downloadReport()">
                         <i class="bi bi-download fs-4 d-block mb-2"></i>
-                        下载最新报告
+                        <span data-i18n="report.downloadLatest">Download Latest</span>
                     </button>
                 </div>
             </div>
@@ -156,76 +194,76 @@
 
         <!-- 自定义报告 -->
         <div class="card">
-            <div class="card-title"><i class="bi bi-sliders"></i> 自定义报告设置</div>
+            <div class="card-title"><i class="bi bi-sliders"></i> <span data-i18n="report.customReport">Custom Report Settings</span></div>
             <form id="reportForm">
                 <div class="row g-4">
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">报告选项</label>
+                        <label class="form-label fw-bold" data-i18n="report.reportOptions">Report Options</label>
                         <div class="form-switch mb-2">
                             <input class="form-check-input" type="checkbox" id="includeAnomalies" checked>
-                            <label class="form-check-label" for="includeAnomalies">包含异常检测</label>
+                            <label class="form-check-label" for="includeAnomalies" data-i18n="report.includeAnomalyDetection">Include Anomaly Detection</label>
                         </div>
                         <div class="form-switch mb-2">
                             <input class="form-check-input" type="checkbox" id="includeTopBottom" checked>
-                            <label class="form-check-label" for="includeTopBottom">包含Top/Bottom产品</label>
+                            <label class="form-check-label" for="includeTopBottom" data-i18n="report.includeTopBottomProducts">Include Top/Bottom Products</label>
                         </div>
                         <div class="form-switch">
                             <input class="form-check-input" type="checkbox" id="sendEmail">
-                            <label class="form-check-label" for="sendEmail">发送邮件通知</label>
+                            <label class="form-check-label" for="sendEmail" data-i18n="report.sendEmailNotification">Send Email Notification</label>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">Top产品数量</label>
+                        <label class="form-label fw-bold" data-i18n="report.topProductsLimit">Top Products Limit</label>
                         <input type="number" class="form-control" id="topLimit" value="10" min="5" max="50">
                         
-                        <label class="form-label fw-bold mt-3">邮件收件人（多个用逗号分隔）</label>
+                        <label class="form-label fw-bold mt-3" data-i18n="report.emailRecipients">Email Recipients (comma separated)</label>
                         <input type="text" class="form-control" id="emailRecipients" placeholder="example@email.com">
                     </div>
                 </div>
                 <hr class="my-4">
                 <button type="submit" class="btn btn-primary px-5">
-                    <i class="bi bi-gear"></i> 生成自定义报告
+                    <i class="bi bi-gear"></i> <span data-i18n="report.generateCustomReport">Generate Custom Report</span>
                 </button>
             </form>
         </div>
 
         <!-- 报告历史 -->
         <div class="card">
-            <div class="card-title"><i class="bi bi-clock-history"></i> 报告历史</div>
+            <div class="card-title"><i class="bi bi-clock-history"></i> <span data-i18n="report.reportHistory">Report History</span></div>
             <div id="historyContainer">
-                <p class="text-muted">正在加载...</p>
+                <p class="text-muted" data-i18n="report.loading">Loading...</p>
             </div>
         </div>
 
         <!-- 定时任务设置 -->
         <div class="card">
-            <div class="card-title"><i class="bi bi-calendar-event"></i> 定时报告设置</div>
+            <div class="card-title"><i class="bi bi-calendar-event"></i> <span data-i18n="report.scheduledReport">Scheduled Report Settings</span></div>
             <div class="alert alert-info">
                 <i class="bi bi-info-circle"></i>
-                系统每天 UTC 1:00 (北京时间 9:00) 自动生成报告并发送至配置的邮箱。
+                <span data-i18n="report.scheduledReportInfo">System automatically generates report at UTC 1:00 (Beijing 9:00) and sends to configured email.</span>
             </div>
-            <p class="text-muted small">如需修改定时任务时间，请编辑 <code>config.py</code> 中的 <code>REPORT_CRON_HOUR</code> 和 <code>REPORT_CRON_MINUTE</code> 配置。</p>
+            <p class="text-muted small" data-i18n="report.modifySchedule">To modify schedule, edit REPORT_CRON_HOUR and REPORT_CRON_MINUTE in config.py.</p>
         </div>
 
         <!-- SMTP配置说明 -->
         <div class="card">
-            <div class="card-title"><i class="bi bi-envelope"></i> 邮件配置说明</div>
-            <p>配置以下环境变量以启用邮件发送功能：</p>
+            <div class="card-title"><i class="bi bi-envelope"></i> <span data-i18n="report.emailConfig">Email Configuration</span></div>
+            <p data-i18n="report.configEnvVariables">Configure following environment variables to enable email:</p>
             <table class="table table-sm">
                 <thead>
-                    <tr><th>环境变量</th><th>说明</th><th>示例</th></tr>
+                    <tr><th data-i18n="report.envVariable">Env Variable</th><th data-i18n="report.description">Description</th><th data-i18n="report.example">Example</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td><code>SMTP_HOST</code></td><td>SMTP服务器地址</td><td>smtp.gmail.com</td></tr>
-                    <tr><td><code>SMTP_PORT</code></td><td>SMTP端口</td><td>587</td></tr>
-                    <tr><td><code>SMTP_USER</code></td><td>发件人邮箱</td><td>your@email.com</td></tr>
-                    <tr><td><code>SMTP_PASSWORD</code></td><td>邮箱密码/授权码</td><td>******</td></tr>
-                    <tr><td><code>EMAIL_TO</code></td><td>默认收件人</td><td>dest@email.com</td></tr>
+                    <tr><td><code>SMTP_HOST</code></td><td data-i18n="report.smtpHost">SMTP Server</td><td>smtp.gmail.com</td></tr>
+                    <tr><td><code>SMTP_PORT</code></td><td data-i18n="report.smtpPort">SMTP Port</td><td>587</td></tr>
+                    <tr><td><code>SMTP_USER</code></td><td data-i18n="report.smtpUser">Sender Email</td><td>your@email.com</td></tr>
+                    <tr><td><code>SMTP_PASSWORD</code></td><td data-i18n="report.smtpPassword">Email Password/App Password</td><td>******</td></tr>
+                    <tr><td><code>EMAIL_TO</code></td><td data-i18n="report.emailTo">Default Recipient</td><td>dest@email.com</td></tr>
                 </tbody>
             </table>
             <div class="alert alert-warning mt-3">
                 <i class="bi bi-exclamation-triangle"></i>
-                <strong>安全提示：</strong> 请勿将密码直接写入代码，推荐使用 <code>.env</code> 文件或环境变量。
+                <strong data-i18n="report.securityTip">Security Tip: Do not write passwords in code. Use .env file or environment variables.</strong>
             </div>
         </div>
     </main>
@@ -249,21 +287,21 @@
                         <div class="history-item">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>${h.type === 'daily' ? '每日报告' : '手动报告'}</strong>
+                                    <strong>${h.type === 'daily' ? t('report.dailyReport') : t('report.manualReport')}</strong>
                                     <small class="text-muted ms-2">${formatDate(h.generated_at)}</small>
                                 </div>
                                 <span class="status-badge status-${h.status}">${getStatusText(h.status)}</span>
                             </div>
-                            ${h.sent_to ? `<small class="text-muted">已发送至: ${h.sent_to}</small>` : ''}
-                            ${h.file_path ? `<a href="/api/report/download/${h.file_path.split('/').pop()}" class="btn btn-sm btn-outline-primary mt-2" download>下载</a>` : ''}
+                            ${h.sent_to ? '<small class="text-muted">' + t('report.sentTo') + ': ' + h.sent_to + '</small>' : ''}
+                            ${h.file_path ? '<a href="/api/report/download/${h.file_path.split(\'/\').pop()}" class="btn btn-sm btn-outline-primary mt-2" download>' + t('report.download') + '</a>' : ''}
                         </div>
                     `).join('');
                     latestReportPath = data.data[0].file_path;
                 } else {
-                    document.getElementById('historyContainer').innerHTML = '<p class="text-muted">暂无报告历史</p>';
+                    document.getElementById('historyContainer').innerHTML = '<p class="text-muted">' + t('report.noReportHistory') + '</p>';
                 }
             } catch (error) {
-                document.getElementById('historyContainer').innerHTML = '<p class="text-danger">加载失败</p>';
+                document.getElementById('historyContainer').innerHTML = '<p class="text-danger">' + t('report.loadFailed') + '</p>';
             }
         }
 
@@ -290,16 +328,16 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    alert('报告生成成功！' + (data.data.email_sent ? '邮件已发送。' : ''));
+                    alert(t('report.generationSuccess') + (data.data.email_sent ? ' ' + t('report.emailSent') : ''));
                     if (data.data.download_url) {
                         window.open(data.data.download_url, '_blank');
                     }
                     loadHistory();
                 } else {
-                    alert('生成失败: ' + (data.detail || '未知错误'));
+                    alert(t('report.generationFailed') + ': ' + (data.detail || 'Unknown error'));
                 }
             } catch (error) {
-                alert('生成失败: ' + error.message);
+                alert(t('report.generationFailed') + ': ' + error.message);
             } finally {
                 overlay.classList.add('d-none');
             }
@@ -328,12 +366,11 @@
         function formatDate(dateStr) {
             if (!dateStr) return '-';
             const d = new Date(dateStr);
-            return d.toLocaleString('zh-CN');
+            return d.toLocaleString(getCurrentLanguage() === 'zh' ? 'zh-CN' : 'en-US');
         }
 
         function getStatusText(status) {
-            const map = { pending: '处理中', completed: '已完成', failed: '失败' };
-            return map[status] || status;
+            return t('report.status.' + status) || status;
         }
     </script>
 </body>
