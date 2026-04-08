@@ -507,7 +507,9 @@
 
         function updateTopProductsChart(products) {
             topProductsChart.data.labels = products.map(p => (p.product_name || 'N/A').substring(0, 15));
-            topProductsChart.data.datasets[0].data = products.map(p => (p.direct_sales || 0) + (p.indirect_sales || 0) + (p.promoted_sales || 0));
+            const salesData = products.map(p => (p.direct_sales || 0) + (p.indirect_sales || 0) + (p.promoted_sales || 0));
+            topProductsChart.data.datasets[0].data = salesData;
+            topProductsChart.data.datasets[0].label = '销量 (个)';
             topProductsChart.update();
         }
 

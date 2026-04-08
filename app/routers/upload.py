@@ -12,6 +12,7 @@ import logging
 import config
 from app.services.parser import XMLParserService
 from app.database import get_db_context, ProductDataRepository
+from app.routers.dashboard import _clear_cache  # 导入缓存清除函数
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/upload", tags=["上传"])
@@ -59,6 +60,9 @@ async def upload_xml_file(file: UploadFile = File(...)):
         with get_db_context() as db:
             repo = ProductDataRepository(db)
             count = repo.bulk_insert(products)
+        
+        # 清除仪表盘缓存，确保新数据立即可见
+        _clear_cache()
         
         logger.info(f"成功上传 {count} 条产品数据")
         
