@@ -380,8 +380,8 @@ def _generate_report_html(
                 </div>
                 <div class="funnel-arrow">-&gt;</div>
                 <div class="funnel-step">
-                    <div class="num">¥{funnel.get('sales', 0):,.0f}</div>
-                    <div class="label">销售额</div>
+                    <div class="num">{funnel.get('sales', 0):,.0f} 个</div>
+                    <div class="label">销售数</div>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 15px; color: #666;">

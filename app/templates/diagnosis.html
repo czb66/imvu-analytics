@@ -195,7 +195,7 @@
             <div class="table-wrapper mt-3">
                 <table class="table table-sm">
                     <thead>
-                        <tr><th>价格区间</th><th>产品数</th><th>总销售额</th><th>总利润</th><th>平均利润</th></tr>
+                        <tr><th>价格区间</th><th>产品数</th><th>总销量</th><th>总利润</th><th>平均利润</th></tr>
                     </thead>
                     <tbody id="priceRangeTable"></tbody>
                 </table>
@@ -314,7 +314,7 @@
         }
 
         function updateSummary(s) {
-            document.getElementById('totalSales').textContent = formatNumber(s.total_sales) + ' c';
+            document.getElementById('totalSales').textContent = formatNumber(s.total_sales) + ' 个';
             document.getElementById('totalProfit').textContent = formatNumber(s.total_profit) + ' c';
             const margin = s.total_sales > 0 ? (s.total_profit / s.total_sales * 100) : 0;
             document.getElementById('profitMargin').textContent = margin.toFixed(1) + '%';
@@ -329,7 +329,7 @@
                 <span class="mx-2">→</span>
                 <div class="funnel-step"><div class="num">${formatNumber(f.wishlist_adds)}</div><small>收藏</small></div>
                 <span class="mx-2">→</span>
-                <div class="funnel-step"><div class="num">${formatNumber(f.sales)} c</div><small>销售</small></div>
+                <div class="funnel-step"><div class="num">${formatNumber(f.sales)} 个</div><small>销售</small></div>
             `;
             
             document.getElementById('funnelStats').innerHTML = `
@@ -369,7 +369,7 @@
                 <tr>
                     <td>${d.range}</td>
                     <td>${d.count}</td>
-                    <td>${formatNumber(d.total_sales)} c</td>
+                    <td>${formatNumber(d.total_sales)} 个</td>
                     <td>${formatNumber(d.total_profit)} c</td>
                     <td>${formatNumber(d.avg_profit)} c</td>
                 </tr>
@@ -437,7 +437,7 @@
                     <h6><i class="bi bi-exclamation-triangle"></i> ${a.product_id}</h6>
                     <p><strong>${a.product_name || 'N/A'}</strong></p>
                     <p>类型: ${a.anomaly_type} | Z-score: ${Math.abs(a.z_score).toFixed(2)}</p>
-                    <p>销售额: ${formatNumber(a.total_sales)} c | 利润: ${formatNumber(a.profit)} c</p>
+                    <p>销售数: ${formatNumber(a.total_sales)} 个 | 利润: ${formatNumber(a.profit)} c</p>
                 </div>
             `).join('');
         }
