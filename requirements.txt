@@ -13,8 +13,9 @@ apscheduler==3.10.4
 # XML解析
 lxml==5.1.0
 
-# 数据库（SQLite）
+# 数据库（SQLite / PostgreSQL）
 sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
 
 # 邮件发送
 aiosmtplib==3.0.1

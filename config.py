@@ -19,11 +19,19 @@ HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", "8000"))
 
 # ==================== 数据库配置 ====================
-# 使用绝对路径，确保在容器中有写权限
+# Railway PostgreSQL 或 SQLite
 import os
-DATA_DIR = os.getenv("DATA_DIR", "./data")
-os.makedirs(DATA_DIR, exist_ok=True)
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DATA_DIR}/marketing_analytics.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+
+# 如果没有配置DATABASE_URL，使用SQLite
+if not DATABASE_URL:
+    DATA_DIR = os.getenv("DATA_DIR", "./data")
+    os.makedirs(DATA_DIR, exist_ok=True)
+    DATABASE_URL = f"sqlite:///{DATA_DIR}/marketing_analytics.db"
+
+# Railway PostgreSQL URL 格式转换 (postgres:// -> postgresql://)
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # ==================== 邮件配置 ====================
 # SMTP服务器设置
