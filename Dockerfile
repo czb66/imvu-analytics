@@ -24,6 +24,7 @@ RUN mkdir -p ./data ./reports && chmod 777 ./data ./reports
 # 环境变量
 ENV PYTHONUNBUFFERED=1
 ENV HOST=0.0.0.0
+ENV PORT=8000
 
-# 启动命令（Railway会自动设置PORT环境变量）
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+# 启动命令
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
