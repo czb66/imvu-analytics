@@ -428,7 +428,7 @@ def _generate_report_html(
                     </tr>
                 </thead>
                 <tbody>
-                    {''.join([f'<tr><td>{i+1}</td><td>{p.get("product_id", "N/A")}</td><td>{escape_html(p.get("product_name") or "N/A")[:40]}...</td><td>{(p.get("direct_sales") or 0) + (p.get("indirect_sales") or 0) + (p.get("promoted_sales") or 0)} 个</td><td>{p.get("price") or 0:,.0f} c</td><td>{p.get("profit") or 0:,.0f} c</td><td>{"可见" if p.get("visible") == "Y" else "隐藏"}</td></tr>' for i, p in enumerate(top_products[:10])])}
+                    {''.join([f'<tr><td>{i+1}</td><td>{p.get("product_id") or "N/A"}</td><td>{escape_html(p.get("product_name") or "N/A")[:40]}...</td><td>{(p.get("direct_sales") or 0) + (p.get("indirect_sales") or 0) + (p.get("promoted_sales") or 0)} 个</td><td>{(p.get("price") or 0):,.0f} c</td><td>{(p.get("profit") or 0):,.0f} c</td><td>{"可见" if p.get("visible") == "Y" else "隐藏"}</td></tr>' for i, p in enumerate(top_products[:10])])}
                 </tbody>
             </table>
         </div>
@@ -449,7 +449,7 @@ def _generate_report_html(
                     </tr>
                 </thead>
                 <tbody>
-                    {''.join([f'<tr><td>{i+1}</td><td>{p.get("product_id", "N/A")}</td><td>{escape_html(p.get("product_name") or "N/A")[:40]}...</td><td>{(p.get("direct_sales") or 0) + (p.get("indirect_sales") or 0) + (p.get("promoted_sales") or 0)} 个</td><td>{p.get("price") or 0:,.0f} c</td><td>{p.get("profit") or 0:,.0f} c</td><td>{"可见" if p.get("visible") == "Y" else "隐藏"}</td></tr>' for i, p in enumerate(bottom_products[:10])])}
+                    {''.join([f'<tr><td>{i+1}</td><td>{p.get("product_id") or "N/A"}</td><td>{escape_html(p.get("product_name") or "N/A")[:40]}...</td><td>{(p.get("direct_sales") or 0) + (p.get("indirect_sales") or 0) + (p.get("promoted_sales") or 0)} 个</td><td>{(p.get("price") or 0):,.0f} c</td><td>{(p.get("profit") or 0):,.0f} c</td><td>{"可见" if p.get("visible") == "Y" else "隐藏"}</td></tr>' for i, p in enumerate(bottom_products[:10])])}
                 </tbody>
             </table>
         </div>
