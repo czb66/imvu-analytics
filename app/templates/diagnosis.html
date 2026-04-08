@@ -202,9 +202,9 @@
                 <div class="section-card">
                     <div class="section-title">📈 ROI分析</div>
                     <div id="roiContent">
-                        <p><strong>自然流量收入:</strong> ¥<span id="organicRevenue">-</span></p>
-                        <p><strong>付费流量收入:</strong> ¥<span id="paidRevenue">-</span></p>
-                        <p><strong>预估付费成本:</strong> ¥<span id="paidCost">-</span></p>
+                        <p><strong>自然流量收入:</strong> <span id="organicRevenue">-</span> c</p>
+                        <p><strong>付费流量收入:</strong> <span id="paidRevenue">-</span> c</p>
+                        <p><strong>预估付费成本:</strong> <span id="paidCost">-</span> c</p>
                         <p><strong>预估ROI:</strong> <span id="roiValue" class="text-success">-</span></p>
                     </div>
                 </div>
@@ -294,8 +294,8 @@
         }
 
         function updateSummary(s) {
-            document.getElementById('totalSales').textContent = '¥' + formatNumber(s.total_sales);
-            document.getElementById('totalProfit').textContent = '¥' + formatNumber(s.total_profit);
+            document.getElementById('totalSales').textContent = formatNumber(s.total_sales) + ' c';
+            document.getElementById('totalProfit').textContent = formatNumber(s.total_profit) + ' c';
             const margin = s.total_sales > 0 ? (s.total_profit / s.total_sales * 100) : 0;
             document.getElementById('profitMargin').textContent = margin.toFixed(1) + '%';
         }
@@ -309,7 +309,7 @@
                 <span class="mx-2">→</span>
                 <div class="funnel-step"><div class="num">${formatNumber(f.wishlist_adds)}</div><small>收藏</small></div>
                 <span class="mx-2">→</span>
-                <div class="funnel-step"><div class="num">¥${formatNumber(f.sales)}</div><small>销售</small></div>
+                <div class="funnel-step"><div class="num">${formatNumber(f.sales)} c</div><small>销售</small></div>
             `;
             
             document.getElementById('funnelStats').innerHTML = `
@@ -349,9 +349,9 @@
                 <tr>
                     <td>${d.range}</td>
                     <td>${d.count}</td>
-                    <td>¥${formatNumber(d.total_sales)}</td>
-                    <td>¥${formatNumber(d.total_profit)}</td>
-                    <td>¥${formatNumber(d.avg_profit)}</td>
+                    <td>${formatNumber(d.total_sales)} c</td>
+                    <td>${formatNumber(d.total_profit)} c</td>
+                    <td>${formatNumber(d.avg_profit)} c</td>
                 </tr>
             `).join('');
         }
@@ -399,8 +399,8 @@
                 <tr>
                     <td>${p.product_id}</td>
                     <td>${(p.product_name || 'N/A').substring(0, 30)}...</td>
-                    <td>¥${formatNumber(p.price)}</td>
-                    <td class="text-success">¥${formatNumber(p.profit)}</td>
+                    <td>${formatNumber(p.price)} c</td>
+                    <td class="text-success">${formatNumber(p.profit)} c</td>
                     <td class="text-success">${((p.profit / p.price) * 100).toFixed(1)}%</td>
                 </tr>
             `).join('') || '<tr><td colspan="5" class="text-muted">无高利润产品</td></tr>';
@@ -417,7 +417,7 @@
                     <h6><i class="bi bi-exclamation-triangle"></i> ${a.product_id}</h6>
                     <p><strong>${a.product_name || 'N/A'}</strong></p>
                     <p>类型: ${a.anomaly_type} | Z-score: ${Math.abs(a.z_score).toFixed(2)}</p>
-                    <p>销售额: ¥${formatNumber(a.total_sales)} | 利润: ¥${formatNumber(a.profit)}</p>
+                    <p>销售额: ${formatNumber(a.total_sales)} c | 利润: ${formatNumber(a.profit)} c</p>
                 </div>
             `).join('');
         }

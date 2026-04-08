@@ -273,7 +273,7 @@
         <div class="row g-4 mb-4">
             <div class="col-lg-6">
                 <div class="chart-container">
-                    <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Top 10 产品（利润）</h5>
+                    <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Top 10 产品（销量）</h5>
                     <canvas id="topProductsChart"></canvas>
                 </div>
             </div>
@@ -434,7 +434,7 @@
 
                 // 并行加载其他图表数据（提高性能）
                 const [topRes, visRes, trafficRes, priceRes] = await Promise.all([
-                    fetchWithRetry('/api/dashboard/top-products?limit=10'),
+                    fetchWithRetry('/api/dashboard/top-products?limit=10&metric=sales'),
                     fetchWithRetry('/api/dashboard/visibility'),
                     fetchWithRetry('/api/dashboard/traffic'),
                     fetchWithRetry('/api/diagnosis/price-range').catch(() => ({ json: async () => ({ success: true, data: [] }) }))
@@ -482,7 +482,7 @@
 
             topProductsChart = new Chart(document.getElementById('topProductsChart'), {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: '利润', data: [], backgroundColor: '#667eea' }] },
+                data: { labels: [], datasets: [{ label: '销量', data: [], backgroundColor: '#667eea' }] },
                 options: { ...chartOptions }
             });
 
@@ -506,8 +506,8 @@
         }
 
         function updateTopProductsChart(products) {
-            topProductsChart.data.labels = products.map(p => p.product_id.substring(0, 8));
-            topProductsChart.data.datasets[0].data = products.map(p => p.profit);
+            topProductsChart.data.labels = products.map(p => (p.product_name || 'N/A').substring(0, 15));
+            topProductsChart.data.datasets[0].data = products.map(p => (p.direct_sales || 0) + (p.indirect_sales || 0) + (p.promoted_sales || 0));
             topProductsChart.update();
         }
 
@@ -547,8 +547,8 @@
                     <tr>
                         <td>${p.product_id || '-'}</td>
                         <td>${(p.product_name || 'N/A').substring(0, 30)}${(p.product_name || '').length > 30 ? '...' : ''}</td>
-                        <td>¥${formatNumber(p.price)}</td>
-                        <td>¥${formatNumber(p.profit)}</td>
+                        <td>${formatNumber(p.price)} c</td>
+                        <td>${formatNumber(p.profit)} c</td>
                         <td>${profitRate}%</td>
                         <td>${p.visible === 'Y' ? '<span class="badge bg-success">可见</span>' : '<span class="badge bg-danger">隐藏</span>'}</td>
                     </tr>
