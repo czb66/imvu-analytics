@@ -1,21 +1,35 @@
 """
-数据库管理 - SQLite数据库操作
+数据库管理 - SQLite/PostgreSQL数据库操作
 """
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.pool import QueuePool
 from contextlib import contextmanager
 from typing import Generator
 import config
 
 from app.models import Base, ProductData, ReportHistory, SystemConfig
 
-# 创建数据库引擎
-engine = create_engine(
-    config.DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in config.DATABASE_URL else {},
-    echo=config.DEBUG
-)
+# 数据库引擎配置
+if "sqlite" in config.DATABASE_URL:
+    # SQLite 配置
+    engine = create_engine(
+        config.DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        echo=config.DEBUG
+    )
+else:
+    # PostgreSQL 配置
+    engine = create_engine(
+        config.DATABASE_URL,
+        poolclass=QueuePool,
+        pool_size=5,
+        max_overflow=10,
+        pool_timeout=30,
+        pool_recycle=1800,
+        echo=config.DEBUG
+    )
 
 # 创建会话工厂
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

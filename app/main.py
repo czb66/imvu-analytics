@@ -48,15 +48,25 @@ async def startup_event():
     """应用启动时执行"""
     logger.info(f"启动 {config.APP_NAME} v{config.APP_VERSION}")
     
-    # 初始化数据库
-    init_db()
-    logger.info("数据库初始化完成")
+    try:
+        # 初始化数据库
+        init_db()
+        logger.info("数据库初始化完成")
+    except Exception as e:
+        logger.error(f"数据库初始化失败: {e}")
+        # 不抛出异常，允许应用启动
     
-    # 确保报告目录存在
-    os.makedirs(config.REPORT_DIR, exist_ok=True)
+    try:
+        # 确保报告目录存在
+        os.makedirs(config.REPORT_DIR, exist_ok=True)
+    except Exception as e:
+        logger.warning(f"创建报告目录失败: {e}")
     
-    # 启动定时任务
-    start_scheduler()
+    try:
+        # 启动定时任务
+        start_scheduler()
+    except Exception as e:
+        logger.warning(f"启动定时任务失败: {e}")
 
 
 @app.on_event("shutdown")
@@ -116,10 +126,23 @@ async def report_page():
 @app.get("/health")
 async def health_check():
     """健康检查"""
-    return {
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat()
-    }
+    try:
+        # 测试数据库连接
+        from sqlalchemy import text
+        from app.database import engine
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
 
 
 # ==================== 定时任务 ====================
