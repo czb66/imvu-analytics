@@ -213,40 +213,52 @@
 
         <!-- 核心指标 -->
         <div class="row g-4 mb-4" id="metricsContainer">
-            <div class="col-md-4 col-lg-2">
+            <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
-                    <div class="metric-value" id="totalSales">-</div>
-                    <div class="metric-label"><i class="bi bi-currency-dollar"></i> 总销售额</div>
+                    <div class="metric-value" id="directSales">-</div>
+                    <div class="metric-label"><i class="bi bi-cart-check"></i> 直接销售</div>
                 </div>
             </div>
-            <div class="col-md-4 col-lg-2">
+            <div class="col-md-4 col-lg-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="indirectSales">-</div>
+                    <div class="metric-label"><i class="bi bi-cart-plus"></i> 间接销售</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="promotedSales">-</div>
+                    <div class="metric-label"><i class="bi bi-megaphone"></i> 推广销售</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <div class="metric-card">
+                    <div class="metric-value" style="color: var(--primary);" id="totalSales">-</div>
+                    <div class="metric-label"><i class="bi bi-bag-check"></i> 总销售数量</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" style="color: var(--success);" id="totalProfit">-</div>
-                    <div class="metric-label"><i class="bi bi-wallet2"></i> 总利润</div>
+                    <div class="metric-label"><i class="bi bi-wallet2"></i> 总利润 (Credits)</div>
                 </div>
             </div>
-            <div class="col-md-4 col-lg-2">
-                <div class="metric-card">
-                    <div class="metric-value" id="totalOrders">-</div>
-                    <div class="metric-label"><i class="bi bi-cart3"></i> 总订单</div>
-                </div>
-            </div>
-            <div class="col-md-4 col-lg-2">
-                <div class="metric-card">
-                    <div class="metric-value" id="avgConversion">-</div>
-                    <div class="metric-label"><i class="bi bi-arrow-up-right-circle"></i> 转化率</div>
-                </div>
-            </div>
-            <div class="col-md-4 col-lg-2">
+            <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" style="color: var(--success);" id="visibleProducts">-</div>
                     <div class="metric-label"><i class="bi bi-eye"></i> 可见产品</div>
                 </div>
             </div>
-            <div class="col-md-4 col-lg-2">
+            <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
                     <div class="metric-value" style="color: var(--danger);" id="hiddenProducts">-</div>
                     <div class="metric-label"><i class="bi bi-eye-slash"></i> 隐藏产品</div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalProducts">-</div>
+                    <div class="metric-label"><i class="bi bi-box"></i> 总产品数</div>
                 </div>
             </div>
         </div>
@@ -403,12 +415,14 @@
                 
                 if (summaryData.success) {
                     const s = summaryData.data;
-                    document.getElementById('totalSales').textContent = formatNumber(s.total_sales);
+                    document.getElementById('directSales').textContent = formatNumber(s.direct_sales) + ' 个';
+                    document.getElementById('indirectSales').textContent = formatNumber(s.indirect_sales) + ' 个';
+                    document.getElementById('promotedSales').textContent = formatNumber(s.promoted_sales) + ' 个';
+                    document.getElementById('totalSales').textContent = formatNumber(s.total_sales) + ' 个';
                     document.getElementById('totalProfit').textContent = formatNumber(s.total_profit);
-                    document.getElementById('totalOrders').textContent = formatNumber(s.total_orders);
-                    document.getElementById('avgConversion').textContent = s.avg_conversion_rate.toFixed(4) + '%';
                     document.getElementById('visibleProducts').textContent = s.visible_products;
                     document.getElementById('hiddenProducts').textContent = s.hidden_products;
+                    document.getElementById('totalProducts').textContent = s.total_products;
                 }
 
                 // 并行加载其他图表数据（提高性能）

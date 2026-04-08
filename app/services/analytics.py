@@ -64,37 +64,29 @@ class AnalyticsService:
         """获取汇总指标"""
         if self.df.empty:
             return {
+                'direct_sales': 0,
+                'indirect_sales': 0,
+                'promoted_sales': 0,
                 'total_sales': 0,
                 'total_profit': 0,
-                'total_orders': 0,
-                'avg_conversion_rate': 0,
                 'total_products': 0,
                 'visible_products': 0,
                 'hidden_products': 0,
             }
         
         try:
-            # 使用统一的计算方法
-            self._calculate_total_sales()
-            
-            # 计算总订单数（简化处理，用总销售额/平均价格估算）
-            avg_price = self.df['price'].mean() if self.df['price'].mean() > 0 else 1
-            total_orders = int(self.df['total_sales'].sum() / avg_price)
-            
-            # 计算总展示次数
-            total_impressions = (
-                self.df['organic_impressions'].sum() + 
-                self.df['paid_impressions'].sum()
-            )
-            
-            # 计算平均转化率
-            avg_conversion = (total_orders / total_impressions * 100) if total_impressions > 0 else 0
+            # 计算各项销售总和
+            direct_sales = int(self.df['direct_sales'].sum())
+            indirect_sales = int(self.df['indirect_sales'].sum())
+            promoted_sales = int(self.df['promoted_sales'].sum())
+            total_sales = direct_sales + indirect_sales  # 总销售数量 = 直接 + 间接
             
             return {
-                'total_sales': round(self.df['total_sales'].sum(), 2),
+                'direct_sales': direct_sales,
+                'indirect_sales': indirect_sales,
+                'promoted_sales': promoted_sales,
+                'total_sales': total_sales,
                 'total_profit': round(self.df['profit'].sum(), 2),
-                'total_orders': total_orders,
-                'avg_conversion_rate': round(avg_conversion, 4),
                 'total_products': len(self.df),
                 'visible_products': len(self.df[self.df['visible'] == 'Y']),
                 'hidden_products': len(self.df[self.df['visible'] == 'N']),
@@ -102,10 +94,11 @@ class AnalyticsService:
         except Exception as e:
             logger.error(f"get_summary_metrics 执行失败: {str(e)}\n{traceback.format_exc()}")
             return {
+                'direct_sales': 0,
+                'indirect_sales': 0,
+                'promoted_sales': 0,
                 'total_sales': 0,
                 'total_profit': 0,
-                'total_orders': 0,
-                'avg_conversion_rate': 0,
                 'total_products': 0,
                 'visible_products': 0,
                 'hidden_products': 0,
