@@ -11,7 +11,7 @@ import logging
 
 import config
 from app.services.parser import XMLParserService
-from app.database import get_db, ProductDataRepository
+from app.database import get_db_context, ProductDataRepository
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/upload", tags=["上传"])
@@ -56,7 +56,7 @@ async def upload_xml_file(file: UploadFile = File(...)):
             )
         
         # 保存到数据库
-        with get_db() as db:
+        with get_db_context() as db:
             repo = ProductDataRepository(db)
             count = repo.bulk_insert(products)
         

@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/dashboard", tags=["仪表盘"])
 @router.get("/summary")
 async def get_summary():
     """获取核心指标汇总"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -73,7 +73,7 @@ async def get_top_products(
     - **limit**: 返回数量（默认10）
     - **metric**: 排序指标（profit/sales/price）
     """
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -110,7 +110,7 @@ async def get_top_products(
 @router.get("/visibility")
 async def get_visibility_analysis():
     """获取可见性分析（可见 vs 不可见产品对比）"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -129,7 +129,7 @@ async def get_visibility_analysis():
 @router.get("/traffic")
 async def get_traffic_analysis():
     """获取流量分析（自然流量 vs 付费流量）"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -160,7 +160,7 @@ async def get_products(
     - **limit**: 返回数量
     - **offset**: 偏移量
     """
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         
         if product_id:

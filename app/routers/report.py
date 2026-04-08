@@ -31,7 +31,7 @@ class ReportRequest(BaseModel):
 @router.get("/generate")
 async def generate_report_html():
     """生成HTML报告"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all()
         
@@ -80,7 +80,7 @@ async def create_report(request: ReportRequest, background_tasks: BackgroundTask
     - **send_email**: 发送邮件
     - **email_recipients**: 邮件收件人列表
     """
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ProductDataRepository(db)
         report_repo = ReportHistoryRepository(db)
         products = repo.get_all()
@@ -185,7 +185,7 @@ async def download_report(filename: str):
 @router.get("/history")
 async def get_report_history(limit: int = 10):
     """获取报告历史"""
-    with get_db() as db:
+    with get_db_context() as db:
         repo = ReportHistoryRepository(db)
         reports = repo.get_recent(limit)
         
