@@ -16,49 +16,65 @@ router = APIRouter(prefix="/api/dashboard", tags=["仪表盘"])
 @router.get("/summary")
 async def get_summary():
     """获取核心指标汇总"""
-    with get_db_context() as db:
-        repo = ProductDataRepository(db)
-        products = repo.get_all()
-        
-        if not products:
+    try:
+        with get_db_context() as db:
+            repo = ProductDataRepository(db)
+            products = repo.get_all()
+            
+            if not products:
+                return {
+                    "success": True,
+                    "data": {
+                        "total_sales": 0,
+                        "total_profit": 0,
+                        "total_orders": 0,
+                        "avg_conversion_rate": 0,
+                        "total_products": 0,
+                        "visible_products": 0,
+                        "hidden_products": 0,
+                    }
+                }
+            
+            # 转换为字典列表
+            product_dicts = [
+                {
+                    'product_id': p.product_id,
+                    'product_name': p.product_name,
+                    'price': p.price or 0,
+                    'profit': p.profit or 0,
+                    'visible': p.visible or 'N',
+                    'direct_sales': p.direct_sales or 0,
+                    'indirect_sales': p.indirect_sales or 0,
+                    'promoted_sales': p.promoted_sales or 0,
+                    'cart_adds': p.cart_adds or 0,
+                    'wishlist_adds': p.wishlist_adds or 0,
+                    'organic_impressions': p.organic_impressions or 0,
+                    'paid_impressions': p.paid_impressions or 0,
+                }
+                for p in products
+            ]
+            
+            analytics = AnalyticsService(product_dicts)
+            summary = analytics.get_summary_metrics()
+            
             return {
                 "success": True,
-                "data": {
-                    "total_sales": 0,
-                    "total_profit": 0,
-                    "total_orders": 0,
-                    "avg_conversion_rate": 0,
-                    "total_products": 0,
-                    "visible_products": 0,
-                    "hidden_products": 0,
-                }
+                "data": summary
             }
-        
-        # 转换为字典列表
-        product_dicts = [
-            {
-                'product_id': p.product_id,
-                'product_name': p.product_name,
-                'price': p.price,
-                'profit': p.profit,
-                'visible': p.visible,
-                'direct_sales': p.direct_sales,
-                'indirect_sales': p.indirect_sales,
-                'promoted_sales': p.promoted_sales,
-                'cart_adds': p.cart_adds,
-                'wishlist_adds': p.wishlist_adds,
-                'organic_impressions': p.organic_impressions,
-                'paid_impressions': p.paid_impressions,
-            }
-            for p in products
-        ]
-        
-        analytics = AnalyticsService(product_dicts)
-        summary = analytics.get_summary_metrics()
-        
+    except Exception as e:
+        logger.error(f"获取汇总数据失败: {str(e)}", exc_info=True)
         return {
-            "success": True,
-            "data": summary
+            "success": False,
+            "error": str(e),
+            "data": {
+                "total_sales": 0,
+                "total_profit": 0,
+                "total_orders": 0,
+                "avg_conversion_rate": 0,
+                "total_products": 0,
+                "visible_products": 0,
+                "hidden_products": 0,
+            }
         }
 
 
