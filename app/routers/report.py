@@ -349,7 +349,7 @@ def _generate_report_html(
         
         <!-- 图表区 -->
         <div class="section">
-            <div class="section-title">📊 数据可视化</div>
+            <div class="section-title">数据可视化</div>
             <div class="chart-row">
                 <div id="chart-sales" class="chart-container"></div>
                 <div id="chart-visibility" class="chart-container"></div>
@@ -368,30 +368,30 @@ def _generate_report_html(
                     <div class="num">{funnel.get('impressions', 0):,}</div>
                     <div class="label">展示次数</div>
                 </div>
-                <div class="funnel-arrow">→</div>
+                <div class="funnel-arrow">-&gt;</div>
                 <div class="funnel-step">
                     <div class="num">{funnel.get('cart_adds', 0):,}</div>
                     <div class="label">加购数</div>
                 </div>
-                <div class="funnel-arrow">→</div>
+                <div class="funnel-arrow">-&gt;</div>
                 <div class="funnel-step">
                     <div class="num">{funnel.get('wishlist_adds', 0):,}</div>
                     <div class="label">收藏数</div>
                 </div>
-                <div class="funnel-arrow">→</div>
+                <div class="funnel-arrow">-&gt;</div>
                 <div class="funnel-step">
                     <div class="num">¥{funnel.get('sales', 0):,.0f}</div>
                     <div class="label">销售额</div>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 15px; color: #666;">
-                <span>转化率: 展示→加购 {funnel.get('impression_to_cart_rate', 0):.2f}% | 加购→收藏 {funnel.get('cart_to_wishlist_rate', 0):.2f}% | 收藏→下单 {funnel.get('wishlist_to_sales_rate', 0):.2f}%</span>
+                <span>转化率: 展示-&gt;加购 {funnel.get('impression_to_cart_rate', 0):.2f}% | 加购-&gt;收藏 {funnel.get('cart_to_wishlist_rate', 0):.2f}% | 收藏-&gt;下单 {funnel.get('wishlist_to_sales_rate', 0):.2f}%</span>
             </div>
         </div>
         
         <!-- Top产品 -->
         <div class="section">
-            <div class="section-title">🏆 Top 10 产品（按利润）</div>
+            <div class="section-title">Top 10 产品（按利润）</div>
             <table>
                 <thead>
                     <tr>
@@ -412,7 +412,7 @@ def _generate_report_html(
                         <td>¥{{p.get('price', 0):,.2f}}</td>
                         <td>¥{{p.get('profit', 0):,.2f}}</td>
                         <td>{{(p.get('profit', 0) / p.get('price', 1) * 100):.1f}}%</td>
-                        <td>{{'✅' if p.get('visible') == 'Y' else '❌'}}</td>
+                        <td>{'可见' if p.get('visible') == 'Y' else '隐藏'}</td>
                     </tr>''' for i, p in enumerate(top_products[:10])])}
                 </tbody>
             </table>
@@ -441,7 +441,7 @@ def _generate_report_html(
                         <td>¥{{p.get('price', 0):,.2f}}</td>
                         <td>¥{{p.get('profit', 0):,.2f}}</td>
                         <td>{{(p.get('profit', 0) / p.get('price', 1) * 100):.1f}}%</td>
-                        <td>{{'✅' if p.get('visible') == 'Y' else '❌'}}</td>
+                        <td>{'可见' if p.get('visible') == 'Y' else '隐藏'}</td>
                     </tr>''' for i, p in enumerate(bottom_products[:10])])}
                 </tbody>
             </table>
