@@ -185,8 +185,17 @@ async def create_checkout_session(
     
     用户点击订阅按钮后，调用此接口创建Checkout会话并重定向到Stripe支付页面
     """
-    # 确保 API Key 已设置
-    ensure_stripe_api_key()
+    import os
+    
+    # 直接设置 API Key
+    stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
+    stripe.api_version = "2023-10-16"
+    
+    if not stripe.api_key:
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "message": "Stripe API Key 未配置"}
+        )
     
     try:
         user_repo = UserRepository(db)
