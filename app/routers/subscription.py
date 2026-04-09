@@ -28,14 +28,25 @@ def ensure_stripe_api_key():
     """确保 Stripe API Key 已设置"""
     import os
     api_key = os.getenv("STRIPE_SECRET_KEY", "")
-    logger.info(f"STRIPE_SECRET_KEY from env: {api_key[:20] if api_key else 'EMPTY'}...")
     
     if not api_key:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="STRIPE_SECRET_KEY 环境变量未配置"
         )
+    
+    # 直接设置 stripe 模块的 api_key
     stripe.api_key = api_key
+    stripe.api_version = "2023-10-16"
+    
+    # 验证设置成功
+    if not stripe.api_key:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="设置 Stripe API Key 失败"
+        )
+    
+    logger.info(f"Stripe API Key 已设置: {stripe.api_key[:20]}...")
     return stripe.api_key
 
 
