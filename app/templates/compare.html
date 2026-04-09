@@ -788,7 +788,8 @@
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify({
-                        dataset_ids: Array.from(selectedDatasets)
+                        dataset_ids: Array.from(selectedDatasets),
+                        language: getLanguage()
                     })
                 });
                 

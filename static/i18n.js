@@ -257,7 +257,13 @@ const translations = {
             generating: 'Generating AI insights...',
             configHint: 'Configure DeepSeek API Key for smarter analysis. Go to',
             settings: 'Settings Page',
-            loadError: 'Failed to load, please try again later'
+            loadError: 'Failed to load, please try again later',
+            offlineMode: 'Offline Mode',
+            noData: 'No data available. Please upload product data first.',
+            selectDatasets: 'Please select at least 2 datasets to compare',
+            insufficientData: 'Insufficient valid datasets for comparison',
+            generatingFailed: 'Failed to generate insights',
+            retry: 'Retry'
         },
         
         // 设置页面
@@ -551,11 +557,18 @@ const translations = {
             compare: {
                 title: 'AI 对比洞察'
             },
+            generate: '生成AI洞察',
             refresh: '刷新洞察',
             generating: '正在生成AI洞察...',
             configHint: '配置 DeepSeek API Key 可获得更智能的分析。前往',
             settings: '设置页面',
-            loadError: '加载失败，请稍后重试'
+            loadError: '加载失败，请稍后重试',
+            offlineMode: '离线模式',
+            noData: '暂无数据可分析，请先上传产品数据。',
+            selectDatasets: '请至少选择2个数据集进行对比',
+            insufficientData: '有效数据集不足，无法进行对比',
+            generatingFailed: '生成洞察失败',
+            retry: '重试'
         },
         
         // 设置页面

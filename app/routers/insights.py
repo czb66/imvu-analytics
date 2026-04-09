@@ -18,17 +18,18 @@ router = APIRouter(prefix="/api/insights", tags=["AI洞察"])
 
 class DashboardInsightsRequest(BaseModel):
     """仪表盘洞察请求"""
-    pass
+    language: str = 'zh'
 
 
 class DiagnosisInsightsRequest(BaseModel):
     """诊断洞察请求"""
-    pass
+    language: str = 'zh'
 
 
 class CompareInsightsRequest(BaseModel):
     """对比洞察请求"""
     dataset_ids: List[int]
+    language: str = 'zh'
 
 
 def _product_to_dict(p) -> dict:
@@ -50,19 +51,7 @@ def _product_to_dict(p) -> dict:
 
 
 def _get_products_from_request(request: Request, dataset_id: Optional[int] = None) -> List[Dict]:
-    """从请求中获取产品数据"""
-    # 从session或配置获取API Key
-    api_key = None
-    if hasattr(request.app.state, 'deepseek_api_key'):
-        api_key = request.app.state.deepseek_api_key
-    
-    # 先尝试从请求头获取
-    api_key = api_key or request.headers.get("X-DeepSeek-Key")
-    
-    # 更新服务实例
-    if api_key:
-        insights_service.api_key = api_key
-    
+    """从请求中获取产品数据（不获取API Key，由服务端统一管理）"""
     with get_db_context() as db:
         repo = ProductDataRepository(db)
         
@@ -92,7 +81,7 @@ def _get_datasets_from_request(request: Request) -> List[Dict]:
 
 
 @router.post("/dashboard")
-async def generate_dashboard_insights(request: Request):
+async def generate_dashboard_insights(request: Request, req: DashboardInsightsRequest = None):
     """
     生成仪表盘AI洞察
     
@@ -101,14 +90,18 @@ async def generate_dashboard_insights(request: Request):
     start_time = time.time()
     logger.info("[API] 生成仪表盘洞察 - 开始")
     
+    # 获取语言参数
+    language = req.language if req and hasattr(req, 'language') else 'zh'
+    
     try:
         # 获取产品数据
         product_dicts = _get_products_from_request(request)
         
         if not product_dicts:
+            no_data_msg = "暂无数据可分析，请先上传产品数据" if language == 'zh' else "No data to analyze, please upload product data first"
             return {
                 "success": True,
-                "insight": "暂无数据可分析，请先上传产品数据",
+                "insight": no_data_msg,
                 "is_offline": True
             }
         
@@ -120,7 +113,7 @@ async def generate_dashboard_insights(request: Request):
         top_products = analytics.get_top_products(limit=10, metric='profit')
         
         # 生成洞察
-        insight = await insights_service.generate_dashboard_insights(summary, top_products)
+        insight = await insights_service.generate_dashboard_insights(summary, top_products, language)
         
         elapsed = time.time() - start_time
         logger.info(f"[API] 生成仪表盘洞察 - 完成 耗时: {elapsed:.3f}s")
@@ -147,7 +140,7 @@ async def generate_dashboard_insights(request: Request):
 
 
 @router.post("/diagnosis")
-async def generate_diagnosis_insights(request: Request):
+async def generate_diagnosis_insights(request: Request, req: DiagnosisInsightsRequest = None):
     """
     生成诊断AI洞察
     
@@ -156,14 +149,18 @@ async def generate_diagnosis_insights(request: Request):
     start_time = time.time()
     logger.info("[API] 生成诊断洞察 - 开始")
     
+    # 获取语言参数
+    language = req.language if req and hasattr(req, 'language') else 'zh'
+    
     try:
         # 获取产品数据
         product_dicts = _get_products_from_request(request)
         
         if not product_dicts:
+            no_data_msg = "暂无数据可诊断，请先上传产品数据" if language == 'zh' else "No data to diagnose, please upload product data first"
             return {
                 "success": True,
-                "insight": "暂无数据可诊断，请先上传产品数据",
+                "insight": no_data_msg,
                 "is_offline": True
             }
         
@@ -188,7 +185,7 @@ async def generate_diagnosis_insights(request: Request):
         
         # 生成洞察
         insight = await insights_service.generate_diagnosis_insights(
-            sales_diagnosis, funnel_data, anomalies
+            sales_diagnosis, funnel_data, anomalies, language
         )
         
         elapsed = time.time() - start_time
@@ -226,11 +223,15 @@ async def generate_compare_insights(request: Request, req: CompareInsightsReques
     start_time = time.time()
     logger.info(f"[API] 生成对比洞察 - 开始 数据集: {req.dataset_ids}")
     
+    # 获取语言参数
+    language = req.language if hasattr(req, 'language') else 'zh'
+    
     try:
         if len(req.dataset_ids) < 2:
+            no_data_msg = "请至少选择2个数据集进行对比" if language == 'zh' else "Please select at least 2 datasets to compare"
             return {
                 "success": True,
-                "insight": "请至少选择2个数据集进行对比",
+                "insight": no_data_msg,
                 "is_offline": True
             }
         
@@ -271,9 +272,10 @@ async def generate_compare_insights(request: Request, req: CompareInsightsReques
                         all_products[pid][dataset.id] = p
         
         if len(datasets) < 2:
+            no_data_msg = "有效数据集不足，无法进行对比" if language == 'zh' else "Insufficient valid datasets for comparison"
             return {
                 "success": True,
-                "insight": "有效数据集不足，无法进行对比",
+                "insight": no_data_msg,
                 "is_offline": True
             }
         
@@ -285,7 +287,7 @@ async def generate_compare_insights(request: Request, req: CompareInsightsReques
         
         # 生成洞察
         insight = await insights_service.generate_compare_insights(
-            datasets, metrics_comparison, rank_changes
+            datasets, metrics_comparison, rank_changes, language
         )
         
         elapsed = time.time() - start_time
@@ -427,17 +429,4 @@ def _calculate_rank_changes(datasets: List[Dict]) -> Dict:
     }
 
 
-@router.get("/config-status")
-async def get_config_status(request: Request):
-    """获取API配置状态"""
-    # 检查请求头中是否有API Key
-    api_key_header = request.headers.get("X-DeepSeek-Key")
-    
-    # 检查服务实例
-    is_configured = insights_service.is_configured()
-    
-    return {
-        "success": True,
-        "configured": is_configured or bool(api_key_header),
-        "configured_by": "header" if api_key_header else ("config" if is_configured else "none")
-    }
+

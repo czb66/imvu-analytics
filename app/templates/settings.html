@@ -180,54 +180,13 @@
     <main class="main-content">
         <div class="header-title">⚙️ <span data-i18n="settings.pageTitle">Settings</span></div>
         
-        <!-- API配置 -->
+        <!-- 系统信息 -->
         <div class="settings-card">
-            <h5><i class="bi bi-key me-2"></i><span data-i18n="settings.apiConfig">API Configuration</span></h5>
-            
-            <div class="mb-4">
-                <div class="api-status" id="apiStatus">
-                    <i class="bi bi-circle-fill"></i>
-                    <span data-i18n="settings.notConfigured">Not Configured</span>
-                </div>
-            </div>
-            
-            <div class="mb-3">
-                <label class="form-label" data-i18n="settings.deepseekApiKey">DeepSeek API Key</label>
-                <div class="input-group">
-                    <input type="password" class="form-control api-key-input" id="apiKeyInput" 
-                           placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" 
-                           data-i18n-placeholder="settings.apiKeyPlaceholder">
-                    <button class="btn btn-outline-secondary" type="button" id="toggleVisibilityBtn" onclick="toggleApiKeyVisibility()">
-                        <i class="bi bi-eye" id="visibilityIcon"></i>
-                    </button>
-                </div>
-                <div class="form-text" data-i18n="settings.apiKeyHint">API Key will be stored in your browser's localStorage</div>
-            </div>
-            
-            <div class="mb-3">
-                <button class="save-btn" onclick="saveApiKey()">
-                    <i class="bi bi-check-lg me-2"></i><span data-i18n="settings.saveButton">Save API Key</span>
-                </button>
-                <button class="btn btn-outline-danger ms-2" onclick="clearApiKey()">
-                    <i class="bi bi-trash me-2"></i><span data-i18n="settings.clearButton">Clear</span>
-                </button>
-            </div>
-            
-            <div id="saveStatus"></div>
+            <h5><i class="bi bi-info-circle me-2"></i><span data-i18n="settings.systemInfo">System Information</span></h5>
             
             <div class="info-box">
-                <h6><i class="bi bi-info-circle me-2"></i><span data-i18n="settings.howToGet">How to get DeepSeek API Key?</span></h6>
-                <ol class="mb-0 mt-3">
-                    <li data-i18n="settings.step1">Visit <a href="https://platform.deepseek.com/api_keys" target="_blank">DeepSeek Platform</a></li>
-                    <li data-i18n="settings.step2">Sign up or log in to your account</li>
-                    <li data-i18n="settings.step3">Navigate to "API Keys" section</li>
-                    <li data-i18n="settings.step4">Create a new API key and copy it</li>
-                    <li data-i18n="settings.step5">Paste the key above and click "Save"</li>
-                </ol>
-                <div class="alert alert-info mt-3 mb-0">
-                    <i class="bi bi-shield-check me-2"></i>
-                    <span data-i18n="settings.securityNote">Your API key is stored locally in your browser and is never sent to our servers.</span>
-                </div>
+                <p><i class="bi bi-shield-check me-2"></i>
+                <span data-i18n="settings.apiNote">AI features (DeepSeek) are configured by the server administrator. API Key is not exposed to users for security reasons.</span></p>
             </div>
         </div>
         

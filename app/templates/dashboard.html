@@ -342,14 +342,15 @@
                     <i class="bi bi-robot"></i> <span data-i18n="insights.dashboard.title">AI 数据洞察</span>
                     <span class="insight-offline-badge" id="insightOfflineBadge" style="display:none;">离线模式</span>
                 </div>
-                <button class="insight-refresh-btn" id="refreshInsightBtn" onclick="loadDashboardInsights()">
+                <button class="insight-refresh-btn" id="refreshInsightBtn" onclick="loadDashboardInsights()" style="display:none;">
                     <i class="bi bi-arrow-clockwise"></i> <span data-i18n="insights.refresh">刷新洞察</span>
                 </button>
             </div>
             <div id="dashboardInsightContent">
-                <div class="insight-loading">
-                    <div class="spinner"></div>
-                    <span data-i18n="insights.generating">正在生成AI洞察...</span>
+                <div class="text-center">
+                    <button class="btn btn-primary btn-lg" id="generateInsightBtn" onclick="loadDashboardInsights()">
+                        <i class="bi bi-robot me-2"></i><span data-i18n="insights.generate">生成AI洞察</span>
+                    </button>
                 </div>
             </div>
             <div class="insight-config-hint" id="insightConfigHint" style="display:none;">
@@ -490,7 +491,8 @@
             setupUploadZone();
             setupSearch();
             loadDashboardData();
-            loadDashboardInsights();
+            // AI洞察改为手动生成，初始状态显示按钮
+            initInsightCard();
         });
 
         // 带超时的fetch
@@ -622,6 +624,23 @@
             }
         }
 
+        // 初始化洞察卡片（显示生成按钮）
+        function initInsightCard() {
+            const contentEl = document.getElementById('dashboardInsightContent');
+            const refreshBtn = document.getElementById('refreshInsightBtn');
+            const generateBtn = document.getElementById('generateInsightBtn');
+            
+            // 重置为初始状态
+            refreshBtn.style.display = 'none';
+            contentEl.innerHTML = `
+                <div class="text-center">
+                    <button class="btn btn-primary btn-lg" id="generateInsightBtn" onclick="loadDashboardInsights()">
+                        <i class="bi bi-robot me-2"></i><span data-i18n="insights.generate">生成AI洞察</span>
+                    </button>
+                </div>
+            `;
+        }
+
         // 加载AI洞察
         async function loadDashboardInsights() {
             const contentEl = document.getElementById('dashboardInsightContent');
@@ -636,7 +655,9 @@
                     <span data-i18n="insights.generating">正在生成AI洞察...</span>
                 </div>
             `;
-            refreshBtn.disabled = true;
+            
+            // 隐藏刷新按钮直到完成
+            refreshBtn.style.display = 'none';
             
             try {
                 // 获取API Key（从localStorage）
@@ -652,13 +673,19 @@
                     headers: {
                         'Content-Type': 'application/json',
                         ...headers
-                    }
+                    },
+                    body: JSON.stringify({
+                        language: getLanguage()
+                    })
                 });
                 
                 const result = await response.json();
                 
                 if (result.success) {
                     contentEl.innerHTML = `<div class="insight-content">${result.insight}</div>`;
+                    
+                    // 显示刷新按钮
+                    refreshBtn.style.display = 'inline-flex';
                     
                     // 显示/隐藏离线模式标记
                     if (result.is_offline) {
@@ -669,15 +696,27 @@
                         configHint.style.display = 'none';
                     }
                 } else {
-                    contentEl.innerHTML = `<div class="insight-content" style="color: #ffd0d0;">⚠️ ${result.insight || '生成洞察失败'}</div>`;
+                    contentEl.innerHTML = `
+                        <div class="insight-content" style="color: #ffd0d0;">⚠️ ${result.insight || '生成洞察失败'}</div>
+                        <div class="text-center mt-3">
+                            <button class="btn btn-outline-light" onclick="loadDashboardInsights()">
+                                <i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="insights.refresh">刷新洞察</span>
+                            </button>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('加载AI洞察失败:', error);
-                contentEl.innerHTML = `<div class="insight-content" style="color: #ffd0d0;">⚠️ 加载失败，请稍后重试</div>`;
-            } finally {
-                refreshBtn.disabled = false;
-                applyTranslations();
+                contentEl.innerHTML = `
+                    <div class="insight-content" style="color: #ffd0d0;">⚠️ 加载失败，请稍后重试</div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-light" onclick="loadDashboardInsights()">
+                            <i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="insights.refresh">刷新洞察</span>
+                        </button>
+                    </div>
+                `;
             }
+            applyTranslations();
         }
 
         // 初始化图表
