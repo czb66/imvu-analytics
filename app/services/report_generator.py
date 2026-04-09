@@ -41,6 +41,7 @@ def start_scheduler():
             name='每日分析报告',
             replace_existing=True
         )
+        scheduler.start()
         logger.info("定时任务调度器已启动: 每日报告任务")
     except Exception as e:
         logger.error(f"启动定时任务调度器失败: {e}")

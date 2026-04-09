@@ -163,22 +163,5 @@ async def settings_page(request: Request):
     return templates.TemplateResponse("settings.html", {"request": request, "app_name": config.APP_NAME})
 
 
-# 全局调度器
-scheduler = BackgroundScheduler()
-
-
-def start_scheduler():
-    """启动定时任务"""
-    from app.services.report_generator import report_generator
-    
-    # 每天定时生成报告
-    scheduler.add_job(
-        report_generator.generate_daily_report,
-        'cron',
-        hour=config.REPORT_CRON_HOUR,
-        minute=config.REPORT_CRON_MINUTE,
-        id='daily_report',
-        replace_existing=True
-    )
-    scheduler.start()
-    logger.info(f"定时任务已启动 (每天 {config.REPORT_CRON_HOUR}:{config.REPORT_CRON_MINUTE:02d} UTC)")
+# 使用 report_generator 模块中的调度器
+# scheduler, start_scheduler, stop_scheduler 已从 report_generator 导入
