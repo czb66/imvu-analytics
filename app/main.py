@@ -110,11 +110,12 @@ async def root():
 
 
 @app.get("/health/db")
-async def db_health_check(db = Depends(get_db)):
+async def db_health_check():
     """数据库健康检查"""
     try:
-        # 尝试执行简单查询
-        db.execute("SELECT 1")
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
         return {"status": "unhealthy", "error": str(e)}
