@@ -173,7 +173,7 @@ async def get_datasets():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/")
+@router.get("/")
 async def compare_datasets(dataset_ids: List[int] = Query(..., min_length=2, max_length=3)):
     """
     对比多个数据集

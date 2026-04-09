@@ -394,6 +394,7 @@
         let selectedDatasets = new Set();
         let compareData = null;
         let salesChart, profitChart;
+        let currentDatasets = [];  // 保存当前加载的数据集列表
         const MAX_SELECT = 3;
 
         // 页面加载
@@ -409,13 +410,25 @@
                 const response = await fetch('/api/compare/datasets');
                 const result = await response.json();
                 
-                if (result.success && result.data.length > 0) {
-                    renderDatasetList(result.data);
+                if (result.success && result.data && result.data.length > 0) {
+                    currentDatasets = result.data;  // 保存到全局变量
+                    renderDatasetList(currentDatasets);
                 } else {
+                    currentDatasets = [];
                     document.getElementById('emptyState').style.display = 'block';
+                    document.getElementById('datasetList').innerHTML = `
+                        <div class="empty-state" id="emptyState">
+                            <i class="bi bi-inbox"></i>
+                            <p data-i18n="compare.noDatasets">No datasets available. Upload data first.</p>
+                            <a href="/dashboard" class="btn btn-primary">
+                                <i class="bi bi-upload"></i> <span data-i18n="compare.uploadData">Upload Data</span>
+                            </a>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('Failed to load datasets:', error);
+                currentDatasets = [];
             } finally {
                 hideLoading();
             }
@@ -453,7 +466,8 @@
             } else if (selectedDatasets.size < MAX_SELECT) {
                 selectedDatasets.add(id);
             }
-            renderDatasetList(currentDatasets || []);
+            // 使用已定义的 currentDatasets 重新渲染
+            renderDatasetList(currentDatasets);
         }
 
         // 更新比较按钮状态
@@ -467,7 +481,6 @@
                 btn.innerHTML = `<i class="bi bi-search me-2"></i><span data-i18n="compare.runCompare">Compare Selected</span>`;
             }
         }
-        let currentDatasets = [];
 
         // 运行对比
         async function runComparison() {
@@ -476,7 +489,12 @@
             showLoading();
             try {
                 const ids = Array.from(selectedDatasets);
-                const response = await fetch(`/api/compare/?dataset_ids=${ids.join('&dataset_ids=')}`);
+                // 构建正确的查询参数 URL
+                const params = new URLSearchParams();
+                ids.forEach(id => params.append('dataset_ids', id.toString()));
+                const url = `/api/compare/?${params.toString()}`;
+                
+                const response = await fetch(url);
                 const result = await response.json();
                 
                 if (result.success) {
