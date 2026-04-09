@@ -22,7 +22,40 @@ const translations = {
             dashboard: 'Data Overview',
             diagnosis: 'Deep Analysis',
             compare: 'Data Compare',
-            report: 'Reports Center'
+            report: 'Reports Center',
+            profile: 'Personal Center'
+        },
+        
+        // 个人中心
+        profile: {
+            pageTitle: 'Personal Center',
+            userInfo: 'User Information',
+            email: 'Email',
+            username: 'Username',
+            memberSince: 'Member Since',
+            subscription: 'Subscription',
+            subscriptionStatus: 'Status',
+            subscriptionEndDate: 'End Date',
+            updateUsername: 'Update Username',
+            newUsername: 'New Username',
+            usernamePlaceholder: 'Enter new username (optional)',
+            usernameHint: 'Leave empty to remove username',
+            saveUsername: 'Save Username',
+            updateSuccess: 'Username updated successfully',
+            updateFailed: 'Update failed',
+            changePassword: 'Change Password',
+            oldPassword: 'Current Password',
+            newPassword: 'New Password',
+            confirmPassword: 'Confirm Password',
+            changePasswordBtn: 'Change Password',
+            passwordMinLength: 'Password must be at least 8 characters',
+            passwordMismatch: 'Passwords do not match',
+            passwordChangeSuccess: 'Password changed successfully',
+            passwordChangeFailed: 'Failed to change password',
+            logout: 'Logout',
+            loading: 'Loading...',
+            subscribe: 'Subscribe Now',
+            notSubscribed: 'Not Subscribed'
         },
         
         // 仪表盘
@@ -301,7 +334,40 @@ const translations = {
             dashboard: '数据概览',
             diagnosis: '深度诊断分析',
             compare: '数据对比',
-            report: '报告中心'
+            report: '报告中心',
+            profile: '个人中心'
+        },
+        
+        // 个人中心
+        profile: {
+            pageTitle: '个人中心',
+            userInfo: '用户信息',
+            email: '邮箱',
+            username: '用户名',
+            memberSince: '注册时间',
+            subscription: '订阅信息',
+            subscriptionStatus: '订阅状态',
+            subscriptionEndDate: '到期时间',
+            updateUsername: '修改用户名',
+            newUsername: '新用户名',
+            usernamePlaceholder: '输入新用户名（可选）',
+            usernameHint: '留空则移除用户名',
+            saveUsername: '保存用户名',
+            updateSuccess: '用户名修改成功',
+            updateFailed: '修改失败',
+            changePassword: '修改密码',
+            oldPassword: '当前密码',
+            newPassword: '新密码',
+            confirmPassword: '确认密码',
+            changePasswordBtn: '修改密码',
+            passwordMinLength: '密码至少需要8个字符',
+            passwordMismatch: '两次输入的密码不一致',
+            passwordChangeSuccess: '密码修改成功',
+            passwordChangeFailed: '密码修改失败',
+            logout: '退出登录',
+            loading: '加载中...',
+            subscribe: '立即订阅',
+            notSubscribed: '未订阅'
         },
         
         // 仪表盘
