@@ -38,3 +38,6 @@ passlib[bcrypt]==1.7.4
 
 # CORS支持
 fastapi-cors==0.0.1
+
+# Pydantic email验证
+pydantic[email]==2.5.3
