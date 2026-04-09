@@ -426,11 +426,11 @@
             `).join('');
         }
 
-        function updateTraffic(t) {
-            document.getElementById('organicTraffic').textContent = formatNumber(t.organic?.total_impressions);
-            document.getElementById('paidTraffic').textContent = formatNumber(t.paid?.total_impressions);
-            document.getElementById('organicPct').textContent = t.ratio?.organic_pct + '%';
-            document.getElementById('paidPct').textContent = t.ratio?.paid_pct + '%';
+        function updateTraffic(trafficData) {
+            document.getElementById('organicTraffic').textContent = formatNumber(trafficData.organic?.total_impressions);
+            document.getElementById('paidTraffic').textContent = formatNumber(trafficData.paid?.total_impressions);
+            document.getElementById('organicPct').textContent = trafficData.ratio?.organic_pct + '%';
+            document.getElementById('paidPct').textContent = trafficData.ratio?.paid_pct + '%';
             
             const ctx = document.getElementById('trafficChart').getContext('2d');
             trafficChart = new Chart(ctx, {
@@ -438,7 +438,7 @@
                 data: {
                     labels: [t('dashboard.organicTraffic'), t('dashboard.paidTraffic')],
                     datasets: [{
-                        data: [t.organic?.total_impressions || 0, t.paid?.total_impressions || 0],
+                        data: [trafficData.organic?.total_impressions || 0, trafficData.paid?.total_impressions || 0],
                         backgroundColor: ['#667eea', '#764ba2']
                     }]
                 }
