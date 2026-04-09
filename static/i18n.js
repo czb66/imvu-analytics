@@ -658,6 +658,14 @@ function getCurrentLanguage() {
     return currentLang;
 }
 
+/**
+ * 获取当前语言 (别名函数)
+ * 与 getCurrentLanguage() 功能相同，提供更简洁的函数名供页面调用
+ */
+function getLanguage() {
+    return currentLang;
+}
+
 // 立即初始化语言设置（不等待 DOMContentLoaded）
 currentLang = localStorage.getItem('imvu_lang') || 'en';
 
