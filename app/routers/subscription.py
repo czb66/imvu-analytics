@@ -18,10 +18,17 @@ from app.services.auth import get_current_user
 # 配置日志
 logger = logging.getLogger(__name__)
 
-# 初始化 Stripe
-stripe.api_key = config.STRIPE_SECRET_KEY
+# 不在模块级别设置，改为动态获取
+# stripe.api_key = config.STRIPE_SECRET_KEY
 
 router = APIRouter(prefix="/api/subscription", tags=["订阅"])
+
+
+def ensure_stripe_api_key():
+    """确保 Stripe API Key 已设置"""
+    if not stripe.api_key:
+        stripe.api_key = config.STRIPE_SECRET_KEY
+    return stripe.api_key
 
 
 # ==================== 请求/响应模型 ====================
@@ -58,6 +65,9 @@ def get_or_create_stripe_customer(user_email: str, user_id: int, existing_custom
     Returns:
         Stripe客户ID
     """
+    # 确保 API Key 已设置
+    ensure_stripe_api_key()
+    
     try:
         # 如果已有客户ID，直接返回
         if existing_customer_id:
@@ -256,6 +266,9 @@ async def stripe_webhook(
     - invoice.payment_succeeded
     - invoice.payment_failed
     """
+    # 确保 API Key 已设置
+    ensure_stripe_api_key()
+    
     payload = await request.body()
     sig_header = stripe_signature
     
@@ -445,6 +458,9 @@ async def get_subscription_status(
     """
     查询当前用户的订阅状态
     """
+    # 确保 API Key 已设置
+    ensure_stripe_api_key()
+    
     try:
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(current_user["id"])
@@ -496,6 +512,9 @@ async def cancel_subscription(
     """
     取消订阅（仅在周期结束时取消，不立即终止）
     """
+    # 确保 API Key 已设置
+    ensure_stripe_api_key()
+    
     try:
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(current_user["id"])
@@ -544,6 +563,9 @@ async def reactivate_subscription(
     """
     重新激活已设置取消的订阅
     """
+    # 确保 API Key 已设置
+    ensure_stripe_api_key()
+    
     try:
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(current_user["id"])
@@ -592,6 +614,9 @@ async def create_customer_portal(
     """
     创建Stripe客户门户链接，用于管理订阅（查看账单、取消订阅等）
     """
+    # 确保 API Key 已设置
+    ensure_stripe_api_key()
+    
     try:
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(current_user["id"])
