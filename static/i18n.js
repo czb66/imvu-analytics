@@ -570,9 +570,10 @@ function getCurrentLanguage() {
     return currentLang;
 }
 
-// 页面加载完成后初始化
+// 立即初始化语言设置（不等待 DOMContentLoaded）
+currentLang = localStorage.getItem('imvu_lang') || 'en';
+
+// 页面加载完成后应用翻译
 document.addEventListener('DOMContentLoaded', () => {
-    // 从 localStorage 恢复语言设置
-    currentLang = localStorage.getItem('imvu_lang') || 'en';
     applyTranslations();
 });
