@@ -100,3 +100,19 @@ LOW_CONVERSION_THRESHOLD = float(os.getenv("LOW_CONVERSION_THRESHOLD", "0.01"))
 # AI洞察功能需要配置DeepSeek API Key
 # 获取方式: https://platform.deepseek.com/api_keys
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+
+# ==================== Stripe 订阅配置 ====================
+# Stripe API Keys - 必须通过环境变量配置
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+
+# Stripe 产品和价格配置 - 必须通过环境变量配置
+STRIPE_PRICE_ID = os.getenv("STRIPE_PRICE_ID", "")
+STRIPE_PRODUCT_ID = os.getenv("STRIPE_PRODUCT_ID", "")
+
+# 订阅价格（美元/月）
+SUBSCRIPTION_PRICE = 20.00
+
+# 应用基础URL（用于Stripe回调）
+APP_BASE_URL = os.getenv("APP_BASE_URL", "https://imvu-analytics-production.up.railway.app")

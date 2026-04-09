@@ -14,7 +14,7 @@ import os
 
 import config
 from app.database import init_db, engine
-from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth
+from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription
 from app.services.email_service import email_service
 from app.services.report_generator import scheduler, start_scheduler, stop_scheduler
 
@@ -50,6 +50,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 # 注册路由
 app.include_router(auth.router)  # 认证路由
+app.include_router(subscription.router)  # 订阅路由
 app.include_router(upload.router)
 app.include_router(dashboard.router)
 app.include_router(diagnosis.router)
@@ -140,18 +141,6 @@ async def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request, "app_name": config.APP_NAME})
 
 
-@app.get("/forgot-password", response_class=HTMLResponse)
-async def forgot_password_page(request: Request):
-    """忘记密码页面"""
-    return templates.TemplateResponse("forgot-password.html", {"request": request, "app_name": config.APP_NAME})
-
-
-@app.get("/reset-password", response_class=HTMLResponse)
-async def reset_password_page(request: Request):
-    """重置密码页面"""
-    return templates.TemplateResponse("reset-password.html", {"request": request, "app_name": config.APP_NAME})
-
-
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request):
     """仪表盘页面"""
@@ -198,6 +187,24 @@ async def settings_page(request: Request):
 async def profile_page(request: Request):
     """个人中心页面"""
     return templates.TemplateResponse("profile.html", {"request": request, "app_name": config.APP_NAME})
+
+
+@app.get("/pricing", response_class=HTMLResponse)
+async def pricing_page(request: Request):
+    """定价页面"""
+    return templates.TemplateResponse("pricing.html", {"request": request, "app_name": config.APP_NAME})
+
+
+@app.get("/success", response_class=HTMLResponse)
+async def success_page(request: Request):
+    """支付成功页面"""
+    return templates.TemplateResponse("success.html", {"request": request, "app_name": config.APP_NAME})
+
+
+@app.get("/cancel", response_class=HTMLResponse)
+async def cancel_page(request: Request):
+    """支付取消页面"""
+    return templates.TemplateResponse("cancel.html", {"request": request, "app_name": config.APP_NAME})
 
 
 # 使用 report_generator 模块中的调度器

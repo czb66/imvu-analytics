@@ -1,5 +1,6 @@
 """
 AI洞察路由 - 提供AI洞察相关API
+需要订阅才能使用
 """
 
 from fastapi import APIRouter, HTTPException, Request, Depends
@@ -8,13 +9,23 @@ from typing import Dict, List, Optional
 import logging
 import time
 
-from app.database import get_db_context, ProductDataRepository
+from app.database import get_db_context, ProductDataRepository, UserRepository
 from app.services.analytics import AnalyticsService
 from app.services.insights import insights_service
 from app.services.auth import get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["AI洞察"])
+
+
+def check_subscription_required(user_id: int) -> bool:
+    """检查用户是否需要订阅才能使用AI洞察"""
+    with get_db_context() as db:
+        user_repo = UserRepository(db)
+        user = user_repo.get_by_id(user_id)
+        if user and user.is_subscribed:
+            return True
+        return False
 
 
 class DashboardInsightsRequest(BaseModel):
@@ -93,10 +104,21 @@ async def generate_dashboard_insights(
     生成仪表盘AI洞察
     
     分析总体销售趋势、Top产品表现、核心指标异常
+    
+    注意：此功能需要订阅才能使用
     """
     start_time = time.time()
     user_id = current_user.get('id')
     logger.info(f"[API] 用户 {current_user.get('email')} 生成仪表盘洞察 - 开始")
+    
+    # 检查订阅状态
+    if not check_subscription_required(user_id):
+        return {
+            "success": False,
+            "error": "subscription_required",
+            "message": "此功能需要订阅才能使用",
+            "insight": "⚠️ AI洞察功能需要订阅才能使用，请前往 /pricing 订阅"
+        }
     
     # 获取语言参数
     language = req.language if req and hasattr(req, 'language') else 'zh'
@@ -157,10 +179,21 @@ async def generate_diagnosis_insights(
     生成诊断AI洞察
     
     分析销售诊断、流量漏斗、异常检测
+    
+    注意：此功能需要订阅才能使用
     """
     start_time = time.time()
     user_id = current_user.get('id')
     logger.info(f"[API] 用户 {current_user.get('email')} 生成诊断洞察 - 开始")
+    
+    # 检查订阅状态
+    if not check_subscription_required(user_id):
+        return {
+            "success": False,
+            "error": "subscription_required",
+            "message": "此功能需要订阅才能使用",
+            "insight": "⚠️ AI洞察功能需要订阅才能使用，请前往 /pricing 订阅"
+        }
     
     # 获取语言参数
     language = req.language if req and hasattr(req, 'language') else 'zh'
@@ -236,10 +269,21 @@ async def generate_compare_insights(
     生成对比AI洞察
     
     分析多数据集对比结论、排名变化、趋势总结
+    
+    注意：此功能需要订阅才能使用
     """
     start_time = time.time()
     user_id = current_user.get('id')
     logger.info(f"[API] 用户 {current_user.get('email')} 生成对比洞察 - 开始 数据集: {req.dataset_ids}")
+    
+    # 检查订阅状态
+    if not check_subscription_required(user_id):
+        return {
+            "success": False,
+            "error": "subscription_required",
+            "message": "此功能需要订阅才能使用",
+            "insight": "⚠️ AI洞察功能需要订阅才能使用，请前往 /pricing 订阅"
+        }
     
     # 获取语言参数
     language = req.language if hasattr(req, 'language') else 'zh'

@@ -30,8 +30,23 @@ class User(Base):
     reset_token = Column(String(255), nullable=True)  # 重置令牌
     reset_token_expires = Column(DateTime, nullable=True)  # 重置令牌过期时间
     
+    # Stripe订阅字段
+    stripe_customer_id = Column(String(255), nullable=True, index=True)  # Stripe客户ID
+    subscription_id = Column(String(255), nullable=True, index=True)  # 订阅ID
+    subscription_status = Column(String(50), default='none')  # none/active/canceled/expired/past_due
+    subscription_end_date = Column(DateTime, nullable=True)  # 订阅到期时间
+    
     # 关联数据
     datasets = relationship("Dataset", back_populates="owner", cascade="all, delete-orphan")
+    
+    @property
+    def is_subscribed(self) -> bool:
+        """检查用户是否有有效订阅"""
+        if self.subscription_status != 'active':
+            return False
+        if self.subscription_end_date and self.subscription_end_date < datetime.utcnow():
+            return False
+        return True
     
     def __repr__(self):
         return f"<User {self.email}>"

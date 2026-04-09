@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - {{ app_name }}</title>
+    <title data-i18n="profile.pageTitle">Profile - IMVU Analytics</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="/static/auth.js"></script>
@@ -12,9 +12,6 @@
         :root {
             --primary: #667eea;
             --secondary: #764ba2;
-            --success: #52c41a;
-            --danger: #ff4d4f;
-            --warning: #faad14;
         }
         body {
             background: #f5f7fa;
@@ -52,105 +49,7 @@
             margin-left: 250px;
             padding: 20px;
         }
-        .profile-card {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            margin-bottom: 20px;
-        }
-        .profile-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        .avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            color: white;
-            margin-right: 20px;
-        }
-        .profile-info h4 {
-            margin: 0 0 5px 0;
-        }
-        .profile-info p {
-            margin: 0;
-            color: #888;
-        }
-        .info-row {
-            display: flex;
-            padding: 15px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        .info-label {
-            width: 150px;
-            color: #888;
-            font-weight: 500;
-        }
-        .info-value {
-            flex: 1;
-            color: #333;
-        }
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--primary);
-        }
-        .form-floating {
-            margin-bottom: 15px;
-        }
-        .form-floating .form-control {
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-        }
-        .form-floating .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .btn-save {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
-            color: white;
-            padding: 10px 30px;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .btn-save:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-            color: white;
-        }
-        .btn-save:disabled {
-            opacity: 0.6;
-            transform: none;
-        }
-        .btn-danger-outline {
-            border: 2px solid var(--danger);
-            color: var(--danger);
-            background: transparent;
-            padding: 10px 30px;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .btn-danger-outline:hover {
-            background: var(--danger);
-            color: white;
-        }
+        /* Language Switcher */
         .lang-switcher {
             position: fixed;
             top: 15px;
@@ -180,427 +79,553 @@
             background: var(--primary);
             color: white;
         }
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .profile-card h5 {
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .profile-info-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .profile-info-item:last-child {
+            border-bottom: none;
+        }
+        .profile-info-label {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .profile-info-value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+        .form-label {
+            color: #555;
+            font-weight: 500;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        .btn-outline-secondary {
+            border-radius: 10px;
+            padding: 12px 30px;
+        }
         .alert {
             border-radius: 10px;
-            padding: 15px 20px;
         }
-        .alert-success {
-            background: #f6ffed;
-            border: 1px solid #b7eb8f;
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+        }
+        .password-wrapper {
+            position: relative;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .success-icon {
             color: #52c41a;
         }
-        .alert-danger {
-            background: #fff2f0;
-            border: 1px solid #ffccc7;
+        .error-icon {
             color: #ff4d4f;
-        }
-        .device-info {
-            background: #f8f9ff;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            font-size: 13px;
-            color: #666;
-            word-break: break-all;
-        }
-        .token-info {
-            background: #fffbe6;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            font-size: 13px;
         }
     </style>
 </head>
 <body>
-    <!-- 语言切换器 -->
+    <!-- 加载状态 -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p style="margin-top: 20px; color: #666;" data-i18n="profile.loading">Loading...</p>
+    </div>
+
+    <!-- 语言切换 -->
     <div class="lang-switcher">
-        <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
-        <span style="color: #ccc;">|</span>
+        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">English</button>
         <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">中文</button>
     </div>
 
-    <!-- 侧边栏 -->
+    <!-- 导航栏 -->
     <nav class="sidebar">
-        <h4><i class="bi bi-graph-up"></i> {{ app_name }}</h4>
+        <h4><i class="bi bi-graph-up"></i> <span data-i18n="appName">IMVU Analytics</span></h4>
         <a href="/dashboard"><i class="bi bi-speedometer2 me-2"></i><span data-i18n="nav.dashboard">Dashboard</span></a>
         <a href="/diagnosis"><i class="bi bi-search me-2"></i><span data-i18n="nav.diagnosis">Deep Analysis</span></a>
         <a href="/compare"><i class="bi bi-bar-chart-steps me-2"></i><span data-i18n="nav.compare">Data Compare</span></a>
         <a href="/report"><i class="bi bi-file-earmark-text me-2"></i><span data-i18n="nav.report">Reports</span></a>
-        <a href="/profile" class="active"><i class="bi bi-person me-2"></i><span data-i18n="profile.nav">Profile</span></a>
     </nav>
 
     <!-- 主内容 -->
     <main class="main-content">
-        <div class="header-title" style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 20px;">
-            <i class="bi bi-person-circle"></i> <span data-i18n="profile.pageTitle">Profile</span>
-        </div>
+        <div class="profile-container">
+            <h2 class="mb-4"><i class="bi bi-person-circle"></i> <span data-i18n="profile.pageTitle">Personal Center</span></h2>
 
-        <!-- 提示信息 -->
-        <div id="alertMessage" class="alert d-none"></div>
-
-        <!-- 用户信息卡片 -->
-        <div class="profile-card">
-            <div class="profile-header">
-                <div class="avatar">
-                    <i class="bi bi-person"></i>
-                </div>
-                <div class="profile-info">
-                    <h4 id="displayUsername">-</h4>
-                    <p id="displayEmail">-</p>
-                </div>
-            </div>
-
-            <div class="info-row">
-                <div class="info-label"><i class="bi bi-envelope me-2"></i><span data-i18n="profile.email">Email</span></div>
-                <div class="info-value" id="infoEmail">-</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label"><i class="bi bi-calendar me-2"></i><span data-i18n="profile.registrationDate">Registration Date</span></div>
-                <div class="info-value" id="infoCreatedAt">-</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label"><i class="bi bi-clock-history me-2"></i><span data-i18n="profile.lastLogin">Last Login</span></div>
-                <div class="info-value" id="infoLastLogin">-</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label"><i class="bi bi-laptop me-2"></i><span data-i18n="profile.loginDevice">Login Device</span></div>
-                <div class="info-value">
-                    <div class="device-info" id="infoDevice">Web Browser</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 修改用户名 -->
-        <div class="profile-card">
-            <div class="section-title"><i class="bi bi-pencil-square me-2"></i><span data-i18n="profile.updateUsername">Update Username</span></div>
-            <form id="usernameForm">
+            <!-- 用户信息卡片 -->
+            <div class="profile-card">
+                <h5><i class="bi bi-person-badge me-2"></i><span data-i18n="profile.userInfo">User Information</span></h5>
+                
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-floating">
-                            <input type="text" class="form-control" id="newUsername" placeholder="New Username" required minlength="2" maxlength="50">
-                            <label for="newUsername" data-i18n="profile.newUsername">New Username</label>
+                        <div class="profile-info-item">
+                            <div class="profile-info-label" data-i18n="profile.email">Email</div>
+                            <div class="profile-info-value" id="userEmail">-</div>
                         </div>
                     </div>
-                    <div class="col-md-6 d-flex align-items-center">
-                        <button type="submit" class="btn btn-save" id="usernameBtn">
-                            <span data-i18n="profile.save">Save</span>
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- 修改密码 -->
-        <div class="profile-card">
-            <div class="section-title"><i class="bi bi-key me-2"></i><span data-i18n="profile.changePassword">Change Password</span></div>
-            <form id="passwordForm">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-floating">
-                            <input type="password" class="form-control" id="oldPassword" placeholder="Old Password" required>
-                            <label for="oldPassword" data-i18n="profile.oldPassword">Old Password</label>
+                    <div class="col-md-6">
+                        <div class="profile-info-item">
+                            <div class="profile-info-label" data-i18n="profile.username">Username</div>
+                            <div class="profile-info-value" id="userUsername">-</div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="form-floating">
-                            <input type="password" class="form-control" id="newPassword" placeholder="New Password" required minlength="8">
-                            <label for="newPassword" data-i18n="profile.newPassword">New Password</label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-floating">
-                            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" required minlength="8">
-                            <label for="confirmPassword" data-i18n="profile.confirmPassword">Confirm Password</label>
+                    <div class="col-md-6">
+                        <div class="profile-info-item">
+                            <div class="profile-info-label" data-i18n="profile.memberSince">Member Since</div>
+                            <div class="profile-info-value" id="userCreatedAt">-</div>
                         </div>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <button type="submit" class="btn btn-save" id="passwordBtn">
-                        <span data-i18n="profile.changePassword">Change Password</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- 退出登录 -->
-        <div class="profile-card">
-            <div class="section-title"><i class="bi bi-box-arrow-right me-2"></i><span data-i18n="profile.sessionManagement">Session Management</span></div>
-            <div class="token-info mb-3">
-                <div class="d-flex align-items-center mb-2">
-                    <i class="bi bi-shield-check text-success me-2"></i>
-                    <strong data-i18n="profile.tokenValid">Token Valid: 7 days</strong>
-                </div>
-                <div class="text-muted" style="font-size: 12px;" data-i18n="profile.tokenExpireNote">Your session will expire after 7 days</div>
             </div>
-            <button class="btn btn-danger-outline" onclick="logout()">
-                <i class="bi bi-box-arrow-right me-2"></i><span data-i18n="profile.logout">Logout</span>
-            </button>
+
+            <!-- 订阅信息卡片 -->
+            <div class="profile-card">
+                <h5><i class="bi bi-credit-card me-2"></i><span data-i18n="profile.subscription">Subscription</span></h5>
+                
+                <div id="subscriptionAlert" class="alert d-none" role="alert"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="profile-info-item">
+                            <div class="profile-info-label" data-i18n="profile.subscriptionStatus">Status</div>
+                            <div class="profile-info-value">
+                                <span id="subscriptionStatus" class="badge bg-secondary">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="profile-info-item">
+                            <div class="profile-info-label" data-i18n="profile.subscriptionEndDate">End Date</div>
+                            <div class="profile-info-value" id="subscriptionEndDate">-</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3" id="subscriptionActions">
+                    <!-- 根据订阅状态动态显示按钮 -->
+                </div>
+            </div>
+
+            <!-- 修改用户名 -->
+            <div class="profile-card">
+                <h5><i class="bi bi-pencil-square me-2"></i><span data-i18n="profile.updateUsername">Update Username</span></h5>
+                
+                <div id="usernameAlert" class="alert d-none" role="alert"></div>
+                
+                <form id="usernameForm">
+                    <div class="mb-3">
+                        <label for="usernameInput" class="form-label" data-i18n="profile.newUsername">New Username</label>
+                        <input type="text" class="form-control" id="usernameInput" maxlength="100" 
+                               data-i18n-placeholder="profile.usernamePlaceholder" placeholder="Enter new username (optional)">
+                        <small class="text-muted" data-i18n="profile.usernameHint">Leave empty to remove username</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="updateUsernameBtn">
+                        <i class="bi bi-check-lg me-2"></i><span data-i18n="profile.saveUsername">Save Username</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 修改密码 -->
+            <div class="profile-card">
+                <h5><i class="bi bi-lock me-2"></i><span data-i18n="profile.changePassword">Change Password</span></h5>
+                
+                <div id="passwordAlert" class="alert d-none" role="alert"></div>
+                
+                <form id="passwordForm">
+                    <div class="mb-3">
+                        <label for="oldPassword" class="form-label" data-i18n="profile.oldPassword">Current Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" class="form-control" id="oldPassword" required
+                                   data-i18n-placeholder="profile.oldPasswordPlaceholder" placeholder="Enter current password">
+                            <span class="password-toggle" onclick="togglePassword('oldPassword', 'oldPasswordEye')">
+                                <i class="bi bi-eye" id="oldPasswordEye"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label" data-i18n="profile.newPassword">New Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" class="form-control" id="newPassword" required minlength="8"
+                                   data-i18n-placeholder="profile.newPasswordPlaceholder" placeholder="Enter new password (min 8 characters)">
+                            <span class="password-toggle" onclick="togglePassword('newPassword', 'newPasswordEye')">
+                                <i class="bi bi-eye" id="newPasswordEye"></i>
+                            </span>
+                        </div>
+                        <small class="text-muted" data-i18n="profile.passwordHint">Password must be at least 8 characters</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label" data-i18n="profile.confirmPassword">Confirm Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" class="form-control" id="confirmPassword" required
+                                   data-i18n-placeholder="profile.confirmPasswordPlaceholder" placeholder="Confirm new password">
+                            <span class="password-toggle" onclick="togglePassword('confirmPassword', 'confirmPasswordEye')">
+                                <i class="bi bi-eye" id="confirmPasswordEye"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="changePasswordBtn">
+                        <i class="bi bi-key me-2"></i><span data-i18n="profile.changePasswordBtn">Change Password</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 登出 -->
+            <div class="profile-card">
+                <h5><i class="bi bi-box-arrow-right me-2"></i><span data-i18n="profile.logout">Logout</span></h5>
+                <p class="text-muted mb-3" data-i18n="profile.logoutHint">Click the button below to safely logout of your account.</p>
+                <button type="button" class="btn btn-outline-secondary" onclick="logout()">
+                    <i class="bi bi-power me-2"></i><span data-i18n="profile.logoutBtn">Logout</span>
+                </button>
+            </div>
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 翻译数据
-        const translations = {
-            en: {
-                nav: {
-                    dashboard: "Dashboard",
-                    diagnosis: "Deep Analysis",
-                    compare: "Data Compare",
-                    report: "Reports"
-                },
-                profile: {
-                    nav: "Profile",
-                    pageTitle: "Profile",
-                    email: "Email",
-                    registrationDate: "Registration Date",
-                    lastLogin: "Last Login",
-                    loginDevice: "Login Device",
-                    updateUsername: "Update Username",
-                    newUsername: "New Username",
-                    save: "Save",
-                    changePassword: "Change Password",
-                    oldPassword: "Old Password",
-                    newPassword: "New Password",
-                    confirmPassword: "Confirm Password",
-                    sessionManagement: "Session Management",
-                    tokenValid: "Token Valid: 7 days",
-                    tokenExpireNote: "Your session will expire after 7 days",
-                    logout: "Logout"
-                },
-                messages: {
-                    usernameUpdated: "Username updated successfully",
-                    passwordChanged: "Password changed successfully",
-                    passwordMismatch: "Passwords do not match",
-                    updateFailed: "Update failed"
-                }
-            },
-            zh: {
-                nav: {
-                    dashboard: "仪表盘",
-                    diagnosis: "深度分析",
-                    compare: "数据对比",
-                    report: "报告中心"
-                },
-                profile: {
-                    nav: "个人中心",
-                    pageTitle: "个人中心",
-                    email: "邮箱",
-                    registrationDate: "注册时间",
-                    lastLogin: "最后登录",
-                    loginDevice: "登录设备",
-                    updateUsername: "修改用户名",
-                    newUsername: "新用户名",
-                    save: "保存",
-                    changePassword: "修改密码",
-                    oldPassword: "旧密码",
-                    newPassword: "新密码",
-                    confirmPassword: "确认密码",
-                    sessionManagement: "会话管理",
-                    tokenValid: "Token有效期：7天",
-                    tokenExpireNote: "登录后将在7天后自动过期",
-                    logout: "退出登录"
-                },
-                messages: {
-                    usernameUpdated: "用户名修改成功",
-                    passwordChanged: "密码修改成功",
-                    passwordMismatch: "两次输入的密码不一致",
-                    updateFailed: "修改失败"
-                }
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 检查登录状态
+            const user = await protectPage();
+            if (!user) {
+                return;
             }
-        };
 
-        let currentLang = localStorage.getItem('language') || 'en';
-
-        // 页面加载时获取用户信息
-        document.addEventListener('DOMContentLoaded', async () => {
-            await checkAuth();
+            // 加载用户信息
             await loadProfile();
-            setLanguage(currentLang);
+            
+            // 加载订阅信息
+            await loadSubscription();
+
+            // 隐藏加载状态
+            document.getElementById('loadingOverlay').style.display = 'none';
+
+            // 绑定表单提交事件
+            bindFormEvents();
         });
 
-        // 检查登录状态
-        async function checkAuth() {
+        // 加载订阅信息
+        async function loadSubscription() {
             try {
-                const token = localStorage.getItem('access_token');
-                if (!token) {
-                    window.location.href = '/login';
-                    return false;
+                const response = await fetch('/api/subscription/status', {
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        updateSubscriptionUI(data.data);
+                    }
                 }
-                return true;
-            } catch (error) {
-                window.location.href = '/login';
-                return false;
+            } catch (e) {
+                console.error('加载订阅信息失败:', e);
+            }
+        }
+
+        // 更新订阅UI
+        function updateSubscriptionUI(data) {
+            const statusBadge = document.getElementById('subscriptionStatus');
+            const endDateEl = document.getElementById('subscriptionEndDate');
+            const actionsEl = document.getElementById('subscriptionActions');
+            
+            // 状态映射
+            const statusMap = {
+                'active': { text: 'Active', class: 'bg-success', textZh: '已订阅' },
+                'canceled': { text: 'Canceled', class: 'bg-warning', textZh: '已取消' },
+                'past_due': { text: 'Past Due', class: 'bg-danger', textZh: '待支付' },
+                'expired': { text: 'Expired', class: 'bg-secondary', textZh: '已过期' },
+                'none': { text: 'Not Subscribed', class: 'bg-secondary', textZh: '未订阅' }
+            };
+            
+            const statusInfo = statusMap[data.status] || statusMap['none'];
+            const isZh = currentLang === 'zh';
+            
+            statusBadge.textContent = isZh ? statusInfo.textZh : statusInfo.text;
+            statusBadge.className = 'badge ' + statusInfo.class;
+            
+            endDateEl.textContent = data.end_date || '-';
+            
+            // 更新操作按钮
+            if (data.is_subscribed) {
+                actionsEl.innerHTML = '<button class="btn btn-outline-primary me-2" onclick="manageSubscription()"><i class="bi bi-gear me-1"></i>' + (isZh ? '管理订阅' : 'Manage Subscription') + '</button><a href="/pricing" class="btn btn-outline-secondary"><i class="bi bi-info-circle me-1"></i>' + (isZh ? '查看定价' : 'View Plans') + '</a>';
+            } else {
+                actionsEl.innerHTML = '<a href="/pricing" class="btn btn-primary"><i class="bi bi-lightning me-1"></i>' + (isZh ? '立即订阅 $20/月' : 'Subscribe Now - $20/month') + '</a>';
+            }
+        }
+
+        // 管理订阅
+        async function manageSubscription() {
+            try {
+                const alertBox = document.getElementById('subscriptionAlert');
+                alertBox.className = 'alert alert-info';
+                alertBox.innerHTML = '<i class="bi bi-info-circle me-2"></i>Loading...';
+                alertBox.classList.remove('d-none');
+
+                const response = await fetch('/api/subscription/portal', {
+                    headers: getAuthHeaders()
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.data.portal_url) {
+                    window.location.href = data.data.portal_url;
+                } else {
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + (data.message || 'Failed to open portal');
+                }
+            } catch (e) {
+                console.error('打开客户门户失败:', e);
+                const alertBox = document.getElementById('subscriptionAlert');
+                alertBox.className = 'alert alert-danger';
+                alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>Failed to manage subscription';
             }
         }
 
         // 加载用户信息
         async function loadProfile() {
             try {
-                const token = localStorage.getItem('access_token');
-                const res = await fetch('/api/auth/profile', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const response = await fetch('/api/auth/profile', {
+                    headers: getAuthHeaders()
                 });
-                const data = await res.json();
-                
-                if (data.success) {
-                    const user = data.data;
-                    document.getElementById('displayUsername').textContent = user.username || 'User';
-                    document.getElementById('displayEmail').textContent = user.email;
-                    document.getElementById('infoEmail').textContent = user.email;
-                    document.getElementById('infoCreatedAt').textContent = formatDate(user.created_at);
-                    document.getElementById('infoLastLogin').textContent = formatDate(user.last_login) || (currentLang === 'zh' ? '首次登录' : 'First login');
-                    document.getElementById('newUsername').value = user.username || '';
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        updateProfileUI(data.data);
+                        // 更新 localStorage 中的用户信息
+                        localStorage.setItem('user', JSON.stringify(data.data));
+                    }
                 }
-            } catch (error) {
-                showAlert('danger', currentLang === 'zh' ? '加载用户信息失败' : 'Failed to load profile');
+            } catch (e) {
+                console.error('加载用户信息失败:', e);
+                // 如果获取失败，尝试使用本地存储的用户信息
+                const localUser = getUser();
+                if (localUser) {
+                    updateProfileUI(localUser);
+                }
             }
         }
 
-        // 修改用户名
-        document.getElementById('usernameForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newUsername = document.getElementById('newUsername').value;
-            const btn = document.getElementById('usernameBtn');
+        // 更新UI
+        function updateProfileUI(user) {
+            document.getElementById('userEmail').textContent = user.email || '-';
+            document.getElementById('userUsername').textContent = user.username || '-';
+            document.getElementById('userCreatedAt').textContent = user.created_at || '-';
             
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>...';
-            
-            try {
-                const token = localStorage.getItem('access_token');
-                const res = await fetch('/api/auth/username', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ username: newUsername })
-                });
-                
-                const data = await res.json();
-                if (data.success) {
-                    showAlert('success', translations[currentLang].messages.usernameUpdated);
-                    document.getElementById('displayUsername').textContent = newUsername;
-                } else {
-                    showAlert('danger', data.message);
-                }
-            } catch (error) {
-                showAlert('danger', translations[currentLang].messages.updateFailed);
+            if (user.username) {
+                document.getElementById('usernameInput').value = user.username;
             }
-            
-            btn.disabled = false;
-            btn.innerHTML = translations[currentLang].profile.save;
-        });
+        }
+
+        // 绑定表单事件
+        function bindFormEvents() {
+            // 用户名表单
+            document.getElementById('usernameForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await updateUsername();
+            });
+
+            // 密码表单
+            document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await changePassword();
+            });
+        }
+
+        // 更新用户名
+        async function updateUsername() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const alertBox = document.getElementById('usernameAlert');
+            const submitBtn = document.getElementById('updateUsernameBtn');
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+
+                const response = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ username: username })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alertBox.className = 'alert alert-success';
+                    alertBox.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + (data.message || t('profile.updateSuccess'));
+                    alertBox.classList.remove('d-none');
+                    // 更新显示
+                    document.getElementById('userUsername').textContent = username || '-';
+                    // 更新 localStorage
+                    const user = getUser();
+                    if (user) {
+                        user.username = username;
+                        localStorage.setItem('user', JSON.stringify(user));
+                    }
+                } else {
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + data.message;
+                    alertBox.classList.remove('d-none');
+                }
+            } catch (e) {
+                alertBox.className = 'alert alert-danger';
+                alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + t('profile.updateFailed');
+                alertBox.classList.remove('d-none');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-check-lg me-2"></i>' + t('profile.saveUsername');
+            }
+        }
 
         // 修改密码
-        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        async function changePassword() {
             const oldPassword = document.getElementById('oldPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const btn = document.getElementById('passwordBtn');
-            
-            if (newPassword !== confirmPassword) {
-                showAlert('danger', translations[currentLang].messages.passwordMismatch);
+            const alertBox = document.getElementById('passwordAlert');
+            const submitBtn = document.getElementById('changePasswordBtn');
+
+            // 验证新密码
+            if (newPassword.length < 8) {
+                alertBox.className = 'alert alert-danger';
+                alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + t('profile.passwordMinLength');
+                alertBox.classList.remove('d-none');
                 return;
             }
-            
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>...';
-            
+
+            // 验证确认密码
+            if (newPassword !== confirmPassword) {
+                alertBox.className = 'alert alert-danger';
+                alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + t('profile.passwordMismatch');
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
             try {
-                const token = localStorage.getItem('access_token');
-                const res = await fetch('/api/auth/change-password', {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+
+                const response = await fetch('/api/auth/change-password', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
                 });
-                
-                const data = await res.json();
+
+                const data = await response.json();
+
                 if (data.success) {
-                    showAlert('success', translations[currentLang].messages.passwordChanged);
+                    alertBox.className = 'alert alert-success';
+                    alertBox.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + (data.message || t('profile.passwordChangeSuccess'));
+                    alertBox.classList.remove('d-none');
+                    // 清空表单
                     document.getElementById('oldPassword').value = '';
                     document.getElementById('newPassword').value = '';
                     document.getElementById('confirmPassword').value = '';
                 } else {
-                    showAlert('danger', data.message);
+                    alertBox.className = 'alert alert-danger';
+                    alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + data.message;
+                    alertBox.classList.remove('d-none');
                 }
-            } catch (error) {
-                showAlert('danger', translations[currentLang].messages.updateFailed);
+            } catch (e) {
+                alertBox.className = 'alert alert-danger';
+                alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + t('profile.passwordChangeFailed');
+                alertBox.classList.remove('d-none');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-key me-2"></i>' + t('profile.changePasswordBtn');
             }
-            
-            btn.disabled = false;
-            btn.innerHTML = translations[currentLang].profile.changePassword;
-        });
-
-        // 退出登录
-        async function logout() {
-            try {
-                const token = localStorage.getItem('access_token');
-                await fetch('/api/auth/logout', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-            } catch (e) {}
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('user');
-            window.location.href = '/login';
         }
 
-        // 显示提示
-        function showAlert(type, message) {
-            const alert = document.getElementById('alertMessage');
-            alert.className = `alert alert-${type}`;
-            alert.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>${message}`;
-            alert.classList.remove('d-none');
-            setTimeout(() => alert.classList.add('d-none'), 5000);
-        }
-
-        // 格式化日期
-        function formatDate(dateStr) {
-            if (!dateStr) return null;
-            const date = new Date(dateStr);
-            return date.toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        // 设置语言
-        function setLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('language', lang);
+        // 密码显示/隐藏切换
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
             
-            // 更新按钮状态
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === lang);
-            });
-            
-            // 应用翻译
-            applyTranslations();
-        }
-
-        // 应用翻译
-        function applyTranslations() {
-            const t = translations[currentLang];
-            
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.dataset.i18n;
-                const keys = key.split('.');
-                let value = t;
-                for (const k of keys) {
-                    value = value?.[k];
-                }
-                if (value) {
-                    el.textContent = value;
-                }
-            });
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
         }
     </script>
 </body>
