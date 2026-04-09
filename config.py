@@ -119,7 +119,7 @@ def get_stripe_product_id():
     return os.getenv("STRIPE_PRODUCT_ID", "")
 
 # 订阅价格（美元/月）
-SUBSCRIPTION_PRICE = 20.00
+SUBSCRIPTION_PRICE = 12.00
 
 # 应用基础URL（用于Stripe回调）
 APP_BASE_URL = os.getenv("APP_BASE_URL", "https://imvu-analytics-production.up.railway.app")
