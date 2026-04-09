@@ -276,6 +276,7 @@
         let latestReportPath = null;
 
         document.addEventListener('DOMContentLoaded', () => {
+            applyTranslations(); // 立即应用翻译
             loadHistory();
             setupForm();
         });

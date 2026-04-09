@@ -385,6 +385,7 @@
 
         // 页面加载时获取数据
         document.addEventListener('DOMContentLoaded', () => {
+            applyTranslations(); // 立即应用翻译
             initCharts();
             setupUploadZone();
             setupSearch();
