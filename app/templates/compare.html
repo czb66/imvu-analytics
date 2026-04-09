@@ -451,14 +451,15 @@
                     <i class="bi bi-robot"></i> <span data-i18n="insights.compare.title">AI 对比洞察</span>
                     <span class="insight-offline-badge" id="insightOfflineBadge" style="display:none;">离线模式</span>
                 </div>
-                <button class="insight-refresh-btn" id="refreshInsightBtn" onclick="loadCompareInsights()">
+                <button class="insight-refresh-btn" id="refreshInsightBtn" onclick="loadCompareInsights()" style="display:none;">
                     <i class="bi bi-arrow-clockwise"></i> <span data-i18n="insights.refresh">刷新洞察</span>
                 </button>
             </div>
             <div id="compareInsightContent">
-                <div class="insight-loading">
-                    <div class="spinner"></div>
-                    <span data-i18n="insights.generating">正在生成AI洞察...</span>
+                <div class="text-center">
+                    <button class="btn btn-primary btn-lg" id="generateInsightBtn" onclick="loadCompareInsights()">
+                        <i class="bi bi-robot me-2"></i><span data-i18n="insights.generate">生成AI洞察</span>
+                    </button>
                 </div>
             </div>
             <div class="insight-config-hint" id="insightConfigHint" style="display:none;">
@@ -736,8 +737,8 @@
                 if (result.success) {
                     compareData = result.data;
                     renderComparisonResults(compareData);
-                    // 对比完成后加载AI洞察
-                    loadCompareInsights();
+                    // 对比完成后初始化AI洞察卡片（显示生成按钮）
+                    initCompareInsightCard();
                 } else {
                     alert(result.error || 'Comparison failed');
                 }
@@ -747,6 +748,27 @@
             } finally {
                 hideLoading();
             }
+        }
+
+        // 初始化对比洞察卡片（显示生成按钮）
+        function initCompareInsightCard() {
+            const insightCard = document.getElementById('compareInsightCard');
+            const contentEl = document.getElementById('compareInsightContent');
+            const refreshBtn = document.getElementById('refreshInsightBtn');
+            
+            // 显示洞察卡片
+            insightCard.style.display = 'block';
+            
+            // 重置为初始状态
+            refreshBtn.style.display = 'none';
+            contentEl.innerHTML = `
+                <div class="text-center">
+                    <button class="btn btn-primary btn-lg" id="generateInsightBtn" onclick="loadCompareInsights()">
+                        <i class="bi bi-robot me-2"></i><span data-i18n="insights.generate">生成AI洞察</span>
+                    </button>
+                </div>
+            `;
+            applyTranslations();
         }
 
         // 加载AI对比洞察
@@ -771,7 +793,6 @@
                     <span data-i18n="insights.generating">正在生成AI洞察...</span>
                 </div>
             `;
-            refreshBtn.disabled = true;
             
             try {
                 // 获取API Key（从localStorage）
@@ -798,6 +819,9 @@
                 if (result.success) {
                     contentEl.innerHTML = `<div class="insight-content">${result.insight}</div>`;
                     
+                    // 显示刷新按钮
+                    refreshBtn.style.display = 'inline-flex';
+                    
                     if (result.is_offline) {
                         offlineBadge.style.display = 'inline';
                         configHint.style.display = 'block';
@@ -806,15 +830,27 @@
                         configHint.style.display = 'none';
                     }
                 } else {
-                    contentEl.innerHTML = `<div class="insight-content" style="color: #ffd0d0;">⚠️ ${result.insight || '生成洞察失败'}</div>`;
+                    contentEl.innerHTML = `
+                        <div class="insight-content" style="color: #ffd0d0;">⚠️ ${result.insight || '生成洞察失败'}</div>
+                        <div class="text-center mt-3">
+                            <button class="btn btn-outline-light" onclick="loadCompareInsights()">
+                                <i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="insights.refresh">刷新洞察</span>
+                            </button>
+                        </div>
+                    `;
                 }
             } catch (error) {
                 console.error('加载AI洞察失败:', error);
-                contentEl.innerHTML = `<div class="insight-content" style="color: #ffd0d0;">⚠️ 加载失败，请稍后重试</div>`;
-            } finally {
-                refreshBtn.disabled = false;
-                applyTranslations();
+                contentEl.innerHTML = `
+                    <div class="insight-content" style="color: #ffd0d0;">⚠️ 加载失败，请稍后重试</div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-light" onclick="loadCompareInsights()">
+                            <i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="insights.refresh">刷新洞察</span>
+                        </button>
+                    </div>
+                `;
             }
+            applyTranslations();
         }
 
         // 渲染对比结果
