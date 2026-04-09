@@ -128,6 +128,38 @@
             font-size: 11px;
             margin-top: 3px;
         }
+        /* 错误类型样式 */
+        .alert-danger.network-error {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        .alert-danger.validation-error {
+            background-color: #f8d7da;
+            border-color: #f5c2c7;
+            color: #842029;
+        }
+        .alert-danger.business-error {
+            background-color: #e7f1ff;
+            border-color: #b6d4fe;
+            color: #084298;
+        }
+        .email-check-indicator {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+        .email-check-indicator.checking {
+            color: #6c757d;
+        }
+        .email-check-indicator.available {
+            color: #198754;
+        }
+        .email-check-indicator.taken {
+            color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -146,9 +178,10 @@
             <div id="alertBox" class="alert d-none" role="alert"></div>
             
             <form id="registerForm">
-                <div class="form-floating">
+                <div class="form-floating" style="position: relative;">
                     <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
                     <label for="email" data-i18n="email">邮箱</label>
+                    <span class="email-check-indicator" id="emailCheckIndicator"></span>
                     <div class="invalid-feedback" id="emailError"></div>
                 </div>
                 
@@ -302,11 +335,23 @@
         }
 
         // 显示提示
-        function showAlert(message, isSuccess = false) {
+        function showAlert(message, isSuccess = false, errorType = 'business') {
             const alertBox = document.getElementById('alertBox');
             alertBox.textContent = message;
-            alertBox.classList.remove('d-none', 'alert-danger', 'alert-success');
-            alertBox.classList.add(isSuccess ? 'alert-success' : 'alert-danger');
+            alertBox.classList.remove('d-none', 'alert-danger', 'alert-success', 'network-error', 'validation-error', 'business-error');
+            
+            if (isSuccess) {
+                alertBox.classList.add('alert-success');
+            } else {
+                alertBox.classList.add('alert-danger');
+                if (errorType === 'network') {
+                    alertBox.classList.add('network-error');
+                } else if (errorType === 'validation') {
+                    alertBox.classList.add('validation-error');
+                } else {
+                    alertBox.classList.add('business-error');
+                }
+            }
             
             setTimeout(() => {
                 alertBox.classList.add('d-none');
@@ -315,24 +360,62 @@
 
         // 邮箱验证（实时）
         let emailCheckTimeout;
-        document.getElementById('email').addEventListener('blur', async function() {
+        const emailInput = document.getElementById('email');
+        const emailCheckIndicator = document.getElementById('emailCheckIndicator');
+        
+        emailInput.addEventListener('input', function() {
+            // 清除之前的检查指示器
+            emailCheckIndicator.innerHTML = '';
+            emailCheckIndicator.className = 'email-check-indicator';
+            this.classList.remove('is-invalid');
+        });
+        
+        emailInput.addEventListener('blur', async function() {
             const email = this.value.trim();
             if (!email) return;
             
+            // 清除之前的超时
             clearTimeout(emailCheckTimeout);
             emailCheckTimeout = setTimeout(async () => {
+                // 显示检查中状态
+                emailCheckIndicator.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                emailCheckIndicator.className = 'email-check-indicator checking';
+                
+                console.log('[Email Check] Checking email:', email);
+                
                 try {
-                    const response = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+                    const response = await fetch('/api/auth/check-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: email })
+                    });
                     const data = await response.json();
                     
+                    console.log('[Email Check] Response:', data);
+                    
                     if (data.exists) {
+                        emailCheckIndicator.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
+                        emailCheckIndicator.className = 'email-check-indicator taken';
                         this.classList.add('is-invalid');
                         document.getElementById('emailError').textContent = translations[currentLang].email_used;
+                        console.log('[Email Check] Email is already taken');
+                    } else if (data.valid === false) {
+                        emailCheckIndicator.innerHTML = '';
+                        this.classList.add('is-invalid');
+                        document.getElementById('emailError').textContent = translations[currentLang].invalid_email;
+                        console.log('[Email Check] Invalid email format');
                     } else {
+                        emailCheckIndicator.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+                        emailCheckIndicator.className = 'email-check-indicator available';
                         this.classList.remove('is-invalid');
+                        console.log('[Email Check] Email is available');
                     }
                 } catch (e) {
-                    console.error('Email check error:', e);
+                    console.error('[Email Check] Network error:', e);
+                    emailCheckIndicator.innerHTML = '';
+                    // 网络错误不阻止用户继续填写
                 }
             }, 500);
         });
@@ -363,28 +446,35 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             const submitBtn = document.getElementById('submitBtn');
             
-            // 验证
+            console.log('[Register Form] Submitting registration request');
+            
+            // 前端验证
             if (!email) {
-                showAlert(translations[currentLang].invalid_email);
+                showAlert(translations[currentLang].invalid_email, false, 'validation');
+                console.log('[Register Form] Validation failed: empty email');
                 return;
             }
             
             if (password.length < 8) {
-                showAlert(translations[currentLang].password_short);
+                showAlert(translations[currentLang].password_short, false, 'validation');
+                console.log('[Register Form] Validation failed: password too short');
                 return;
             }
             
             if (password !== confirmPassword) {
-                showAlert(translations[currentLang].password_mismatch);
+                showAlert(translations[currentLang].password_mismatch, false, 'validation');
+                console.log('[Register Form] Validation failed: passwords do not match');
                 return;
             }
             
-            // 禁用按钮
+            // 禁用按钮，显示加载状态
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + 
                 (currentLang === 'zh' ? '注册中...' : 'Registering...');
             
             try {
+                console.log('[Register API] Sending request to /api/auth/register');
+                
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: {
@@ -397,9 +487,38 @@
                     })
                 });
                 
+                console.log('[Register API] Response status:', response.status);
+                
+                // 检查HTTP状态码
+                if (!response.ok) {
+                    // 尝试解析错误响应
+                    let errorData;
+                    try {
+                        errorData = await response.json();
+                    } catch (e) {
+                        errorData = { message: `HTTP Error: ${response.status}` };
+                    }
+                    
+                    console.error('[Register API] HTTP Error:', response.status, errorData);
+                    
+                    // 根据状态码判断错误类型
+                    if (response.status >= 500) {
+                        showAlert(currentLang === 'zh' ? '服务器错误，请稍后重试' : 'Server error, please try again later', false, 'network');
+                    } else {
+                        // 400 错误通常是业务逻辑错误（如邮箱已注册）
+                        const errorMsg = errorData.message || translations[currentLang].register_error;
+                        console.log('[Register API] Business error:', errorMsg);
+                        showAlert(errorMsg, false, 'business');
+                    }
+                    return;
+                }
+                
+                // 解析成功响应
                 const data = await response.json();
+                console.log('[Register API] Response data:', data);
                 
                 if (data.success) {
+                    console.log('[Register API] Registration successful!');
                     showAlert(translations[currentLang].register_success, true);
                     
                     // 跳转到登录页
@@ -407,12 +526,17 @@
                         window.location.href = '/login';
                     }, 2000);
                 } else {
-                    showAlert(data.message || translations[currentLang].register_error);
+                    // 业务逻辑错误（success=false 但 HTTP 200）
+                    const errorMsg = data.message || translations[currentLang].register_error;
+                    console.error('[Register API] Registration failed:', errorMsg);
+                    showAlert(errorMsg, false, 'business');
                 }
             } catch (error) {
-                console.error('Register error:', error);
-                showAlert(translations[currentLang].register_error);
+                // 网络错误（请求无法发出）
+                console.error('[Register API] Network error:', error);
+                showAlert(currentLang === 'zh' ? '网络连接失败，请检查您的网络' : 'Network connection failed, please check your internet', false, 'network');
             } finally {
+                // 恢复按钮状态
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<span data-i18n="register_btn">' + translations[currentLang].register_btn + '</span>';
             }

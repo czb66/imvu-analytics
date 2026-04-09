@@ -139,7 +139,7 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 
 
 @router.post("/check-email")
-async def check_email(email: str, db: Session = Depends(get_db)):
+async def check_email(request: dict, db: Session = Depends(get_db)):
     """
     检查邮箱是否已被注册
     
@@ -148,7 +148,9 @@ async def check_email(email: str, db: Session = Depends(get_db)):
     from app.services.auth import validate_email
     from app.database import UserRepository
     
-    if not validate_email(email):
+    email = request.get('email', '')
+    
+    if not email or not validate_email(email):
         return {"exists": False, "valid": False}
     
     user_repo = UserRepository(db)
