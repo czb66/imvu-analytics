@@ -16,6 +16,7 @@ import config
 from app.database import init_db
 from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth
 from app.services.email_service import email_service
+from app.services.report_generator import scheduler, start_scheduler, stop_scheduler
 
 # 配置日志
 logging.basicConfig(
@@ -87,7 +88,7 @@ async def startup_event():
 async def shutdown_event():
     """应用关闭时执行"""
     logger.info("正在关闭应用...")
-    scheduler.shutdown()
+    stop_scheduler()
 
 
 @app.get("/")
