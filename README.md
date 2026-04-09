@@ -17,6 +17,13 @@
 - **用户行为诊断**：加购→收藏→下单转化率分析
 - **异常检测**：基于统计的销量异常波动检测
 
+### 🤖 AI 智能洞察模块 (新功能!)
+- **仪表盘洞察**：总体销售趋势解读、Top产品表现分析、核心指标异常提醒
+- **诊断洞察**：销量下滑/增长原因识别、曝光-转化漏斗分析、异常产品自动解读
+- **对比洞察**：多数据集对比结论、排名变化分析、趋势对比总结
+- 支持 DeepSeek API（低成本、中文友好）
+- 离线模式：未配置 API 时提供基于规则的基础洞察
+
 ### 📄 报告模块
 - 一键生成完整HTML报告
 - 支持定时自动生成（每天UTC 1:00）
@@ -154,6 +161,7 @@ docker-compose logs -f
 | `SMTP_PASSWORD` | 邮箱密码 | - |
 | `EMAIL_TO` | 默认收件人 | - |
 | `REPORT_CRON_HOUR` | 报告生成小时(UTC) | `1` |
+| `DEEPSEEK_API_KEY` | DeepSeek API密钥 | - |
 
 ### .env 文件示例
 
@@ -162,6 +170,9 @@ docker-compose logs -f
 DEBUG=False
 HOST=0.0.0.0
 PORT=8000
+
+# DeepSeek API 配置 (AI洞察功能)
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # 邮件配置
 SMTP_HOST=smtp.gmail.com
@@ -198,6 +209,12 @@ REPORT_CRON_MINUTE=0
 - `GET /api/diagnosis/anomalies` - 异常检测
 - `GET /api/diagnosis/low-conversion-alerts` - 低转化预警
 
+### AI 洞察模块
+- `POST /api/insights/dashboard` - 生成仪表盘洞察
+- `POST /api/insights/diagnosis` - 生成诊断洞察
+- `POST /api/insights/compare` - 生成对比洞察
+- `GET /api/insights/config-status` - 检查API配置状态
+
 ### 报告模块
 - `GET /api/report/generate` - 生成HTML报告
 - `POST /api/report/generate` - 创建自定义报告
@@ -216,13 +233,23 @@ marketing_analytics/
 │   │   ├── upload.py       # 文件上传
 │   │   ├── dashboard.py    # 仪表盘
 │   │   ├── diagnosis.py    # 深度诊断
+│   │   ├── compare.py      # 数据对比
+│   │   ├── insights.py     # AI洞察
 │   │   └── report.py       # 报告生成
 │   ├── services/           # 业务服务
 │   │   ├── parser.py       # XML解析
 │   │   ├── analytics.py    # 数据分析
+│   │   ├── insights.py     # AI洞察服务
 │   │   └── email_service.py # 邮件服务
 │   └── templates/          # HTML模板
+│       ├── dashboard.html  # 仪表盘页面
+│       ├── diagnosis.html  # 诊断页面
+│       ├── compare.html    # 对比页面
+│       ├── settings.html   # 设置页面
+│       └── ...
 ├── static/                  # 静态资源
+│   ├── i18n.js             # 多语言配置
+│   └── ...
 ├── config.py               # 配置文件
 ├── requirements.txt        # 依赖清单
 ├── Dockerfile              # Docker配置
@@ -246,6 +273,50 @@ marketing_analytics/
 | wishlist_adds | 收藏数 | int |
 | organic_impressions | 自然展示 | int |
 | paid_impressions | 付费展示 | int |
+
+## AI 洞察功能配置
+
+### 配置方式
+
+AI 洞察功能支持两种配置方式：
+
+#### 方式一：服务端环境变量（推荐用于部署环境）
+
+在环境变量或 `.env` 文件中配置：
+
+```env
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+#### 方式二：浏览器本地存储（无需重新部署）
+
+1. 访问应用后点击侧边栏的「设置」按钮
+2. 输入您的 DeepSeek API Key
+3. 点击「保存 API Key」
+
+API Key 将保存在浏览器本地存储中，刷新页面不会丢失。
+
+### 获取 DeepSeek API Key
+
+1. 访问 [DeepSeek Platform](https://platform.deepseek.com/api_keys)
+2. 注册/登录账户
+3. 进入「API Keys」页面
+4. 创建新的 API Key 并复制
+
+### 功能说明
+
+| 页面 | 洞察内容 |
+|------|---------|
+| 仪表盘 | 总体销售趋势、Top产品表现、异常提醒 |
+| 深度诊断 | 销量诊断原因、漏斗问题分析、异常解读 |
+| 数据对比 | 多数据集对比结论、排名变化、趋势总结 |
+
+### 离线模式
+
+未配置 API Key 时，系统会提供基于规则的基础洞察，包含：
+- 销售趋势的基本判断
+- 产品可见性提醒
+- 转化率的简单分析
 
 ## 注意事项
 

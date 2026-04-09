@@ -175,6 +175,82 @@
             max-height: 400px;
             overflow-y: auto;
         }
+        /* AI Insights Card */
+        .insight-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .insight-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .insight-card-title {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .insight-refresh-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .insight-refresh-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .insight-refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .insight-content {
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+        .insight-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            color: rgba(255,255,255,0.8);
+        }
+        .insight-loading .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+        .insight-offline-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .insight-config-hint {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .insight-config-hint a {
+            color: #ffd700;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -197,6 +273,30 @@
     <!-- 主内容 -->
     <main class="main-content">
         <h4 class="mb-4"><i class="bi bi-search"></i> <span data-i18n="pageTitles.diagnosis">Deep Analysis</span></h4>
+        
+        <!-- AI 洞察卡片 -->
+        <div class="insight-card" id="diagnosisInsightCard">
+            <div class="insight-card-header">
+                <div class="insight-card-title">
+                    <i class="bi bi-robot"></i> <span data-i18n="insights.diagnosis.title">AI 诊断洞察</span>
+                    <span class="insight-offline-badge" id="insightOfflineBadge" style="display:none;">离线模式</span>
+                </div>
+                <button class="insight-refresh-btn" id="refreshInsightBtn" onclick="loadDiagnosisInsights()">
+                    <i class="bi bi-arrow-clockwise"></i> <span data-i18n="insights.refresh">刷新洞察</span>
+                </button>
+            </div>
+            <div id="diagnosisInsightContent">
+                <div class="insight-loading">
+                    <div class="spinner"></div>
+                    <span data-i18n="insights.generating">正在生成AI洞察...</span>
+                </div>
+            </div>
+            <div class="insight-config-hint" id="insightConfigHint" style="display:none;">
+                <i class="bi bi-info-circle"></i>
+                <span data-i18n="insights.configHint">提示：配置 DeepSeek API Key 可获得更智能的分析。前往</span>
+                <a href="/settings" target="_blank"><span data-i18n="insights.settings">设置页面</span></a>
+            </div>
+        </div>
 
         <!-- 转化漏斗 -->
         <div class="section-card">
@@ -343,6 +443,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             applyTranslations(); // 立即应用翻译
             loadAllData();
+            loadDiagnosisInsights();
         });
 
         async function loadAllData() {
@@ -364,6 +465,63 @@
                 }
             } catch (error) {
                 console.error('加载失败:', error);
+            }
+        }
+
+        // 加载AI洞察
+        async function loadDiagnosisInsights() {
+            const contentEl = document.getElementById('diagnosisInsightContent');
+            const refreshBtn = document.getElementById('refreshInsightBtn');
+            const offlineBadge = document.getElementById('insightOfflineBadge');
+            const configHint = document.getElementById('insightConfigHint');
+            
+            // 显示加载状态
+            contentEl.innerHTML = `
+                <div class="insight-loading">
+                    <div class="spinner"></div>
+                    <span data-i18n="insights.generating">正在生成AI洞察...</span>
+                </div>
+            `;
+            refreshBtn.disabled = true;
+            
+            try {
+                // 获取API Key（从localStorage）
+                const apiKey = localStorage.getItem('deepseek_api_key');
+                
+                const headers = {};
+                if (apiKey) {
+                    headers['X-DeepSeek-Key'] = apiKey;
+                }
+                
+                const response = await fetch('/api/insights/diagnosis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...headers
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    contentEl.innerHTML = `<div class="insight-content">${result.insight}</div>`;
+                    
+                    if (result.is_offline) {
+                        offlineBadge.style.display = 'inline';
+                        configHint.style.display = 'block';
+                    } else {
+                        offlineBadge.style.display = 'none';
+                        configHint.style.display = 'none';
+                    }
+                } else {
+                    contentEl.innerHTML = `<div class="insight-content" style="color: #ffd0d0;">⚠️ ${result.insight || '生成洞察失败'}</div>`;
+                }
+            } catch (error) {
+                console.error('加载AI洞察失败:', error);
+                contentEl.innerHTML = `<div class="insight-content" style="color: #ffd0d0;">⚠️ 加载失败，请稍后重试</div>`;
+            } finally {
+                refreshBtn.disabled = false;
+                applyTranslations();
             }
         }
 

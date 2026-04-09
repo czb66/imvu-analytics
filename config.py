@@ -85,3 +85,8 @@ HIGH_PROFIT_MARGIN = float(os.getenv("HIGH_PROFIT_MARGIN", "0.3"))
 
 # 低转化率阈值
 LOW_CONVERSION_THRESHOLD = float(os.getenv("LOW_CONVERSION_THRESHOLD", "0.01"))
+
+# ==================== DeepSeek API 配置 ====================
+# AI洞察功能需要配置DeepSeek API Key
+# 获取方式: https://platform.deepseek.com/api_keys
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")

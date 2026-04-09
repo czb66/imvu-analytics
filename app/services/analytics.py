@@ -452,3 +452,43 @@ class AnalyticsService:
         except Exception as e:
             logger.error(f"get_roi_analysis 执行失败: {str(e)}\n{traceback.format_exc()}")
             return {}
+
+    def detect_anomalies(self, limit: int = 10) -> List[Dict]:
+        """
+        检测销量异常的产品（兼容方法）
+        
+        Args:
+            limit: 返回数量限制
+            
+        Returns:
+            异常产品列表
+        """
+        anomalies = self.detect_sales_anomalies()
+        return anomalies[:limit]
+    
+    def get_avg_profit_margin(self) -> float:
+        """
+        计算平均利润率
+        
+        Returns:
+            平均利润率（百分比）
+        """
+        if self.df.empty:
+            return 0.0
+        
+        try:
+            # 计算每个产品的利润率
+            self.df['profit_margin'] = self.df.apply(
+                lambda x: (x['profit'] / x['price'] * 100) if x['price'] > 0 else 0, axis=1
+            )
+            
+            # 计算平均利润率（排除异常值）
+            margins = self.df['profit_margin']
+            if len(margins) == 0:
+                return 0.0
+            
+            # 使用中位数避免极端值影响
+            return round(margins.median(), 2)
+        except Exception as e:
+            logger.error(f"get_avg_profit_margin 执行失败: {str(e)}")
+            return 0.0

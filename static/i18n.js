@@ -242,6 +242,59 @@ const translations = {
             confirmDelete: 'Are you sure you want to delete this dataset?'
         },
         
+        // AI洞察
+        insights: {
+            dashboard: {
+                title: 'AI Data Insights'
+            },
+            diagnosis: {
+                title: 'AI Diagnostic Insights'
+            },
+            compare: {
+                title: 'AI Comparison Insights'
+            },
+            refresh: 'Refresh Insights',
+            generating: 'Generating AI insights...',
+            configHint: 'Configure DeepSeek API Key for smarter analysis. Go to',
+            settings: 'Settings Page',
+            loadError: 'Failed to load, please try again later'
+        },
+        
+        // 设置页面
+        settings: {
+            nav: 'Settings',
+            pageTitle: 'Settings',
+            apiConfig: 'API Configuration',
+            deepseekApiKey: 'DeepSeek API Key',
+            apiKeyPlaceholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            apiKeyHint: 'API Key will be stored in your browser\'s localStorage',
+            saveButton: 'Save API Key',
+            clearButton: 'Clear',
+            configured: 'API Key Configured',
+            notConfigured: 'Not Configured',
+            howToGet: 'How to get DeepSeek API Key?',
+            step1: 'Visit',
+            step2: 'Sign up or log in to your account',
+            step3: 'Navigate to "API Keys" section',
+            step4: 'Create a new API key and copy it',
+            step5: 'Paste the key above and click "Save"',
+            securityNote: 'Your API key is stored locally in your browser and is never sent to our servers.',
+            aiFeatures: 'AI Features',
+            aiFeaturesDesc: 'With DeepSeek API configured, you can enjoy the following AI-powered insights:',
+            feature1Title: 'Dashboard Insights',
+            feature1Desc: 'Overall sales trend interpretation, top products analysis, and anomaly alerts',
+            feature2Title: 'Diagnosis Insights',
+            feature2Desc: 'Sales diagnosis, conversion funnel analysis, and anomaly product explanation',
+            feature3Title: 'Compare Insights',
+            feature3Desc: 'Multi-dataset comparison conclusions, ranking changes, and trend summaries',
+            offlineMode: 'Without API Key, the system will provide basic rule-based insights (offline mode).',
+            emptyKeyError: 'API Key cannot be empty',
+            invalidKeyError: 'Invalid API Key format. DeepSeek API Key should start with "sk-"',
+            saveSuccess: 'API Key saved successfully!',
+            clearSuccess: 'API Key cleared',
+            clearConfirm: 'Are you sure you want to clear the API Key?'
+        },
+        
         // 语言切换
         language: {
             switchTo: 'Switch to',
@@ -485,6 +538,59 @@ const translations = {
             // 操作
             products: '个产品',
             confirmDelete: '确定要删除此数据集吗？'
+        },
+        
+        // AI洞察
+        insights: {
+            dashboard: {
+                title: 'AI 数据洞察'
+            },
+            diagnosis: {
+                title: 'AI 诊断洞察'
+            },
+            compare: {
+                title: 'AI 对比洞察'
+            },
+            refresh: '刷新洞察',
+            generating: '正在生成AI洞察...',
+            configHint: '配置 DeepSeek API Key 可获得更智能的分析。前往',
+            settings: '设置页面',
+            loadError: '加载失败，请稍后重试'
+        },
+        
+        // 设置页面
+        settings: {
+            nav: '设置',
+            pageTitle: '设置',
+            apiConfig: 'API 配置',
+            deepseekApiKey: 'DeepSeek API Key',
+            apiKeyPlaceholder: 'sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            apiKeyHint: 'API Key 将存储在浏览器本地存储中',
+            saveButton: '保存 API Key',
+            clearButton: '清除',
+            configured: 'API Key 已配置',
+            notConfigured: '未配置',
+            howToGet: '如何获取 DeepSeek API Key？',
+            step1: '访问',
+            step2: '注册或登录您的账户',
+            step3: '进入 "API Keys" 页面',
+            step4: '创建新的 API Key 并复制它',
+            step5: '将密钥粘贴到上方并点击"保存"',
+            securityNote: '您的 API Key 仅存储在本地浏览器中，不会发送到我们的服务器。',
+            aiFeatures: 'AI 功能说明',
+            aiFeaturesDesc: '配置 DeepSeek API 后，您可以享受以下 AI 驱动的洞察功能：',
+            feature1Title: '仪表盘洞察',
+            feature1Desc: '总体销售趋势解读、Top产品分析、异常提醒',
+            feature2Title: '诊断洞察',
+            feature2Desc: '销售诊断、转化漏斗分析、异常产品解读',
+            feature3Title: '对比洞察',
+            feature3Desc: '多数据集对比结论、排名变化分析、趋势总结',
+            offlineMode: '未配置 API Key 时，系统将提供基于规则的基础洞察（离线模式）。',
+            emptyKeyError: 'API Key 不能为空',
+            invalidKeyError: 'API Key 格式无效。DeepSeek API Key 应以 "sk-" 开头',
+            saveSuccess: 'API Key 保存成功！',
+            clearSuccess: 'API Key 已清除',
+            clearConfirm: '确定要清除 API Key 吗？'
         },
         
         // 语言切换

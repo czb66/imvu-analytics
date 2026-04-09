@@ -12,7 +12,7 @@ import os
 
 import config
 from app.database import init_db
-from app.routers import upload, dashboard, diagnosis, report, compare
+from app.routers import upload, dashboard, diagnosis, report, compare, insights
 from app.services.email_service import email_service
 
 # 配置日志
@@ -42,6 +42,7 @@ app.include_router(dashboard.router)
 app.include_router(diagnosis.router)
 app.include_router(report.router)
 app.include_router(compare.router)
+app.include_router(insights.router)
 
 
 @app.on_event("startup")
@@ -128,6 +129,16 @@ async def report_page():
 async def compare_page():
     """数据对比页面"""
     return templates.TemplateResponse("compare.html", {
+        "request": {},
+        "app_name": config.APP_NAME,
+        "version": config.APP_VERSION
+    })
+
+
+@app.get("/settings")
+async def settings_page():
+    """设置页面"""
+    return templates.TemplateResponse("settings.html", {
         "request": {},
         "app_name": config.APP_NAME,
         "version": config.APP_VERSION
