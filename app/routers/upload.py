@@ -2,7 +2,7 @@
 文件上传路由 - 处理XML文件上传
 """
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, Form
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form, Depends
 from fastapi.responses import JSONResponse
 from typing import List, Optional
 import tempfile
@@ -12,6 +12,7 @@ import logging
 import config
 from app.services.parser import XMLParserService
 from app.database import get_db_context, ProductDataRepository, DatasetRepository
+from app.services.auth import get_current_user
 from app.routers.dashboard import _clear_cache  # 导入缓存清除函数
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,8 @@ router = APIRouter(prefix="/api/upload", tags=["上传"])
 @router.post("/")
 async def upload_xml_file(
     file: UploadFile = File(...),
-    dataset_name: Optional[str] = Form(None)
+    dataset_name: Optional[str] = Form(None),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     上传XML文件并解析
@@ -60,7 +62,7 @@ async def upload_xml_file(
                 detail="文件中没有找到产品数据"
             )
         
-        # 保存到数据库
+        # 保存到数据库，关联用户ID
         with get_db_context() as db:
             repo = ProductDataRepository(db)
             dataset_repo = DatasetRepository(db)
@@ -77,8 +79,12 @@ async def upload_xml_file(
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
                 unique_name = f"数据集 {timestamp}"
             
-            # 始终创建新的数据集记录，确保数据独立性
-            dataset = dataset_repo.create(name=unique_name, record_count=len(products))
+            # 始终创建新的数据集记录，确保数据独立性，并关联用户
+            dataset = dataset_repo.create(
+                name=unique_name, 
+                record_count=len(products),
+                user_id=current_user.get('id')  # 关联用户ID
+            )
             count = repo.bulk_insert_with_dataset(products, dataset.id)
             dataset_id = dataset.id
             dataset_name_display = dataset.name
@@ -86,7 +92,7 @@ async def upload_xml_file(
         # 清除仪表盘缓存，确保新数据立即可见
         _clear_cache()
         
-        logger.info(f"成功上传 {count} 条产品数据到数据集 '{dataset_name_display}'")
+        logger.info(f"用户 {current_user.get('email')} 成功上传 {count} 条产品数据到数据集 '{dataset_name_display}'")
         
         return {
             "success": True,
@@ -108,7 +114,10 @@ async def upload_xml_file(
 
 
 @router.post("/validate")
-async def validate_xml(file: UploadFile = File(...)):
+async def validate_xml(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
     """
     验证XML文件结构（不上传）
     

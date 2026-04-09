@@ -2,7 +2,7 @@
 报告路由 - 报告生成和管理
 """
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from typing import Optional, List
@@ -15,6 +15,7 @@ import config
 from app.database import get_db_context, ProductDataRepository, ReportHistoryRepository
 from app.services.analytics import AnalyticsService
 from app.services.email_service import email_service
+from app.services.auth import get_current_user
 import html as html_module
 
 logger = logging.getLogger(__name__)
@@ -30,13 +31,32 @@ class ReportRequest(BaseModel):
     email_recipients: Optional[List[str]] = None
 
 
+def _product_to_dict(p) -> dict:
+    """将产品对象转换为字典"""
+    return {
+        'product_id': p.product_id,
+        'product_name': p.product_name,
+        'price': p.price,
+        'profit': p.profit,
+        'visible': p.visible,
+        'direct_sales': p.direct_sales,
+        'indirect_sales': p.indirect_sales,
+        'promoted_sales': p.promoted_sales,
+        'cart_adds': p.cart_adds,
+        'wishlist_adds': p.wishlist_adds,
+        'organic_impressions': p.organic_impressions,
+        'paid_impressions': p.paid_impressions,
+    }
+
+
 @router.get("/generate")
-async def generate_report_html():
+async def generate_report_html(current_user: dict = Depends(get_current_user)):
     """生成HTML报告"""
+    user_id = current_user.get('id')
     try:
         with get_db_context() as db:
             repo = ProductDataRepository(db)
-            products = repo.get_all()
+            products = repo.get_all(user_id=user_id)
             
             if not products:
                 return HTMLResponse(
@@ -80,7 +100,11 @@ async def generate_report_html():
 
 
 @router.post("/generate")
-async def create_report(request: ReportRequest, background_tasks: BackgroundTasks):
+async def create_report(
+    request: ReportRequest, 
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user)
+):
     """
     创建报告（可配置）
     
@@ -90,11 +114,12 @@ async def create_report(request: ReportRequest, background_tasks: BackgroundTask
     - **send_email**: 发送邮件
     - **email_recipients**: 邮件收件人列表
     """
+    user_id = current_user.get('id')
     try:
         with get_db_context() as db:
             repo = ProductDataRepository(db)
             report_repo = ReportHistoryRepository(db)
-            products = repo.get_all()
+            products = repo.get_all(user_id=user_id)
             
             if not products:
                 raise HTTPException(status_code=400, detail="暂无数据")
@@ -113,7 +138,7 @@ async def create_report(request: ReportRequest, background_tasks: BackgroundTask
                 'report_type': 'manual',
                 'content_preview': f"总销量: {(summary or {}).get('total_sales', 0)} 个",
                 'status': 'pending'
-            })
+            }, user_id=user_id)
         
         # 生成报告文件
         os.makedirs(config.REPORT_DIR, exist_ok=True)
@@ -183,7 +208,10 @@ async def create_report(request: ReportRequest, background_tasks: BackgroundTask
 
 
 @router.get("/download/{filename}")
-async def download_report(filename: str):
+async def download_report(
+    filename: str,
+    current_user: dict = Depends(get_current_user)
+):
     """下载报告文件"""
     # 安全检查：只允许下载reports目录下的文件
     safe_name = os.path.basename(filename)
@@ -200,11 +228,15 @@ async def download_report(filename: str):
 
 
 @router.get("/history")
-async def get_report_history(limit: int = 10):
+async def get_report_history(
+    limit: int = 10,
+    current_user: dict = Depends(get_current_user)
+):
     """获取报告历史"""
+    user_id = current_user.get('id')
     with get_db_context() as db:
         repo = ReportHistoryRepository(db)
-        reports = repo.get_recent(limit)
+        reports = repo.get_recent(limit, user_id=user_id)
         
         return {
             "success": True,
@@ -220,24 +252,6 @@ async def get_report_history(limit: int = 10):
                 for r in reports
             ]
         }
-
-
-def _product_to_dict(p) -> dict:
-    """将产品对象转换为字典"""
-    return {
-        'product_id': p.product_id,
-        'product_name': p.product_name,
-        'price': p.price,
-        'profit': p.profit,
-        'visible': p.visible,
-        'direct_sales': p.direct_sales,
-        'indirect_sales': p.indirect_sales,
-        'promoted_sales': p.promoted_sales,
-        'cart_adds': p.cart_adds,
-        'wishlist_adds': p.wishlist_adds,
-        'organic_impressions': p.organic_impressions,
-        'paid_impressions': p.paid_impressions,
-    }
 
 
 def _generate_report_html(
@@ -498,73 +512,98 @@ def _generate_report_html(
             salesChart.setOption({{
                 title: {{ text: 'Top 10 产品销量', left: 'center' }},
                 tooltip: {{ trigger: 'axis' }},
-                xAxis: {{ type: 'category', data: {top_product_names}, axisLabel: {{ rotate: 30 }} }},
-                yAxis: {{ type: 'value', name: '销量 (个)' }},
+                xAxis: {{ type: 'category', data: {top_product_names} }},
+                yAxis: {{ type: 'value' }},
                 series: [{{
+                    name: '销量',
                     type: 'bar',
                     data: {top_product_sales},
-                    itemStyle: {{ color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                        {{ offset: 0, color: '#667eea' }},
-                        {{ offset: 1, color: '#764ba2' }}
-                    ])}},
-                    barWidth: '50%'
+                    itemStyle: {{
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            {{ offset: 0, color: '#667eea' }},
+                            {{ offset: 1, color: '#764ba2' }}
+                        ])
+                    }}
                 }}]
             }});
             
-            // 可见性对比
+            // 可见性图表
             var visibilityChart = echarts.init(document.getElementById('chart-visibility'));
             visibilityChart.setOption({{
-                title: {{ text: '可见 vs 隐藏产品', left: 'center' }},
+                title: {{ text: '可见性分析', left: 'center' }},
                 tooltip: {{ trigger: 'item' }},
                 series: [{{
+                    name: '产品数量',
                     type: 'pie',
                     radius: ['40%', '70%'],
                     data: [
                         {{ value: {(visible_data or {{}}).get('count', 0)}, name: '可见产品' }},
                         {{ value: {(hidden_data or {{}}).get('count', 0)}, name: '隐藏产品' }}
-                    ]
+                    ],
+                    emphasis: {{
+                        itemStyle: {{
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }}
+                    }}
                 }}]
             }});
             
-            // 流量对比
+            // 流量分析图表
             var trafficChart = echarts.init(document.getElementById('chart-traffic'));
             trafficChart.setOption({{
-                title: {{ text: '自然流量 vs 付费流量', left: 'center' }},
-                tooltip: {{ trigger: 'item' }},
-                series: [{{
-                    type: 'pie',
-                    radius: ['40%', '70%'],
-                    data: [
-                        {{ value: {(organic_data or {{}}).get('total_impressions', 0)}, name: '自然流量' }},
-                        {{ value: {(paid_data or {{}}).get('total_impressions', 0)}, name: '付费流量' }}
-                    ]
-                }}]
+                title: {{ text: '流量分析', left: 'center' }},
+                tooltip: {{ trigger: 'axis' }},
+                legend: {{ data: ['自然流量', '付费流量'], top: 30 }},
+                xAxis: {{ type: 'value' }},
+                yAxis: {{ type: 'category', data: ['展示次数', '加购数', '收藏数'] }},
+                series: [
+                    {{
+                        name: '自然流量',
+                        type: 'bar',
+                        stack: '总量',
+                        data: [{(organic_data or {{}}).get('impressions', 0)}, {(organic_data or {{}}).get('cart_adds', 0)}, {(organic_data or {{}}).get('wishlist_adds', 0)}]
+                    }},
+                    {{
+                        name: '付费流量',
+                        type: 'bar',
+                        stack: '总量',
+                        data: [{(paid_data or {{}}).get('impressions', 0)}, {(paid_data or {{}}).get('cart_adds', 0)}, {(paid_data or {{}}).get('wishlist_adds', 0)}]
+                    }}
+                ]
             }});
             
-            // 价格区间
-            var priceRangeChart = echarts.init(document.getElementById('chart-price-range'));
-            priceRangeChart.setOption({{
-                title: {{ text: '价格区间产品分布', left: 'center' }},
+            // 价格区间图表
+            var priceChart = echarts.init(document.getElementById('chart-price-range'));
+            priceChart.setOption({{
+                title: {{ text: '价格区间分布', left: 'center' }},
                 tooltip: {{ trigger: 'axis' }},
                 xAxis: {{ type: 'category', data: {price_ranges} }},
-                yAxis: {{ type: 'value', name: '产品数量' }},
+                yAxis: {{ type: 'value' }},
                 series: [{{
+                    name: '产品数量',
                     type: 'bar',
                     data: {price_counts},
-                    itemStyle: {{ color: '#667eea' }}
+                    itemStyle: {{
+                        color: function(params) {{
+                            var colorList = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#43e97b', '#38f9d7', '#fa709a', '#fee140'];
+                            return colorList[params.dataIndex % colorList.length];
+                        }}
+                    }}
                 }}]
             }});
             
-            // 响应式
+            // 响应式调整
             window.addEventListener('resize', function() {{
                 salesChart.resize();
                 visibilityChart.resize();
                 trafficChart.resize();
-                priceRangeChart.resize();
+                priceChart.resize();
             }});
         }});
     </script>
 </body>
 </html>
-    """
+"""
     return html

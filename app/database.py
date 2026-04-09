@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from typing import Generator
 import config
 
-from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset
+from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User
 
 # 数据库引擎配置
 if "sqlite" in config.DATABASE_URL:
@@ -63,6 +63,51 @@ def get_db_context():
         db.close()
 
 
+class UserRepository:
+    """用户仓储类"""
+    
+    def __init__(self, db: Session):
+        self.db = db
+    
+    def create(self, email: str, password_hash: str, username: str = None) -> User:
+        """创建新用户"""
+        user = User(
+            email=email,
+            password_hash=password_hash,
+            username=username
+        )
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+    
+    def get_by_email(self, email: str) -> User:
+        """根据邮箱获取用户"""
+        return self.db.query(User).filter(User.email == email.lower()).first()
+    
+    def get_by_id(self, user_id: int) -> User:
+        """根据ID获取用户"""
+        return self.db.query(User).filter(User.id == user_id).first()
+    
+    def email_exists(self, email: str) -> bool:
+        """检查邮箱是否已注册"""
+        return self.db.query(User).filter(User.email == email.lower()).first() is not None
+    
+    def update_password(self, user_id: int, new_password_hash: str):
+        """更新用户密码"""
+        user = self.get_by_id(user_id)
+        if user:
+            user.password_hash = new_password_hash
+            self.db.commit()
+    
+    def delete(self, user_id: int):
+        """删除用户"""
+        user = self.get_by_id(user_id)
+        if user:
+            self.db.delete(user)
+            self.db.commit()
+
+
 class ProductDataRepository:
     """产品数据仓储类"""
     
@@ -93,11 +138,10 @@ class ProductDataRepository:
         self.db.commit()
         return len(products)
     
-    def get_all(self) -> list:
+    def get_all(self, user_id: int = None) -> list:
         """获取最新数据集的产品数据（用于 Dashboard 显示）"""
-        # 获取最新上传的数据集
-        from app.models import Dataset
-        latest_dataset = self.db.query(Dataset).order_by(Dataset.upload_time.desc()).first()
+        # 获取最新上传的数据集（按用户过滤）
+        latest_dataset = self._get_latest_dataset_for_user(user_id)
         
         if latest_dataset:
             # 返回最新数据集的数据
@@ -106,7 +150,26 @@ class ProductDataRepository:
             ).all()
         
         # 兼容旧逻辑：如果没有数据集，返回 dataset_id == None 的数据
-        return self.db.query(ProductData).filter(ProductData.dataset_id == None).all()
+        # 如果有user_id，则返回该用户的数据
+        query = self.db.query(ProductData)
+        if user_id:
+            # 获取该用户的数据集
+            user_datasets = self.db.query(Dataset).filter(Dataset.user_id == user_id).all()
+            dataset_ids = [d.id for d in user_datasets]
+            if dataset_ids:
+                query = query.filter(ProductData.dataset_id.in_(dataset_ids))
+            else:
+                return []
+        else:
+            query = query.filter(ProductData.dataset_id == None)
+        return query.all()
+    
+    def _get_latest_dataset_for_user(self, user_id: int = None):
+        """获取用户最新的数据集"""
+        query = self.db.query(Dataset)
+        if user_id is not None:
+            query = query.filter(Dataset.user_id == user_id)
+        return query.order_by(Dataset.upload_time.desc()).first()
     
     def get_by_dataset(self, dataset_id: int) -> list:
         """获取指定数据集的产品数据"""
@@ -118,37 +181,70 @@ class ProductDataRepository:
             ProductData.product_id == product_id
         ).first()
     
-    def get_visible_products(self, visible: str = 'Y') -> list:
+    def get_visible_products(self, visible: str = 'Y', user_id: int = None) -> list:
         """获取可见/不可见产品（最新数据集）"""
         # 获取最新上传的数据集
-        from app.models import Dataset
-        latest_dataset = self.db.query(Dataset).order_by(Dataset.upload_time.desc()).first()
+        latest_dataset = self._get_latest_dataset_for_user(user_id)
+        
+        query = self.db.query(ProductData)
         
         if latest_dataset:
-            return self.db.query(ProductData).filter(
+            query = query.filter(
                 ProductData.dataset_id == latest_dataset.id,
                 ProductData.visible == visible
-            ).all()
+            )
+        else:
+            # 兼容旧逻辑
+            if user_id:
+                # 获取该用户的数据集
+                user_datasets = self.db.query(Dataset).filter(Dataset.user_id == user_id).all()
+                dataset_ids = [d.id for d in user_datasets]
+                if dataset_ids:
+                    query = query.filter(
+                        ProductData.dataset_id.in_(dataset_ids),
+                        ProductData.visible == visible
+                    )
+                else:
+                    return []
+            else:
+                query = query.filter(
+                    ProductData.dataset_id == None,
+                    ProductData.visible == visible
+                )
         
-        # 兼容旧逻辑
-        return self.db.query(ProductData).filter(
-            ProductData.dataset_id == None,
-            ProductData.visible == visible
-        ).all()
+        return query.all()
     
-    def get_top_products(self, limit: int = 10, sort_by: str = 'profit', dataset_id: int = None) -> list:
+    def get_top_products(self, limit: int = 10, sort_by: str = 'profit', dataset_id: int = None, user_id: int = None) -> list:
         """获取Top产品"""
         query = self.db.query(ProductData)
+        
+        # 按数据集过滤
         if dataset_id is not None:
             query = query.filter(ProductData.dataset_id == dataset_id)
+        elif user_id is not None:
+            # 获取该用户最新的数据集
+            latest_dataset = self._get_latest_dataset_for_user(user_id)
+            if latest_dataset:
+                query = query.filter(ProductData.dataset_id == latest_dataset.id)
+            else:
+                return []
+        
         column = getattr(ProductData, sort_by, ProductData.profit)
         return query.order_by(column.desc()).limit(limit).all()
     
-    def get_bottom_products(self, limit: int = 10, sort_by: str = 'profit', dataset_id: int = None) -> list:
+    def get_bottom_products(self, limit: int = 10, sort_by: str = 'profit', dataset_id: int = None, user_id: int = None) -> list:
         """获取Bottom产品"""
         query = self.db.query(ProductData)
+        
         if dataset_id is not None:
             query = query.filter(ProductData.dataset_id == dataset_id)
+        elif user_id is not None:
+            latest_dataset = self._get_latest_dataset_for_user(user_id)
+            if latest_dataset:
+                query = query.filter(ProductData.dataset_id == latest_dataset.id)
+            else:
+                return []
+        
         column = getattr(ProductData, sort_by, ProductData.profit)
         return query.order_by(column.asc()).limit(limit).all()
     
@@ -163,17 +259,20 @@ class DatasetRepository:
     def __init__(self, db: Session):
         self.db = db
     
-    def create(self, name: str, record_count: int = 0) -> Dataset:
+    def create(self, name: str, record_count: int = 0, user_id: int = None) -> Dataset:
         """创建新数据集"""
-        dataset = Dataset(name=name, record_count=record_count)
+        dataset = Dataset(name=name, record_count=record_count, user_id=user_id)
         self.db.add(dataset)
         self.db.commit()
         self.db.refresh(dataset)
         return dataset
     
-    def get_all(self) -> list:
+    def get_all(self, user_id: int = None) -> list:
         """获取所有数据集"""
-        return self.db.query(Dataset).order_by(Dataset.upload_time.desc()).all()
+        query = self.db.query(Dataset)
+        if user_id is not None:
+            query = query.filter(Dataset.user_id == user_id)
+        return query.order_by(Dataset.upload_time.desc()).all()
     
     def get_by_id(self, dataset_id: int) -> Dataset:
         """根据ID获取数据集"""
@@ -188,15 +287,17 @@ class DatasetRepository:
     
     def delete(self, dataset_id: int):
         """删除数据集及其关联的产品数据"""
-        # 级联删除会在数据库层面处理
         dataset = self.get_by_id(dataset_id)
         if dataset:
             self.db.delete(dataset)
             self.db.commit()
     
-    def get_latest(self, limit: int = 10) -> list:
+    def get_latest(self, limit: int = 10, user_id: int = None) -> list:
         """获取最新的N个数据集"""
-        return self.db.query(Dataset).order_by(Dataset.upload_time.desc()).limit(limit).all()
+        query = self.db.query(Dataset)
+        if user_id is not None:
+            query = query.filter(Dataset.user_id == user_id)
+        return query.order_by(Dataset.upload_time.desc()).limit(limit).all()
 
 
 class ReportHistoryRepository:
@@ -205,17 +306,20 @@ class ReportHistoryRepository:
     def __init__(self, db: Session):
         self.db = db
     
-    def create(self, report_data: dict) -> ReportHistory:
+    def create(self, report_data: dict, user_id: int = None) -> ReportHistory:
         """创建报告记录"""
-        report = ReportHistory(**report_data)
+        report = ReportHistory(**report_data, user_id=user_id)
         self.db.add(report)
         self.db.commit()
         self.db.refresh(report)
         return report
     
-    def get_recent(self, limit: int = 10) -> list:
+    def get_recent(self, limit: int = 10, user_id: int = None) -> list:
         """获取最近的报告"""
-        return self.db.query(ReportHistory).order_by(
+        query = self.db.query(ReportHistory)
+        if user_id is not None:
+            query = query.filter(ReportHistory.user_id == user_id)
+        return query.order_by(
             ReportHistory.generated_at.desc()
         ).limit(limit).all()
     

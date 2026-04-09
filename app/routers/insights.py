@@ -2,7 +2,7 @@
 AI洞察路由 - 提供AI洞察相关API
 """
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 import logging
@@ -11,6 +11,7 @@ import time
 from app.database import get_db_context, ProductDataRepository
 from app.services.analytics import AnalyticsService
 from app.services.insights import insights_service
+from app.services.auth import get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["AI洞察"])
@@ -33,7 +34,7 @@ class CompareInsightsRequest(BaseModel):
 
 
 def _product_to_dict(p) -> dict:
-    """将ProductData对象转换为字典"""
+    """将产品对象转换为字典"""
     return {
         'product_id': p.product_id,
         'product_name': p.product_name,
@@ -50,25 +51,27 @@ def _product_to_dict(p) -> dict:
     }
 
 
-def _get_products_from_request(request: Request, dataset_id: Optional[int] = None) -> List[Dict]:
-    """从请求中获取产品数据（不获取API Key，由服务端统一管理）"""
+def _get_products_from_request(user_id: int = None, dataset_id: Optional[int] = None) -> List[Dict]:
+    """从请求中获取产品数据"""
     with get_db_context() as db:
         repo = ProductDataRepository(db)
         
         if dataset_id:
             products = repo.get_by_dataset(dataset_id)
         else:
-            products = repo.get_all()
+            products = repo.get_all(user_id=user_id)
         
         return [_product_to_dict(p) for p in products]
 
 
-def _get_datasets_from_request(request: Request) -> List[Dict]:
+def _get_datasets_from_request(user_id: int = None) -> List[Dict]:
     """获取数据集列表"""
     from app.models import Dataset
+    from app.database import DatasetRepository
     
     with get_db_context() as db:
-        datasets = db.query(Dataset).order_by(Dataset.upload_time.desc()).all()
+        repo = DatasetRepository(db)
+        datasets = repo.get_all(user_id=user_id)
         return [
             {
                 'id': d.id,
@@ -81,21 +84,26 @@ def _get_datasets_from_request(request: Request) -> List[Dict]:
 
 
 @router.post("/dashboard")
-async def generate_dashboard_insights(request: Request, req: DashboardInsightsRequest = None):
+async def generate_dashboard_insights(
+    request: Request,
+    req: DashboardInsightsRequest = None,
+    current_user: dict = Depends(get_current_user)
+):
     """
     生成仪表盘AI洞察
     
     分析总体销售趋势、Top产品表现、核心指标异常
     """
     start_time = time.time()
-    logger.info("[API] 生成仪表盘洞察 - 开始")
+    user_id = current_user.get('id')
+    logger.info(f"[API] 用户 {current_user.get('email')} 生成仪表盘洞察 - 开始")
     
     # 获取语言参数
     language = req.language if req and hasattr(req, 'language') else 'zh'
     
     try:
         # 获取产品数据
-        product_dicts = _get_products_from_request(request)
+        product_dicts = _get_products_from_request(user_id=user_id)
         
         if not product_dicts:
             no_data_msg = "暂无数据可分析，请先上传产品数据" if language == 'zh' else "No data to analyze, please upload product data first"
@@ -116,7 +124,7 @@ async def generate_dashboard_insights(request: Request, req: DashboardInsightsRe
         insight = await insights_service.generate_dashboard_insights(summary, top_products, language)
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 生成仪表盘洞察 - 完成 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户 {current_user.get('email')} 生成仪表盘洞察 - 完成 耗时: {elapsed:.3f}s")
         
         return {
             "success": True,
@@ -130,7 +138,7 @@ async def generate_dashboard_insights(request: Request, req: DashboardInsightsRe
         
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 生成仪表盘洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户 {current_user.get('email')} 生成仪表盘洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
             "error": str(e),
@@ -140,21 +148,26 @@ async def generate_dashboard_insights(request: Request, req: DashboardInsightsRe
 
 
 @router.post("/diagnosis")
-async def generate_diagnosis_insights(request: Request, req: DiagnosisInsightsRequest = None):
+async def generate_diagnosis_insights(
+    request: Request,
+    req: DiagnosisInsightsRequest = None,
+    current_user: dict = Depends(get_current_user)
+):
     """
     生成诊断AI洞察
     
     分析销售诊断、流量漏斗、异常检测
     """
     start_time = time.time()
-    logger.info("[API] 生成诊断洞察 - 开始")
+    user_id = current_user.get('id')
+    logger.info(f"[API] 用户 {current_user.get('email')} 生成诊断洞察 - 开始")
     
     # 获取语言参数
     language = req.language if req and hasattr(req, 'language') else 'zh'
     
     try:
         # 获取产品数据
-        product_dicts = _get_products_from_request(request)
+        product_dicts = _get_products_from_request(user_id=user_id)
         
         if not product_dicts:
             no_data_msg = "暂无数据可诊断，请先上传产品数据" if language == 'zh' else "No data to diagnose, please upload product data first"
@@ -181,7 +194,7 @@ async def generate_diagnosis_insights(request: Request, req: DiagnosisInsightsRe
         funnel_data = analytics.get_conversion_funnel()
         
         # 异常检测
-        anomalies = analytics.detect_anomalies()
+        anomalies = analytics.detect_sales_anomalies()
         
         # 生成洞察
         insight = await insights_service.generate_diagnosis_insights(
@@ -189,7 +202,7 @@ async def generate_diagnosis_insights(request: Request, req: DiagnosisInsightsRe
         )
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 生成诊断洞察 - 完成 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户 {current_user.get('email')} 生成诊断洞察 - 完成 耗时: {elapsed:.3f}s")
         
         return {
             "success": True,
@@ -204,7 +217,7 @@ async def generate_diagnosis_insights(request: Request, req: DiagnosisInsightsRe
         
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 生成诊断洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户 {current_user.get('email')} 生成诊断洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
             "error": str(e),
@@ -214,14 +227,19 @@ async def generate_diagnosis_insights(request: Request, req: DiagnosisInsightsRe
 
 
 @router.post("/compare")
-async def generate_compare_insights(request: Request, req: CompareInsightsRequest):
+async def generate_compare_insights(
+    request: Request,
+    req: CompareInsightsRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """
     生成对比AI洞察
     
     分析多数据集对比结论、排名变化、趋势总结
     """
     start_time = time.time()
-    logger.info(f"[API] 生成对比洞察 - 开始 数据集: {req.dataset_ids}")
+    user_id = current_user.get('id')
+    logger.info(f"[API] 用户 {current_user.get('email')} 生成对比洞察 - 开始 数据集: {req.dataset_ids}")
     
     # 获取语言参数
     language = req.language if hasattr(req, 'language') else 'zh'
@@ -241,10 +259,17 @@ async def generate_compare_insights(request: Request, req: CompareInsightsReques
         
         with get_db_context() as db:
             from app.models import Dataset, ProductData
+            from app.database import DatasetRepository
+            
+            dataset_repo = DatasetRepository(db)
             
             for ds_id in req.dataset_ids:
-                dataset = db.query(Dataset).filter(Dataset.id == ds_id).first()
+                dataset = dataset_repo.get_by_id(ds_id)
                 if dataset:
+                    # 数据隔离：检查数据集是否属于当前用户
+                    if dataset.user_id != user_id:
+                        continue
+                    
                     # 获取产品数据
                     repo = ProductDataRepository(db)
                     products = repo.get_by_dataset(ds_id)
@@ -291,7 +316,7 @@ async def generate_compare_insights(request: Request, req: CompareInsightsReques
         )
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 生成对比洞察 - 完成 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户 {current_user.get('email')} 生成对比洞察 - 完成 耗时: {elapsed:.3f}s")
         
         return {
             "success": True,
@@ -310,7 +335,7 @@ async def generate_compare_insights(request: Request, req: CompareInsightsReques
         
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 生成对比洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户 {current_user.get('email')} 生成对比洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
             "error": str(e),
@@ -427,6 +452,3 @@ def _calculate_rank_changes(datasets: List[Dict]) -> Dict:
         'new_entries': new_entries[:10],
         'dropped': dropped[:10]
     }
-
-
-

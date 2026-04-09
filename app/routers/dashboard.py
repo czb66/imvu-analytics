@@ -2,7 +2,7 @@
 仪表盘路由 - 提供仪表盘数据
 """
 
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Depends
 from typing import Optional
 import logging
 import time
@@ -10,16 +10,13 @@ from functools import lru_cache
 
 from app.database import get_db_context, ProductDataRepository
 from app.services.analytics import AnalyticsService
+from app.services.auth import get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/dashboard", tags=["仪表盘"])
 
-# 缓存相关
-_dashboard_cache = {
-    "data": None,
-    "timestamp": 0,
-    "ttl": 60  # 缓存60秒
-}
+# 缓存相关（按用户ID隔离）
+_dashboard_cache = {}
 
 
 def _product_to_dict(p) -> dict:
@@ -40,56 +37,74 @@ def _product_to_dict(p) -> dict:
     }
 
 
-def _get_cached_products():
-    """获取产品数据（带缓存）"""
+def _get_cached_products(user_id: int = None):
+    """获取产品数据（带缓存，按用户隔离）"""
+    cache_key = str(user_id) if user_id else "anonymous"
     current_time = time.time()
     
     # 检查缓存是否有效
-    if _dashboard_cache["data"] is not None:
-        if current_time - _dashboard_cache["timestamp"] < _dashboard_cache["ttl"]:
-            logger.debug("使用缓存的产品数据")
-            return _dashboard_cache["data"]
+    if cache_key in _dashboard_cache:
+        cache_entry = _dashboard_cache[cache_key]
+        if cache_entry["data"] is not None:
+            if current_time - cache_entry["timestamp"] < cache_entry["ttl"]:
+                logger.debug(f"用户 {cache_key} 使用缓存的产品数据")
+                return cache_entry["data"]
     
     # 从数据库获取
-    logger.info("从数据库加载产品数据")
+    logger.info(f"用户 {cache_key} 从数据库加载产品数据")
     with get_db_context() as db:
         repo = ProductDataRepository(db)
-        products = repo.get_all()
+        products = repo.get_all(user_id=user_id)
         
         if not products:
-            _dashboard_cache["data"] = []
-            _dashboard_cache["timestamp"] = current_time
+            _dashboard_cache[cache_key] = {
+                "data": [],
+                "timestamp": current_time,
+                "ttl": 60
+            }
             return []
         
         product_dicts = [_product_to_dict(p) for p in products]
     
     # 更新缓存
-    _dashboard_cache["data"] = product_dicts
-    _dashboard_cache["timestamp"] = current_time
-    logger.info(f"已缓存 {len(product_dicts)} 个产品数据")
+    _dashboard_cache[cache_key] = {
+        "data": product_dicts,
+        "timestamp": current_time,
+        "ttl": 60
+    }
+    logger.info(f"用户 {cache_key} 已缓存 {len(product_dicts)} 个产品数据")
     
     return product_dicts
 
 
 def _clear_cache():
-    """清除缓存"""
-    _dashboard_cache["data"] = None
-    _dashboard_cache["timestamp"] = 0
-    logger.debug("仪表盘缓存已清除")
+    """清除缓存（所有用户）"""
+    global _dashboard_cache
+    _dashboard_cache = {}
+    logger.debug("仪表盘所有缓存已清除")
+
+
+def _clear_user_cache(user_id: int = None):
+    """清除指定用户的缓存"""
+    cache_key = str(user_id) if user_id else "anonymous"
+    if cache_key in _dashboard_cache:
+        del _dashboard_cache[cache_key]
+    logger.debug(f"用户 {cache_key} 的仪表盘缓存已清除")
 
 
 @router.get("/summary")
-async def get_summary():
+async def get_summary(current_user: dict = Depends(get_current_user)):
     """获取核心指标汇总"""
     start_time = time.time()
-    logger.info("[API] 获取汇总数据 - 开始")
+    user_id = current_user.get('id')
+    logger.info(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 开始")
     
     try:
-        product_dicts = _get_cached_products()
+        product_dicts = _get_cached_products(user_id=user_id)
         
         if not product_dicts:
             elapsed = time.time() - start_time
-            logger.info(f"[API] 获取汇总数据 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 完成(无数据) 耗时: {elapsed:.3f}s")
             return {
                 "success": True,
                 "data": {
@@ -107,7 +122,7 @@ async def get_summary():
         summary = analytics.get_summary_metrics()
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 获取汇总数据 - 成功 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 成功 耗时: {elapsed:.3f}s")
         
         return {
             "success": True,
@@ -115,7 +130,7 @@ async def get_summary():
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 获取汇总数据 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
             "error": str(e),
@@ -134,7 +149,8 @@ async def get_summary():
 @router.get("/top-products")
 async def get_top_products(
     limit: int = Query(10, ge=1, le=100),
-    metric: str = Query("profit", regex="^(profit|sales|price)$")
+    metric: str = Query("profit", regex="^(profit|sales|price)$"),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取Top产品列表
@@ -143,21 +159,22 @@ async def get_top_products(
     - **metric**: 排序指标（profit/sales/price）
     """
     start_time = time.time()
-    logger.info(f"[API] 获取Top产品 limit={limit} metric={metric} - 开始")
+    user_id = current_user.get('id')
+    logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 limit={limit} metric={metric} - 开始")
     
     try:
-        product_dicts = _get_cached_products()
+        product_dicts = _get_cached_products(user_id=user_id)
         
         if not product_dicts:
             elapsed = time.time() - start_time
-            logger.info(f"[API] 获取Top产品 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 - 完成(无数据) 耗时: {elapsed:.3f}s")
             return {"success": True, "data": []}
         
         analytics = AnalyticsService(product_dicts)
         top_products = analytics.get_top_products(limit, metric)
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 获取Top产品 - 成功 返回:{len(top_products)} 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 - 成功 返回:{len(top_products)} 耗时: {elapsed:.3f}s")
         
         return {
             "success": True,
@@ -165,29 +182,30 @@ async def get_top_products(
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 获取Top产品 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户 {current_user.get('email')} 获取Top产品 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {"success": False, "error": str(e), "data": []}
 
 
 @router.get("/visibility")
-async def get_visibility_analysis():
+async def get_visibility_analysis(current_user: dict = Depends(get_current_user)):
     """获取可见性分析（可见 vs 不可见产品对比）"""
     start_time = time.time()
-    logger.info("[API] 获取可见性分析 - 开始")
+    user_id = current_user.get('id')
+    logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 开始")
     
     try:
-        product_dicts = _get_cached_products()
+        product_dicts = _get_cached_products(user_id=user_id)
         
         if not product_dicts:
             elapsed = time.time() - start_time
-            logger.info(f"[API] 获取可见性分析 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 完成(无数据) 耗时: {elapsed:.3f}s")
             return {"success": True, "data": {}}
         
         analytics = AnalyticsService(product_dicts)
         result = analytics.get_visibility_analysis()
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 获取可见性分析 - 成功 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 成功 耗时: {elapsed:.3f}s")
         
         return {
             "success": True,
@@ -195,29 +213,30 @@ async def get_visibility_analysis():
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 获取可见性分析 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {"success": False, "error": str(e), "data": {}}
 
 
 @router.get("/traffic")
-async def get_traffic_analysis():
+async def get_traffic_analysis(current_user: dict = Depends(get_current_user)):
     """获取流量分析（自然流量 vs 付费流量）"""
     start_time = time.time()
-    logger.info("[API] 获取流量分析 - 开始")
+    user_id = current_user.get('id')
+    logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 开始")
     
     try:
-        product_dicts = _get_cached_products()
+        product_dicts = _get_cached_products(user_id=user_id)
         
         if not product_dicts:
             elapsed = time.time() - start_time
-            logger.info(f"[API] 获取流量分析 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 完成(无数据) 耗时: {elapsed:.3f}s")
             return {"success": True, "data": {}}
         
         analytics = AnalyticsService(product_dicts)
         result = analytics.get_traffic_analysis()
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 获取流量分析 - 成功 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 成功 耗时: {elapsed:.3f}s")
         
         return {
             "success": True,
@@ -225,7 +244,7 @@ async def get_traffic_analysis():
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 获取流量分析 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {"success": False, "error": str(e), "data": {}}
 
 
@@ -234,7 +253,8 @@ async def get_products(
     visible: Optional[str] = Query(None, regex="^(Y|N)$"),
     product_id: Optional[str] = None,
     limit: int = Query(100, ge=1, le=500),
-    offset: int = Query(0, ge=0)
+    offset: int = Query(0, ge=0),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     获取产品列表（支持筛选）
@@ -245,7 +265,8 @@ async def get_products(
     - **offset**: 偏移量
     """
     start_time = time.time()
-    logger.info(f"[API] 获取产品列表 visible={visible} product_id={product_id} limit={limit} offset={offset} - 开始")
+    user_id = current_user.get('id')
+    logger.info(f"[API] 用户 {current_user.get('email')} 获取产品列表 visible={visible} product_id={product_id} limit={limit} offset={offset} - 开始")
     
     try:
         with get_db_context() as db:
@@ -255,16 +276,16 @@ async def get_products(
                 product = repo.get_by_id(product_id)
                 products = [product] if product else []
             elif visible:
-                products = repo.get_visible_products(visible)
+                products = repo.get_visible_products(visible, user_id=user_id)
             else:
-                products = repo.get_all()
+                products = repo.get_all(user_id=user_id)
         
         # 分页
         total = len(products)
         products = products[offset:offset + limit]
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 获取产品列表 - 成功 总数:{total} 返回:{len(products)} 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户 {current_user.get('email')} 获取产品列表 - 成功 总数:{total} 返回:{len(products)} 耗时: {elapsed:.3f}s")
         
         return {
             "success": True,
@@ -277,7 +298,7 @@ async def get_products(
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 获取产品列表 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户 {current_user.get('email')} 获取产品列表 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
             "error": str(e),
@@ -291,9 +312,9 @@ async def get_products(
 
 
 @router.post("/refresh")
-async def refresh_cache():
+async def refresh_cache(current_user: dict = Depends(get_current_user)):
     """刷新仪表盘缓存"""
-    logger.info("[API] 刷新仪表盘缓存 - 开始")
-    _clear_cache()
-    logger.info("[API] 刷新仪表盘缓存 - 完成")
+    logger.info(f"[API] 用户 {current_user.get('email')} 刷新仪表盘缓存 - 开始")
+    _clear_user_cache(user_id=current_user.get('id'))
+    logger.info(f"[API] 用户 {current_user.get('email')} 刷新仪表盘缓存 - 完成")
     return {"success": True, "message": "缓存已刷新"}

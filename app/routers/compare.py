@@ -2,12 +2,13 @@
 数据对比路由 - 多数据集对比分析
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import List, Optional
 import logging
 from datetime import datetime
 
 from app.database import get_db_context, ProductDataRepository, DatasetRepository
+from app.services.auth import get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/compare", tags=["数据对比"])
@@ -173,12 +174,13 @@ def _compare_rankings(current_products: list, previous_products: list, limit: in
 
 
 @router.get("/datasets")
-async def get_datasets():
+async def get_datasets(current_user: dict = Depends(get_current_user)):
     """获取所有数据集列表"""
+    user_id = current_user.get('id')
     try:
         with get_db_context() as db:
             repo = DatasetRepository(db)
-            datasets = repo.get_all()
+            datasets = repo.get_all(user_id=user_id)
             
             return {
                 "success": True,
@@ -198,12 +200,17 @@ async def get_datasets():
 
 
 @router.get("/")
-async def compare_datasets(dataset_ids: List[int] = Query(..., min_length=2, max_length=10)):
+async def compare_datasets(
+    dataset_ids: List[int] = Query(..., min_length=2, max_length=10),
+    current_user: dict = Depends(get_current_user)
+):
     """
     对比多个数据集
     
     - **dataset_ids**: 数据集ID列表（2-10个）
     """
+    user_id = current_user.get('id')
+    
     if len(dataset_ids) < 2 or len(dataset_ids) > 10:
         raise HTTPException(
             status_code=400,
@@ -215,7 +222,7 @@ async def compare_datasets(dataset_ids: List[int] = Query(..., min_length=2, max
             dataset_repo = DatasetRepository(db)
             product_repo = ProductDataRepository(db)
             
-            # 获取数据集信息
+            # 获取数据集信息（仅获取属于当前用户的数据集）
             datasets = []
             dataset_products = {}
             
@@ -225,6 +232,13 @@ async def compare_datasets(dataset_ids: List[int] = Query(..., min_length=2, max
                     raise HTTPException(
                         status_code=404,
                         detail=f"数据集 {ds_id} 不存在"
+                    )
+                
+                # 数据隔离：检查数据集是否属于当前用户
+                if dataset.user_id != user_id:
+                    raise HTTPException(
+                        status_code=403,
+                        detail="无权访问该数据集"
                     )
                 
                 products = product_repo.get_by_dataset(ds_id)
@@ -316,18 +330,22 @@ async def compare_datasets(dataset_ids: List[int] = Query(..., min_length=2, max
 
 
 @router.get("/trends")
-async def get_trends(limit: int = Query(10, ge=2, le=20)):
+async def get_trends(
+    limit: int = Query(10, ge=2, le=20),
+    current_user: dict = Depends(get_current_user)
+):
     """
     获取趋势分析数据
     
     - **limit**: 返回的数据集数量（默认10）
     """
+    user_id = current_user.get('id')
     try:
         with get_db_context() as db:
             dataset_repo = DatasetRepository(db)
             product_repo = ProductDataRepository(db)
             
-            datasets = dataset_repo.get_latest(limit)
+            datasets = dataset_repo.get_latest(limit, user_id=user_id)
             
             if len(datasets) < 2:
                 return {
@@ -390,8 +408,12 @@ async def get_trends(limit: int = Query(10, ge=2, le=20)):
 
 
 @router.delete("/dataset/{dataset_id}")
-async def delete_dataset(dataset_id: int):
+async def delete_dataset(
+    dataset_id: int,
+    current_user: dict = Depends(get_current_user)
+):
     """删除指定数据集"""
+    user_id = current_user.get('id')
     try:
         with get_db_context() as db:
             dataset_repo = DatasetRepository(db)
@@ -401,6 +423,13 @@ async def delete_dataset(dataset_id: int):
                 raise HTTPException(
                     status_code=404,
                     detail=f"数据集 {dataset_id} 不存在"
+                )
+            
+            # 数据隔离：检查数据集是否属于当前用户
+            if dataset.user_id != user_id:
+                raise HTTPException(
+                    status_code=403,
+                    detail="无权删除该数据集"
                 )
             
             dataset_repo.delete(dataset_id)

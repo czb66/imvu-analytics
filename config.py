@@ -33,6 +33,16 @@ if not DATABASE_URL:
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
+# ==================== JWT 认证配置 ====================
+# JWT密钥（重要：生产环境必须设置复杂的随机密钥）
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-key-change-in-production-12345")
+# JWT算法
+JWT_ALGORITHM = "HS256"
+# Token有效期（分钟）
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))  # 默认7天
+# 记住我 Token有效期（分钟）
+JWT_REMEMBER_EXPIRE_MINUTES = int(os.getenv("JWT_REMEMBER_EXPIRE_MINUTES", "43200"))  # 默认30天
+
 # ==================== 邮件配置 ====================
 # SMTP服务器设置
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")

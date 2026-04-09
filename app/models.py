@@ -10,6 +10,28 @@ from datetime import datetime
 Base = declarative_base()
 
 
+class User(Base):
+    """用户模型 - 用户注册和认证"""
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    username = Column(String(100), nullable=True)  # 可选的用户名
+    is_active = Column(Boolean, default=True)  # 账户是否激活
+    is_admin = Column(Boolean, default=False)  # 是否是管理员
+    
+    # 时间戳
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 关联数据
+    datasets = relationship("Dataset", back_populates="owner", cascade="all, delete-orphan")
+    
+    def __repr__(self):
+        return f"<User {self.email}>"
+
+
 class Dataset(Base):
     """数据集模型 - 存储多个时期的数据"""
     __tablename__ = "datasets"
@@ -18,6 +40,10 @@ class Dataset(Base):
     name = Column(String(100), nullable=False)  # 如 "2024年1月"
     upload_time = Column(DateTime, default=datetime.utcnow)
     record_count = Column(Integer, default=0)  # 产品数量
+    
+    # 关联用户
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # nullable=True 兼容旧数据
+    owner = relationship("User", back_populates="datasets")
     
     # 关联产品数据
     products = relationship("ProductData", back_populates="dataset", cascade="all, delete-orphan")
@@ -70,6 +96,9 @@ class ReportHistory(Base):
     file_path = Column(String(500), nullable=True)  # 报告文件路径
     sent_to = Column(String(500), nullable=True)  # 邮件发送目标
     status = Column(String(20), default='pending')  # pending, completed, failed
+    
+    # 关联用户（可选）
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
 
 class SystemConfig(Base):
