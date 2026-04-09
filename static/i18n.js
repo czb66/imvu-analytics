@@ -195,7 +195,7 @@ const translations = {
         // 数据对比
         compare: {
             selectDatasets: 'Select Datasets',
-            selectHint: 'Select 2-3 datasets to compare',
+            selectHint: 'Select 2-10 datasets to compare',
             noDatasets: 'No datasets available. Upload data first.',
             uploadData: 'Upload Data',
             runCompare: 'Compare Selected',
@@ -440,7 +440,7 @@ const translations = {
         // 数据对比
         compare: {
             selectDatasets: '选择数据集',
-            selectHint: '选择2-3个数据集进行对比',
+            selectHint: '选择2-10个数据集进行对比',
             noDatasets: '暂无可用数据集，请先上传数据。',
             uploadData: '上传数据',
             runCompare: '对比所选',

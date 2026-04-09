@@ -198,16 +198,16 @@ async def get_datasets():
 
 
 @router.get("/")
-async def compare_datasets(dataset_ids: List[int] = Query(..., min_length=2, max_length=3)):
+async def compare_datasets(dataset_ids: List[int] = Query(..., min_length=2, max_length=10)):
     """
     对比多个数据集
     
-    - **dataset_ids**: 数据集ID列表（2-3个）
+    - **dataset_ids**: 数据集ID列表（2-10个）
     """
-    if len(dataset_ids) < 2 or len(dataset_ids) > 3:
+    if len(dataset_ids) < 2 or len(dataset_ids) > 10:
         raise HTTPException(
             status_code=400,
-            detail="请选择2-3个数据集进行对比"
+            detail="请选择2-10个数据集进行对比"
         )
     
     try:
