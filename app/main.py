@@ -109,6 +109,12 @@ async def root():
     }
 
 
+@app.get("/health")
+async def health_check():
+    """健康检查端点 - 用于Railway健康检查"""
+    return {"status": "healthy", "service": config.APP_NAME, "version": config.APP_VERSION}
+
+
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     """登录页面"""
