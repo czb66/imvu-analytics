@@ -44,4 +44,4 @@ fastapi-cors==0.0.1
 pydantic[email]==2.5.3
 
 # ==================== Stripe 订阅 ====================
-stripe==7.8.0
+stripe>=8.0.0
