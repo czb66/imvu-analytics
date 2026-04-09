@@ -65,17 +65,23 @@ async def upload_xml_file(
             repo = ProductDataRepository(db)
             dataset_repo = DatasetRepository(db)
             
+            from datetime import datetime
+            from typing import Dict
+            
             if dataset_name:
-                # 创建新数据集
-                dataset = dataset_repo.create(name=dataset_name, record_count=len(products))
-                count = repo.bulk_insert_with_dataset(products, dataset.id)
-                dataset_id = dataset.id
-                dataset_name_display = dataset.name
+                # 使用用户提供的数据集名称，添加时间戳确保唯一性
+                timestamp = datetime.now().strftime("%m-%d %H:%M")
+                unique_name = f"{dataset_name} ({timestamp})"
             else:
-                # 保持向后兼容 - 不指定数据集时使用原有逻辑
-                count = repo.bulk_insert(products)
-                dataset_id = None
-                dataset_name_display = "Default"
+                # 自动生成带时间戳的数据集名称，确保每次上传都是独立数据集
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+                unique_name = f"数据集 {timestamp}"
+            
+            # 始终创建新的数据集记录，确保数据独立性
+            dataset = dataset_repo.create(name=unique_name, record_count=len(products))
+            count = repo.bulk_insert_with_dataset(products, dataset.id)
+            dataset_id = dataset.id
+            dataset_name_display = dataset.name
         
         # 清除仪表盘缓存，确保新数据立即可见
         _clear_cache()

@@ -94,7 +94,18 @@ class ProductDataRepository:
         return len(products)
     
     def get_all(self) -> list:
-        """获取所有产品数据（不区分数据集）"""
+        """获取最新数据集的产品数据（用于 Dashboard 显示）"""
+        # 获取最新上传的数据集
+        from app.models import Dataset
+        latest_dataset = self.db.query(Dataset).order_by(Dataset.upload_time.desc()).first()
+        
+        if latest_dataset:
+            # 返回最新数据集的数据
+            return self.db.query(ProductData).filter(
+                ProductData.dataset_id == latest_dataset.id
+            ).all()
+        
+        # 兼容旧逻辑：如果没有数据集，返回 dataset_id == None 的数据
         return self.db.query(ProductData).filter(ProductData.dataset_id == None).all()
     
     def get_by_dataset(self, dataset_id: int) -> list:
@@ -108,8 +119,20 @@ class ProductDataRepository:
         ).first()
     
     def get_visible_products(self, visible: str = 'Y') -> list:
-        """获取可见/不可见产品"""
+        """获取可见/不可见产品（最新数据集）"""
+        # 获取最新上传的数据集
+        from app.models import Dataset
+        latest_dataset = self.db.query(Dataset).order_by(Dataset.upload_time.desc()).first()
+        
+        if latest_dataset:
+            return self.db.query(ProductData).filter(
+                ProductData.dataset_id == latest_dataset.id,
+                ProductData.visible == visible
+            ).all()
+        
+        # 兼容旧逻辑
         return self.db.query(ProductData).filter(
+            ProductData.dataset_id == None,
             ProductData.visible == visible
         ).all()
     
