@@ -77,7 +77,11 @@ const translations = {
             loadingFailed: 'Failed to load data',
             retry: 'Retry',
             requestTimeout: 'Request timeout, please check network',
-            items: 'items'
+            items: 'items',
+            
+            // 数据集命名
+            datasetNamePlaceholder: 'Dataset name (optional, e.g. 2024-01)',
+            datasetNameHint: 'Leave empty for default dataset'
         },
         
         // 深度诊断
@@ -235,11 +239,7 @@ const translations = {
             
             // 操作
             products: 'products',
-            confirmDelete: 'Are you sure you want to delete this dataset?',
-            
-            // 上传相关
-            datasetNamePlaceholder: 'Dataset name (optional, e.g. 2024-01)',
-            datasetNameHint: 'Leave empty for default dataset'
+            confirmDelete: 'Are you sure you want to delete this dataset?'
         },
         
         // 语言切换
@@ -322,7 +322,11 @@ const translations = {
             loadingFailed: '加载数据失败',
             retry: '重试',
             requestTimeout: '请求超时，请检查网络连接',
-            items: '个'
+            items: '个',
+            
+            // 数据集命名
+            datasetNamePlaceholder: '数据集名称（可选，如 2024年1月）',
+            datasetNameHint: '留空则使用默认数据集'
         },
         
         // 深度诊断
@@ -480,11 +484,7 @@ const translations = {
             
             // 操作
             products: '个产品',
-            confirmDelete: '确定要删除此数据集吗？',
-            
-            // 上传相关
-            datasetNamePlaceholder: '数据集名称（可选，如 2024年1月）',
-            datasetNameHint: '留空则使用默认数据集'
+            confirmDelete: '确定要删除此数据集吗？'
         },
         
         // 语言切换
