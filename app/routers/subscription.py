@@ -26,8 +26,9 @@ router = APIRouter(prefix="/api/subscription", tags=["订阅"])
 
 def ensure_stripe_api_key():
     """确保 Stripe API Key 已设置"""
-    if not stripe.api_key:
-        stripe.api_key = config.STRIPE_SECRET_KEY
+    api_key = config.get_stripe_secret_key()
+    if api_key:
+        stripe.api_key = api_key
     return stripe.api_key
 
 
@@ -148,8 +149,8 @@ async def get_stripe_config():
     获取Stripe公开配置（前端使用）
     """
     return {
-        "publishable_key": config.STRIPE_PUBLISHABLE_KEY,
-        "price_id": config.STRIPE_PRICE_ID,
+        "publishable_key": config.get_stripe_publishable_key(),
+        "price_id": config.get_stripe_price_id(),
         "price_amount": int(config.SUBSCRIPTION_PRICE * 100),  # 转换为分
         "currency": "usd"
     }
@@ -199,7 +200,7 @@ async def create_checkout_session(
             db.commit()
         
         # 使用请求中的price_id或默认配置
-        price_id = request.price_id or config.STRIPE_PRICE_ID
+        price_id = request.price_id or config.get_stripe_price_id()
         
         # 创建Checkout会话
         checkout_session = stripe.checkout.Session.create(
@@ -276,7 +277,7 @@ async def stripe_webhook(
     sig_header = stripe_signature
     
     # 如果没有配置Webhook密钥，直接解析payload
-    if not config.STRIPE_WEBHOOK_SECRET:
+    if not config.get_stripe_webhook_secret():
         logger.warning("STRIPE_WEBHOOK_SECRET 未配置，Webhooks可能不安全")
         try:
             event = stripe.Event.construct_from(
@@ -293,7 +294,7 @@ async def stripe_webhook(
         # 验证Webhook签名
         try:
             event = stripe.Webhook.construct_event(
-                payload, sig_header, config.STRIPE_WEBHOOK_SECRET
+                payload, sig_header, config.get_stripe_webhook_secret()
             )
         except stripe.error.SignatureVerificationError as e:
             logger.error(f"Webhook签名验证失败: {e}")
