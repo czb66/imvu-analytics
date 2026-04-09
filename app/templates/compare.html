@@ -428,7 +428,8 @@
                 <div class="dataset-item" data-id="${ds.id}" onclick="toggleDataset(${ds.id})">
                     <input type="checkbox" class="dataset-checkbox" id="ds-${ds.id}" 
                            ${selectedDatasets.has(ds.id) ? 'checked' : ''}
-                           ${selectedDatasets.size >= MAX_SELECT && !selectedDatasets.has(ds.id) ? 'disabled' : ''}>
+                           ${selectedDatasets.size >= MAX_SELECT && !selectedDatasets.has(ds.id) ? 'disabled' : ''}
+                           onclick="event.stopPropagation(); toggleDataset(${ds.id})">
                     <div class="dataset-info">
                         <div class="dataset-name">${escapeHtml(ds.name)}</div>
                         <div class="dataset-meta">
