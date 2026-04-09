@@ -166,6 +166,9 @@ async def create_checkout_session(
     
     用户点击订阅按钮后，调用此接口创建Checkout会话并重定向到Stripe支付页面
     """
+    # 确保 API Key 已设置
+    ensure_stripe_api_key()
+    
     try:
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(current_user["id"])
