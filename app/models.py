@@ -26,6 +26,10 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)  # 最后登录时间
     
+    # 密码重置字段
+    reset_token = Column(String(255), nullable=True)  # 重置令牌
+    reset_token_expires = Column(DateTime, nullable=True)  # 重置令牌过期时间
+    
     # 关联数据
     datasets = relationship("Dataset", back_populates="owner", cascade="all, delete-orphan")
     

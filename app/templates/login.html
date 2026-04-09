@@ -74,6 +74,18 @@
         .remember-me input {
             margin-right: 8px;
         }
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .forgot-password a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
         .register-link {
             text-align: center;
             margin-top: 20px;
@@ -152,6 +164,10 @@
                     <label for="rememberMe" data-i18n="remember_me">记住我</label>
                 </div>
                 
+                <div class="forgot-password">
+                    <a href="/forgot-password" data-i18n="forgot_password">忘记密码？</a>
+                </div>
+                
                 <button type="submit" class="btn btn-login btn-lg" id="submitBtn">
                     <span data-i18n="login_btn">登录</span>
                 </button>
@@ -177,6 +193,7 @@
                 login_btn: 'Login',
                 no_account: "Don't have an account?",
                 register_now: 'Register now',
+                forgot_password: 'Forgot password?',
                 login_success: 'Login successful! Redirecting...',
                 login_error: 'Login failed. Please check your credentials.',
                 invalid_email: 'Please enter a valid email address',
@@ -191,6 +208,7 @@
                 login_btn: '登录',
                 no_account: '还没有账号？',
                 register_now: '立即注册',
+                forgot_password: '忘记密码？',
                 login_success: '登录成功！正在跳转...',
                 login_error: '登录失败，请检查邮箱和密码。',
                 invalid_email: '请输入有效的邮箱地址',

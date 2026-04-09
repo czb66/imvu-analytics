@@ -121,6 +121,38 @@ class UserRepository:
         if user:
             self.db.delete(user)
             self.db.commit()
+    
+    def set_reset_token(self, email: str, token: str, expires_at: datetime):
+        """设置用户密码重置令牌"""
+        user = self.get_by_email(email)
+        if user:
+            user.reset_token = token
+            user.reset_token_expires = expires_at
+            self.db.commit()
+            return True
+        return False
+    
+    def verify_reset_token(self, token: str) -> User:
+        """验证重置令牌，返回用户如果有效"""
+        return self.db.query(User).filter(
+            User.reset_token == token,
+            User.reset_token_expires > datetime.utcnow()
+        ).first()
+    
+    def reset_password(self, token: str, new_password_hash: str) -> tuple:
+        """
+        使用令牌重置密码
+        Returns: (success, message)
+        """
+        user = self.verify_reset_token(token)
+        if not user:
+            return False, "重置链接已过期或无效"
+        
+        user.password_hash = new_password_hash
+        user.reset_token = None
+        user.reset_token_expires = None
+        self.db.commit()
+        return True, "密码重置成功"
 
 
 class ProductDataRepository:

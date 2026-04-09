@@ -304,3 +304,47 @@ class AuthService:
         self.user_repo.update_username(user_id, new_username)
         
         return True, "用户名修改成功"
+    
+    def generate_reset_token(self, email: str) -> tuple:
+        """
+        生成密码重置令牌
+        
+        Returns:
+            (success, message, token)
+        """
+        # 验证邮箱格式
+        if not validate_email(email):
+            return False, "邮箱格式不正确", None
+        
+        # 检查用户是否存在
+        user = self.user_repo.get_by_email(email)
+        if user is None:
+            # 为防止邮箱枚举攻击，总是返回成功
+            return True, "如果该邮箱已注册，重置链接已发送至您的邮箱", None
+        
+        # 生成随机令牌
+        import secrets
+        token = secrets.token_urlsafe(32)
+        
+        # 设置过期时间（1小时）
+        expires_at = datetime.utcnow() + timedelta(hours=1)
+        
+        # 保存令牌到数据库
+        self.user_repo.set_reset_token(email, token, expires_at)
+        
+        return True, "重置链接已生成", token
+    
+    def reset_password_with_token(self, token: str, new_password: str) -> tuple:
+        """
+        使用令牌重置密码
+        
+        Returns:
+            (success, message)
+        """
+        # 验证新密码强度
+        is_valid, msg = validate_password_strength(new_password)
+        if not is_valid:
+            return False, msg
+        
+        # 使用仓储类重置密码
+        return self.user_repo.reset_password(token, hash_password(new_password))

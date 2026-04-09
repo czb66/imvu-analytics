@@ -264,6 +264,82 @@ class EmailService:
         </div>
         """
         return anomaly_html
+    
+    def send_password_reset_email(self, to_email: str, reset_token: str, base_url: str = None) -> tuple:
+        """
+        发送密码重置邮件
+        
+        Args:
+            to_email: 收件人邮箱
+            reset_token: 重置令牌
+            base_url: 网站基础URL
+            
+        Returns:
+            (success, message)
+        """
+        if base_url is None:
+            base_url = "https://imvu-analytics-production.up.railway.app"
+        
+        reset_link = f"{base_url}/reset-password?token={reset_token}"
+        
+        subject = "🔐 重置您的 IMVU Analytics 密码"
+        
+        html_content = self._generate_password_reset_html(reset_link, to_email)
+        
+        return self.send_report([to_email], subject, html_content)
+    
+    def _generate_password_reset_html(self, reset_link: str, email: str) -> str:
+        """生成密码重置邮件HTML"""
+        import config
+        html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }}
+                .content {{ background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }}
+                .button {{ display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; }}
+                .button:hover {{ opacity: 0.9; }}
+                .warning {{ background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 14px; }}
+                .footer {{ text-align: center; color: #666; font-size: 12px; margin-top: 20px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🔐 密码重置请求</h1>
+                </div>
+                <div class="content">
+                    <p>您好，</p>
+                    <p>我们收到了来自 <strong>{email}</strong> 的密码重置请求。</p>
+                    <p>如果您没有发起此请求，请忽略此邮件，您的账户安全不会受到影响。</p>
+                    
+                    <p style="text-align: center;">
+                        <a href="{reset_link}" class="button">重置密码</a>
+                    </p>
+                    
+                    <div class="warning">
+                        <strong>⚠️ 安全提示：</strong><br>
+                        • 此链接有效期为 <strong>1小时</strong><br>
+                        • 请勿将链接分享给他人<br>
+                        • IMVU Analytics 工作人员不会索要您的密码
+                    </div>
+                    
+                    <p>或者您可以复制以下链接到浏览器打开：</p>
+                    <p style="word-break: break-all; font-size: 12px; color: #666;">{reset_link}</p>
+                </div>
+                <div class="footer">
+                    <p>此邮件由 {config.APP_NAME} 自动发送</p>
+                    <p>© {datetime.now().year} IMVU Analytics. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        return html
 
 
 # 全局邮件服务实例
