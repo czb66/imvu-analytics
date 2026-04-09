@@ -13,7 +13,8 @@ const translations = {
             dashboard: 'Dashboard',
             diagnosis: 'Deep Analysis',
             compare: 'Data Compare',
-            report: 'Reports'
+            report: 'Reports',
+            profile: 'Profile'
         },
         
         // 页面标题
@@ -291,7 +292,8 @@ const translations = {
             dashboard: '仪表盘',
             diagnosis: '深度诊断',
             compare: '数据对比',
-            report: '报告中心'
+            report: '报告中心',
+            profile: '个人中心'
         },
         
         // 页面标题
