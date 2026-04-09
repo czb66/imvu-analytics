@@ -109,6 +109,18 @@ async def root():
     }
 
 
+@app.get("/health/db")
+async def db_health_check(db = Depends(get_db)):
+    """数据库健康检查"""
+    try:
+        # 尝试执行简单查询
+        db.execute("SELECT 1")
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
+
+
+
 @app.get("/health")
 async def health_check():
     """健康检查端点 - 用于Railway健康检查"""

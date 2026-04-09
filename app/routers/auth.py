@@ -54,24 +54,33 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
     - **password**: 密码（至少8位）
     - **username**: 用户名（可选）
     """
-    auth_service = AuthService(db)
-    success, message, data = auth_service.register(
-        email=request.email,
-        password=request.password,
-        username=request.username
-    )
-    
-    if not success:
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={"success": False, "message": message}
+    try:
+        auth_service = AuthService(db)
+        success, message, data = auth_service.register(
+            email=request.email,
+            password=request.password,
+            username=request.username
         )
-    
-    return {
-        "success": True,
-        "message": message,
-        "data": data
-    }
+        
+        if not success:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"success": False, "message": message}
+            )
+        
+        return {
+            "success": True,
+            "message": message,
+            "data": data
+        }
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"注册失败: {e}", exc_info=True)
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"success": False, "message": f"注册失败: {str(e)}"}
+        )
 
 
 @router.post("/login", response_model=AuthResponse)
