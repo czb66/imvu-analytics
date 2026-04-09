@@ -27,8 +27,12 @@ router = APIRouter(prefix="/api/subscription", tags=["订阅"])
 def ensure_stripe_api_key():
     """确保 Stripe API Key 已设置"""
     api_key = config.get_stripe_secret_key()
-    if api_key:
-        stripe.api_key = api_key
+    if not api_key:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="STRIPE_SECRET_KEY 环境变量未配置"
+        )
+    stripe.api_key = api_key
     return stripe.api_key
 
 
