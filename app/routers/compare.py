@@ -89,8 +89,11 @@ def _calculate_change(current: float, previous: float) -> dict:
 
 
 def _get_top_products(products: list, limit: int = 10) -> list:
-    """获取Top产品（按利润排序）"""
-    sorted_products = sorted(products, key=lambda x: x.get('profit', 0), reverse=True)
+    """获取Top产品（按总销量排序）"""
+    # 计算总销量
+    for p in products:
+        p['total_sales'] = p.get('direct_sales', 0) + p.get('indirect_sales', 0) + p.get('promoted_sales', 0)
+    sorted_products = sorted(products, key=lambda x: x.get('total_sales', 0), reverse=True)
     return sorted_products[:limit]
 
 
@@ -104,47 +107,68 @@ def _compare_rankings(current_products: list, previous_products: list, limit: in
     current_ids = set(current_top.keys())
     previous_ids = set(previous_top.keys())
     
-    # 新进入 Top 的产品
-    new_in_top = [current_top[pid] for pid in current_ids - previous_ids]
+    # 新进入 Top 10 的产品
+    new_entries = []
+    for pid in current_ids - previous_ids:
+        new_entries.append({
+            'product_id': pid,
+            'product_name': current_top[pid]['product']['product_name'],
+            'sales': current_top[pid]['product'].get('total_sales', 0),
+            'rank': current_top[pid]['rank']
+        })
     
-    # 退出 Top 的产品
-    exited_top = [previous_top[pid] for pid in previous_ids - current_ids]
+    # 退出 Top 10 的产品
+    dropped_out = []
+    for pid in previous_ids - current_ids:
+        dropped_out.append({
+            'product_id': pid,
+            'product_name': previous_top[pid]['product']['product_name'],
+            'old_rank': previous_top[pid]['rank']
+        })
     
-    # 排名上升的产品
-    rank_up = []
+    # 排名上升的产品 (improved)
+    improved = []
     for pid in current_ids & previous_ids:
         old_rank = previous_top[pid]['rank']
         new_rank = current_top[pid]['rank']
         if new_rank < old_rank:
-            rank_up.append({
+            improved.append({
                 'product_id': pid,
                 'product_name': current_top[pid]['product']['product_name'],
-                'profit': current_top[pid]['product']['profit'],
+                'sales': current_top[pid]['product'].get('total_sales', 0),
+                'profit': current_top[pid]['product'].get('profit', 0),
                 'old_rank': old_rank,
                 'new_rank': new_rank,
                 'change': old_rank - new_rank
             })
     
-    # 排名下降的产品
-    rank_down = []
+    # 排名下降的产品 (declined)
+    declined = []
     for pid in current_ids & previous_ids:
         old_rank = previous_top[pid]['rank']
         new_rank = current_top[pid]['rank']
         if new_rank > old_rank:
-            rank_down.append({
+            declined.append({
                 'product_id': pid,
                 'product_name': current_top[pid]['product']['product_name'],
-                'profit': current_top[pid]['product']['profit'],
+                'sales': current_top[pid]['product'].get('total_sales', 0),
+                'profit': current_top[pid]['product'].get('profit', 0),
                 'old_rank': old_rank,
                 'new_rank': new_rank,
                 'change': new_rank - old_rank
             })
     
+    # 同时保留旧格式以兼容现有代码
     return {
-        'new_in_top': new_in_top[:5],
-        'exited_top': exited_top[:5],
-        'rank_up': sorted(rank_up, key=lambda x: x['change'], reverse=True)[:5],
-        'rank_down': sorted(rank_down, key=lambda x: x['change'], reverse=True)[:5]
+        'improved': improved,
+        'declined': declined,
+        'new_entries': new_entries,
+        'dropped_out': dropped_out,
+        # 兼容旧格式
+        'rank_up': sorted(improved, key=lambda x: x['change'], reverse=True)[:5],
+        'rank_down': sorted(declined, key=lambda x: x['change'], reverse=True)[:5],
+        'new_in_top': [{'product_id': e['product_id'], 'rank': e['rank'], 'product': current_top.get(e['product_id'], {}).get('product', {})} for e in new_entries[:5]],
+        'exited_top': [{'product_id': d['product_id'], 'old_rank': d['old_rank'], 'product': previous_top.get(d['product_id'], {}).get('product', {})} for d in dropped_out[:5]]
     }
 
 
@@ -237,6 +261,24 @@ async def compare_datasets(dataset_ids: List[int] = Query(..., min_length=2, max
                     "products_change": _calculate_change(curr_metrics['total_products'], prev_metrics['total_products']),
                 })
             
+            # 每个数据集的 Top 10 产品列表
+            datasets_top_products = []
+            for ds_id in dataset_ids:
+                top_products = _get_top_products(dataset_products[ds_id], 10)
+                datasets_top_products.append({
+                    "dataset_id": ds_id,
+                    "top_products": [
+                        {
+                            "product_id": p['product_id'],
+                            "product_name": p['product_name'],
+                            "sales": p.get('total_sales', 0),
+                            "profit": p.get('profit', 0),
+                            "rank": i + 1
+                        }
+                        for i, p in enumerate(top_products)
+                    ]
+                })
+            
             # 排名变化分析
             ranking_changes = []
             if len(dataset_ids) >= 2:
@@ -258,6 +300,7 @@ async def compare_datasets(dataset_ids: List[int] = Query(..., min_length=2, max
                 "success": True,
                 "data": {
                     "datasets": datasets,
+                    "datasets_top_products": datasets_top_products,
                     "metrics_comparison": metrics_comparison,
                     "trends": trends,
                     "ranking_changes": ranking_changes,

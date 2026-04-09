@@ -222,6 +222,17 @@ const translations = {
             noChange: 'No ranking changes',
             noneInTop: 'None',
             
+            // Top 10 产品对比
+            topProductsComparison: 'Top 10 Products Comparison',
+            rankingImproved: 'Ranking Improved',
+            rankingDeclined: 'Ranking Declined',
+            newEntries: 'New Entries',
+            droppedOut: 'Dropped Out',
+            productName: 'Product Name',
+            oldRank: 'Old Rank',
+            newRank: 'New Rank',
+            change: 'Change',
+            
             // 操作
             products: 'products',
             confirmDelete: 'Are you sure you want to delete this dataset?',
@@ -455,6 +466,17 @@ const translations = {
             exited: '退出',
             noChange: '无排名变化',
             noneInTop: '无',
+            
+            // Top 10 产品对比
+            topProductsComparison: 'Top 10 产品排名对比',
+            rankingImproved: '排名上升',
+            rankingDeclined: '排名下降',
+            newEntries: '新进入',
+            droppedOut: '退出 Top 10',
+            productName: '产品名称',
+            oldRank: '原排名',
+            newRank: '新排名',
+            change: '变化',
             
             // 操作
             products: '个产品',

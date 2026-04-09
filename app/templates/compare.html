@@ -241,6 +241,63 @@
         .rank-new {
             color: var(--primary);
         }
+        /* Top Products Ranking Table */
+        .ranking-table {
+            margin-bottom: 0;
+        }
+        .ranking-table thead th {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 13px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .ranking-table tbody td {
+            vertical-align: middle;
+            font-size: 13px;
+        }
+        .ranking-table .product-name {
+            font-weight: 500;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ranking-table .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .ranking-table .rank-old {
+            background: #f5f5f5;
+            color: #666;
+        }
+        .ranking-table .rank-new {
+            background: #e6f7ff;
+            color: var(--primary);
+        }
+        .ranking-table .change-up {
+            color: var(--success);
+            font-weight: 600;
+        }
+        .ranking-table .change-down {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        .ranking-table .empty-table {
+            display: none;
+        }
+        .ranking-table:has(tbody:empty) + .empty-table,
+        .ranking-table tbody tr:only-child .empty-table {
+            display: block;
+        }
+        .table-hover tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -383,6 +440,85 @@
                     <div class="chart-container">
                         <h5 class="mb-3"><i class="bi bi-x-circle text-secondary"></i> <span data-i18n="compare.exitedTop">Exited Top 10</span></h5>
                         <div id="exitedTopList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top 10 Products Ranking Comparison -->
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <div class="chart-container">
+                        <h5 class="mb-3"><i class="bi bi-trophy text-warning"></i> <span data-i18n="compare.topProductsComparison">Top 10 Products Comparison</span></h5>
+                        
+                        <!-- 表格展示排名变化 -->
+                        <div class="table-responsive">
+                            <!-- Ranking Improved -->
+                            <div class="mb-4" id="topProductsImprovedSection">
+                                <h6 class="text-success mb-3"><i class="bi bi-arrow-up-circle-fill me-1"></i> <span data-i18n="compare.rankingImproved">Ranking Improved</span> <span class="badge bg-success ms-2" id="improvedCount"></span></h6>
+                                <table class="table table-sm table-hover ranking-table" id="improvedTable">
+                                    <thead>
+                                        <tr>
+                                            <th data-i18n="compare.productName">Product Name</th>
+                                            <th data-i18n="compare.oldRank">Old Rank</th>
+                                            <th data-i18n="compare.newRank">New Rank</th>
+                                            <th data-i18n="compare.change">Change</th>
+                                            <th data-i18n="compare.sales">Sales</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="improvedTableBody"></tbody>
+                                </table>
+                                <div class="text-muted text-center py-3 empty-table" id="improvedEmpty"></div>
+                            </div>
+                            
+                            <!-- Ranking Declined -->
+                            <div class="mb-4" id="topProductsDeclinedSection">
+                                <h6 class="text-danger mb-3"><i class="bi bi-arrow-down-circle-fill me-1"></i> <span data-i18n="compare.rankingDeclined">Ranking Declined</span> <span class="badge bg-danger ms-2" id="declinedCount"></span></h6>
+                                <table class="table table-sm table-hover ranking-table" id="declinedTable">
+                                    <thead>
+                                        <tr>
+                                            <th data-i18n="compare.productName">Product Name</th>
+                                            <th data-i18n="compare.oldRank">Old Rank</th>
+                                            <th data-i18n="compare.newRank">New Rank</th>
+                                            <th data-i18n="compare.change">Change</th>
+                                            <th data-i18n="compare.sales">Sales</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="declinedTableBody"></tbody>
+                                </table>
+                                <div class="text-muted text-center py-3 empty-table" id="declinedEmpty"></div>
+                            </div>
+                            
+                            <!-- New Entries -->
+                            <div class="mb-4" id="topProductsNewEntriesSection">
+                                <h6 class="text-primary mb-3"><i class="bi bi-star-fill me-1"></i> <span data-i18n="compare.newEntries">New Entries</span> <span class="badge bg-primary ms-2" id="newEntriesCount"></span></h6>
+                                <table class="table table-sm table-hover ranking-table" id="newEntriesTable">
+                                    <thead>
+                                        <tr>
+                                            <th data-i18n="compare.productName">Product Name</th>
+                                            <th data-i18n="compare.newRank">Rank</th>
+                                            <th data-i18n="compare.sales">Sales</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="newEntriesTableBody"></tbody>
+                                </table>
+                                <div class="text-muted text-center py-3 empty-table" id="newEntriesEmpty"></div>
+                            </div>
+                            
+                            <!-- Dropped Out -->
+                            <div id="topProductsDroppedOutSection">
+                                <h6 class="text-secondary mb-3"><i class="bi bi-dash-circle-fill me-1"></i> <span data-i18n="compare.droppedOut">Dropped Out</span> <span class="badge bg-secondary ms-2" id="droppedOutCount"></span></h6>
+                                <table class="table table-sm table-hover ranking-table" id="droppedOutTable">
+                                    <thead>
+                                        <tr>
+                                            <th data-i18n="compare.productName">Product Name</th>
+                                            <th data-i18n="compare.oldRank">Old Rank</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="droppedOutTableBody"></tbody>
+                                </table>
+                                <div class="text-muted text-center py-3 empty-table" id="droppedOutEmpty"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -675,6 +811,7 @@
 
         // 渲染排名变化
         function renderRankingChanges(changes) {
+            // 原有逻辑保持兼容
             // 排名上升
             const rankUpHtml = changes.rank_up && changes.rank_up.length > 0 
                 ? changes.rank_up.map(p => `
@@ -742,6 +879,112 @@
                 : `<div class="text-muted text-center py-4">${t('compare.noneInTop') || 'None'}</div>`;
             
             document.getElementById('exitedTopList').innerHTML = exitedHtml;
+            
+            // 渲染新的 Top 10 排名对比表格
+            renderTopProductsComparison(changes);
+        }
+
+        // 渲染 Top 10 产品排名对比表格
+        function renderTopProductsComparison(changes) {
+            const noneText = t('compare.noneInTop') || 'None';
+            
+            // Ranking Improved (排名上升)
+            const improved = changes.improved || [];
+            document.getElementById('improvedCount').textContent = improved.length;
+            const improvedEmptyEl = document.getElementById('improvedEmpty');
+            improvedEmptyEl.textContent = noneText;
+            
+            if (improved.length > 0) {
+                document.getElementById('improvedTableBody').innerHTML = improved.map(p => `
+                    <tr>
+                        <td>
+                            <div class="product-name" title="${escapeHtml(p.product_name)}">${escapeHtml(p.product_name)}</div>
+                            <small class="text-muted">${p.product_id}</small>
+                        </td>
+                        <td><span class="rank-badge rank-old">${p.old_rank}</span></td>
+                        <td><span class="rank-badge rank-new">${p.new_rank}</span></td>
+                        <td><span class="change-up">↑${p.change}</span></td>
+                        <td>${formatNumber(p.sales || 0)}</td>
+                    </tr>
+                `).join('');
+                improvedEmptyEl.style.display = 'none';
+            } else {
+                document.getElementById('improvedTableBody').innerHTML = '';
+                improvedEmptyEl.style.display = 'block';
+            }
+            
+            // Ranking Declined (排名下降)
+            const declined = changes.declined || [];
+            document.getElementById('declinedCount').textContent = declined.length;
+            const declinedEmptyEl = document.getElementById('declinedEmpty');
+            declinedEmptyEl.textContent = noneText;
+            
+            if (declined.length > 0) {
+                document.getElementById('declinedTableBody').innerHTML = declined.map(p => `
+                    <tr>
+                        <td>
+                            <div class="product-name" title="${escapeHtml(p.product_name)}">${escapeHtml(p.product_name)}</div>
+                            <small class="text-muted">${p.product_id}</small>
+                        </td>
+                        <td><span class="rank-badge rank-old">${p.old_rank}</span></td>
+                        <td><span class="rank-badge rank-new">${p.new_rank}</span></td>
+                        <td><span class="change-down">↓${p.change}</span></td>
+                        <td>${formatNumber(p.sales || 0)}</td>
+                    </tr>
+                `).join('');
+                declinedEmptyEl.style.display = 'none';
+            } else {
+                document.getElementById('declinedTableBody').innerHTML = '';
+                declinedEmptyEl.style.display = 'block';
+            }
+            
+            // New Entries (新进入)
+            const newEntries = changes.new_entries || [];
+            document.getElementById('newEntriesCount').textContent = newEntries.length;
+            const newEntriesEmptyEl = document.getElementById('newEntriesEmpty');
+            newEntriesEmptyEl.textContent = noneText;
+            
+            if (newEntries.length > 0) {
+                document.getElementById('newEntriesTableBody').innerHTML = newEntries.map(p => `
+                    <tr>
+                        <td>
+                            <div class="product-name" title="${escapeHtml(p.product_name)}">${escapeHtml(p.product_name)}</div>
+                            <small class="text-muted">${p.product_id}</small>
+                        </td>
+                        <td><span class="rank-badge rank-new">${p.rank}</span></td>
+                        <td>${formatNumber(p.sales || 0)}</td>
+                    </tr>
+                `).join('');
+                newEntriesEmptyEl.style.display = 'none';
+            } else {
+                document.getElementById('newEntriesTableBody').innerHTML = '';
+                newEntriesEmptyEl.style.display = 'block';
+            }
+            
+            // Dropped Out (退出)
+            const droppedOut = changes.dropped_out || [];
+            document.getElementById('droppedOutCount').textContent = droppedOut.length;
+            const droppedOutEmptyEl = document.getElementById('droppedOutEmpty');
+            droppedOutEmptyEl.textContent = noneText;
+            
+            if (droppedOut.length > 0) {
+                document.getElementById('droppedOutTableBody').innerHTML = droppedOut.map(p => `
+                    <tr>
+                        <td>
+                            <div class="product-name" title="${escapeHtml(p.product_name)}">${escapeHtml(p.product_name)}</div>
+                            <small class="text-muted">${p.product_id}</small>
+                        </td>
+                        <td><span class="rank-badge rank-old">${p.old_rank}</span></td>
+                    </tr>
+                `).join('');
+                droppedOutEmptyEl.style.display = 'none';
+            } else {
+                document.getElementById('droppedOutTableBody').innerHTML = '';
+                droppedOutEmptyEl.style.display = 'block';
+            }
+            
+            // 应用翻译
+            applyTranslations();
         }
 
         // 删除数据集
