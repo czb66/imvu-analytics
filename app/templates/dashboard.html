@@ -219,6 +219,7 @@
         <h4><i class="bi bi-graph-up"></i> {{ app_name }}</h4>
         <a href="/dashboard" class="active"><i class="bi bi-speedometer2 me-2"></i><span data-i18n="nav.dashboard">Dashboard</span></a>
         <a href="/diagnosis"><i class="bi bi-search me-2"></i><span data-i18n="nav.diagnosis">Deep Analysis</span></a>
+        <a href="/compare"><i class="bi bi-bar-chart-steps me-2"></i><span data-i18n="nav.compare">Data Compare</span></a>
         <a href="/report"><i class="bi bi-file-earmark-text me-2"></i><span data-i18n="nav.report">Reports</span></a>
     </nav>
 
@@ -244,6 +245,13 @@
             <a href="/api/upload/template" class="btn btn-outline-secondary mt-2 ms-2" download>
                 <i class="bi bi-download"></i> <span data-i18n="dashboard.downloadTemplate">Download Template</span>
             </a>
+            <div class="mt-3">
+                <input type="text" class="form-control" id="datasetName" 
+                       data-i18n-placeholder="dashboard.datasetNamePlaceholder" 
+                       placeholder="Dataset name (optional, e.g. 2024-01)" 
+                       style="max-width: 300px; margin: 0 auto;">
+                <small class="text-muted" data-i18n="dashboard.datasetNameHint">Leave empty for default dataset</small>
+            </div>
         </div>
         
         <!-- 上传状态 -->
@@ -636,6 +644,12 @@
 
             const formData = new FormData();
             formData.append('file', file);
+            
+            // 添加数据集名称
+            const datasetName = document.getElementById('datasetName')?.value?.trim();
+            if (datasetName) {
+                formData.append('dataset_name', datasetName);
+            }
 
             try {
                 const res = await fetch('/api/upload/', { method: 'POST', body: formData });
@@ -643,7 +657,12 @@
 
                 if (data.success) {
                     status.className = 'alert alert-success';
-                    status.innerHTML = `<i class="bi bi-check-circle"></i> ${t('dashboard.uploadSuccess')}`;
+                    const dsName = data.data.dataset_name ? ` (${data.data.dataset_name})` : '';
+                    status.innerHTML = `<i class="bi bi-check-circle"></i> ${t('dashboard.uploadSuccess')}${dsName}: ${data.data.count} items`;
+                    // 清空数据集名称输入框
+                    if (document.getElementById('datasetName')) {
+                        document.getElementById('datasetName').value = '';
+                    }
                     loadDashboardData();
                 } else {
                     status.className = 'alert alert-danger';

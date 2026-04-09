@@ -1,0 +1,374 @@
+"""
+数据对比路由 - 多数据集对比分析
+"""
+
+from fastapi import APIRouter, HTTPException, Query
+from typing import List, Optional
+import logging
+from datetime import datetime
+
+from app.database import get_db_context, ProductDataRepository, DatasetRepository
+
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/compare", tags=["数据对比"])
+
+
+def _product_to_dict(p) -> dict:
+    """将ProductData对象转换为字典"""
+    return {
+        'product_id': p.product_id,
+        'product_name': p.product_name,
+        'price': p.price or 0,
+        'profit': p.profit or 0,
+        'visible': p.visible or 'N',
+        'direct_sales': p.direct_sales or 0,
+        'indirect_sales': p.indirect_sales or 0,
+        'promoted_sales': p.promoted_sales or 0,
+        'cart_adds': p.cart_adds or 0,
+        'wishlist_adds': p.wishlist_adds or 0,
+        'organic_impressions': p.organic_impressions or 0,
+        'paid_impressions': p.paid_impressions or 0,
+    }
+
+
+def _calculate_metrics(products: list) -> dict:
+    """计算产品列表的核心指标"""
+    if not products:
+        return {
+            'total_sales': 0,
+            'total_profit': 0,
+            'total_products': 0,
+            'visible_products': 0,
+            'hidden_products': 0,
+            'total_cart_adds': 0,
+            'total_wishlist_adds': 0,
+            'total_impressions': 0,
+        }
+    
+    total_sales = sum(p.get('direct_sales', 0) + p.get('indirect_sales', 0) + p.get('promoted_sales', 0) for p in products)
+    total_profit = sum(p.get('profit', 0) for p in products)
+    visible_products = sum(1 for p in products if p.get('visible') == 'Y')
+    total_cart_adds = sum(p.get('cart_adds', 0) for p in products)
+    total_wishlist_adds = sum(p.get('wishlist_adds', 0) for p in products)
+    total_impressions = sum(p.get('organic_impressions', 0) + p.get('paid_impressions', 0) for p in products)
+    
+    return {
+        'total_sales': round(total_sales, 2),
+        'total_profit': round(total_profit, 2),
+        'total_products': len(products),
+        'visible_products': visible_products,
+        'hidden_products': len(products) - visible_products,
+        'total_cart_adds': round(total_cart_adds, 2),
+        'total_wishlist_adds': round(total_wishlist_adds, 2),
+        'total_impressions': round(total_impressions, 2),
+    }
+
+
+def _calculate_change(current: float, previous: float) -> dict:
+    """计算变化百分比"""
+    if previous == 0:
+        if current == 0:
+            return {'absolute': 0, 'percentage': 0, 'direction': 'unchanged'}
+        return {'absolute': current, 'percentage': 100, 'direction': 'up'}
+    
+    change = current - previous
+    percentage = (change / previous) * 100
+    
+    if change > 0:
+        direction = 'up'
+    elif change < 0:
+        direction = 'down'
+    else:
+        direction = 'unchanged'
+    
+    return {
+        'absolute': round(change, 2),
+        'percentage': round(percentage, 2),
+        'direction': direction
+    }
+
+
+def _get_top_products(products: list, limit: int = 10) -> list:
+    """获取Top产品（按利润排序）"""
+    sorted_products = sorted(products, key=lambda x: x.get('profit', 0), reverse=True)
+    return sorted_products[:limit]
+
+
+def _compare_rankings(current_products: list, previous_products: list, limit: int = 10) -> dict:
+    """比较产品排名变化"""
+    current_top = {p['product_id']: {'rank': i+1, 'product': p} 
+                   for i, p in enumerate(_get_top_products(current_products, limit))}
+    previous_top = {p['product_id']: {'rank': i+1, 'product': p} 
+                    for i, p in enumerate(_get_top_products(previous_products, limit))}
+    
+    current_ids = set(current_top.keys())
+    previous_ids = set(previous_top.keys())
+    
+    # 新进入 Top 的产品
+    new_in_top = [current_top[pid] for pid in current_ids - previous_ids]
+    
+    # 退出 Top 的产品
+    exited_top = [previous_top[pid] for pid in previous_ids - current_ids]
+    
+    # 排名上升的产品
+    rank_up = []
+    for pid in current_ids & previous_ids:
+        old_rank = previous_top[pid]['rank']
+        new_rank = current_top[pid]['rank']
+        if new_rank < old_rank:
+            rank_up.append({
+                'product_id': pid,
+                'product_name': current_top[pid]['product']['product_name'],
+                'profit': current_top[pid]['product']['profit'],
+                'old_rank': old_rank,
+                'new_rank': new_rank,
+                'change': old_rank - new_rank
+            })
+    
+    # 排名下降的产品
+    rank_down = []
+    for pid in current_ids & previous_ids:
+        old_rank = previous_top[pid]['rank']
+        new_rank = current_top[pid]['rank']
+        if new_rank > old_rank:
+            rank_down.append({
+                'product_id': pid,
+                'product_name': current_top[pid]['product']['product_name'],
+                'profit': current_top[pid]['product']['profit'],
+                'old_rank': old_rank,
+                'new_rank': new_rank,
+                'change': new_rank - old_rank
+            })
+    
+    return {
+        'new_in_top': new_in_top[:5],
+        'exited_top': exited_top[:5],
+        'rank_up': sorted(rank_up, key=lambda x: x['change'], reverse=True)[:5],
+        'rank_down': sorted(rank_down, key=lambda x: x['change'], reverse=True)[:5]
+    }
+
+
+@router.get("/datasets")
+async def get_datasets():
+    """获取所有数据集列表"""
+    try:
+        with get_db_context() as db:
+            repo = DatasetRepository(db)
+            datasets = repo.get_all()
+            
+            return {
+                "success": True,
+                "data": [
+                    {
+                        "id": d.id,
+                        "name": d.name,
+                        "upload_time": d.upload_time.isoformat() if d.upload_time else None,
+                        "record_count": d.record_count
+                    }
+                    for d in datasets
+                ]
+            }
+    except Exception as e:
+        logger.error(f"获取数据集列表失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/")
+async def compare_datasets(dataset_ids: List[int] = Query(..., min_length=2, max_length=3)):
+    """
+    对比多个数据集
+    
+    - **dataset_ids**: 数据集ID列表（2-3个）
+    """
+    if len(dataset_ids) < 2 or len(dataset_ids) > 3:
+        raise HTTPException(
+            status_code=400,
+            detail="请选择2-3个数据集进行对比"
+        )
+    
+    try:
+        with get_db_context() as db:
+            dataset_repo = DatasetRepository(db)
+            product_repo = ProductDataRepository(db)
+            
+            # 获取数据集信息
+            datasets = []
+            dataset_products = {}
+            
+            for ds_id in dataset_ids:
+                dataset = dataset_repo.get_by_id(ds_id)
+                if not dataset:
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"数据集 {ds_id} 不存在"
+                    )
+                
+                products = product_repo.get_by_dataset(ds_id)
+                product_dicts = [_product_to_dict(p) for p in products]
+                
+                datasets.append({
+                    "id": dataset.id,
+                    "name": dataset.name,
+                    "upload_time": dataset.upload_time.isoformat() if dataset.upload_time else None,
+                    "record_count": len(product_dicts)
+                })
+                dataset_products[ds_id] = product_dicts
+            
+            # 计算每个数据集的核心指标
+            metrics_comparison = []
+            for ds_id in dataset_ids:
+                metrics = _calculate_metrics(dataset_products[ds_id])
+                metrics_comparison.append({
+                    "dataset_id": ds_id,
+                    "metrics": metrics
+                })
+            
+            # 计算变化趋势（如果有多个数据集）
+            trends = []
+            for i in range(1, len(dataset_ids)):
+                prev_metrics = _calculate_metrics(dataset_products[dataset_ids[i-1]])
+                curr_metrics = _calculate_metrics(dataset_products[dataset_ids[i]])
+                
+                trends.append({
+                    "from_dataset": datasets[i-1]['name'],
+                    "to_dataset": datasets[i]['name'],
+                    "sales_change": _calculate_change(curr_metrics['total_sales'], prev_metrics['total_sales']),
+                    "profit_change": _calculate_change(curr_metrics['total_profit'], prev_metrics['total_profit']),
+                    "products_change": _calculate_change(curr_metrics['total_products'], prev_metrics['total_products']),
+                })
+            
+            # 排名变化分析
+            ranking_changes = []
+            if len(dataset_ids) >= 2:
+                comparison = _compare_rankings(
+                    dataset_products[dataset_ids[-1]],  # 最新数据
+                    dataset_products[dataset_ids[0]]    # 最早数据
+                )
+                ranking_changes = comparison
+            
+            # 趋势图表数据
+            trend_chart_data = {
+                "labels": [d["name"] for d in datasets],
+                "sales": [_calculate_metrics(dataset_products[ds_id])["total_sales"] for ds_id in dataset_ids],
+                "profit": [_calculate_metrics(dataset_products[ds_id])["total_profit"] for ds_id in dataset_ids],
+                "products": [_calculate_metrics(dataset_products[ds_id])["total_products"] for ds_id in dataset_ids],
+            }
+            
+            return {
+                "success": True,
+                "data": {
+                    "datasets": datasets,
+                    "metrics_comparison": metrics_comparison,
+                    "trends": trends,
+                    "ranking_changes": ranking_changes,
+                    "trend_chart_data": trend_chart_data
+                }
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"数据对比失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/trends")
+async def get_trends(limit: int = Query(10, ge=2, le=20)):
+    """
+    获取趋势分析数据
+    
+    - **limit**: 返回的数据集数量（默认10）
+    """
+    try:
+        with get_db_context() as db:
+            dataset_repo = DatasetRepository(db)
+            product_repo = ProductDataRepository(db)
+            
+            datasets = dataset_repo.get_latest(limit)
+            
+            if len(datasets) < 2:
+                return {
+                    "success": True,
+                    "data": {
+                        "message": "数据不足，至少需要2个数据集才能进行趋势分析",
+                        "datasets": [],
+                        "trend_data": []
+                    }
+                }
+            
+            # 获取每个数据集的指标
+            trend_data = []
+            for dataset in datasets:
+                products = product_repo.get_by_dataset(dataset.id)
+                product_dicts = [_product_to_dict(p) for p in products]
+                metrics = _calculate_metrics(product_dicts)
+                
+                trend_data.append({
+                    "dataset_id": dataset.id,
+                    "dataset_name": dataset.name,
+                    "upload_time": dataset.upload_time.isoformat() if dataset.upload_time else None,
+                    "metrics": metrics
+                })
+            
+            # 反转顺序，使最早的在前
+            trend_data.reverse()
+            
+            # 计算每个数据集相对于前一个的变化
+            enriched_trend = []
+            for i, td in enumerate(trend_data):
+                change = None
+                if i > 0:
+                    prev = trend_data[i-1]['metrics']
+                    curr = td['metrics']
+                    change = {
+                        "sales_change": _calculate_change(curr['total_sales'], prev['total_sales']),
+                        "profit_change": _calculate_change(curr['total_profit'], prev['total_profit']),
+                    }
+                
+                enriched_trend.append({
+                    **td,
+                    "change": change
+                })
+            
+            return {
+                "success": True,
+                "data": {
+                    "datasets": [
+                        {"id": d.id, "name": d.name, "upload_time": d.upload_time.isoformat() if d.upload_time else None}
+                        for d in reversed(datasets)
+                    ],
+                    "trend_data": enriched_trend
+                }
+            }
+            
+    except Exception as e:
+        logger.error(f"获取趋势数据失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/dataset/{dataset_id}")
+async def delete_dataset(dataset_id: int):
+    """删除指定数据集"""
+    try:
+        with get_db_context() as db:
+            dataset_repo = DatasetRepository(db)
+            dataset = dataset_repo.get_by_id(dataset_id)
+            
+            if not dataset:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"数据集 {dataset_id} 不存在"
+                )
+            
+            dataset_repo.delete(dataset_id)
+            
+            return {
+                "success": True,
+                "message": f"数据集 '{dataset.name}' 已删除"
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"删除数据集失败: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

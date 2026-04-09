@@ -2,11 +2,25 @@
 数据模型 - 定义数据结构
 """
 
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
 Base = declarative_base()
+
+
+class Dataset(Base):
+    """数据集模型 - 存储多个时期的数据"""
+    __tablename__ = "datasets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)  # 如 "2024年1月"
+    upload_time = Column(DateTime, default=datetime.utcnow)
+    record_count = Column(Integer, default=0)  # 产品数量
+    
+    # 关联产品数据
+    products = relationship("ProductData", back_populates="dataset", cascade="all, delete-orphan")
 
 
 class ProductData(Base):
@@ -36,6 +50,10 @@ class ProductData(Base):
     # 元数据
     upload_time = Column(DateTime, default=datetime.utcnow)
     data_date = Column(DateTime, nullable=True)  # 数据日期（可选）
+    
+    # 关联数据集
+    dataset_id = Column(Integer, ForeignKey("datasets.id"), nullable=True)
+    dataset = relationship("Dataset", back_populates="products")
     
     # 备注
     notes = Column(Text, nullable=True)

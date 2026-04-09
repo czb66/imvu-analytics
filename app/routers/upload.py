@@ -2,16 +2,16 @@
 文件上传路由 - 处理XML文件上传
 """
 
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 from fastapi.responses import JSONResponse
-from typing import List
+from typing import List, Optional
 import tempfile
 import os
 import logging
 
 import config
 from app.services.parser import XMLParserService
-from app.database import get_db_context, ProductDataRepository
+from app.database import get_db_context, ProductDataRepository, DatasetRepository
 from app.routers.dashboard import _clear_cache  # 导入缓存清除函数
 
 logger = logging.getLogger(__name__)
@@ -19,11 +19,15 @@ router = APIRouter(prefix="/api/upload", tags=["上传"])
 
 
 @router.post("/")
-async def upload_xml_file(file: UploadFile = File(...)):
+async def upload_xml_file(
+    file: UploadFile = File(...),
+    dataset_name: Optional[str] = Form(None)
+):
     """
     上传XML文件并解析
     
     - **file**: XML格式的产品数据文件
+    - **dataset_name**: 数据集名称（可选），如 "2024年1月"
     """
     # 检查文件类型
     if not file.filename.endswith('.xml'):
@@ -59,18 +63,32 @@ async def upload_xml_file(file: UploadFile = File(...)):
         # 保存到数据库
         with get_db_context() as db:
             repo = ProductDataRepository(db)
-            count = repo.bulk_insert(products)
+            dataset_repo = DatasetRepository(db)
+            
+            if dataset_name:
+                # 创建新数据集
+                dataset = dataset_repo.create(name=dataset_name, record_count=len(products))
+                count = repo.bulk_insert_with_dataset(products, dataset.id)
+                dataset_id = dataset.id
+                dataset_name_display = dataset.name
+            else:
+                # 保持向后兼容 - 不指定数据集时使用原有逻辑
+                count = repo.bulk_insert(products)
+                dataset_id = None
+                dataset_name_display = "Default"
         
         # 清除仪表盘缓存，确保新数据立即可见
         _clear_cache()
         
-        logger.info(f"成功上传 {count} 条产品数据")
+        logger.info(f"成功上传 {count} 条产品数据到数据集 '{dataset_name_display}'")
         
         return {
             "success": True,
             "message": f"成功解析并保存 {count} 条产品数据",
             "data": {
                 "count": count,
+                "dataset_id": dataset_id,
+                "dataset_name": dataset_name_display,
                 "preview": products[:3] if len(products) >= 3 else products
             }
         }

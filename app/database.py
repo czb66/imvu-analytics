@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from typing import Generator
 import config
 
-from app.models import Base, ProductData, ReportHistory, SystemConfig
+from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset
 
 # 数据库引擎配置
 if "sqlite" in config.DATABASE_URL:
@@ -69,18 +69,37 @@ class ProductDataRepository:
     def __init__(self, db: Session):
         self.db = db
     
-    def bulk_insert(self, products: list) -> int:
+    def bulk_insert(self, products: list, dataset_id: int = None) -> int:
         """批量插入产品数据"""
-        self.db.query(ProductData).delete()  # 清空旧数据
         for product in products:
             db_product = ProductData(**product)
+            if dataset_id:
+                db_product.dataset_id = dataset_id
+            self.db.add(db_product)
+        self.db.commit()
+        return len(products)
+    
+    def bulk_insert_with_dataset(self, products: list, dataset_id: int) -> int:
+        """批量插入产品数据到指定数据集（先清空该数据集的旧数据）"""
+        # 删除该数据集的旧数据
+        self.db.query(ProductData).filter(ProductData.dataset_id == dataset_id).delete()
+        self.db.commit()
+        
+        # 插入新产品数据
+        for product in products:
+            db_product = ProductData(**product)
+            db_product.dataset_id = dataset_id
             self.db.add(db_product)
         self.db.commit()
         return len(products)
     
     def get_all(self) -> list:
-        """获取所有产品数据"""
-        return self.db.query(ProductData).all()
+        """获取所有产品数据（不区分数据集）"""
+        return self.db.query(ProductData).filter(ProductData.dataset_id == None).all()
+    
+    def get_by_dataset(self, dataset_id: int) -> list:
+        """获取指定数据集的产品数据"""
+        return self.db.query(ProductData).filter(ProductData.dataset_id == dataset_id).all()
     
     def get_by_id(self, product_id: str) -> ProductData:
         """根据产品ID获取数据"""
@@ -94,15 +113,67 @@ class ProductDataRepository:
             ProductData.visible == visible
         ).all()
     
-    def get_top_products(self, limit: int = 10, sort_by: str = 'profit') -> list:
+    def get_top_products(self, limit: int = 10, sort_by: str = 'profit', dataset_id: int = None) -> list:
         """获取Top产品"""
+        query = self.db.query(ProductData)
+        if dataset_id is not None:
+            query = query.filter(ProductData.dataset_id == dataset_id)
         column = getattr(ProductData, sort_by, ProductData.profit)
-        return self.db.query(ProductData).order_by(column.desc()).limit(limit).all()
+        return query.order_by(column.desc()).limit(limit).all()
     
-    def get_bottom_products(self, limit: int = 10, sort_by: str = 'profit') -> list:
+    def get_bottom_products(self, limit: int = 10, sort_by: str = 'profit', dataset_id: int = None) -> list:
         """获取Bottom产品"""
+        query = self.db.query(ProductData)
+        if dataset_id is not None:
+            query = query.filter(ProductData.dataset_id == dataset_id)
         column = getattr(ProductData, sort_by, ProductData.profit)
-        return self.db.query(ProductData).order_by(column.asc()).limit(limit).all()
+        return query.order_by(column.asc()).limit(limit).all()
+    
+    def count_by_dataset(self, dataset_id: int) -> int:
+        """统计指定数据集的产品数量"""
+        return self.db.query(ProductData).filter(ProductData.dataset_id == dataset_id).count()
+
+
+class DatasetRepository:
+    """数据集仓储类"""
+    
+    def __init__(self, db: Session):
+        self.db = db
+    
+    def create(self, name: str, record_count: int = 0) -> Dataset:
+        """创建新数据集"""
+        dataset = Dataset(name=name, record_count=record_count)
+        self.db.add(dataset)
+        self.db.commit()
+        self.db.refresh(dataset)
+        return dataset
+    
+    def get_all(self) -> list:
+        """获取所有数据集"""
+        return self.db.query(Dataset).order_by(Dataset.upload_time.desc()).all()
+    
+    def get_by_id(self, dataset_id: int) -> Dataset:
+        """根据ID获取数据集"""
+        return self.db.query(Dataset).filter(Dataset.id == dataset_id).first()
+    
+    def update_record_count(self, dataset_id: int, count: int):
+        """更新数据集的产品数量"""
+        dataset = self.get_by_id(dataset_id)
+        if dataset:
+            dataset.record_count = count
+            self.db.commit()
+    
+    def delete(self, dataset_id: int):
+        """删除数据集及其关联的产品数据"""
+        # 级联删除会在数据库层面处理
+        dataset = self.get_by_id(dataset_id)
+        if dataset:
+            self.db.delete(dataset)
+            self.db.commit()
+    
+    def get_latest(self, limit: int = 10) -> list:
+        """获取最新的N个数据集"""
+        return self.db.query(Dataset).order_by(Dataset.upload_time.desc()).limit(limit).all()
 
 
 class ReportHistoryRepository:

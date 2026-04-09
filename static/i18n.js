@@ -12,6 +12,7 @@ const translations = {
         nav: {
             dashboard: 'Dashboard',
             diagnosis: 'Deep Analysis',
+            compare: 'Data Compare',
             report: 'Reports'
         },
         
@@ -19,6 +20,7 @@ const translations = {
         pageTitles: {
             dashboard: 'Data Overview',
             diagnosis: 'Deep Analysis',
+            compare: 'Data Compare',
             report: 'Reports Center'
         },
         
@@ -186,6 +188,49 @@ const translations = {
             download: 'Download'
         },
         
+        // 数据对比
+        compare: {
+            selectDatasets: 'Select Datasets',
+            selectHint: 'Select 2-3 datasets to compare',
+            noDatasets: 'No datasets available. Upload data first.',
+            uploadData: 'Upload Data',
+            runCompare: 'Compare Selected',
+            loading: 'Loading...',
+            
+            // 指标
+            metricsComparison: 'Metrics Comparison',
+            totalSales: 'Total Sales',
+            totalProfit: 'Total Profit',
+            totalProducts: 'Total Products',
+            visibleProducts: 'Visible Products',
+            changeTrend: 'Change Trend',
+            sales: 'Sales',
+            profit: 'Profit',
+            
+            // 趋势图表
+            salesTrend: 'Sales Trend',
+            profitTrend: 'Profit Trend',
+            
+            // 排名变化
+            rankUpProducts: 'Products Moving Up',
+            rankDownProducts: 'Products Moving Down',
+            newInTop: 'New in Top 10',
+            exitedTop: 'Exited Top 10',
+            rank: 'rank',
+            new: 'NEW',
+            exited: 'EXITED',
+            noChange: 'No ranking changes',
+            noneInTop: 'None',
+            
+            // 操作
+            products: 'products',
+            confirmDelete: 'Are you sure you want to delete this dataset?',
+            
+            // 上传相关
+            datasetNamePlaceholder: 'Dataset name (optional, e.g. 2024-01)',
+            datasetNameHint: 'Leave empty for default dataset'
+        },
+        
         // 语言切换
         language: {
             switchTo: 'Switch to',
@@ -201,6 +246,7 @@ const translations = {
         nav: {
             dashboard: '仪表盘',
             diagnosis: '深度诊断',
+            compare: '数据对比',
             report: '报告中心'
         },
         
@@ -208,6 +254,7 @@ const translations = {
         pageTitles: {
             dashboard: '数据概览',
             diagnosis: '深度诊断分析',
+            compare: '数据对比',
             report: '报告中心'
         },
         
@@ -373,6 +420,49 @@ const translations = {
             securityTip: '安全提示：请勿将密码直接写入代码，推荐使用 .env 文件或环境变量。',
             
             download: '下载'
+        },
+        
+        // 数据对比
+        compare: {
+            selectDatasets: '选择数据集',
+            selectHint: '选择2-3个数据集进行对比',
+            noDatasets: '暂无可用数据集，请先上传数据。',
+            uploadData: '上传数据',
+            runCompare: '对比所选',
+            loading: '加载中...',
+            
+            // 指标
+            metricsComparison: '指标对比',
+            totalSales: '总销量',
+            totalProfit: '总利润',
+            totalProducts: '产品总数',
+            visibleProducts: '可见产品',
+            changeTrend: '变化趋势',
+            sales: '销量',
+            profit: '利润',
+            
+            // 趋势图表
+            salesTrend: '销量趋势',
+            profitTrend: '利润趋势',
+            
+            // 排名变化
+            rankUpProducts: '排名上升产品',
+            rankDownProducts: '排名下降产品',
+            newInTop: '新进入Top 10',
+            exitedTop: '退出Top 10',
+            rank: '名',
+            new: '新晋',
+            exited: '退出',
+            noChange: '无排名变化',
+            noneInTop: '无',
+            
+            // 操作
+            products: '个产品',
+            confirmDelete: '确定要删除此数据集吗？',
+            
+            // 上传相关
+            datasetNamePlaceholder: '数据集名称（可选，如 2024年1月）',
+            datasetNameHint: '留空则使用默认数据集'
         },
         
         // 语言切换
