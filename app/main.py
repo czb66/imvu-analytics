@@ -182,5 +182,11 @@ async def settings_page(request: Request):
     return templates.TemplateResponse("settings.html", {"request": request, "app_name": config.APP_NAME})
 
 
+@app.get("/profile", response_class=HTMLResponse)
+async def profile_page(request: Request):
+    """个人中心页面"""
+    return templates.TemplateResponse("profile.html", {"request": request, "app_name": config.APP_NAME})
+
+
 # 使用 report_generator 模块中的调度器
 # scheduler, start_scheduler, stop_scheduler 已从 report_generator 导入

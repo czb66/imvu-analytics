@@ -24,6 +24,7 @@ class User(Base):
     # 时间戳
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_login = Column(DateTime, nullable=True)  # 最后登录时间
     
     # 关联数据
     datasets = relationship("Dataset", back_populates="owner", cascade="all, delete-orphan")

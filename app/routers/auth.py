@@ -29,6 +29,17 @@ class LoginRequest(BaseModel):
     remember_me: bool = Field(False, description="记住我")
 
 
+class ChangePasswordRequest(BaseModel):
+    """修改密码请求"""
+    old_password: str = Field(..., description="旧密码")
+    new_password: str = Field(..., min_length=8, description="新密码（至少8位）")
+
+
+class UpdateUsernameRequest(BaseModel):
+    """修改用户名请求"""
+    username: str = Field(..., min_length=2, max_length=50, description="新用户名")
+
+
 class UserResponse(BaseModel):
     """用户响应"""
     id: int
@@ -157,3 +168,94 @@ async def check_email(request: dict, db: Session = Depends(get_db)):
     exists = user_repo.email_exists(email)
     
     return {"exists": exists, "valid": True}
+
+
+@router.post("/change-password")
+async def change_password(
+    request: ChangePasswordRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    修改密码
+    
+    - **old_password**: 旧密码
+    - **new_password**: 新密码（至少8位）
+    """
+    auth_service = AuthService(db)
+    success, message = auth_service.change_password(
+        user_id=current_user["id"],
+        old_password=request.old_password,
+        new_password=request.new_password
+    )
+    
+    if not success:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"success": False, "message": message}
+        )
+    
+    return {
+        "success": True,
+        "message": message
+    }
+
+
+@router.put("/username")
+async def update_username(
+    request: UpdateUsernameRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    修改用户名
+    
+    - **username**: 新用户名（2-50位）
+    """
+    auth_service = AuthService(db)
+    success, message = auth_service.update_username(
+        user_id=current_user["id"],
+        new_username=request.username
+    )
+    
+    if not success:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"success": False, "message": message}
+        )
+    
+    return {
+        "success": True,
+        "message": message
+    }
+
+
+@router.get("/profile")
+async def get_profile(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取用户个人中心信息
+    """
+    from app.database import UserRepository
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    return {
+        "success": True,
+        "message": "获取成功",
+        "data": {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username or "用户",
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "last_login": user.last_login.isoformat() if hasattr(user, 'last_login') and user.last_login else None
+        }
+    }

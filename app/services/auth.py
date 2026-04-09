@@ -228,6 +228,9 @@ class AuthService:
         if not user.is_active:
             return False, "账户已被禁用，请联系管理员", None
         
+        # 更新最后登录时间
+        self.user_repo.update_last_login(user.id)
+        
         # 生成Token
         token = create_access_token(
             data={"sub": str(user.id), "email": user.email},
@@ -255,3 +258,49 @@ class AuthService:
                 "created_at": user.created_at.isoformat() if user.created_at else None
             }
         return None
+    
+    def change_password(self, user_id: int, old_password: str, new_password: str) -> tuple:
+        """
+        修改密码
+        
+        Returns:
+            (success, message)
+        """
+        user = self.user_repo.get_by_id(user_id)
+        if not user:
+            return False, "用户不存在"
+        
+        # 验证旧密码
+        if not verify_password(old_password, user.password_hash):
+            return False, "旧密码不正确"
+        
+        # 验证新密码强度
+        is_valid, msg = validate_password_strength(new_password)
+        if not is_valid:
+            return False, msg
+        
+        # 检查新旧密码是否相同
+        if verify_password(new_password, user.password_hash):
+            return False, "新密码不能与旧密码相同"
+        
+        # 更新密码
+        self.user_repo.update_password(user_id, hash_password(new_password))
+        
+        return True, "密码修改成功"
+    
+    def update_username(self, user_id: int, new_username: str) -> tuple:
+        """
+        修改用户名
+        
+        Returns:
+            (success, message)
+        """
+        if not new_username or len(new_username) < 2:
+            return False, "用户名长度至少2位"
+        
+        if len(new_username) > 50:
+            return False, "用户名长度不能超过50位"
+        
+        self.user_repo.update_username(user_id, new_username)
+        
+        return True, "用户名修改成功"

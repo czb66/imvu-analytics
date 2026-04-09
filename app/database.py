@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool
 from contextlib import contextmanager
 from typing import Generator
+from datetime import datetime
 import config
 
 from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User
@@ -98,6 +99,20 @@ class UserRepository:
         user = self.get_by_id(user_id)
         if user:
             user.password_hash = new_password_hash
+            self.db.commit()
+    
+    def update_username(self, user_id: int, new_username: str):
+        """更新用户名"""
+        user = self.get_by_id(user_id)
+        if user:
+            user.username = new_username
+            self.db.commit()
+    
+    def update_last_login(self, user_id: int):
+        """更新最后登录时间"""
+        user = self.get_by_id(user_id)
+        if user:
+            user.last_login = datetime.utcnow()
             self.db.commit()
     
     def delete(self, user_id: int):
