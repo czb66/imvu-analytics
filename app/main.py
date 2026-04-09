@@ -121,46 +121,46 @@ async def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request, "app_name": config.APP_NAME})
 
 
-@app.get("/dashboard")
-async def dashboard_page():
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(request: Request):
     """仪表盘页面"""
-    pass
+    return templates.TemplateResponse("dashboard.html", {"request": request, "app_name": config.APP_NAME})
 
 
-@app.get("/diagnosis")
-async def diagnosis_page():
+@app.get("/diagnosis", response_class=HTMLResponse)
+async def diagnosis_page(request: Request):
     """诊断页面"""
-    pass
+    return templates.TemplateResponse("diagnosis.html", {"request": request, "app_name": config.APP_NAME})
 
 
-@app.get("/compare")
-async def compare_page():
+@app.get("/compare", response_class=HTMLResponse)
+async def compare_page(request: Request):
     """对比页面"""
-    pass
+    return templates.TemplateResponse("compare.html", {"request": request, "app_name": config.APP_NAME})
 
 
-@app.get("/report")
-async def report_page():
+@app.get("/report", response_class=HTMLResponse)
+async def report_page(request: Request):
     """报告页面"""
-    pass
+    return templates.TemplateResponse("report.html", {"request": request, "app_name": config.APP_NAME})
 
 
-@app.get("/insights")
-async def insights_page():
+@app.get("/insights", response_class=HTMLResponse)
+async def insights_page(request: Request):
     """AI洞察页面"""
-    pass
+    return templates.TemplateResponse("insights.html", {"request": request, "app_name": config.APP_NAME})
 
 
-@app.get("/upload")
-async def upload_page():
+@app.get("/upload", response_class=HTMLResponse)
+async def upload_page(request: Request):
     """上传页面"""
-    pass
+    return templates.TemplateResponse("upload.html", {"request": request, "app_name": config.APP_NAME})
 
 
-@app.get("/settings")
-async def settings_page():
+@app.get("/settings", response_class=HTMLResponse)
+async def settings_page(request: Request):
     """设置页面"""
-    pass
+    return templates.TemplateResponse("settings.html", {"request": request, "app_name": config.APP_NAME})
 
 
 # 全局调度器
