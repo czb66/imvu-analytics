@@ -32,12 +32,9 @@ async def get_admin_stats(
     - 本周新增用户数
     """
     try:
-        user_repo = UserRepository(db)
+        from app.models import User
         
         # 总用户数
-        total_users = db.query(user_repo.db.query(user_repo.db.query.__self__.__class__).first().__class__).count()
-        # 简化方式获取总数
-        from app.models import User
         total_users = db.query(User).count()
         
         # 已订阅用户数 (active subscription)

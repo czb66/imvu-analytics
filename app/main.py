@@ -3,7 +3,7 @@ FastAPI 主应用入口
 """
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
@@ -138,10 +138,29 @@ async def api_status():
     }
 
 
+# Base URL for SEO
+BASE_URL = "https://imvu-analytics-production.up.railway.app"
+APP_DESCRIPTION = "IMVU营销数据分析平台 - 专业的产品销售数据追踪、分析和报告工具"
+APP_KEYWORDS = "IMVU,数据分析,营销,销售报告,产品追踪,商业智能"
+
+def get_seo_context(page_title, page_path, meta_description=None):
+    """生成SEO上下文"""
+    return {
+        "base_url": BASE_URL,
+        "page_title": page_title,
+        "page_path": page_path,
+        "meta_description": meta_description or f"{page_title} - IMVU Analytics - {APP_DESCRIPTION}",
+        "meta_keywords": APP_KEYWORDS,
+        "canonical_url": f"{BASE_URL}{page_path}",
+        "app_name": config.APP_NAME
+    }
+
+
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     """登录页面"""
-    return templates.TemplateResponse("login.html", {"request": request, "app_name": config.APP_NAME})
+    ctx = get_seo_context("用户登录", "/login", "登录IMVU Analytics，开始您的产品销售数据分析之旅")
+    return templates.TemplateResponse("login.html", {"request": request, **ctx})
 
 
 @app.get("/register", response_class=HTMLResponse)
@@ -183,7 +202,8 @@ async def compare_page(request: Request):
 @app.get("/report", response_class=HTMLResponse)
 async def report_page(request: Request):
     """报告页面"""
-    return templates.TemplateResponse("report.html", {"request": request, "app_name": config.APP_NAME})
+    ctx = get_seo_context("销售报告", "/report", "生成和下载IMVU产品销售分析报告，支持PDF和Excel格式")
+    return templates.TemplateResponse("report.html", {"request": request, **ctx})
 
 
 @app.get("/insights", response_class=HTMLResponse)
@@ -213,7 +233,8 @@ async def settings_page(request: Request):
 @app.get("/profile", response_class=HTMLResponse)
 async def profile_page(request: Request):
     """个人中心页面"""
-    return templates.TemplateResponse("profile.html", {"request": request, "app_name": config.APP_NAME})
+    ctx = get_seo_context("个人中心", "/profile", "查看和管理您的IMVU Analytics个人资料和使用情况")
+    return templates.TemplateResponse("profile.html", {"request": request, **ctx})
 
 
 @app.get("/pricing", response_class=HTMLResponse)
@@ -232,6 +253,24 @@ async def success_page(request: Request):
 async def cancel_page(request: Request):
     """支付取消页面"""
     return templates.TemplateResponse("cancel.html", {"request": request, "app_name": config.APP_NAME})
+
+
+# ========== SEO 相关路由 ==========
+
+@app.get("/sitemap.xml", tags=["SEO"])
+async def sitemap_xml():
+    """Sitemap XML - 供搜索引擎爬取"""
+    with open("app/templates/sitemap.xml", "r", encoding="utf-8") as f:
+        content = f.read()
+    return Response(content=content, media_type="application/xml")
+
+
+@app.get("/robots.txt", tags=["SEO"])
+async def robots_txt():
+    """Robots.txt - 爬虫指令文件"""
+    with open("app/templates/robots.txt", "r", encoding="utf-8") as f:
+        content = f.read()
+    return Response(content=content, media_type="text/plain")
 
 
 # 使用 report_generator 模块中的调度器

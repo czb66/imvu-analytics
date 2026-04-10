@@ -1,0 +1,55 @@
+# ===========================================
+# IMVU Analytics - robots.txt
+# ===========================================
+
+User-agent: *
+Allow: /
+
+# 主要页面
+Allow: /login
+Allow: /register
+Allow: /pricing
+Allow: /dashboard
+Allow: /upload
+Allow: /report
+Allow: /diagnosis
+Allow: /compare
+Allow: /insights
+
+# Sitemap
+Sitemap: https://imvu-analytics-production.up.railway.app/sitemap.xml
+
+# 禁止爬取
+Disallow: /api/
+Disallow: /admin/
+Disallow: /settings
+Disallow: /profile
+Disallow: /health/
+Disallow: /static/
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /success
+Disallow: /cancel
+
+# Bing Webmaster
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /settings
+Disallow: /profile
+
+# Baidubot
+User-agent: Baiduspider
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+# Sitemap 引用
+Sitemap: https://imvu-analytics-production.up.railway.app/sitemap.xml
