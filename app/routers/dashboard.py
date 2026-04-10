@@ -11,6 +11,7 @@ from functools import lru_cache
 from app.database import get_db_context, ProductDataRepository
 from app.services.analytics import AnalyticsService
 from app.services.auth import get_current_user
+from app.services.subscription_check import require_subscription
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/dashboard", tags=["仪表盘"])
@@ -93,7 +94,7 @@ def _clear_user_cache(user_id: int = None):
 
 
 @router.get("/summary")
-async def get_summary(current_user: dict = Depends(get_current_user)):
+async def get_summary(current_user: dict = Depends(require_subscription)):
     """获取核心指标汇总"""
     start_time = time.time()
     user_id = current_user.get('id')
@@ -150,7 +151,7 @@ async def get_summary(current_user: dict = Depends(get_current_user)):
 async def get_top_products(
     limit: int = Query(10, ge=1, le=100),
     metric: str = Query("profit", regex="^(profit|sales|price)$"),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     获取Top产品列表
@@ -187,7 +188,7 @@ async def get_top_products(
 
 
 @router.get("/visibility")
-async def get_visibility_analysis(current_user: dict = Depends(get_current_user)):
+async def get_visibility_analysis(current_user: dict = Depends(require_subscription)):
     """获取可见性分析（可见 vs 不可见产品对比）"""
     start_time = time.time()
     user_id = current_user.get('id')
@@ -218,7 +219,7 @@ async def get_visibility_analysis(current_user: dict = Depends(get_current_user)
 
 
 @router.get("/traffic")
-async def get_traffic_analysis(current_user: dict = Depends(get_current_user)):
+async def get_traffic_analysis(current_user: dict = Depends(require_subscription)):
     """获取流量分析（自然流量 vs 付费流量）"""
     start_time = time.time()
     user_id = current_user.get('id')
@@ -254,7 +255,7 @@ async def get_products(
     product_id: Optional[str] = None,
     limit: int = Query(100, ge=1, le=500),
     offset: int = Query(0, ge=0),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     获取产品列表（支持筛选）
@@ -312,7 +313,7 @@ async def get_products(
 
 
 @router.post("/refresh")
-async def refresh_cache(current_user: dict = Depends(get_current_user)):
+async def refresh_cache(current_user: dict = Depends(require_subscription)):
     """刷新仪表盘缓存"""
     logger.info(f"[API] 用户 {current_user.get('email')} 刷新仪表盘缓存 - 开始")
     _clear_user_cache(user_id=current_user.get('id'))

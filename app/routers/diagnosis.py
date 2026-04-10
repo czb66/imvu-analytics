@@ -9,6 +9,7 @@ import logging
 from app.database import get_db_context, ProductDataRepository
 from app.services.analytics import AnalyticsService
 from app.services.auth import get_current_user
+from app.services.subscription_check import require_subscription
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/diagnosis", tags=["诊断"])
@@ -33,7 +34,7 @@ def _product_to_dict(p) -> dict:
 
 
 @router.get("/price-range")
-async def get_price_range_analysis(current_user: dict = Depends(get_current_user)):
+async def get_price_range_analysis(current_user: dict = Depends(require_subscription)):
     """价格区间分析"""
     user_id = current_user.get('id')
     with get_db_context() as db:
@@ -53,7 +54,7 @@ async def get_price_range_analysis(current_user: dict = Depends(get_current_user
 
 
 @router.get("/conversion-funnel")
-async def get_conversion_funnel(current_user: dict = Depends(get_current_user)):
+async def get_conversion_funnel(current_user: dict = Depends(require_subscription)):
     """转化漏斗分析"""
     user_id = current_user.get('id')
     with get_db_context() as db:
@@ -75,7 +76,7 @@ async def get_conversion_funnel(current_user: dict = Depends(get_current_user)):
 @router.get("/high-profit")
 async def get_high_profit_products(
     margin_threshold: Optional[float] = Query(None, ge=0, le=1),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     高利润产品识别
@@ -100,7 +101,7 @@ async def get_high_profit_products(
 
 
 @router.get("/traffic-comparison")
-async def get_traffic_comparison(current_user: dict = Depends(get_current_user)):
+async def get_traffic_comparison(current_user: dict = Depends(require_subscription)):
     """自然流量 vs 付费流量效果对比"""
     user_id = current_user.get('id')
     with get_db_context() as db:
@@ -120,7 +121,7 @@ async def get_traffic_comparison(current_user: dict = Depends(get_current_user))
 
 
 @router.get("/roi")
-async def get_roi_analysis(current_user: dict = Depends(get_current_user)):
+async def get_roi_analysis(current_user: dict = Depends(require_subscription)):
     """ROI分析"""
     user_id = current_user.get('id')
     with get_db_context() as db:
@@ -140,7 +141,7 @@ async def get_roi_analysis(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/user-behavior")
-async def get_user_behavior_analysis(current_user: dict = Depends(get_current_user)):
+async def get_user_behavior_analysis(current_user: dict = Depends(require_subscription)):
     """用户行为转化分析"""
     user_id = current_user.get('id')
     with get_db_context() as db:
@@ -162,7 +163,7 @@ async def get_user_behavior_analysis(current_user: dict = Depends(get_current_us
 @router.get("/low-conversion-alerts")
 async def get_low_conversion_alerts(
     threshold: Optional[float] = Query(None, ge=0),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     高加购低转化产品预警
@@ -189,7 +190,7 @@ async def get_low_conversion_alerts(
 @router.get("/anomalies")
 async def detect_anomalies(
     threshold: Optional[float] = Query(None, ge=1),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     销量异常检测
@@ -221,7 +222,7 @@ async def detect_anomalies(
 
 
 @router.get("/full-report")
-async def get_full_diagnosis_report(current_user: dict = Depends(get_current_user)):
+async def get_full_diagnosis_report(current_user: dict = Depends(require_subscription)):
     """获取完整诊断报告"""
     user_id = current_user.get('id')
     with get_db_context() as db:

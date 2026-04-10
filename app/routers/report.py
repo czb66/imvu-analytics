@@ -16,6 +16,7 @@ from app.database import get_db_context, ProductDataRepository, ReportHistoryRep
 from app.services.analytics import AnalyticsService
 from app.services.email_service import email_service
 from app.services.auth import get_current_user
+from app.services.subscription_check import require_subscription
 import html as html_module
 
 logger = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ def _product_to_dict(p) -> dict:
 
 
 @router.get("/generate")
-async def generate_report_html(current_user: dict = Depends(get_current_user)):
+async def generate_report_html(current_user: dict = Depends(require_subscription)):
     """生成HTML报告"""
     user_id = current_user.get('id')
     try:
@@ -103,7 +104,7 @@ async def generate_report_html(current_user: dict = Depends(get_current_user)):
 async def create_report(
     request: ReportRequest, 
     background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     创建报告（可配置）
@@ -210,7 +211,7 @@ async def create_report(
 @router.get("/download/{filename}")
 async def download_report(
     filename: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """下载报告文件"""
     # 安全检查：只允许下载reports目录下的文件
@@ -230,7 +231,7 @@ async def download_report(
 @router.get("/history")
 async def get_report_history(
     limit: int = 10,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """获取报告历史"""
     user_id = current_user.get('id')

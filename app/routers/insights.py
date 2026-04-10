@@ -13,6 +13,7 @@ from app.database import get_db_context, ProductDataRepository, UserRepository
 from app.services.analytics import AnalyticsService
 from app.services.insights import insights_service
 from app.services.auth import get_current_user
+from app.services.subscription_check import require_subscription
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["AI洞察"])
@@ -98,7 +99,7 @@ def _get_datasets_from_request(user_id: int = None) -> List[Dict]:
 async def generate_dashboard_insights(
     request: Request,
     req: DashboardInsightsRequest = None,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     生成仪表盘AI洞察
@@ -173,7 +174,7 @@ async def generate_dashboard_insights(
 async def generate_diagnosis_insights(
     request: Request,
     req: DiagnosisInsightsRequest = None,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     生成诊断AI洞察
@@ -263,7 +264,7 @@ async def generate_diagnosis_insights(
 async def generate_compare_insights(
     request: Request,
     req: CompareInsightsRequest,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     生成对比AI洞察

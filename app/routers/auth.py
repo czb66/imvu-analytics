@@ -29,17 +29,6 @@ class LoginRequest(BaseModel):
     remember_me: bool = Field(False, description="记住我")
 
 
-class ChangePasswordRequest(BaseModel):
-    """修改密码请求"""
-    old_password: str = Field(..., description="旧密码")
-    new_password: str = Field(..., min_length=8, description="新密码（至少8位）")
-
-
-class UpdateUsernameRequest(BaseModel):
-    """修改用户名请求"""
-    username: str = Field(..., min_length=2, max_length=50, description="新用户名")
-
-
 class UserResponse(BaseModel):
     """用户响应"""
     id: int
@@ -169,206 +158,54 @@ async def check_email(request: dict, db: Session = Depends(get_db)):
     
     return {"exists": exists, "valid": True}
 
-
-@router.post("/change-password")
-async def change_password(
-    request: ChangePasswordRequest,
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
+@router.post("/init-whitelist")
+async def init_whitelist_users(db: Session = Depends(get_db)):
     """
-    修改密码
+    初始化白名单用户
     
-    - **old_password**: 旧密码
-    - **new_password**: 新密码（至少8位）
+    创建白名单账号并自动赋予订阅权限
+    此API应该在部署后调用一次
     """
-    auth_service = AuthService(db)
-    success, message = auth_service.change_password(
-        user_id=current_user["id"],
-        old_password=request.old_password,
-        new_password=request.new_password
-    )
-    
-    if not success:
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={"success": False, "message": message}
-        )
-    
-    return {
-        "success": True,
-        "message": message
-    }
-
-
-@router.put("/username")
-async def update_username(
-    request: UpdateUsernameRequest,
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    修改用户名
-    
-    - **username**: 新用户名（2-50位）
-    """
-    auth_service = AuthService(db)
-    success, message = auth_service.update_username(
-        user_id=current_user["id"],
-        new_username=request.username
-    )
-    
-    if not success:
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={"success": False, "message": message}
-        )
-    
-    return {
-        "success": True,
-        "message": message
-    }
-
-
-@router.get("/profile")
-async def get_profile(
-    current_user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """
-    获取用户个人中心信息
-    """
+    from app.services.auth import hash_password
     from app.database import UserRepository
+    
     user_repo = UserRepository(db)
-    user = user_repo.get_by_id(current_user["id"])
     
-    if not user:
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={"success": False, "message": "用户不存在"}
+    # 白名单用户列表
+    whitelist_users = [
+        {
+            "email": "whitelist@imvu-analytics.com",
+            "password": "Admin@2024",
+            "username": "Admin"
+        },
+        {
+            "email": "nlfd8910@gmail.com",
+            "password": "test123456",
+            "username": "Azen"
+        }
+    ]
+    
+    created_users = []
+    
+    for user_data in whitelist_users:
+        email = user_data["email"]
+        
+        # 检查用户是否已存在
+        if user_repo.email_exists(email):
+            created_users.append({"email": email, "status": "already_exists"})
+            continue
+        
+        # 创建用户
+        password_hash = hash_password(user_data["password"])
+        user = user_repo.create(
+            email=email,
+            password_hash=password_hash,
+            username=user_data["username"]
         )
+        created_users.append({"email": email, "status": "created", "user_id": user.id})
     
     return {
         "success": True,
-        "message": "获取成功",
-        "data": {
-            "id": user.id,
-            "email": user.email,
-            "username": user.username or "用户",
-            "created_at": user.created_at.isoformat() if user.created_at else None,
-            "last_login": user.last_login.isoformat() if hasattr(user, 'last_login') and user.last_login else None
-        }
-    }
-
-
-# ==================== 忘记密码相关请求模型 ====================
-
-class ForgotPasswordRequest(BaseModel):
-    """忘记密码请求"""
-    email: EmailStr = Field(..., description="邮箱地址")
-
-
-class ResetPasswordRequest(BaseModel):
-    """重置密码请求"""
-    token: str = Field(..., description="重置令牌")
-    new_password: str = Field(..., min_length=8, description="新密码（至少8位）")
-
-
-class ValidateTokenRequest(BaseModel):
-    """验证令牌请求"""
-    token: str = Field(..., description="重置令牌")
-
-
-@router.post("/forgot-password", response_model=AuthResponse)
-async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    """
-    忘记密码 - 发送重置邮件
-    
-    - **email**: 注册邮箱地址
-    """
-    try:
-        auth_service = AuthService(db)
-        success, message, token = auth_service.generate_reset_token(request.email)
-        
-        if success and token:
-            # 发送重置邮件
-            from app.services.email_service import email_service
-            email_success, email_message = email_service.send_password_reset_email(
-                to_email=request.email,
-                reset_token=token
-            )
-            
-            if not email_success:
-                # 邮件发送失败，但不暴露给用户（防止枚举攻击）
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.warning(f"密码重置邮件发送失败: {email_message}")
-        
-        # 总是返回成功，防止邮箱枚举攻击
-        return {
-            "success": True,
-            "message": "如果该邮箱已注册，重置链接已发送至您的邮箱，请检查垃圾邮件文件夹。",
-            "data": None
-        }
-        
-    except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"忘记密码处理失败: {e}", exc_info=True)
-        
-        # 即使出错也返回成功，防止枚举攻击
-        return {
-            "success": True,
-            "message": "如果该邮箱已注册，重置链接已发送至您的邮箱，请检查垃圾邮件文件夹。",
-            "data": None
-        }
-
-
-@router.post("/reset-password", response_model=AuthResponse)
-async def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
-    """
-    重置密码 - 使用令牌
-    
-    - **token**: 重置令牌
-    - **new_password**: 新密码（至少8位）
-    """
-    auth_service = AuthService(db)
-    success, message = auth_service.reset_password_with_token(
-        token=request.token,
-        new_password=request.new_password
-    )
-    
-    if not success:
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={"success": False, "message": message}
-        )
-    
-    return {
-        "success": True,
-        "message": "密码重置成功，请使用新密码登录。"
-    }
-
-
-@router.post("/validate-reset-token", response_model=AuthResponse)
-async def validate_reset_token(request: ValidateTokenRequest, db: Session = Depends(get_db)):
-    """
-    验证重置令牌是否有效
-    
-    - **token**: 重置令牌
-    """
-    from app.database import UserRepository
-    user_repo = UserRepository(db)
-    user = user_repo.verify_reset_token(request.token)
-    
-    if not user:
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={"success": False, "message": "重置链接已过期或无效"}
-        )
-    
-    return {
-        "success": True,
-        "message": "令牌有效",
-        "data": {"email": user.email}
+        "message": "白名单用户初始化完成",
+        "data": created_users
     }

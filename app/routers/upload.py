@@ -13,6 +13,7 @@ import config
 from app.services.parser import XMLParserService
 from app.database import get_db_context, ProductDataRepository, DatasetRepository
 from app.services.auth import get_current_user
+from app.services.subscription_check import require_subscription
 from app.routers.dashboard import _clear_cache  # 导入缓存清除函数
 
 logger = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ router = APIRouter(prefix="/api/upload", tags=["上传"])
 async def upload_xml_file(
     file: UploadFile = File(...),
     dataset_name: Optional[str] = Form(None),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     上传XML文件并解析
