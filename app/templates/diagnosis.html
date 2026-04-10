@@ -49,6 +49,112 @@
             background: rgba(255,255,255,0.15);
             color: white;
         }
+        .sidebar-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.2);
+            margin: 15px 20px;
+        }
+        .user-menu {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            width: 250px;
+            padding: 0 20px;
+        }
+        .user-menu-btn {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: rgba(255,255,255,0.9);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+        .user-menu-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .user-menu-btn .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        .user-menu-btn .user-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        .user-menu-btn .user-email {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-menu-btn .user-name {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        .user-menu-btn .dropdown-arrow {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+        .user-menu-btn.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        .user-dropdown {
+            position: absolute;
+            bottom: 100%;
+            left: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            margin-bottom: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        .user-dropdown.show {
+            display: block;
+        }
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-radius: 0;
+            font-size: 14px;
+        }
+        .user-dropdown a:hover {
+            background: #f5f7fa;
+            color: var(--primary);
+        }
+        .user-dropdown a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .user-dropdown .dropdown-divider {
+            height: 1px;
+            background: #eee;
+            margin: 5px 0;
+        }
+        .user-dropdown .logout-item {
+            color: #ff4d4f;
+        }
+        .user-dropdown .logout-item:hover {
+            background: #fff2f0;
+            color: #ff4d4f;
+        }
         .main-content {
             margin-left: 250px;
             padding: 20px;
@@ -273,7 +379,26 @@
         <a href="/diagnosis" class="active"><i class="bi bi-search me-2"></i><span data-i18n="nav.diagnosis">Deep Analysis</span></a>
         <a href="/compare"><i class="bi bi-bar-chart-steps me-2"></i><span data-i18n="nav.compare">Data Compare</span></a>
         <a href="/report"><i class="bi bi-file-earmark-text me-2"></i><span data-i18n="nav.report">Reports</span></a>
-        <a href="/profile"><i class="bi bi-person me-2"></i><span data-i18n="nav.profile">Profile</span></a>
+        
+        <!-- 用户菜单 -->
+        <div class="sidebar-divider"></div>
+        <div class="user-menu">
+            <button class="user-menu-btn" id="userMenuBtn" onclick="toggleUserMenu()">
+                <div class="user-avatar">
+                    <i class="bi bi-person"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user-email" id="userMenuEmail">-</div>
+                    <div class="user-name" id="userMenuName">-</div>
+                </div>
+                <i class="bi bi-chevron-up dropdown-arrow"></i>
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="/profile"><i class="bi bi-person-circle"></i><span data-i18n="nav.profile">Profile</span></a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="logout-item" onclick="logout()"><i class="bi bi-box-arrow-right"></i><span data-i18n="nav.logout">Logout</span></a>
+            </div>
+        </div>
     </nav>
 
     <!-- 主内容 -->
@@ -451,6 +576,9 @@
             // 页面保护
             const user = await protectPage();
             if (!user) return;
+            
+            // 初始化用户菜单
+            initUserMenu(user);
             
             applyTranslations(); // 立即应用翻译
             loadAllData();
@@ -720,6 +848,46 @@
             if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
             if (num >= 1000) return (num / 1000).toFixed(2) + 'K';
             return num.toFixed(2);
+        }
+
+        // 初始化用户菜单
+        function initUserMenu(user) {
+            const emailEl = document.getElementById('userMenuEmail');
+            const nameEl = document.getElementById('userMenuName');
+            
+            if (emailEl) {
+                emailEl.textContent = user.email || '-';
+            }
+            if (nameEl) {
+                nameEl.textContent = user.username || '-';
+            }
+            
+            // 点击其他地方关闭下拉菜单
+            document.addEventListener('click', (e) => {
+                const userMenuBtn = document.getElementById('userMenuBtn');
+                const userDropdown = document.getElementById('userDropdown');
+                
+                if (userMenuBtn && userDropdown) {
+                    if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                        userDropdown.classList.remove('show');
+                        userMenuBtn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // 切换用户下拉菜单
+        function toggleUserMenu() {
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (userDropdown.classList.contains('show')) {
+                userDropdown.classList.remove('show');
+                userMenuBtn.classList.remove('active');
+            } else {
+                userDropdown.classList.add('show');
+                userMenuBtn.classList.add('active');
+            }
         }
     </script>
 </body>
