@@ -28,9 +28,11 @@ def has_active_subscription(db: Session, user_id: int) -> bool:
         True: 有订阅或在白名单中
         False: 无订阅
     """
+    from app.models import User
+    from datetime import datetime
+    
     # 获取用户信息
-    user_repo = UserRepository(db)
-    user = user_repo.get_by_id(user_id)
+    user = db.query(User).filter(User.id == user_id).first()
     
     if not user:
         return False
@@ -39,9 +41,16 @@ def has_active_subscription(db: Session, user_id: int) -> bool:
     if is_whitelisted(user.email):
         return True
     
-    # 检查订阅状态（从数据库或Stripe检查）
-    # 这里暂时返回False，需要后续实现Stripe订阅检查
-    # TODO: 实现Stripe订阅状态检查
+    # 检查订阅状态
+    if user.subscription_status == 'active':
+        # 检查订阅是否过期
+        if user.subscription_end_date:
+            if user.subscription_end_date > datetime.utcnow():
+                return True
+        else:
+            # 没有过期时间，认为订阅有效
+            return True
+    
     return False
 
 
