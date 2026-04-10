@@ -489,9 +489,6 @@ async def get_subscription_status(
     """
     查询当前用户的订阅状态
     """
-    # 确保 API Key 已设置
-    ensure_stripe_api_key()
-    
     try:
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(current_user["id"])
@@ -502,24 +499,15 @@ async def get_subscription_status(
                 content={"success": False, "message": "用户不存在"}
             )
         
-        # 构建订阅状态数据
+        # 构建订阅状态数据（只使用数据库数据，不调用 Stripe API）
         subscription_data = {
             "is_subscribed": user.is_subscribed,
-            "status": user.subscription_status,
+            "status": user.subscription_status or "none",
             "subscription_id": user.subscription_id,
             "end_date": user.subscription_end_date.strftime("%Y-%m-%d %H:%M:%S") if user.subscription_end_date else None,
             "price": config.SUBSCRIPTION_PRICE,
             "currency": "usd"
         }
-        
-        # 如果有订阅，获取Stripe订阅详情
-        if user.subscription_id:
-            try:
-                subscription = stripe.Subscription.retrieve(user.subscription_id)
-                subscription_data["stripe_status"] = subscription.status
-                subscription_data["cancel_at_period_end"] = subscription.cancel_at_period_end
-            except stripe.error.StripeError as e:
-                logger.warning(f"获取Stripe订阅详情失败: {e}")
         
         return {
             "success": True,
