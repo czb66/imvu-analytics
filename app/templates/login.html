@@ -282,9 +282,11 @@
                     
                     showAlert(t('login.loginSuccess'), true);
                     
-                    // 跳转到仪表盘
+                    // 跳转到目标页面
                     setTimeout(() => {
-                        window.location.href = '/dashboard';
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const redirect = urlParams.get('redirect') || '/dashboard';
+                        window.location.href = redirect;
                     }, 1000);
                 } else {
                     showAlert(data.message || t('login.loginError'));
@@ -308,8 +310,10 @@
                 }
             }).then(res => res.json()).then(data => {
                 if (data.success) {
-                    // 已登录，跳转到仪表盘
-                    window.location.href = '/dashboard';
+                    // 已登录，跳转到目标页面
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirect = urlParams.get('redirect') || '/dashboard';
+                    window.location.href = redirect;
                 }
             }).catch(() => {
                 // token无效，删除
