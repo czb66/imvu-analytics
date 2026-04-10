@@ -9,6 +9,7 @@ from datetime import datetime
 
 from app.database import get_db_context, ProductDataRepository, DatasetRepository
 from app.services.auth import get_current_user
+from app.services.subscription_check import require_subscription
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/compare", tags=["数据对比"])
@@ -174,7 +175,7 @@ def _compare_rankings(current_products: list, previous_products: list, limit: in
 
 
 @router.get("/datasets")
-async def get_datasets(current_user: dict = Depends(get_current_user)):
+async def get_datasets(current_user: dict = Depends(require_subscription)):
     """获取所有数据集列表"""
     user_id = current_user.get('id')
     try:
@@ -202,7 +203,7 @@ async def get_datasets(current_user: dict = Depends(get_current_user)):
 @router.get("/")
 async def compare_datasets(
     dataset_ids: List[int] = Query(..., min_length=2, max_length=10),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_subscription)
 ):
     """
     对比多个数据集

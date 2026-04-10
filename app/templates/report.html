@@ -419,7 +419,9 @@
         // 加载历史记录
         async function loadHistory() {
             try {
-                const res = await fetch('/api/report/history?limit=10');
+                const res = await fetch('/api/report/history?limit=10', {
+                    headers: getAuthHeaders()
+                });
                 const data = await res.json();
                 
                 if (data.success && data.data.length > 0) {

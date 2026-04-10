@@ -939,7 +939,8 @@
                 const apiKey = localStorage.getItem('deepseek_api_key');
                 
                 const headers = {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
                 };
                 if (apiKey) {
                     headers['X-DeepSeek-Key'] = apiKey;
@@ -1341,7 +1342,8 @@
             
             try {
                 const response = await fetch(`/api/compare/dataset/${id}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
                 });
                 const result = await response.json();
                 

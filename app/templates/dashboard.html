@@ -907,7 +907,9 @@
                 }
                 
                 try {
-                    const res = await fetch(`/api/dashboard/products?limit=50`);
+                    const res = await fetch(`/api/dashboard/products?limit=50`, {
+                        headers: getAuthHeaders()
+                    });
                     const data = await res.json();
                     if (data.success) {
                         const filtered = data.data.products.filter(p => 
