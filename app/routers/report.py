@@ -140,6 +140,8 @@ async def create_report(
                 'content_preview': f"总销量: {(summary or {}).get('total_sales', 0)} 个",
                 'status': 'pending'
             }, user_id=user_id)
+            # 保存 report_id，避免 session 关闭后无法访问
+            report_id = report_record.id
         
         # 生成报告文件
         os.makedirs(config.REPORT_DIR, exist_ok=True)
@@ -163,11 +165,13 @@ async def create_report(
             f.write(html)
         
         # 更新记录
-        report_repo.update_status(
-            report_record.id,
-            'completed',
-            file_path=report_path
-        )
+        with get_db_context() as db:
+            report_repo = ReportHistoryRepository(db)
+            report_repo.update_status(
+                report_id,
+                'completed',
+                file_path=report_path
+            )
         
         # 发送邮件
         email_sent = False
@@ -185,16 +189,18 @@ async def create_report(
                 )
                 email_sent = success
                 if success:
-                    report_repo.update_status(
-                        report_record.id,
-                        'completed',
-                        sent_to=','.join(recipients)
-                    )
+                    with get_db_context() as db:
+                        report_repo = ReportHistoryRepository(db)
+                        report_repo.update_status(
+                            report_id,
+                            'completed',
+                            sent_to=','.join(recipients)
+                        )
         
         return {
             "success": True,
             "data": {
-                "report_id": report_record.id,
+                "report_id": report_id,
                 "file_path": report_filename,
                 "email_sent": email_sent,
                 "download_url": f"/api/report/download/{report_filename}"
