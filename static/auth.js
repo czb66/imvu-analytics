@@ -144,3 +144,35 @@ function t(key) {
     }
     return key;
 }
+
+// API调用封装（带认证和JSON解析）
+async function apiCall(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...getAuthHeaders(),
+            ...options.headers
+        }
+    });
+    
+    // 处理401未授权
+    if (response.status === 401) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        throw new Error('Unauthorized');
+    }
+    
+    // 处理403禁止访问
+    if (response.status === 403) {
+        throw new Error('Access denied. Admin only.');
+    }
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+        throw new Error(data.message || 'Request failed');
+    }
+    
+    return data;
+}
