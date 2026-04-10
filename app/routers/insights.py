@@ -13,18 +13,25 @@ from app.database import get_db_context, ProductDataRepository, UserRepository
 from app.services.analytics import AnalyticsService
 from app.services.insights import insights_service
 from app.services.auth import get_current_user
-from app.services.subscription_check import require_subscription
+from app.services.subscription_check import require_subscription, is_whitelisted
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["AI洞察"])
 
 
-def check_subscription_required(user_id: int) -> bool:
-    """检查用户是否需要订阅才能使用AI洞察"""
+def check_subscription_required(user_id: int, user_email: str = None) -> bool:
+    """检查用户是否需要订阅才能使用AI洞察
+    
+    白名单用户自动通过
+    """
+    # 白名单用户跳过检查
+    if user_email and is_whitelisted(user_email):
+        return True
+    
     with get_db_context() as db:
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(user_id)
-        if user and user.is_subscribed:
+        if user and (user.is_subscribed or is_whitelisted(user.email)):
             return True
         return False
 
@@ -110,10 +117,11 @@ async def generate_dashboard_insights(
     """
     start_time = time.time()
     user_id = current_user.get('id')
-    logger.info(f"[API] 用户 {current_user.get('email')} 生成仪表盘洞察 - 开始")
+    user_email = current_user.get('email')
+    logger.info(f"[API] 用户 {user_email} 生成仪表盘洞察 - 开始")
     
-    # 检查订阅状态
-    if not check_subscription_required(user_id):
+    # 检查订阅状态（白名单用户自动通过）
+    if not check_subscription_required(user_id, user_email):
         return {
             "success": False,
             "error": "subscription_required",
@@ -185,10 +193,11 @@ async def generate_diagnosis_insights(
     """
     start_time = time.time()
     user_id = current_user.get('id')
-    logger.info(f"[API] 用户 {current_user.get('email')} 生成诊断洞察 - 开始")
+    user_email = current_user.get('email')
+    logger.info(f"[API] 用户 {user_email} 生成诊断洞察 - 开始")
     
-    # 检查订阅状态
-    if not check_subscription_required(user_id):
+    # 检查订阅状态（白名单用户自动通过）
+    if not check_subscription_required(user_id, user_email):
         return {
             "success": False,
             "error": "subscription_required",
@@ -275,10 +284,11 @@ async def generate_compare_insights(
     """
     start_time = time.time()
     user_id = current_user.get('id')
-    logger.info(f"[API] 用户 {current_user.get('email')} 生成对比洞察 - 开始 数据集: {req.dataset_ids}")
+    user_email = current_user.get('email')
+    logger.info(f"[API] 用户 {user_email} 生成对比洞察 - 开始 数据集: {req.dataset_ids}")
     
-    # 检查订阅状态
-    if not check_subscription_required(user_id):
+    # 检查订阅状态（白名单用户自动通过）
+    if not check_subscription_required(user_id, user_email):
         return {
             "success": False,
             "error": "subscription_required",
