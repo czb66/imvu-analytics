@@ -21,7 +21,10 @@ if "sqlite" in config.DATABASE_URL:
         echo=config.DEBUG
     )
 else:
-    # PostgreSQL 配置
+    # PostgreSQL/Neon 配置
+    # Neon 需要 SSL 连接
+    connect_args = {"sslmode": "require"} if "neon.tech" in config.DATABASE_URL else {}
+    
     engine = create_engine(
         config.DATABASE_URL,
         poolclass=QueuePool,
@@ -29,6 +32,8 @@ else:
         max_overflow=10,
         pool_timeout=30,
         pool_recycle=1800,
+        pool_pre_ping=True,  # 检查连接是否有效
+        connect_args=connect_args,
         echo=config.DEBUG
     )
 
