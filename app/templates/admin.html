@@ -435,11 +435,25 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            initLanguage();
-            setupEventListeners();
-            await loadStats();
-            await loadUsers();
-            hideLoading();
+            try {
+                initLanguage();
+                setupEventListeners();
+                
+                // 检查登录状态
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                await loadStats();
+                await loadUsers();
+            } catch (e) {
+                console.error('初始化失败:', e);
+                showToast(e.message || '加载失败', 'error');
+            } finally {
+                hideLoading();
+            }
         });
 
         // Language
@@ -516,7 +530,6 @@
         }
 
         async function loadUsers() {
-            showLoading();
             try {
                 const search = searchInput.value;
                 const status = filterStatus.value;
@@ -534,9 +547,7 @@
                 }
             } catch (e) {
                 showToast(e.message, 'error');
-                userTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`;
-            } finally {
-                hideLoading();
+                userTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${escapeHtml(e.message)}</td></tr>`;
             }
         }
 
