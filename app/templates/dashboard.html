@@ -576,9 +576,12 @@
         async function loadDashboardData() {
             showLoading();
             
+            // 获取认证头
+            const authHeaders = getAuthHeaders();
+            
             try {
                 // 优先加载核心指标（最重要的数据）
-                const summaryRes = await fetchWithRetry('/api/dashboard/summary');
+                const summaryRes = await fetchWithRetry('/api/dashboard/summary', { headers: authHeaders });
                 const summaryData = await summaryRes.json();
                 
                 if (summaryData.success) {
@@ -598,10 +601,10 @@
 
                 // 并行加载其他图表数据（提高性能）
                 const [topRes, visRes, trafficRes, priceRes] = await Promise.all([
-                    fetchWithRetry('/api/dashboard/top-products?limit=10&metric=sales'),
-                    fetchWithRetry('/api/dashboard/visibility'),
-                    fetchWithRetry('/api/dashboard/traffic'),
-                    fetchWithRetry('/api/diagnosis/price-range').catch(() => ({ json: async () => ({ success: true, data: [] }) }))
+                    fetchWithRetry('/api/dashboard/top-products?limit=10&metric=sales', { headers: authHeaders }),
+                    fetchWithRetry('/api/dashboard/visibility', { headers: authHeaders }),
+                    fetchWithRetry('/api/dashboard/traffic', { headers: authHeaders }),
+                    fetchWithRetry('/api/diagnosis/price-range', { headers: authHeaders }).catch(() => ({ json: async () => ({ success: true, data: [] }) }))
                 ]);
 
                 const topData = await topRes.json();
@@ -681,7 +684,7 @@
                 const response = await fetch('/api/insights/dashboard', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        ...getAuthHeaders(),
                         ...headers
                     },
                     body: JSON.stringify({
@@ -863,7 +866,13 @@
             }
 
             try {
-                const res = await fetch('/api/upload/', { method: 'POST', body: formData });
+                const res = await fetch('/api/upload/', { 
+                    method: 'POST', 
+                    headers: {
+                        'Authorization': 'Bearer ' + getToken()
+                    },
+                    body: formData 
+                });
                 const data = await res.json();
 
                 if (data.success) {
