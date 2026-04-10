@@ -177,6 +177,7 @@ async def create_report(
         email_sent = False
         if request.send_email:
             recipients = request.email_recipients or [e.strip() for e in config.EMAIL_TO.split(',') if e.strip()]
+            logger.info(f"准备发送邮件，收件人: {recipients}, SMTP_USER: {config.SMTP_USER}")
             if recipients:
                 success, message = email_service.send_daily_report(
                     {
@@ -188,6 +189,7 @@ async def create_report(
                     recipients
                 )
                 email_sent = success
+                logger.info(f"邮件发送结果: success={success}, message={message}")
                 if success:
                     with get_db_context() as db:
                         report_repo = ReportHistoryRepository(db)
@@ -196,6 +198,8 @@ async def create_report(
                             'completed',
                             sent_to=','.join(recipients)
                         )
+            else:
+                logger.warning("没有收件人地址，跳过邮件发送")
         
         return {
             "success": True,
