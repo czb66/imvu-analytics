@@ -467,9 +467,9 @@ const translations = {
 
         // 定价页面
         pricing: {
-            pageTitle: 'Pricing',
+            pageTitle: 'Pricing - IMVU Analytics',
             title: 'Simple, Transparent Pricing',
-            subtitle: 'Choose the plan that best fits your needs',
+            subtitle: 'One plan, all features, no hidden fees',
             // 计划名称
             free: 'Free',
             pro: 'Pro',
@@ -478,6 +478,20 @@ const translations = {
             freeDesc: 'Perfect for getting started',
             proDesc: 'For growing businesses',
             enterpriseDesc: 'For large organizations',
+            // 功能列表
+            compare1: 'Data Upload',
+            compare2: 'Basic Dashboard',
+            compare3: 'Data Diagnosis',
+            compare4: 'AI Insights',
+            compare5: 'Email Reports',
+            subscribe_btn: 'Subscribe Now - $12/month',
+            manage: 'Manage Subscription',
+            current_plan: 'Current Plan',
+            renews_at: 'Renews at',
+            subscribe_success: 'Redirecting to payment...',
+            subscribe_error: 'Failed to create checkout session',
+            not_logged_in: 'Please login first',
+            network_error: 'Network error, please try again',
             // 功能
             features: {
                 uploads: 'Monthly Uploads',
@@ -983,9 +997,9 @@ const translations = {
 
         // 定价页面
         pricing: {
-            pageTitle: '定价',
+            pageTitle: '定价 - IMVU Analytics',
             title: '简单、透明的定价',
-            subtitle: '选择最适合您需求的计划',
+            subtitle: '一个计划，所有功能，无隐藏费用',
             // 计划名称
             free: '免费版',
             pro: '专业版',
@@ -994,6 +1008,20 @@ const translations = {
             freeDesc: '非常适合入门',
             proDesc: '适合成长型企业',
             enterpriseDesc: '适合大型组织',
+            // 功能列表
+            compare1: '数据上传',
+            compare2: '基础仪表板',
+            compare3: '数据诊断',
+            compare4: 'AI洞察',
+            compare5: '邮件报告',
+            subscribe_btn: '立即订阅 - $12/月',
+            manage: '管理订阅',
+            current_plan: '当前计划',
+            renews_at: '续费日期',
+            subscribe_success: '正在跳转到支付页面...',
+            subscribe_error: '创建支付会话失败',
+            not_logged_in: '请先登录',
+            network_error: '网络错误，请重试',
             // 功能
             features: {
                 uploads: '每月上传次数',

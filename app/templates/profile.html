@@ -361,6 +361,11 @@
     <script>
         // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', async function() {
+            // 应用翻译
+            if (typeof applyTranslations === 'function') {
+                applyTranslations();
+            }
+            
             // 检查登录状态
             const user = await protectPage();
             if (!user) {
@@ -425,7 +430,7 @@
             if (data.is_subscribed) {
                 actionsEl.innerHTML = '<button class="btn btn-outline-primary me-2" onclick="manageSubscription()"><i class="bi bi-gear me-1"></i>' + (isZh ? '管理订阅' : 'Manage Subscription') + '</button><a href="/pricing" class="btn btn-outline-secondary"><i class="bi bi-info-circle me-1"></i>' + (isZh ? '查看定价' : 'View Plans') + '</a>';
             } else {
-                actionsEl.innerHTML = '<a href="/pricing" class="btn btn-primary"><i class="bi bi-lightning me-1"></i>' + (isZh ? '立即订阅 $20/月' : 'Subscribe Now - $20/month') + '</a>';
+                actionsEl.innerHTML = '<a href="/pricing" class="btn btn-primary"><i class="bi bi-lightning me-1"></i>' + (isZh ? '立即订阅 $12/月' : 'Subscribe Now - $12/month') + '</a>';
             }
         }
 
