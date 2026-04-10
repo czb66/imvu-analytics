@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="admin_title">Admin Dashboard - IMVU Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+    <script src="/static/auth.js"></script>
+    <script src="/static/i18n.js"></script>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #52c41a;
+            --danger: #ff4d4f;
+            --warning: #faad14;
+        }
+        body {
+            background: #f5f7fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 20px 0;
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar h4 {
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        /* Language Switcher */
+        .lang-switcher {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            gap: 5px;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .lang-btn {
+            padding: 5px 12px;
+            border-radius: 15px;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover { background: #f0f0f0; }
+        .lang-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        /* Stat Cards */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #888;
+            font-size: 14px;
+        }
+        /* User Table */
+        .user-table {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .table thead th {
+            border-bottom: 2px solid #f0f0f0;
+            color: #666;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        .badge-subscribe {
+            background: linear-gradient(135deg, var(--success) 0%, #73d13d 100%);
+        }
+        .badge-unsubscribe {
+            background: #d9d9d9;
+            color: #666;
+        }
+        .badge-admin {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        /* Search Box */
+        .search-box {
+            position: relative;
+            max-width: 300px;
+        }
+        .search-box input {
+            padding-left: 40px;
+            border-radius: 8px;
+        }
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        /* Pagination */
+        .pagination {
+            margin-top: 20px;
+        }
+        .page-link {
+            color: var(--primary);
+            border-color: #e8e8e8;
+        }
+        .page-link:hover {
+            color: var(--secondary);
+            background: #f5f5f5;
+        }
+        .page-item.active .page-link {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 10000;
+        }
+        .toast {
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p style="margin-top: 15px; color: #666;" data-i18n="loading">Loading...</p>
+    </div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <h4><i class="bi bi-speedometer2 me-2"></i><span data-i18n="app_name">IMVU Analytics</span></h4>
+        <a href="/dashboard"><i class="bi bi-house me-2"></i><span data-i18n="nav_dashboard">Dashboard</span></a>
+        <a href="/upload"><i class="bi bi-cloud-upload me-2"></i><span data-i18n="nav_upload">Upload</span></a>
+        <a href="/report"><i class="bi bi-file-earmark-text me-2"></i><span data-i18n="nav_report">Report</span></a>
+        <a href="/insights"><i class="bi bi-lightbulb me-2"></i><span data-i18n="nav_insights">AI Insights</span></a>
+        <a href="/settings"><i class="bi bi-gear me-2"></i><span data-i18n="nav_settings">Settings</span></a>
+        <a href="/profile"><i class="bi bi-person me-2"></i><span data-i18n="nav_profile">Profile</span></a>
+        <div style="position: absolute; bottom: 20px; width: 100%;">
+            <a href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i><span data-i18n="logout">Logout</span></a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-shield-check me-2"></i><span data-i18n="admin_title">Admin Dashboard</span></h2>
+            <div class="lang-switcher">
+                <button class="lang-btn" data-lang="en">EN</button>
+                <button class="lang-btn" data-lang="zh">中文</button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-value" id="totalUsers">-</div>
+                            <div class="stat-label" data-i18n="stat_total_users">Total Users</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%); color: white;">
+                            <i class="bi bi-star"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-value" id="subscribedUsers">-</div>
+                            <div class="stat-label" data-i18n="stat_subscribed">Subscribed Users</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%); color: white;">
+                            <i class="bi bi-person-plus"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-value" id="weeklyNewUsers">-</div>
+                            <div class="stat-label" data-i18n="stat_weekly_new">New Users This Week</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User List -->
+        <div class="user-table">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5><i class="bi bi-list-ul me-2"></i><span data-i18n="user_list">User List</span></h5>
+                <div class="d-flex gap-2">
+                    <!-- Search -->
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="form-control" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Search email or username...">
+                    </div>
+                    <!-- Filter -->
+                    <select class="form-select" id="filterStatus" style="width: 150px;">
+                        <option value="" data-i18n="filter_all">All</option>
+                        <option value="subscribed" data-i18n="filter_subscribed">Subscribed</option>
+                        <option value="not_subscribed" data-i18n="filter_not_subscribed">Not Subscribed</option>
+                    </select>
+                    <button class="btn btn-primary" id="searchBtn">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th data-i18n="th_email">Email</th>
+                            <th data-i18n="th_username">Username</th>
+                            <th data-i18n="th_subscription">Subscription</th>
+                            <th data-i18n="th_expiry">Expiry Date</th>
+                            <th data-i18n="th_registered">Registered</th>
+                            <th data-i18n="th_last_login">Last Login</th>
+                            <th data-i18n="th_actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav>
+                <ul class="pagination justify-content-center" id="pagination">
+                    <!-- Pagination will be generated here -->
+                </ul>
+            </nav>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // i18n translations
+        const translations = {
+            en: {
+                admin_title: 'Admin Dashboard',
+                loading: 'Loading...',
+                nav_dashboard: 'Dashboard',
+                nav_upload: 'Upload',
+                nav_report: 'Report',
+                nav_insights: 'AI Insights',
+                nav_settings: 'Settings',
+                nav_profile: 'Profile',
+                logout: 'Logout',
+                stat_total_users: 'Total Users',
+                stat_subscribed: 'Subscribed Users',
+                stat_weekly_new: 'New Users This Week',
+                user_list: 'User List',
+                search_placeholder: 'Search email or username...',
+                filter_all: 'All',
+                filter_subscribed: 'Subscribed',
+                filter_not_subscribed: 'Not Subscribed',
+                th_email: 'Email',
+                th_username: 'Username',
+                th_subscription: 'Subscription',
+                th_expiry: 'Expiry Date',
+                th_registered: 'Registered',
+                th_last_login: 'Last Login',
+                th_actions: 'Actions',
+                btn_activate: 'Activate',
+                btn_deactivate: 'Deactivate',
+                btn_toggle_admin: 'Toggle Admin',
+                subscribed: 'Subscribed',
+                not_subscribed: 'Not Subscribed',
+                never: 'Never',
+                confirm_activate: 'Are you sure you want to activate subscription for this user?',
+                confirm_deactivate: 'Are you sure you want to deactivate subscription for this user?',
+                confirm_toggle_admin: 'Are you sure you want to toggle admin rights for this user?',
+                success: 'Success',
+                error: 'Error',
+                no_access: 'You do not have admin access.',
+                admin_only: 'This page is for administrators only.',
+                page: 'Page',
+                of: 'of'
+            },
+            zh: {
+                admin_title: '管理后台',
+                loading: '加载中...',
+                nav_dashboard: '仪表盘',
+                nav_upload: '上传',
+                nav_report: '报告',
+                nav_insights: 'AI洞察',
+                nav_settings: '设置',
+                nav_profile: '个人资料',
+                logout: '退出登录',
+                stat_total_users: '总用户数',
+                stat_subscribed: '已订阅用户',
+                stat_weekly_new: '本周新增用户',
+                user_list: '用户列表',
+                search_placeholder: '搜索邮箱或用户名...',
+                filter_all: '全部',
+                filter_subscribed: '已订阅',
+                filter_not_subscribed: '未订阅',
+                th_email: '邮箱',
+                th_username: '用户名',
+                th_subscription: '订阅状态',
+                th_expiry: '到期时间',
+                th_registered: '注册时间',
+                th_last_login: '最后登录',
+                th_actions: '操作',
+                btn_activate: '激活订阅',
+                btn_deactivate: '取消订阅',
+                btn_toggle_admin: '切换管理员',
+                subscribed: '已订阅',
+                not_subscribed: '未订阅',
+                never: '从未',
+                confirm_activate: '确定要激活此用户的订阅吗？',
+                confirm_deactivate: '确定要取消此用户的订阅吗？',
+                confirm_toggle_admin: '确定要切换此用户的管理员权限吗？',
+                success: '成功',
+                error: '错误',
+                no_access: '您没有管理员权限。',
+                admin_only: '此页面仅限管理员访问。',
+                page: '第',
+                of: '页，共'
+            }
+        };
+
+        // State
+        let currentLang = localStorage.getItem('lang') || 'en';
+        let currentPage = 1;
+        let totalPages = 1;
+
+        // DOM Elements
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const userTableBody = document.getElementById('userTableBody');
+        const pagination = document.getElementById('pagination');
+        const searchInput = document.getElementById('searchInput');
+        const filterStatus = document.getElementById('filterStatus');
+        const searchBtn = document.getElementById('searchBtn');
+        const toastContainer = document.getElementById('toastContainer');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            initLanguage();
+            setupEventListeners();
+            await loadStats();
+            await loadUsers();
+            hideLoading();
+        });
+
+        // Language
+        function initLanguage() {
+            applyLanguage(currentLang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === currentLang);
+            });
+        }
+
+        function applyLanguage(lang) {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.dataset.i18nPlaceholder;
+                if (translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            // Language switch
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentLang = btn.dataset.lang;
+                    localStorage.setItem('lang', currentLang);
+                    initLanguage();
+                });
+            });
+
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                logout();
+            });
+
+            // Search
+            searchBtn.addEventListener('click', () => {
+                currentPage = 1;
+                loadUsers();
+            });
+
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    currentPage = 1;
+                    loadUsers();
+                }
+            });
+
+            // Filter
+            filterStatus.addEventListener('change', () => {
+                currentPage = 1;
+                loadUsers();
+            });
+        }
+
+        // API Calls
+        async function loadStats() {
+            try {
+                const data = await apiCall('/api/admin/stats');
+                if (data.success) {
+                    document.getElementById('totalUsers').textContent = data.data.total_users;
+                    document.getElementById('subscribedUsers').textContent = data.data.subscribed_users;
+                    document.getElementById('weeklyNewUsers').textContent = data.data.weekly_new_users;
+                }
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+        }
+
+        async function loadUsers() {
+            showLoading();
+            try {
+                const search = searchInput.value;
+                const status = filterStatus.value;
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    page_size: 20,
+                    ...(search && { search }),
+                    ...(status && { subscription_status: status })
+                });
+
+                const data = await apiCall(`/api/admin/users?${params}`);
+                if (data.success) {
+                    renderUsers(data.data.users);
+                    renderPagination(data.data.page, data.data.total_pages);
+                }
+            } catch (e) {
+                showToast(e.message, 'error');
+                userTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${e.message}</td></tr>`;
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function toggleSubscription(userId, action) {
+            const t = translations[currentLang];
+            const messages = {
+                activate: t.confirm_activate,
+                deactivate: t.confirm_deactivate
+            };
+
+            if (!confirm(messages[action])) return;
+
+            try {
+                const data = await apiCall(`/api/admin/users/${userId}/toggle-subscription?action=${action}`, {
+                    method: 'POST'
+                });
+                if (data.success) {
+                    showToast(t.success + '!', 'success');
+                    await loadUsers();
+                    await loadStats();
+                }
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+        }
+
+        async function toggleAdmin(userId) {
+            const t = translations[currentLang];
+            if (!confirm(t.confirm_toggle_admin)) return;
+
+            try {
+                const data = await apiCall(`/api/admin/users/${userId}/toggle-admin`, {
+                    method: 'POST'
+                });
+                if (data.success) {
+                    showToast(t.success + '!', 'success');
+                    await loadUsers();
+                }
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+        }
+
+        // Render
+        function renderUsers(users) {
+            const t = translations[currentLang];
+            
+            if (users.length === 0) {
+                userTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No users found</td></tr>`;
+                return;
+            }
+
+            userTableBody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${escapeHtml(user.email)}</td>
+                    <td>${escapeHtml(user.username || '-')}</td>
+                    <td>
+                        ${user.subscription_status === 'active' 
+                            ? `<span class="badge badge-subscribe">${t.subscribed}</span>` 
+                            : `<span class="badge badge-unsubscribe">${t.not_subscribed}</span>`}
+                        ${user.is_admin ? '<span class="badge badge-admin ms-1">Admin</span>' : ''}
+                    </td>
+                    <td>${user.subscription_end_date ? formatDate(user.subscription_end_date) : '-'}</td>
+                    <td>${user.created_at ? formatDate(user.created_at) : '-'}</td>
+                    <td>${user.last_login ? formatDate(user.last_login) : t.never}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            ${user.subscription_status === 'active'
+                                ? `<button class="btn btn-outline-danger" onclick="toggleSubscription(${user.id}, 'deactivate')" title="${t.btn_deactivate}">
+                                    <i class="bi bi-x-circle"></i>
+                                   </button>`
+                                : `<button class="btn btn-outline-success" onclick="toggleSubscription(${user.id}, 'activate')" title="${t.btn_activate}">
+                                    <i class="bi bi-check-circle"></i>
+                                   </button>`}
+                            <button class="btn btn-outline-primary" onclick="toggleAdmin(${user.id})" title="${t.btn_toggle_admin}">
+                                <i class="bi bi-shield"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPagination(page, total) {
+            if (total <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            currentPage = page;
+            totalPages = total;
+            const t = translations[currentLang];
+
+            let html = '';
+
+            // Previous
+            html += `<li class="page-item ${page <= 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${page - 1}">&laquo;</a>
+            </li>`;
+
+            // Pages
+            const start = Math.max(1, page - 2);
+            const end = Math.min(total, page + 2);
+
+            if (start > 1) {
+                html += `<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>`;
+                if (start > 2) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+            }
+
+            for (let i = start; i <= end; i++) {
+                html += `<li class="page-item ${i === page ? 'active' : ''}">
+                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                </li>`;
+            }
+
+            if (end < total) {
+                if (end < total - 1) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                html += `<li class="page-item"><a class="page-link" href="#" data-page="${total}">${total}</a></li>`;
+            }
+
+            // Next
+            html += `<li class="page-item ${page >= total ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${page + 1}">&raquo;</a>
+            </li>`;
+
+            pagination.innerHTML = html;
+
+            // Event listeners
+            pagination.querySelectorAll('.page-link[data-page]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const newPage = parseInt(link.dataset.page);
+                    if (newPage >= 1 && newPage <= totalPages) {
+                        currentPage = newPage;
+                        loadUsers();
+                    }
+                });
+            });
+        }
+
+        // Utilities
+        function showLoading() {
+            loadingOverlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+            
+            const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+            bsToast.show();
+            toast.addEventListener('hidden.bs.toast', () => toast.remove());
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Auth helper
+        function getAuthHeaders() {
+            const token = localStorage.getItem('access_token');
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        }
+
+        async function apiCall(url, options = {}) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/login';
+                throw new Error('No token');
+            }
+
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    ...(options.headers || {})
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                } else if (response.status === 403) {
+                    throw new Error(translations[currentLang].no_access);
+                }
+                throw new Error(data.detail || 'Request failed');
+            }
+
+            return data;
+        }
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

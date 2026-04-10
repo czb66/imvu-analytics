@@ -18,6 +18,12 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", "8000"))
 
+# ==================== 网站配置 ====================
+SITE_URL = os.getenv("SITE_URL", "https://imvu-analytics-production.up.railway.app")
+SITE_NAME = "IMVU Analytics"
+SITE_DESCRIPTION = "IMVU营销数据分析平台 - 专业的产品销售数据追踪、分析和报告工具"
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "https://imvu-analytics-production.up.railway.app").split(",")
+
 # ==================== 数据库配置 ====================
 # Railway PostgreSQL 或 SQLite
 import os
@@ -35,7 +41,13 @@ if DATABASE_URL.startswith("postgres://"):
 
 # ==================== JWT 认证配置 ====================
 # JWT密钥（重要：生产环境必须设置复杂的随机密钥）
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-key-change-in-production-12345")
+import secrets
+_jwt_key = os.getenv("JWT_SECRET_KEY")
+if not _jwt_key:
+    import warnings
+    warnings.warn("JWT_SECRET_KEY 未设置，使用随机生成的临时密钥。请在生产环境中设置此环境变量。")
+    _jwt_key = secrets.token_urlsafe(64)
+JWT_SECRET_KEY = _jwt_key
 # JWT算法
 JWT_ALGORITHM = "HS256"
 # Token有效期（分钟）

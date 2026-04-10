@@ -14,7 +14,7 @@ import os
 
 import config
 from app.database import init_db, engine
-from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription
+from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription, admin
 from app.services.email_service import email_service
 from app.services.report_generator import scheduler, start_scheduler, stop_scheduler
 
@@ -35,10 +35,10 @@ app = FastAPI(
 # 配置CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 生产环境应该限制具体的域名
+    allow_origins=config.ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-DeepSeek-Key"],
 )
 
 # 挂载静态文件
@@ -57,6 +57,7 @@ app.include_router(diagnosis.router)
 app.include_router(report.router)
 app.include_router(compare.router)
 app.include_router(insights.router)
+app.include_router(admin.router)  # 后台管理路由
 
 
 @app.on_event("startup")
@@ -195,6 +196,12 @@ async def insights_page(request: Request):
 async def upload_page(request: Request):
     """上传页面"""
     return templates.TemplateResponse("upload.html", {"request": request, "app_name": config.APP_NAME})
+
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_page(request: Request):
+    """后台管理页面"""
+    return templates.TemplateResponse("admin.html", {"request": request, "app_name": config.APP_NAME})
 
 
 @app.get("/settings", response_class=HTMLResponse)

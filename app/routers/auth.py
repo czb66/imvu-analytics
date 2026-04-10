@@ -158,58 +158,7 @@ async def check_email(request: dict, db: Session = Depends(get_db)):
     
     return {"exists": exists, "valid": True}
 
-@router.post("/init-whitelist")
-async def init_whitelist_users(db: Session = Depends(get_db)):
-    """
-    初始化白名单用户
-    
-    创建白名单账号并自动赋予订阅权限
-    此API应该在部署后调用一次
-    """
-    from app.services.auth import hash_password
-    from app.database import UserRepository
-    
-    user_repo = UserRepository(db)
-    
-    # 白名单用户列表
-    whitelist_users = [
-        {
-            "email": "whitelist@imvu-analytics.com",
-            "password": "Admin@2024",
-            "username": "Admin"
-        },
-        {
-            "email": "nlfd8910@gmail.com",
-            "password": "test123456",
-            "username": "Azen"
-        }
-    ]
-    
-    created_users = []
-    
-    for user_data in whitelist_users:
-        email = user_data["email"]
-        
-        # 检查用户是否已存在
-        if user_repo.email_exists(email):
-            created_users.append({"email": email, "status": "already_exists"})
-            continue
-        
-        # 创建用户
-        password_hash = hash_password(user_data["password"])
-        user = user_repo.create(
-            email=email,
-            password_hash=password_hash,
-            username=user_data["username"]
-        )
-        created_users.append({"email": email, "status": "created", "user_id": user.id})
-    
-    return {
-        "success": True,
-        "message": "白名单用户初始化完成",
-        "data": created_users
-    }
-
+# 白名单初始化API已禁用 - 请通过数据库直接管理
 
 @router.get("/profile")
 async def get_profile(
@@ -289,10 +238,13 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
         
         # 生成重置令牌
         reset_token = secrets.token_urlsafe(32)
+        # 存储哈希值而非明文
+        import hashlib
+        reset_token_hash = hashlib.sha256(reset_token.encode()).hexdigest()
         reset_token_expires = datetime.utcnow() + timedelta(hours=1)
         
-        # 保存到数据库
-        user.reset_token = reset_token
+        # 保存到数据库（存储哈希值）
+        user.reset_token = reset_token_hash
         user.reset_token_expires = reset_token_expires
         db.commit()
         
@@ -371,11 +323,16 @@ async def validate_reset_token(request: ValidateTokenRequest, db: Session = Depe
     
     - **token**: 重置令牌
     """
+    import hashlib
+    import hmac
     from datetime import datetime
     from app.database import UserRepository
     
+    # 计算令牌哈希
+    token_hash = hashlib.sha256(request.token.encode()).hexdigest()
+    
     user_repo = UserRepository(db)
-    user = user_repo.get_by_reset_token(request.token)
+    user = user_repo.get_by_reset_token_hash(token_hash)
     
     if not user:
         return JSONResponse(
@@ -407,6 +364,7 @@ async def reset_password(request: ResetPasswordRequest, db: Session = Depends(ge
     - **token**: 重置令牌
     - **new_password**: 新密码
     """
+    import hashlib
     import logging
     from datetime import datetime
     from app.database import UserRepository
@@ -414,8 +372,11 @@ async def reset_password(request: ResetPasswordRequest, db: Session = Depends(ge
     
     logger = logging.getLogger(__name__)
     
+    # 计算令牌哈希
+    token_hash = hashlib.sha256(request.token.encode()).hexdigest()
+    
     user_repo = UserRepository(db)
-    user = user_repo.get_by_reset_token(request.token)
+    user = user_repo.get_by_reset_token_hash(token_hash)
     
     if not user:
         return JSONResponse(
