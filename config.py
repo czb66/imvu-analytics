@@ -44,7 +44,10 @@ JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES
 JWT_REMEMBER_EXPIRE_MINUTES = int(os.getenv("JWT_REMEMBER_EXPIRE_MINUTES", "43200"))  # 默认30天
 
 # ==================== 邮件配置 ====================
-# SMTP服务器设置
+# Resend API (推荐，支持 Railway 免费版)
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+
+# SMTP服务器设置 (需要 Railway Pro 版本)
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "")
@@ -52,7 +55,7 @@ SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "True").lower() == "true"
 
 # 邮件发送者
-EMAIL_FROM = os.getenv("EMAIL_FROM", SMTP_USER)
+EMAIL_FROM = os.getenv("EMAIL_FROM", SMTP_USER or "onboarding@resend.dev")
 
 # 邮件接收者列表（逗号分隔）
 EMAIL_TO = os.getenv("EMAIL_TO", "")

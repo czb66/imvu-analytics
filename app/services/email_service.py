@@ -1,5 +1,6 @@
 """
-邮件发送服务 - 发送分析报告邮件
+邮件发送服务 - 支持 Resend API 和 SMTP
+优先使用 Resend (推荐 Railway 免费版)
 """
 
 import smtplib
@@ -18,16 +19,20 @@ logger = logging.getLogger(__name__)
 
 
 class EmailService:
-    """邮件发送服务"""
+    """邮件发送服务 - 支持 Resend 和 SMTP"""
     
     def __init__(self):
         """初始化邮件服务"""
+        self.resend_api_key = config.RESEND_API_KEY
         self.smtp_host = config.SMTP_HOST
         self.smtp_port = config.SMTP_PORT
         self.smtp_user = config.SMTP_USER
         self.smtp_password = config.SMTP_PASSWORD
         self.use_tls = config.SMTP_USE_TLS
         self.from_email = config.EMAIL_FROM
+        
+        # 判断使用哪种方式
+        self.use_resend = bool(self.resend_api_key)
     
     def send_report(
         self,
@@ -39,6 +44,8 @@ class EmailService:
         """
         发送报告邮件
         
+        优先使用 Resend API，如果未配置则尝试 SMTP
+        
         Args:
             to_emails: 收件人邮箱列表
             subject: 邮件主题
@@ -48,13 +55,62 @@ class EmailService:
         Returns:
             (success, message)
         """
-        if not self.smtp_user or not self.smtp_password:
-            logger.warning("SMTP未配置，跳过邮件发送")
-            return False, "SMTP未配置"
-        
         if not to_emails:
             return False, "没有收件人地址"
         
+        # 优先使用 Resend
+        if self.use_resend:
+            return self._send_via_resend(to_emails, subject, html_content, attachments)
+        
+        # 回退到 SMTP
+        if self.smtp_user and self.smtp_password:
+            return self._send_via_smtp(to_emails, subject, html_content, attachments)
+        
+        logger.warning("邮件服务未配置 (Resend 或 SMTP)")
+        return False, "邮件服务未配置，请联系管理员配置 RESEND_API_KEY"
+    
+    def _send_via_resend(
+        self,
+        to_emails: List[str],
+        subject: str,
+        html_content: str,
+        attachments: List[str] = None
+    ) -> tuple:
+        """使用 Resend API 发送邮件"""
+        try:
+            import resend
+            
+            resend.api_key = self.resend_api_key
+            
+            # 构建发送参数
+            params = {
+                "from": self.from_email or "IMVU Analytics <onboarding@resend.dev>",
+                "to": to_emails,
+                "subject": subject,
+                "html": html_content,
+            }
+            
+            # 发送邮件
+            email = resend.Emails.send(params)
+            
+            logger.info(f"Resend 邮件发送成功: {subject} -> {to_emails}, ID: {email.get('id')}")
+            return True, "邮件发送成功"
+            
+        except ImportError:
+            logger.error("resend 包未安装，请运行: pip install resend")
+            return False, "邮件服务配置错误"
+        except Exception as e:
+            logger.error(f"Resend 邮件发送失败: {e}")
+            return False, f"邮件发送失败: {str(e)}"
+    
+    def _send_via_smtp(
+        self,
+        to_emails: List[str],
+        subject: str,
+        html_content: str,
+        attachments: List[str] = None
+    ) -> tuple:
+        """使用 SMTP 发送邮件"""
         try:
             # 创建邮件
             msg = MIMEMultipart('alternative')
@@ -86,7 +142,6 @@ class EmailService:
             try:
                 # 尝试使用 SSL 端口 465
                 if self.smtp_port == 465:
-                    import smtplib
                     with smtplib.SMTP_SSL(self.smtp_host, self.smtp_port, timeout=30) as server:
                         server.login(self.smtp_user, self.smtp_password)
                         server.sendmail(self.from_email, to_emails, msg.as_string())
@@ -113,8 +168,8 @@ class EmailService:
                 else:
                     raise conn_err
             
-            logger.info(f"邮件发送成功: {subject} -> {to_emails}")
-            return True, f"邮件发送成功"
+            logger.info(f"SMTP 邮件发送成功: {subject} -> {to_emails}")
+            return True, "邮件发送成功"
             
         except smtplib.SMTPAuthenticationError:
             error_msg = "SMTP认证失败，请检查用户名和密码"
@@ -174,191 +229,50 @@ class EmailService:
                 .metrics {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }}
                 .metric-card {{ background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }}
                 .metric-value {{ font-size: 24px; font-weight: bold; color: #667eea; }}
-                .metric-label {{ color: #666; font-size: 12px; }}
-                .section {{ margin: 20px 0; }}
-                .section-title {{ font-size: 18px; font-weight: bold; color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px; }}
-                table {{ width: 100%; border-collapse: collapse; margin: 10px 0; }}
-                th, td {{ padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }}
+                .metric-label {{ font-size: 12px; color: #666; }}
+                table {{ width: 100%; border-collapse: collapse; margin: 15px 0; }}
+                th, td {{ padding: 10px; text-align: left; border-bottom: 1px solid #eee; }}
                 th {{ background: #f8f9fa; }}
-                .alert {{ background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 5px; margin: 10px 0; }}
-                .footer {{ text-align: center; color: #666; font-size: 12px; margin-top: 30px; }}
+                .anomaly {{ background: #fff3cd; padding: 10px; border-radius: 5px; margin: 5px 0; }}
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>{config.APP_NAME}</h1>
-                    <p>每日营销数据报告 - {datetime.now().strftime('%Y年%m月%d日')}</p>
+                    <h1>📊 {config.APP_NAME}</h1>
+                    <p>每日营销数据报告 - {datetime.now().strftime('%Y-%m-%d')}</p>
                 </div>
                 
                 <div class="metrics">
                     <div class="metric-card">
-                        <div class="metric-value">¥{summary.get('total_sales', 0):,.2f}</div>
-                        <div class="metric-label">总销售额</div>
+                        <div class="metric-value">{summary.get('total_sales', 0):,}</div>
+                        <div class="metric-label">总销量</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value">¥{summary.get('total_profit', 0):,.2f}</div>
+                        <div class="metric-value">${summary.get('total_profit', 0):,.2f}</div>
                         <div class="metric-label">总利润</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value">{summary.get('total_orders', 0):,}</div>
-                        <div class="metric-label">总订单</div>
+                        <div class="metric-value">{summary.get('total_products', 0)}</div>
+                        <div class="metric-label">产品总数</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value">{summary.get('avg_conversion_rate', 0):.4f}%</div>
-                        <div class="metric-label">平均转化率</div>
+                        <div class="metric-value">{summary.get('visible_products', 0)}</div>
+                        <div class="metric-label">可见产品</div>
                     </div>
                 </div>
                 
-                <div class="section">
-                    <div class="section-title">📈 Top 5 产品（按利润）</div>
-                    <table>
-                        <tr>
-                            <th>产品ID</th>
-                            <th>产品名称</th>
-                            <th>价格</th>
-                            <th>利润</th>
-                        </tr>
-                        {self._generate_product_rows(top_products)}
-                    </table>
-                </div>
+                <h2>🏆 Top 5 热销产品</h2>
+                <table>
+                    <tr><th>产品ID</th><th>产品名称</th><th>销量</th><th>利润</th></tr>
+                    {"".join(f"<tr><td>{p.get('product_id', '')}</td><td>{p.get('product_name', '')[:30]}</td><td>{p.get('sales', 0)}</td><td>${p.get('profit', 0):.2f}</td></tr>" for p in top_products)}
+                </table>
                 
-                <div class="section">
-                    <div class="section-title">📉 Bottom 5 产品（按利润）</div>
-                    <table>
-                        <tr>
-                            <th>产品ID</th>
-                            <th>产品名称</th>
-                            <th>价格</th>
-                            <th>利润</th>
-                        </tr>
-                        {self._generate_product_rows(bottom_products)}
-                    </table>
-                </div>
+                {f'<h2>⚠️ 异常检测 ({len(anomalies)} 个)</h2>' + "".join(f'<div class="anomaly">{a}</div>' for a in anomalies[:5]) if anomalies else ''}
                 
-                {self._generate_anomaly_section(anomalies)}
-                
-                <div class="footer">
-                    <p>本报告由 {config.APP_NAME} 自动生成</p>
-                    <p>生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-        return html
-    
-    def _generate_product_rows(self, products: List[dict]) -> str:
-        """生成产品表格行"""
-        rows = ""
-        for p in products:
-            rows += f"""
-            <tr>
-                <td>{p.get('product_id', 'N/A')}</td>
-                <td>{p.get('product_name', 'N/A')[:50]}...</td>
-                <td>¥{p.get('price', 0):,.2f}</td>
-                <td>¥{p.get('profit', 0):,.2f}</td>
-            </tr>
-            """
-        return rows if rows else "<tr><td colspan='4'>无数据</td></tr>"
-    
-    def _generate_anomaly_section(self, anomalies: List[dict]) -> str:
-        """生成异常提醒区块"""
-        if not anomalies:
-            return ""
-        
-        anomaly_html = """
-        <div class="section">
-            <div class="section-title">⚠️ 异常提醒</div>
-            <div class="alert">
-                <strong>检测到 {} 个销量异常的产品：</strong>
-                <ul>
-        """.format(len(anomalies))
-        
-        for a in anomalies[:5]:
-            anomaly_type = a.get('anomaly_type', '未知')
-            product_name = a.get('product_name', 'N/A')[:30]
-            product_id = a.get('product_id', 'N/A')
-            z_score = abs(a.get('z_score', 0))
-            anomaly_html += f"<li><strong>{product_id}</strong> ({product_name}): {anomaly_type} (Z-score: {z_score:.2f})</li>"
-        
-        anomaly_html += """
-                </ul>
-            </div>
-        </div>
-        """
-        return anomaly_html
-    
-    def send_password_reset_email(self, to_email: str, reset_token: str, base_url: str = None) -> tuple:
-        """
-        发送密码重置邮件
-        
-        Args:
-            to_email: 收件人邮箱
-            reset_token: 重置令牌
-            base_url: 网站基础URL
-            
-        Returns:
-            (success, message)
-        """
-        if base_url is None:
-            base_url = "https://imvu-analytics-production.up.railway.app"
-        
-        reset_link = f"{base_url}/reset-password?token={reset_token}"
-        
-        subject = "🔐 重置您的 IMVU Analytics 密码"
-        
-        html_content = self._generate_password_reset_html(reset_link, to_email)
-        
-        return self.send_report([to_email], subject, html_content)
-    
-    def _generate_password_reset_html(self, reset_link: str, email: str) -> str:
-        """生成密码重置邮件HTML"""
-        import config
-        html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }}
-                .content {{ background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }}
-                .button {{ display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; }}
-                .button:hover {{ opacity: 0.9; }}
-                .warning {{ background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0; font-size: 14px; }}
-                .footer {{ text-align: center; color: #666; font-size: 12px; margin-top: 20px; }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>🔐 密码重置请求</h1>
-                </div>
-                <div class="content">
-                    <p>您好，</p>
-                    <p>我们收到了来自 <strong>{email}</strong> 的密码重置请求。</p>
-                    <p>如果您没有发起此请求，请忽略此邮件，您的账户安全不会受到影响。</p>
-                    
-                    <p style="text-align: center;">
-                        <a href="{reset_link}" class="button">重置密码</a>
-                    </p>
-                    
-                    <div class="warning">
-                        <strong>⚠️ 安全提示：</strong><br>
-                        • 此链接有效期为 <strong>1小时</strong><br>
-                        • 请勿将链接分享给他人<br>
-                        • IMVU Analytics 工作人员不会索要您的密码
-                    </div>
-                    
-                    <p>或者您可以复制以下链接到浏览器打开：</p>
-                    <p style="word-break: break-all; font-size: 12px; color: #666;">{reset_link}</p>
-                </div>
-                <div class="footer">
-                    <p>此邮件由 {config.APP_NAME} 自动发送</p>
-                    <p>© {datetime.now().year} IMVU Analytics. All rights reserved.</p>
-                </div>
+                <p style="text-align: center; color: #666; margin-top: 30px;">
+                    此报告由 {config.APP_NAME} 自动生成
+                </p>
             </div>
         </body>
         </html>
