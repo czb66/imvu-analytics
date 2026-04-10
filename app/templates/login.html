@@ -182,8 +182,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 多语言支持
-        const translations = {
+        // 本地翻译（不使用 const 避免与 i18n.js 冲突）
+        const pageTranslations = {
             en: {
                 login_title: 'Login - IMVU Analytics',
                 login_subtitle: 'Marketing Analytics Platform',
@@ -225,8 +225,8 @@
             
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[lang][key]) {
-                    el.textContent = translations[lang][key];
+                if (pageTranslations[lang][key]) {
+                    el.textContent = pageTranslations[lang][key];
                 }
             });
         }

@@ -209,3 +209,34 @@ async def init_whitelist_users(db: Session = Depends(get_db)):
         "message": "白名单用户初始化完成",
         "data": created_users
     }
+
+
+@router.get("/profile")
+async def get_profile(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取用户个人中心信息
+    """
+    from app.database import UserRepository
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    return {
+        "success": True,
+        "message": "获取成功",
+        "data": {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username or "用户",
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "last_login": user.last_login.isoformat() if hasattr(user, 'last_login') and user.last_login else None
+        }
+    }

@@ -319,6 +319,58 @@ const translations = {
         language: {
             switchTo: 'Switch to',
             current: 'Current'
+        },
+        
+        // 登录页面
+        login: {
+            pageTitle: 'Login - IMVU Analytics',
+            subtitle: 'Sign in to your account',
+            email: 'Email',
+            emailPlaceholder: 'Enter your email',
+            password: 'Password',
+            passwordPlaceholder: 'Enter your password',
+            rememberMe: 'Remember me',
+            forgotPassword: 'Forgot password?',
+            loginBtn: 'Login',
+            loggingIn: 'Logging in...',
+            loginSuccess: 'Login successful! Redirecting...',
+            loginError: 'Login failed. Please check your credentials.',
+            noAccount: "Don't have an account?",
+            registerLink: 'Register',
+            serverError: 'Server error, please try again later',
+            networkError: 'Network error, please check your connection'
+        },
+        
+        // 注册页面
+        register: {
+            pageTitle: 'Register - IMVU Analytics',
+            subtitle: 'Create your account',
+            email: 'Email',
+            emailPlaceholder: 'Enter your email',
+            username: 'Username (optional)',
+            usernamePlaceholder: 'Choose a username',
+            password: 'Password',
+            passwordPlaceholder: 'Create a password',
+            confirm_password: 'Confirm Password',
+            confirmPasswordPlaceholder: 'Confirm your password',
+            password_req: 'Password must be at least 8 characters',
+            register_btn: 'Register',
+            registering: 'Registering...',
+            register_success: 'Registration successful! Redirecting to login...',
+            register_error: 'Registration failed. Please try again.',
+            email_used: 'This email is already registered',
+            invalid_email: 'Please enter a valid email address',
+            password_mismatch: 'Passwords do not match',
+            password_short: 'Password must be at least 8 characters',
+            weak: 'Weak',
+            medium: 'Medium',
+            strong: 'Strong',
+            checking: 'Checking...',
+            available: 'Available',
+            has_account: 'Already have an account?',
+            login_link: 'Login',
+            server_error: 'Server error, please try again later',
+            network_error: 'Network error, please check your connection'
         }
     },
     
@@ -637,6 +689,58 @@ const translations = {
         language: {
             switchTo: '切换到',
             current: '当前'
+        },
+        
+        // 登录页面
+        login: {
+            pageTitle: '登录 - IMVU Analytics',
+            subtitle: '登录您的账户',
+            email: '邮箱',
+            emailPlaceholder: '请输入邮箱',
+            password: '密码',
+            passwordPlaceholder: '请输入密码',
+            rememberMe: '记住我',
+            forgotPassword: '忘记密码？',
+            loginBtn: '登录',
+            loggingIn: '正在登录...',
+            loginSuccess: '登录成功！正在跳转...',
+            loginError: '登录失败，请检查邮箱和密码。',
+            noAccount: '还没有账号？',
+            registerLink: '立即注册',
+            serverError: '服务器错误，请稍后重试',
+            networkError: '网络错误，请检查您的网络连接'
+        },
+        
+        // 注册页面
+        register: {
+            pageTitle: '注册 - IMVU Analytics',
+            subtitle: '创建您的账户',
+            email: '邮箱',
+            emailPlaceholder: '请输入邮箱',
+            username: '用户名（可选）',
+            usernamePlaceholder: '请输入用户名',
+            password: '密码',
+            passwordPlaceholder: '请输入密码',
+            confirm_password: '确认密码',
+            confirmPasswordPlaceholder: '请再次输入密码',
+            password_req: '密码至少8位',
+            register_btn: '注册',
+            registering: '正在注册...',
+            register_success: '注册成功！正在跳转到登录页...',
+            register_error: '注册失败，请重试。',
+            email_used: '该邮箱已被注册',
+            invalid_email: '请输入有效的邮箱地址',
+            password_mismatch: '两次输入的密码不一致',
+            password_short: '密码至少需要8个字符',
+            weak: '弱',
+            medium: '中等',
+            strong: '强',
+            checking: '检查中...',
+            available: '可用',
+            has_account: '已有账号？',
+            login_link: '立即登录',
+            server_error: '服务器错误，请稍后重试',
+            network_error: '网络连接失败，请检查您的网络'
         }
     }
 };
