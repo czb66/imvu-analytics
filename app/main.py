@@ -94,20 +94,8 @@ async def shutdown_event():
 
 @app.get("/")
 async def root():
-    """首页"""
-    return {
-        "name": config.APP_NAME,
-        "version": config.APP_VERSION,
-        "status": "running",
-        "endpoints": {
-            "auth": "/api/auth/",
-            "upload": "/api/upload/",
-            "dashboard": "/api/dashboard/",
-            "diagnosis": "/api/diagnosis/",
-            "report": "/api/report/",
-            "docs": "/docs"
-        }
-    }
+    """首页 - 重定向到登录页"""
+    return RedirectResponse(url="/login")
 
 
 @app.get("/health/db")
@@ -127,6 +115,26 @@ async def db_health_check():
 async def health_check():
     """健康检查端点 - 用于Railway健康检查"""
     return {"status": "healthy", "service": config.APP_NAME, "version": config.APP_VERSION}
+
+
+@app.get("/api/status")
+async def api_status():
+    """API状态端点"""
+    return {
+        "name": config.APP_NAME,
+        "version": config.APP_VERSION,
+        "status": "running",
+        "endpoints": {
+            "auth": "/api/auth/",
+            "upload": "/api/upload/",
+            "dashboard": "/api/dashboard/",
+            "diagnosis": "/api/diagnosis/",
+            "report": "/api/report/",
+            "compare": "/api/compare/",
+            "insights": "/api/insights/",
+            "docs": "/docs"
+        }
+    }
 
 
 @app.get("/login", response_class=HTMLResponse)
