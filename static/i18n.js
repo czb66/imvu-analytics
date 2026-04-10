@@ -14,7 +14,8 @@ const translations = {
             diagnosis: 'Deep Analysis',
             compare: 'Data Compare',
             report: 'Reports',
-            profile: 'Profile'
+            profile: 'Profile',
+            logout: 'Logout'
         },
         
         // 页面标题
@@ -22,46 +23,7 @@ const translations = {
             dashboard: 'Data Overview',
             diagnosis: 'Deep Analysis',
             compare: 'Data Compare',
-            report: 'Reports Center',
-            profile: 'Personal Center'
-        },
-        
-        // 个人中心
-        profile: {
-            pageTitle: 'Personal Center',
-            userInfo: 'User Information',
-            email: 'Email',
-            username: 'Username',
-            memberSince: 'Member Since',
-            subscription: 'Subscription',
-            subscriptionStatus: 'Status',
-            subscriptionEndDate: 'End Date',
-            updateUsername: 'Update Username',
-            newUsername: 'New Username',
-            usernamePlaceholder: 'Enter new username (optional)',
-            usernameHint: 'Leave empty to remove username',
-            saveUsername: 'Save Username',
-            updateSuccess: 'Username updated successfully',
-            updateFailed: 'Update failed',
-            changePassword: 'Change Password',
-            oldPassword: 'Current Password',
-            oldPasswordPlaceholder: 'Enter current password',
-            newPassword: 'New Password',
-            newPasswordPlaceholder: 'Enter new password (min 8 characters)',
-            confirmPassword: 'Confirm Password',
-            confirmPasswordPlaceholder: 'Confirm new password',
-            passwordHint: 'Password must be at least 8 characters',
-            changePasswordBtn: 'Change Password',
-            passwordMinLength: 'Password must be at least 8 characters',
-            passwordMismatch: 'Passwords do not match',
-            passwordChangeSuccess: 'Password changed successfully',
-            passwordChangeFailed: 'Failed to change password',
-            logout: 'Logout',
-            logoutHint: 'Click the button below to safely logout of your account.',
-            logoutBtn: 'Logout',
-            loading: 'Loading...',
-            subscribe: 'Subscribe Now',
-            notSubscribed: 'Not Subscribed'
+            report: 'Reports Center'
         },
         
         // 仪表盘
@@ -284,6 +246,7 @@ const translations = {
         
         // AI洞察
         insights: {
+            pageTitle: 'AI Insights',
             dashboard: {
                 title: 'AI Data Insights'
             },
@@ -293,6 +256,18 @@ const translations = {
             compare: {
                 title: 'AI Comparison Insights'
             },
+            quickAnalysis: 'Quick Analysis',
+            salesTrends: 'Sales Trends Analysis',
+            profitOptimization: 'Profit Optimization',
+            productRecommendations: 'Product Recommendations',
+            suggestedQuestions: 'Suggested Questions',
+            q1: 'Top 5 best-selling products',
+            q2: 'Products with highest profit margin',
+            q3: 'Marketing strategy suggestions',
+            aiChat: 'AI Assistant',
+            welcome: "Hello! I\'m your AI assistant. Ask me anything about your marketing data.",
+            askPlaceholder: 'Ask about your data...',
+            apiKeyRequired: 'DeepSeek API Key is required. Please configure it in Settings.',
             generate: 'Generate AI Insights',
             refresh: 'Refresh Insights',
             generating: 'Generating AI insights...',
@@ -304,7 +279,21 @@ const translations = {
             selectDatasets: 'Please select at least 2 datasets to compare',
             insufficientData: 'Insufficient valid datasets for comparison',
             generatingFailed: 'Failed to generate insights',
-            retry: 'Retry'
+            retry: 'Retry',
+            analyzing: 'Analyzing your data...',
+            error: 'An error occurred. Please try again.'
+        },
+
+        // 上传页面
+        upload: {
+            dataFormat: 'Data Format Requirements',
+            formatXml: 'XML format file',
+            maxSize: 'Maximum file size: 50MB',
+            requiredFields: 'Required fields: Product Id, Product Name, Wholesale Price, Profit',
+            invalidFormat: 'Please upload an XML file.',
+            uploadSuccess: 'Data uploaded successfully!',
+            uploadError: 'Upload failed. Please try again.',
+            processing: 'Processing data...'
         },
         
         // 设置页面
@@ -315,62 +304,219 @@ const translations = {
             apiNote: 'AI features (DeepSeek) are configured by the server administrator. API Key is not exposed to users for security reasons.'
         },
         
+        // 个人中心
+        profile: {
+            pageTitle: 'Personal Center',
+            userInfo: 'User Information',
+            email: 'Email',
+            username: 'Username',
+            memberSince: 'Member Since',
+            updateUsername: 'Update Username',
+            newUsername: 'New Username',
+            usernamePlaceholder: 'Enter new username (optional)',
+            usernameHint: 'Leave empty to remove username',
+            saveUsername: 'Save Username',
+            changePassword: 'Change Password',
+            oldPassword: 'Current Password',
+            oldPasswordPlaceholder: 'Enter current password',
+            newPassword: 'New Password',
+            newPasswordPlaceholder: 'Enter new password (min 8 characters)',
+            confirmPassword: 'Confirm Password',
+            confirmPasswordPlaceholder: 'Confirm new password',
+            passwordHint: 'Password must be at least 8 characters',
+            changePasswordBtn: 'Change Password',
+            logout: 'Logout',
+            logoutHint: 'Click the button below to safely logout of your account.',
+            logoutBtn: 'Logout',
+            loading: 'Loading...',
+            updateSuccess: 'Update successful!',
+            updateFailed: 'Update failed. Please try again.',
+            passwordChangeSuccess: 'Password changed successfully!',
+            passwordChangeFailed: 'Password change failed. Please try again.',
+            passwordMinLength: 'Password must be at least 8 characters.',
+            passwordMismatch: 'New passwords do not match.'
+        },
+        
         // 语言切换
         language: {
             switchTo: 'Switch to',
             current: 'Current'
         },
-        
-        // 登录页面
-        login: {
-            pageTitle: 'Login - IMVU Analytics',
-            subtitle: 'Sign in to your account',
-            email: 'Email',
-            emailPlaceholder: 'Enter your email',
-            password: 'Password',
-            passwordPlaceholder: 'Enter your password',
-            rememberMe: 'Remember me',
-            forgotPassword: 'Forgot password?',
-            loginBtn: 'Login',
-            loggingIn: 'Logging in...',
-            loginSuccess: 'Login successful! Redirecting...',
-            loginError: 'Login failed. Please check your credentials.',
-            noAccount: "Don't have an account?",
-            registerLink: 'Register',
-            serverError: 'Server error, please try again later',
-            networkError: 'Network error, please check your connection'
-        },
-        
+
         // 注册页面
         register: {
             pageTitle: 'Register - IMVU Analytics',
             subtitle: 'Create your account',
             email: 'Email',
-            emailPlaceholder: 'Enter your email',
             username: 'Username (optional)',
-            usernamePlaceholder: 'Choose a username',
+            usernamePlaceholder: 'Username (optional)',
             password: 'Password',
-            passwordPlaceholder: 'Create a password',
-            confirm_password: 'Confirm Password',
-            confirmPasswordPlaceholder: 'Confirm your password',
-            password_req: 'Password must be at least 8 characters',
-            register_btn: 'Register',
-            registering: 'Registering...',
-            register_success: 'Registration successful! Redirecting to login...',
-            register_error: 'Registration failed. Please try again.',
-            email_used: 'This email is already registered',
-            invalid_email: 'Please enter a valid email address',
-            password_mismatch: 'Passwords do not match',
-            password_short: 'Password must be at least 8 characters',
+            confirmPassword: 'Confirm Password',
+            passwordReq: 'Password must be at least 8 characters',
+            registerBtn: 'Register',
+            hasAccount: 'Already have an account?',
+            loginLink: 'Login now',
+            // 表单验证消息
+            registerSuccess: 'Registration successful! Redirecting to login...',
+            registerError: 'Registration failed. Please try again.',
+            emailUsed: 'This email is already registered',
+            invalidEmail: 'Please enter a valid email address',
+            passwordMismatch: 'Passwords do not match',
+            passwordShort: 'Password must be at least 8 characters',
+            // 密码强度
             weak: 'Weak',
             medium: 'Medium',
             strong: 'Strong',
-            checking: 'Checking...',
-            available: 'Available',
-            has_account: 'Already have an account?',
-            login_link: 'Login',
-            server_error: 'Server error, please try again later',
-            network_error: 'Network error, please check your connection'
+            veryStrong: 'Very Strong'
+        },
+
+        // 登录页面
+        login: {
+            pageTitle: 'Login - IMVU Analytics',
+            subtitle: 'Marketing Analytics Platform',
+            email: 'Email',
+            password: 'Password',
+            rememberMe: 'Remember me',
+            forgotPassword: 'Forgot password?',
+            loginBtn: 'Login',
+            noAccount: "Don't have an account?",
+            registerLink: 'Register now',
+            // 表单验证消息
+            loginSuccess: 'Login successful! Redirecting...',
+            loginError: 'Login failed. Please check your credentials.',
+            invalidEmail: 'Please enter a valid email address',
+            passwordRequired: 'Password is required'
+        },
+
+        // 忘记密码页面
+        forgotPassword: {
+            pageTitle: 'Forgot Password - IMVU Analytics',
+            title: 'Forgot Password',
+            description: 'Enter your registered email, we will send a password reset link',
+            email: 'Email',
+            sendResetLink: 'Send Reset Link',
+            backToLogin: 'Back to Login',
+            // 表单验证消息
+            invalidEmail: 'Please enter a valid email address',
+            emailRequired: 'Email is required',
+            sending: 'Sending...',
+            sendSuccess: 'If this email is registered, a reset link has been sent. Please check your spam folder.',
+            sendError: 'Failed to send email. Please try again later.'
+        },
+
+        // 重置密码页面
+        resetPassword: {
+            pageTitle: 'Reset Password - IMVU Analytics',
+            title: 'Reset Password',
+            enterNewPassword: 'Please enter your new password',
+            newPassword: 'New Password',
+            confirmPassword: 'Confirm Password',
+            passwordsMatch: 'Passwords match',
+            passwordsMismatch: 'Passwords do not match',
+            passwordHint: 'Password must be at least 8 characters',
+            resetBtn: 'Reset Password',
+            backToLogin: 'Back to Login',
+            validatingToken: 'Validating link...',
+            // 表单验证消息
+            passwordRequired: 'Password is required',
+            passwordTooShort: 'Password must be at least 8 characters',
+            passwordsNotMatch: 'Passwords do not match',
+            resetSuccess: 'Password reset successfully! Redirecting to login...',
+            resetError: 'Failed to reset password. The link may have expired.',
+            invalidToken: 'Invalid or expired reset link'
+        },
+
+        // 公共翻译
+        common: {
+            loading: 'Loading...',
+            error: 'Error',
+            success: 'Success',
+            confirm: 'Confirm',
+            cancel: 'Cancel',
+            close: 'Close',
+            submit: 'Submit',
+            save: 'Save',
+            delete: 'Delete',
+            edit: 'Edit',
+            view: 'View',
+            back: 'Back',
+            next: 'Next',
+            previous: 'Previous',
+            yes: 'Yes',
+            no: 'No'
+        },
+
+        // 取消页面
+        cancel: {
+            pageTitle: 'Account Cancelled',
+            title: 'Account Cancelled',
+            description: 'Your account has been successfully cancelled.',
+            message: 'We\'re sorry to see you go. If you wish to rejoin, you can register again at any time.',
+            returnHome: 'Return to Home',
+            registerAgain: 'Register Again'
+        },
+
+        // 成功页面
+        success: {
+            pageTitle: 'Success',
+            title: 'Success!',
+            message: 'Your operation was completed successfully.',
+            continueText: 'Continue',
+            returnHome: 'Return to Home'
+        },
+
+        // 定价页面
+        pricing: {
+            pageTitle: 'Pricing',
+            title: 'Simple, Transparent Pricing',
+            subtitle: 'Choose the plan that best fits your needs',
+            // 计划名称
+            free: 'Free',
+            pro: 'Pro',
+            enterprise: 'Enterprise',
+            // 计划描述
+            freeDesc: 'Perfect for getting started',
+            proDesc: 'For growing businesses',
+            enterpriseDesc: 'For large organizations',
+            // 功能
+            features: {
+                uploads: 'Monthly Uploads',
+                products: 'Products per Upload',
+                datasets: 'Historical Datasets',
+                aiInsights: 'AI Insights',
+                reports: 'Report Generation',
+                emailReports: 'Email Reports',
+                support: 'Priority Support',
+                customBranding: 'Custom Branding'
+            },
+            // 功能限制
+            unlimited: 'Unlimited',
+            notIncluded: 'Not Included',
+            // CTA按钮
+            getStarted: 'Get Started',
+            upgrade: 'Upgrade Now',
+            contactSales: 'Contact Sales',
+            currentPlan: 'Current Plan'
+        },
+
+        // 公共翻译
+        common: {
+            loading: 'Loading...',
+            error: 'Error',
+            success: 'Success',
+            confirm: 'Confirm',
+            cancel: 'Cancel',
+            close: 'Close',
+            submit: 'Submit',
+            save: 'Save',
+            delete: 'Delete',
+            edit: 'Edit',
+            view: 'View',
+            back: 'Back',
+            next: 'Next',
+            previous: 'Previous',
+            yes: 'Yes',
+            no: 'No'
         }
     },
     
@@ -384,7 +530,8 @@ const translations = {
             diagnosis: '深度诊断',
             compare: '数据对比',
             report: '报告中心',
-            profile: '个人中心'
+            profile: '个人中心',
+            logout: '退出登录'
         },
         
         // 页面标题
@@ -392,46 +539,7 @@ const translations = {
             dashboard: '数据概览',
             diagnosis: '深度诊断分析',
             compare: '数据对比',
-            report: '报告中心',
-            profile: '个人中心'
-        },
-        
-        // 个人中心
-        profile: {
-            pageTitle: '个人中心',
-            userInfo: '用户信息',
-            email: '邮箱',
-            username: '用户名',
-            memberSince: '注册时间',
-            subscription: '订阅信息',
-            subscriptionStatus: '订阅状态',
-            subscriptionEndDate: '到期时间',
-            updateUsername: '修改用户名',
-            newUsername: '新用户名',
-            usernamePlaceholder: '输入新用户名（可选）',
-            usernameHint: '留空则移除用户名',
-            saveUsername: '保存用户名',
-            updateSuccess: '用户名修改成功',
-            updateFailed: '修改失败',
-            changePassword: '修改密码',
-            oldPassword: '当前密码',
-            oldPasswordPlaceholder: '输入当前密码',
-            newPassword: '新密码',
-            newPasswordPlaceholder: '输入新密码（至少8位）',
-            confirmPassword: '确认密码',
-            confirmPasswordPlaceholder: '再次输入新密码',
-            passwordHint: '密码至少需要8个字符',
-            changePasswordBtn: '修改密码',
-            passwordMinLength: '密码至少需要8个字符',
-            passwordMismatch: '两次输入的密码不一致',
-            passwordChangeSuccess: '密码修改成功',
-            passwordChangeFailed: '密码修改失败',
-            logout: '退出登录',
-            logoutHint: '点击下方按钮安全退出您的账户。',
-            logoutBtn: '退出登录',
-            loading: '加载中...',
-            subscribe: '立即订阅',
-            notSubscribed: '未订阅'
+            report: '报告中心'
         },
         
         // 仪表盘
@@ -654,6 +762,7 @@ const translations = {
         
         // AI洞察
         insights: {
+            pageTitle: 'AI洞察',
             dashboard: {
                 title: 'AI 数据洞察'
             },
@@ -663,6 +772,18 @@ const translations = {
             compare: {
                 title: 'AI 对比洞察'
             },
+            quickAnalysis: '快速分析',
+            salesTrends: '销售趋势分析',
+            profitOptimization: '利润优化建议',
+            productRecommendations: '产品推荐',
+            suggestedQuestions: '推荐问题',
+            q1: '最畅销的5个产品',
+            q2: '利润率最高的产品',
+            q3: '营销策略建议',
+            aiChat: 'AI助手',
+            welcome: '您好！我是您的AI助手，可以询问任何关于营销数据的问题。',
+            askPlaceholder: '询问关于您的数据...',
+            apiKeyRequired: '需要配置DeepSeek API Key，请在设置页面配置。',
             generate: '生成AI洞察',
             refresh: '刷新洞察',
             generating: '正在生成AI洞察...',
@@ -674,7 +795,21 @@ const translations = {
             selectDatasets: '请至少选择2个数据集进行对比',
             insufficientData: '有效数据集不足，无法进行对比',
             generatingFailed: '生成洞察失败',
-            retry: '重试'
+            retry: '重试',
+            analyzing: '正在分析您的数据...',
+            error: '发生错误，请重试。'
+        },
+
+        // 上传页面
+        upload: {
+            dataFormat: '数据格式要求',
+            formatXml: 'XML格式文件',
+            maxSize: '最大文件大小：50MB',
+            requiredFields: '必填字段：产品ID、产品名称、批发价、利润',
+            invalidFormat: '请上传XML文件。',
+            uploadSuccess: '数据上传成功！',
+            uploadError: '上传失败，请重试。',
+            processing: '正在处理数据...'
         },
         
         // 设置页面
@@ -685,62 +820,199 @@ const translations = {
             apiNote: 'AI 功能（DeepSeek）由服务器管理员统一配置。为了安全起见，API Key 不会暴露给用户。'
         },
         
+        // 个人中心
+        profile: {
+            pageTitle: '个人中心',
+            userInfo: '用户信息',
+            email: '邮箱',
+            username: '用户名',
+            memberSince: '注册时间',
+            updateUsername: '修改用户名',
+            newUsername: '新用户名',
+            usernamePlaceholder: '输入新用户名（可选）',
+            usernameHint: '留空可移除用户名',
+            saveUsername: '保存用户名',
+            changePassword: '修改密码',
+            oldPassword: '当前密码',
+            oldPasswordPlaceholder: '输入当前密码',
+            newPassword: '新密码',
+            newPasswordPlaceholder: '输入新密码（至少8位）',
+            confirmPassword: '确认密码',
+            confirmPasswordPlaceholder: '再次输入新密码',
+            passwordHint: '密码长度至少8位',
+            changePasswordBtn: '修改密码',
+            logout: '退出登录',
+            logoutHint: '点击下方按钮安全退出账号',
+            logoutBtn: '退出登录',
+            loading: '加载中...',
+            updateSuccess: '更新成功！',
+            updateFailed: '更新失败，请重试。',
+            passwordChangeSuccess: '密码修改成功！',
+            passwordChangeFailed: '密码修改失败，请重试。',
+            passwordMinLength: '密码长度至少8位',
+            passwordMismatch: '两次输入的密码不一致'
+        },
+        
         // 语言切换
         language: {
             switchTo: '切换到',
             current: '当前'
         },
-        
-        // 登录页面
-        login: {
-            pageTitle: '登录 - IMVU Analytics',
-            subtitle: '登录您的账户',
-            email: '邮箱',
-            emailPlaceholder: '请输入邮箱',
-            password: '密码',
-            passwordPlaceholder: '请输入密码',
-            rememberMe: '记住我',
-            forgotPassword: '忘记密码？',
-            loginBtn: '登录',
-            loggingIn: '正在登录...',
-            loginSuccess: '登录成功！正在跳转...',
-            loginError: '登录失败，请检查邮箱和密码。',
-            noAccount: '还没有账号？',
-            registerLink: '立即注册',
-            serverError: '服务器错误，请稍后重试',
-            networkError: '网络错误，请检查您的网络连接'
-        },
-        
+
         // 注册页面
         register: {
             pageTitle: '注册 - IMVU Analytics',
             subtitle: '创建您的账户',
             email: '邮箱',
-            emailPlaceholder: '请输入邮箱',
-            username: '用户名（可选）',
-            usernamePlaceholder: '请输入用户名',
+            username: '用户名',
+            usernamePlaceholder: '用户名（可选）',
             password: '密码',
-            passwordPlaceholder: '请输入密码',
-            confirm_password: '确认密码',
-            confirmPasswordPlaceholder: '请再次输入密码',
-            password_req: '密码至少8位',
-            register_btn: '注册',
-            registering: '正在注册...',
-            register_success: '注册成功！正在跳转到登录页...',
-            register_error: '注册失败，请重试。',
-            email_used: '该邮箱已被注册',
-            invalid_email: '请输入有效的邮箱地址',
-            password_mismatch: '两次输入的密码不一致',
-            password_short: '密码至少需要8个字符',
+            confirmPassword: '确认密码',
+            passwordReq: '密码长度至少8位',
+            registerBtn: '注册',
+            hasAccount: '已有账号？',
+            loginLink: '立即登录',
+            // 表单验证消息
+            registerSuccess: '注册成功！正在跳转登录...',
+            registerError: '注册失败，请重试。',
+            emailUsed: '该邮箱已被注册',
+            invalidEmail: '请输入有效的邮箱地址',
+            passwordMismatch: '两次输入的密码不一致',
+            passwordShort: '密码长度至少8位',
+            // 密码强度
             weak: '弱',
             medium: '中等',
             strong: '强',
-            checking: '检查中...',
-            available: '可用',
-            has_account: '已有账号？',
-            login_link: '立即登录',
-            server_error: '服务器错误，请稍后重试',
-            network_error: '网络连接失败，请检查您的网络'
+            veryStrong: '非常强'
+        },
+
+        // 登录页面
+        login: {
+            pageTitle: '登录 - IMVU Analytics',
+            subtitle: '营销数据分析平台',
+            email: '邮箱',
+            password: '密码',
+            rememberMe: '记住我',
+            forgotPassword: '忘记密码？',
+            loginBtn: '登录',
+            noAccount: '还没有账号？',
+            registerLink: '立即注册',
+            // 表单验证消息
+            loginSuccess: '登录成功！正在跳转...',
+            loginError: '登录失败，请检查邮箱和密码。',
+            invalidEmail: '请输入有效的邮箱地址',
+            passwordRequired: '请输入密码'
+        },
+
+        // 忘记密码页面
+        forgotPassword: {
+            pageTitle: '忘记密码 - IMVU Analytics',
+            title: '忘记密码',
+            description: '输入您的注册邮箱，我们将发送密码重置链接',
+            email: '邮箱',
+            sendResetLink: '发送重置链接',
+            backToLogin: '返回登录',
+            // 表单验证消息
+            invalidEmail: '请输入有效的邮箱地址',
+            emailRequired: '请输入邮箱',
+            sending: '发送中...',
+            sendSuccess: '如果该邮箱已注册，重置链接已发送至您的邮箱，请检查垃圾邮件文件夹。',
+            sendError: '邮件发送失败，请稍后重试。'
+        },
+
+        // 重置密码页面
+        resetPassword: {
+            pageTitle: '重置密码 - IMVU Analytics',
+            title: '重置密码',
+            enterNewPassword: '请输入您的新密码',
+            newPassword: '新密码',
+            confirmPassword: '确认密码',
+            passwordsMatch: '两次输入的密码一致',
+            passwordsMismatch: '两次输入的密码不一致',
+            passwordHint: '密码至少8个字符',
+            resetBtn: '重置密码',
+            backToLogin: '返回登录',
+            validatingToken: '正在验证链接...',
+            // 表单验证消息
+            passwordRequired: '请输入密码',
+            passwordTooShort: '密码长度至少8位',
+            passwordsNotMatch: '两次输入的密码不一致',
+            resetSuccess: '密码重置成功！正在跳转至登录页面...',
+            resetError: '密码重置失败，链接可能已过期。',
+            invalidToken: '重置链接无效或已过期'
+        },
+
+        // 公共翻译
+        common: {
+            loading: '加载中...',
+            error: '错误',
+            success: '成功',
+            confirm: '确认',
+            cancel: '取消',
+            close: '关闭',
+            submit: '提交',
+            save: '保存',
+            delete: '删除',
+            edit: '编辑',
+            view: '查看',
+            back: '返回',
+            next: '下一步',
+            previous: '上一步',
+            yes: '是',
+            no: '否'
+        },
+
+        // 取消页面
+        cancel: {
+            pageTitle: '账号已注销',
+            title: '账号已注销',
+            description: '您的账号已成功注销。',
+            message: '很遗憾看到您离开。如需重新加入，您可以随时再次注册。',
+            returnHome: '返回首页',
+            registerAgain: '重新注册'
+        },
+
+        // 成功页面
+        success: {
+            pageTitle: '成功',
+            title: '成功！',
+            message: '您的操作已成功完成。',
+            continueText: '继续',
+            returnHome: '返回首页'
+        },
+
+        // 定价页面
+        pricing: {
+            pageTitle: '定价',
+            title: '简单、透明的定价',
+            subtitle: '选择最适合您需求的计划',
+            // 计划名称
+            free: '免费版',
+            pro: '专业版',
+            enterprise: '企业版',
+            // 计划描述
+            freeDesc: '非常适合入门',
+            proDesc: '适合成长型企业',
+            enterpriseDesc: '适合大型组织',
+            // 功能
+            features: {
+                uploads: '每月上传次数',
+                products: '每次上传产品数',
+                datasets: '历史数据集',
+                aiInsights: 'AI洞察',
+                reports: '报告生成',
+                emailReports: '邮件报告',
+                support: '优先支持',
+                customBranding: '自定义品牌'
+            },
+            // 功能限制
+            unlimited: '无限制',
+            notIncluded: '不包含',
+            // CTA按钮
+            getStarted: '开始使用',
+            upgrade: '立即升级',
+            contactSales: '联系销售',
+            currentPlan: '当前计划'
         }
     }
 };

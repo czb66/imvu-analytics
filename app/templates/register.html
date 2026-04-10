@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="pageTitle">Register - IMVU Analytics</title>
+    <title data-i18n="register.pageTitle">Register - IMVU Analytics</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="/static/auth.js"></script>
@@ -156,7 +156,7 @@
         <div class="logo">
             <i class="bi bi-person-plus-fill"></i>
             <h1 data-i18n="appName">IMVU Analytics</h1>
-            <p class="text-muted" data-i18n="register_subtitle">Create your account</p>
+            <p class="text-muted" data-i18n="register.subtitle">Create your account</p>
         </div>
 
         <!-- 提示框 -->
@@ -166,7 +166,7 @@
             <!-- 邮箱 -->
             <div class="form-floating" style="position: relative;">
                 <input type="email" class="form-control" id="email" placeholder="email@example.com" required>
-                <label for="email" data-i18n="email">Email</label>
+                <label for="email" data-i18n="register.email">Email</label>
                 <span class="email-check-indicator" id="emailCheckIndicator"></span>
                 <div class="invalid-feedback" id="emailError"></div>
             </div>
@@ -174,13 +174,13 @@
             <!-- 用户名 -->
             <div class="form-floating">
                 <input type="text" class="form-control" id="username" placeholder="Username">
-                <label for="username" data-i18n="username">Username (optional)</label>
+                <label for="username" data-i18n="register.username">Username (optional)</label>
             </div>
 
             <!-- 密码 -->
             <div class="form-floating password-wrapper">
                 <input type="password" class="form-control" id="password" placeholder="Password" required minlength="8">
-                <label for="password" data-i18n="password">Password</label>
+                <label for="password" data-i18n="register.password">Password</label>
                 <span class="password-toggle" onclick="togglePassword('password', 'eyeIcon1')">
                     <i class="bi bi-eye" id="eyeIcon1"></i>
                 </span>
@@ -193,100 +193,31 @@
             <!-- 确认密码 -->
             <div class="form-floating password-wrapper">
                 <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" required>
-                <label for="confirmPassword" data-i18n="confirm_password">Confirm Password</label>
+                <label for="confirmPassword" data-i18n="register.confirmPassword">Confirm Password</label>
                 <span class="password-toggle" onclick="togglePassword('confirmPassword', 'eyeIcon2')">
                     <i class="bi bi-eye" id="eyeIcon2"></i>
                 </span>
                 <div class="invalid-feedback" id="confirmError"></div>
             </div>
 
-            <p class="password-requirements" data-i18n="password_req">Password must be at least 8 characters</p>
+            <p class="password-requirements" data-i18n="register.passwordReq">Password must be at least 8 characters</p>
 
             <button type="submit" class="btn btn-primary btn-register" id="submitBtn">
-                <span data-i18n="register_btn">Register</span>
+                <span data-i18n="register.registerBtn">Register</span>
             </button>
         </form>
 
         <div class="text-center mt-3">
-            <span class="text-muted" data-i18n="has_account">Already have an account?</span>
-            <a href="/login" class="text-decoration-none" data-i18n="login_link">Login</a>
+            <span class="text-muted" data-i18n="register.hasAccount">Already have an account?</span>
+            <a href="/login" class="text-decoration-none" data-i18n="register.loginLink">Login</a>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 本地翻译（不使用 const 避免与 i18n.js 冲突）
-        const pageTranslations = {
-            en: {
-                appName: 'IMVU Analytics',
-                register_subtitle: 'Create your account',
-                email: 'Email',
-                username: 'Username (optional)',
-                password: 'Password',
-                confirm_password: 'Confirm Password',
-                password_req: 'Password must be at least 8 characters',
-                register_btn: 'Register',
-                has_account: 'Already have an account? ',
-                login_link: 'Login',
-                register_success: 'Registration successful! Redirecting to login...',
-                register_error: 'Registration failed. Please try again.',
-                email_used: 'This email is already registered',
-                invalid_email: 'Please enter a valid email address',
-                password_mismatch: 'Passwords do not match',
-                password_short: 'Password must be at least 8 characters',
-                weak: 'Weak',
-                medium: 'Medium',
-                strong: 'Strong',
-                checking: 'Checking...',
-                available: 'Available',
-                server_error: 'Server error, please try again later',
-                network_error: 'Network error, please check your connection'
-            },
-            zh: {
-                appName: 'IMVU Analytics',
-                register_subtitle: '创建您的账户',
-                email: '邮箱',
-                username: '用户名（可选）',
-                password: '密码',
-                confirm_password: '确认密码',
-                password_req: '密码至少8位',
-                register_btn: '注册',
-                has_account: '已有账号？',
-                login_link: '立即登录',
-                register_success: '注册成功！正在跳转到登录页...',
-                register_error: '注册失败，请重试。',
-                email_used: '该邮箱已被注册',
-                invalid_email: '请输入有效的邮箱地址',
-                password_mismatch: '两次输入的密码不一致',
-                password_short: '密码至少需要8个字符',
-                weak: '弱',
-                medium: '中等',
-                strong: '强',
-                checking: '检查中...',
-                available: '可用',
-                server_error: '服务器错误，请稍后重试',
-                network_error: '网络连接失败，请检查您的网络'
-            }
-        };
-
-        let currentLang = localStorage.getItem('language') || 'zh';
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('language', lang);
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (pageTranslations[lang] && pageTranslations[lang][key]) {
-                    el.textContent = pageTranslations[lang][key];
-                }
-            });
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === lang);
-            });
-        }
-
-        function t(key) {
-            return pageTranslations[currentLang][key] || key;
+        // 使用全局 i18n.js 的翻译函数
+        function getRegisterText(key) {
+            return t(key);
         }
 
         function showAlert(message, isSuccess = false) {
@@ -330,18 +261,18 @@
             const text = document.getElementById('strengthText');
             
             const levels = [
-                { width: '0%', color: '#e0e0e0', text: '' },
-                { width: '20%', color: '#dc3545', text: t('weak') },
-                { width: '40%', color: '#ffc107', text: t('weak') },
-                { width: '60%', color: '#ffc107', text: t('medium') },
-                { width: '80%', color: '#28a745', text: t('medium') },
-                { width: '100%', color: '#28a745', text: t('strong') }
+                { width: '0%', color: '#e0e0e0', textKey: '' },
+                { width: '20%', color: '#dc3545', textKey: 'register.weak' },
+                { width: '40%', color: '#ffc107', textKey: 'register.weak' },
+                { width: '60%', color: '#ffc107', textKey: 'register.medium' },
+                { width: '80%', color: '#28a745', textKey: 'register.medium' },
+                { width: '100%', color: '#28a745', textKey: 'register.strong' }
             ];
             
             const level = levels[strength];
             fill.style.width = level.width;
             fill.style.background = level.color;
-            text.textContent = level.text;
+            text.textContent = level.textKey ? t(level.textKey) : '';
             text.style.color = level.color;
         }
 
@@ -375,7 +306,7 @@
                         indicator.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
                         indicator.className = 'email-check-indicator taken';
                         this.classList.add('is-invalid');
-                        document.getElementById('emailError').textContent = t('email_used');
+                        document.getElementById('emailError').textContent = t('register.emailUsed');
                     } else {
                         indicator.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
                         indicator.className = 'email-check-indicator available';
@@ -401,24 +332,26 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const submitBtn = document.getElementById('submitBtn');
+            const currentLang = getCurrentLanguage();
             
             // 验证
             if (!email) {
-                showAlert(t('invalid_email'));
+                showAlert(t('register.invalidEmail'));
                 return;
             }
             if (password.length < 8) {
-                showAlert(t('password_short'));
+                showAlert(t('register.passwordShort'));
                 return;
             }
             if (password !== confirmPassword) {
-                showAlert(t('password_mismatch'));
+                showAlert(t('register.passwordMismatch'));
                 return;
             }
             
             // 禁用按钮
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + (currentLang === 'zh' ? '注册中...' : 'Registering...');
+            const registeringText = currentLang === 'zh' ? '注册中...' : 'Registering...';
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + registeringText;
             
             try {
                 const response = await fetch('/api/auth/register', {
@@ -434,24 +367,22 @@
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
-                    showAlert(t('register_success'), true);
+                    showAlert(t('register.registerSuccess'), true);
                 } else {
-                    showAlert(data.message || t('register_error'));
+                    showAlert(data.message || t('register.registerError'));
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = `<span data-i18n="register_btn">${t('register_btn')}</span>`;
+                    submitBtn.innerHTML = `<span data-i18n="register.registerBtn">${t('register.registerBtn')}</span>`;
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                showAlert(t('network_error'));
+                showAlert(t('register.network_error') || t('common.error'));
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = `<span data-i18n="register_btn">${t('register_btn')}</span>`;
+                submitBtn.innerHTML = `<span data-i18n="register.registerBtn">${t('register.registerBtn')}</span>`;
             }
         });
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
-            setLanguage(currentLang);
-            
             // 检查是否已登录
             const token = localStorage.getItem('access_token');
             if (token) {
