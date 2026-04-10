@@ -149,6 +149,18 @@ async def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request, "app_name": config.APP_NAME})
 
 
+@app.get("/forgot-password", response_class=HTMLResponse)
+async def forgot_password_page(request: Request):
+    """忘记密码页面"""
+    return templates.TemplateResponse("forgot-password.html", {"request": request, "app_name": config.APP_NAME})
+
+
+@app.get("/reset-password", response_class=HTMLResponse)
+async def reset_password_page(request: Request):
+    """重置密码页面"""
+    return templates.TemplateResponse("reset-password.html", {"request": request, "app_name": config.APP_NAME})
+
+
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(request: Request):
     """仪表盘页面"""

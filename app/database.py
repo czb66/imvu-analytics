@@ -386,3 +386,7 @@ class ReportHistoryRepository:
                 if hasattr(report, key):
                     setattr(report, key, value)
             self.db.commit()
+
+    def get_by_reset_token(self, token: str) -> User:
+        """根据重置令牌获取用户"""
+        return self.db.query(User).filter(User.reset_token == token).first()

@@ -240,3 +240,205 @@ async def get_profile(
             "last_login": user.last_login.isoformat() if hasattr(user, 'last_login') and user.last_login else None
         }
     }
+
+
+# ==================== 密码重置 ====================
+
+class ForgotPasswordRequest(BaseModel):
+    """忘记密码请求"""
+    email: EmailStr = Field(..., description="邮箱地址")
+
+
+class ValidateTokenRequest(BaseModel):
+    """验证Token请求"""
+    token: str = Field(..., description="重置令牌")
+
+
+class ResetPasswordRequest(BaseModel):
+    """重置密码请求"""
+    token: str = Field(..., description="重置令牌")
+    new_password: str = Field(..., min_length=8, description="新密码（至少8位）")
+
+
+@router.post("/forgot-password")
+async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """
+    忘记密码 - 发送重置邮件
+    
+    - **email**: 邮箱地址
+    """
+    import logging
+    import secrets
+    from datetime import datetime, timedelta
+    from app.database import UserRepository
+    from app.services.email_service import email_service
+    
+    logger = logging.getLogger(__name__)
+    
+    try:
+        user_repo = UserRepository(db)
+        user = user_repo.get_by_email(request.email)
+        
+        # 即使用户不存在也返回成功，避免泄露用户信息
+        if not user:
+            logger.info(f"密码重置请求：邮箱不存在 {request.email}")
+            return {
+                "success": True,
+                "message": "如果该邮箱已注册，您将收到密码重置邮件"
+            }
+        
+        # 生成重置令牌
+        reset_token = secrets.token_urlsafe(32)
+        reset_token_expires = datetime.utcnow() + timedelta(hours=1)
+        
+        # 保存到数据库
+        user.reset_token = reset_token
+        user.reset_token_expires = reset_token_expires
+        db.commit()
+        
+        # 构建重置链接
+        reset_url = f"https://imvu-analytics-production.up.railway.app/reset-password?token={reset_token}"
+        
+        # 发送邮件
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }}
+                .content {{ background: #f8f9fa; padding: 20px; border-radius: 10px; margin-top: 20px; }}
+                .button {{ display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
+                .footer {{ text-align: center; color: #666; margin-top: 20px; font-size: 12px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🔐 密码重置</h1>
+                </div>
+                <div class="content">
+                    <p>您好，</p>
+                    <p>我们收到了您的密码重置请求。请点击下方按钮重置密码：</p>
+                    <p style="text-align: center;">
+                        <a href="{reset_url}" class="button">重置密码</a>
+                    </p>
+                    <p>或复制以下链接到浏览器：</p>
+                    <p style="word-break: break-all; background: #e9ecef; padding: 10px; border-radius: 5px; font-size: 12px;">
+                        {reset_url}
+                    </p>
+                    <p><strong>注意：</strong>此链接将在 1 小时后失效。</p>
+                    <p>如果您没有请求重置密码，请忽略此邮件。</p>
+                </div>
+                <div class="footer">
+                    <p>此邮件由 IMVU Analytics 自动发送，请勿回复。</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        success, message = email_service.send_report(
+            to_emails=[user.email],
+            subject="🔐 IMVU Analytics - 密码重置",
+            html_content=html_content
+        )
+        
+        if success:
+            logger.info(f"密码重置邮件已发送: {user.email}")
+        else:
+            logger.error(f"密码重置邮件发送失败: {message}")
+        
+        return {
+            "success": True,
+            "message": "如果该邮箱已注册，您将收到密码重置邮件"
+        }
+        
+    except Exception as e:
+        logger.error(f"密码重置失败: {e}", exc_info=True)
+        return {
+            "success": True,
+            "message": "如果该邮箱已注册，您将收到密码重置邮件"
+        }
+
+
+@router.post("/validate-reset-token")
+async def validate_reset_token(request: ValidateTokenRequest, db: Session = Depends(get_db)):
+    """
+    验证重置令牌
+    
+    - **token**: 重置令牌
+    """
+    from datetime import datetime
+    from app.database import UserRepository
+    
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_reset_token(request.token)
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"success": False, "message": "无效的重置链接"}
+        )
+    
+    # 检查令牌是否过期
+    if user.reset_token_expires and user.reset_token_expires < datetime.utcnow():
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"success": False, "message": "重置链接已过期，请重新申请"}
+        )
+    
+    return {
+        "success": True,
+        "message": "令牌有效",
+        "data": {
+            "email": user.email[:3] + "***" + user.email.split("@")[-1]
+        }
+    }
+
+
+@router.post("/reset-password")
+async def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """
+    重置密码
+    
+    - **token**: 重置令牌
+    - **new_password**: 新密码
+    """
+    import logging
+    from datetime import datetime
+    from app.database import UserRepository
+    from app.services.auth import hash_password
+    
+    logger = logging.getLogger(__name__)
+    
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_reset_token(request.token)
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"success": False, "message": "无效的重置链接"}
+        )
+    
+    # 检查令牌是否过期
+    if user.reset_token_expires and user.reset_token_expires < datetime.utcnow():
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"success": False, "message": "重置链接已过期，请重新申请"}
+        )
+    
+    # 更新密码
+    user.password_hash = hash_password(request.new_password)
+    user.reset_token = None
+    user.reset_token_expires = None
+    db.commit()
+    
+    logger.info(f"密码重置成功: {user.email}")
+    
+    return {
+        "success": True,
+        "message": "密码重置成功，请使用新密码登录"
+    }
