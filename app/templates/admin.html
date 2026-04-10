@@ -209,6 +209,20 @@
         <p style="margin-top: 15px; color: #666;" data-i18n="loading">Loading...</p>
     </div>
 
+    <!-- Login Prompt (shown when not logged in) -->
+    <div id="loginPrompt" style="display: none; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="text-center" style="background: white; padding: 40px 60px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <i class="bi bi-shield-lock" style="font-size: 64px; color: #667eea;"></i>
+            <h2 style="margin: 20px 0 10px; color: #333;">Admin Dashboard</h2>
+            <p style="color: #666; margin-bottom: 25px;">请登录以访问管理后台</p>
+            <a href="/login" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px 40px;">
+                <i class="bi bi-box-arrow-in-right me-2"></i>登录
+            </a>
+        </div>
+    </div>
+
+    <!-- Main App (shown when logged in) -->
+    <div id="mainApp" style="display: none;">
     <!-- Sidebar -->
     <nav class="sidebar">
         <h4><i class="bi bi-speedometer2 me-2"></i><span data-i18n="app_name">IMVU Analytics</span></h4>
@@ -219,6 +233,7 @@
         <a href="/settings"><i class="bi bi-gear me-2"></i><span data-i18n="nav_settings">Settings</span></a>
         <a href="/profile"><i class="bi bi-person me-2"></i><span data-i18n="nav_profile">Profile</span></a>
         <div style="position: absolute; bottom: 20px; width: 100%;">
+            <a href="/login" id="loginBtn" style="display: none;"><i class="bi bi-box-arrow-in-right me-2"></i><span data-i18n="login">Login</span></a>
             <a href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i><span data-i18n="logout">Logout</span></a>
         </div>
     </nav>
@@ -327,6 +342,7 @@
             </nav>
         </div>
     </main>
+    </div><!-- End mainApp -->
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
@@ -337,6 +353,7 @@
             en: {
                 admin_title: 'Admin Dashboard',
                 loading: 'Loading...',
+                login: 'Login',
                 nav_dashboard: 'Dashboard',
                 nav_upload: 'Upload',
                 nav_report: 'Report',
@@ -378,6 +395,7 @@
             zh: {
                 admin_title: '管理后台',
                 loading: '加载中...',
+                login: '登录',
                 nav_dashboard: '仪表盘',
                 nav_upload: '上传',
                 nav_report: '报告',
@@ -440,10 +458,19 @@
                 
                 // 检查登录状态
                 const token = localStorage.getItem('access_token');
+                const loginPrompt = document.getElementById('loginPrompt');
+                const mainApp = document.getElementById('mainApp');
+                
                 if (!token) {
-                    window.location.href = '/login';
+                    // 未登录 - 显示登录提示
+                    loadingOverlay.style.display = 'none';
+                    loginPrompt.style.display = 'flex';
                     return;
                 }
+                
+                // 已登录 - 显示主应用
+                loginPrompt.style.display = 'none';
+                mainApp.style.display = 'block';
                 
                 await loadStats();
                 await loadUsers();
