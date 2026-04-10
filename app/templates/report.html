@@ -376,28 +376,6 @@
             </div>
             <p class="text-muted small" data-i18n="report.modifySchedule">To modify schedule, edit REPORT_CRON_HOUR and REPORT_CRON_MINUTE in config.py.</p>
         </div>
-
-        <!-- SMTP配置说明 -->
-        <div class="card">
-            <div class="card-title"><i class="bi bi-envelope"></i> <span data-i18n="report.emailConfig">Email Configuration</span></div>
-            <p data-i18n="report.configEnvVariables">Configure following environment variables to enable email:</p>
-            <table class="table table-sm">
-                <thead>
-                    <tr><th data-i18n="report.envVariable">Env Variable</th><th data-i18n="report.description">Description</th><th data-i18n="report.example">Example</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td><code>SMTP_HOST</code></td><td data-i18n="report.smtpHost">SMTP Server</td><td>smtp.gmail.com</td></tr>
-                    <tr><td><code>SMTP_PORT</code></td><td data-i18n="report.smtpPort">SMTP Port</td><td>587</td></tr>
-                    <tr><td><code>SMTP_USER</code></td><td data-i18n="report.smtpUser">Sender Email</td><td>your@email.com</td></tr>
-                    <tr><td><code>SMTP_PASSWORD</code></td><td data-i18n="report.smtpPassword">Email Password/App Password</td><td>******</td></tr>
-                    <tr><td><code>EMAIL_TO</code></td><td data-i18n="report.emailTo">Default Recipient</td><td>dest@email.com</td></tr>
-                </tbody>
-            </table>
-            <div class="alert alert-warning mt-3">
-                <i class="bi bi-exclamation-triangle"></i>
-                <strong data-i18n="report.securityTip">Security Tip: Do not write passwords in code. Use .env file or environment variables.</strong>
-            </div>
-        </div>
     </main>
 
     <script>
