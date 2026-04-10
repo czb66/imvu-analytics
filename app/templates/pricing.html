@@ -578,7 +578,7 @@
 
         async function startSubscription() {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('access_token');
                 const btn = document.querySelector('.btn-subscribe');
                 btn.disabled = true;
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
@@ -609,7 +609,7 @@
 
         async function openPortal() {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('access_token');
                 const btn = event.target;
                 const originalText = btn.innerHTML;
                 btn.disabled = true;
