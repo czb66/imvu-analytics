@@ -3,93 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="register_title">注册 - IMVU Analytics</title>
+    <title data-i18n="pageTitle">Register - IMVU Analytics</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="/static/auth.js"></script>
+    <script src="/static/i18n.js"></script>
     <style>
         :root {
             --primary: #667eea;
             --secondary: #764ba2;
         }
         body {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-        .register-container {
-            width: 100%;
-            max-width: 420px;
-            padding: 20px;
-        }
         .register-card {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px;
+            width: 100%;
+            max-width: 420px;
         }
-        .register-header {
+        .logo {
             text-align: center;
             margin-bottom: 30px;
         }
-        .register-header h1 {
-            color: var(--primary);
-            font-weight: bold;
-            margin-bottom: 10px;
+        .logo i {
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .register-header p {
-            color: #666;
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 10px;
         }
         .form-floating {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
-        .form-floating .form-control {
+        .form-control {
             border-radius: 10px;
-            border: 1px solid #ddd;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
         }
-        .form-floating .form-control:focus {
+        .form-control:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .form-floating .form-control.is-invalid {
-            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
         .btn-register {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
-            font-weight: bold;
-            color: white;
             width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
         }
         .btn-register:hover {
-            opacity: 0.9;
-            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
-        .password-requirements {
-            font-size: 12px;
-            color: #666;
-            margin-top: -15px;
-            margin-bottom: 20px;
-            padding-left: 5px;
-        }
-        .login-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .login-link a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .login-link a:hover {
-            text-decoration: underline;
+        .btn-register:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
         }
         .alert {
             border-radius: 10px;
+            margin-bottom: 20px;
         }
         .password-toggle {
             position: absolute;
@@ -98,137 +89,136 @@
             transform: translateY(-50%);
             cursor: pointer;
             color: #999;
+            z-index: 10;
         }
         .password-wrapper {
             position: relative;
         }
-        .lang-switch {
+        .lang-switcher {
             position: absolute;
             top: 20px;
             right: 20px;
         }
-        .lang-switch button {
+        .lang-btn {
             background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
+            border: none;
             color: white;
-            padding: 5px 15px;
+            padding: 8px 15px;
             border-radius: 20px;
+            margin-left: 5px;
             cursor: pointer;
+            transition: all 0.3s;
         }
-        .lang-switch button:hover {
-            background: rgba(255,255,255,0.3);
+        .lang-btn.active, .lang-btn:hover {
+            background: white;
+            color: var(--primary);
         }
+        .email-check-indicator {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+        .email-check-indicator.checking { color: #999; }
+        .email-check-indicator.available { color: #28a745; }
+        .email-check-indicator.taken { color: #dc3545; }
         .strength-bar {
             height: 4px;
             border-radius: 2px;
             margin-top: 5px;
+            background: #e0e0e0;
+            overflow: hidden;
+        }
+        .strength-bar-fill {
+            height: 100%;
             transition: all 0.3s;
         }
         .strength-text {
-            font-size: 11px;
+            font-size: 0.8rem;
             margin-top: 3px;
         }
-        /* 错误类型样式 */
-        .alert-danger.network-error {
-            background-color: #fff3cd;
-            border-color: #ffc107;
-            color: #856404;
-        }
-        .alert-danger.validation-error {
-            background-color: #f8d7da;
-            border-color: #f5c2c7;
-            color: #842029;
-        }
-        .alert-danger.business-error {
-            background-color: #e7f1ff;
-            border-color: #b6d4fe;
-            color: #084298;
-        }
-        .email-check-indicator {
-            position: absolute;
-            right: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 14px;
-        }
-        .email-check-indicator.checking {
-            color: #6c757d;
-        }
-        .email-check-indicator.available {
-            color: #198754;
-        }
-        .email-check-indicator.taken {
-            color: #dc3545;
+        .password-requirements {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="lang-switch">
-        <button onclick="switchLanguage('en')">English</button>
-        <button onclick="switchLanguage('zh')">中文</button>
+    <!-- 语言切换 -->
+    <div class="lang-switcher">
+        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">English</button>
+        <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">中文</button>
     </div>
-    
-    <div class="register-container">
-        <div class="register-card">
-            <div class="register-header">
-                <h1><i class="bi bi-person-plus"></i> IMVU Analytics</h1>
-                <p data-i18n="register_subtitle">创建您的账户</p>
+
+    <div class="register-card">
+        <div class="logo">
+            <i class="bi bi-person-plus-fill"></i>
+            <h1 data-i18n="appName">IMVU Analytics</h1>
+            <p class="text-muted" data-i18n="register_subtitle">Create your account</p>
+        </div>
+
+        <!-- 提示框 -->
+        <div id="alertBox" class="alert d-none" role="alert"></div>
+
+        <form id="registerForm">
+            <!-- 邮箱 -->
+            <div class="form-floating" style="position: relative;">
+                <input type="email" class="form-control" id="email" placeholder="email@example.com" required>
+                <label for="email" data-i18n="email">Email</label>
+                <span class="email-check-indicator" id="emailCheckIndicator"></span>
+                <div class="invalid-feedback" id="emailError"></div>
             </div>
-            
-            <div id="alertBox" class="alert d-none" role="alert"></div>
-            
-            <form id="registerForm">
-                <div class="form-floating" style="position: relative;">
-                    <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
-                    <label for="email" data-i18n="email">邮箱</label>
-                    <span class="email-check-indicator" id="emailCheckIndicator"></span>
-                    <div class="invalid-feedback" id="emailError"></div>
-                </div>
-                
-                <div class="form-floating">
-                    <input type="text" class="form-control" id="username" placeholder="Username">
-                    <label for="username" data-i18n="username">用户名（可选）</label>
-                </div>
-                
-                <div class="form-floating password-wrapper">
-                    <input type="password" class="form-control" id="password" placeholder="Password" required minlength="8">
-                    <label for="password" data-i18n="password">密码</label>
-                    <span class="password-toggle" onclick="togglePassword('password', 'eyeIcon1')">
-                        <i class="bi bi-eye" id="eyeIcon1"></i>
-                    </span>
-                </div>
-                <div class="strength-bar" id="strengthBar"></div>
-                <div class="strength-text" id="strengthText"></div>
-                
-                <div class="form-floating password-wrapper">
-                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" required>
-                    <label for="confirmPassword" data-i18n="confirm_password">确认密码</label>
-                    <span class="password-toggle" onclick="togglePassword('confirmPassword', 'eyeIcon2')">
-                        <i class="bi bi-eye" id="eyeIcon2"></i>
-                    </span>
-                    <div class="invalid-feedback" id="confirmError"></div>
-                </div>
-                
-                <p class="password-requirements" data-i18n="password_req">密码至少8位</p>
-                
-                <button type="submit" class="btn btn-register btn-lg" id="submitBtn">
-                    <span data-i18n="register_btn">注册</span>
-                </button>
-            </form>
-            
-            <div class="login-link">
-                <span data-i18n="has_account">已有账号？</span>
-                <a href="/login" data-i18n="login_now">立即登录</a>
+
+            <!-- 用户名 -->
+            <div class="form-floating">
+                <input type="text" class="form-control" id="username" placeholder="Username">
+                <label for="username" data-i18n="username">Username (optional)</label>
             </div>
+
+            <!-- 密码 -->
+            <div class="form-floating password-wrapper">
+                <input type="password" class="form-control" id="password" placeholder="Password" required minlength="8">
+                <label for="password" data-i18n="password">Password</label>
+                <span class="password-toggle" onclick="togglePassword('password', 'eyeIcon1')">
+                    <i class="bi bi-eye" id="eyeIcon1"></i>
+                </span>
+            </div>
+            <div class="strength-bar" id="strengthBar">
+                <div class="strength-bar-fill" id="strengthBarFill"></div>
+            </div>
+            <div class="strength-text" id="strengthText"></div>
+
+            <!-- 确认密码 -->
+            <div class="form-floating password-wrapper">
+                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm Password" required>
+                <label for="confirmPassword" data-i18n="confirm_password">Confirm Password</label>
+                <span class="password-toggle" onclick="togglePassword('confirmPassword', 'eyeIcon2')">
+                    <i class="bi bi-eye" id="eyeIcon2"></i>
+                </span>
+                <div class="invalid-feedback" id="confirmError"></div>
+            </div>
+
+            <p class="password-requirements" data-i18n="password_req">Password must be at least 8 characters</p>
+
+            <button type="submit" class="btn btn-primary btn-register" id="submitBtn">
+                <span data-i18n="register_btn">Register</span>
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <span class="text-muted" data-i18n="has_account">Already have an account?</span>
+            <a href="/login" class="text-decoration-none" data-i18n="login_link">Login</a>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 多语言支持
+        // 多语言
         const translations = {
             en: {
-                register_title: 'Register - IMVU Analytics',
+                appName: 'IMVU Analytics',
                 register_subtitle: 'Create your account',
                 email: 'Email',
                 username: 'Username (optional)',
@@ -236,8 +226,8 @@
                 confirm_password: 'Confirm Password',
                 password_req: 'Password must be at least 8 characters',
                 register_btn: 'Register',
-                has_account: 'Already have an account?',
-                login_now: 'Login now',
+                has_account: 'Already have an account? ',
+                login_link: 'Login',
                 register_success: 'Registration successful! Redirecting to login...',
                 register_error: 'Registration failed. Please try again.',
                 email_used: 'This email is already registered',
@@ -247,10 +237,13 @@
                 weak: 'Weak',
                 medium: 'Medium',
                 strong: 'Strong',
-                very_strong: 'Very Strong'
+                checking: 'Checking...',
+                available: 'Available',
+                server_error: 'Server error, please try again later',
+                network_error: 'Network error, please check your connection'
             },
             zh: {
-                register_title: '注册 - IMVU Analytics',
+                appName: 'IMVU Analytics',
                 register_subtitle: '创建您的账户',
                 email: '邮箱',
                 username: '用户名（可选）',
@@ -259,181 +252,144 @@
                 password_req: '密码至少8位',
                 register_btn: '注册',
                 has_account: '已有账号？',
-                login_now: '立即登录',
-                register_success: '注册成功！正在跳转登录...',
+                login_link: '立即登录',
+                register_success: '注册成功！正在跳转到登录页...',
                 register_error: '注册失败，请重试。',
                 email_used: '该邮箱已被注册',
                 invalid_email: '请输入有效的邮箱地址',
                 password_mismatch: '两次输入的密码不一致',
-                password_short: '密码长度至少8位',
+                password_short: '密码至少需要8个字符',
                 weak: '弱',
                 medium: '中等',
                 strong: '强',
-                very_strong: '非常强'
+                checking: '检查中...',
+                available: '可用',
+                server_error: '服务器错误，请稍后重试',
+                network_error: '网络连接失败，请检查您的网络'
             }
         };
 
         let currentLang = localStorage.getItem('language') || 'zh';
 
-        function switchLanguage(lang) {
+        function setLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('language', lang);
-            document.documentElement.lang = lang;
-            
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[lang][key]) {
+                if (translations[lang] && translations[lang][key]) {
                     el.textContent = translations[lang][key];
                 }
             });
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
         }
 
-        // 初始化语言
-        switchLanguage(currentLang);
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
 
-        // 切换密码可见性
-        function togglePassword(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
+        function showAlert(message, isSuccess = false) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = `alert alert-${isSuccess ? 'success' : 'danger'}`;
+            alertBox.innerHTML = `<i class="bi bi-${isSuccess ? 'check-circle' : 'exclamation-circle'} me-2"></i>${message}`;
+            alertBox.classList.remove('d-none');
             
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('bi-eye');
-                icon.classList.add('bi-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('bi-eye-slash');
-                icon.classList.add('bi-eye');
+            if (isSuccess) {
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
             }
         }
 
-        // 密码强度检测
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+
         function checkPasswordStrength(password) {
             let strength = 0;
-            
             if (password.length >= 8) strength++;
             if (password.length >= 12) strength++;
             if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
             if (/\d/.test(password)) strength++;
             if (/[^a-zA-Z0-9]/.test(password)) strength++;
-            
-            return Math.min(strength, 4);
+            return strength;
         }
 
         function updateStrengthBar(password) {
             const strength = checkPasswordStrength(password);
-            const bar = document.getElementById('strengthBar');
+            const fill = document.getElementById('strengthBarFill');
             const text = document.getElementById('strengthText');
             
-            const colors = ['#dc3545', '#ffc107', '#28a745', '#28a745'];
-            const labels = ['weak', 'medium', 'strong', 'very_strong'];
+            const levels = [
+                { width: '0%', color: '#e0e0e0', text: '' },
+                { width: '20%', color: '#dc3545', text: t('weak') },
+                { width: '40%', color: '#ffc107', text: t('weak') },
+                { width: '60%', color: '#ffc107', text: t('medium') },
+                { width: '80%', color: '#28a745', text: t('medium') },
+                { width: '100%', color: '#28a745', text: t('strong') }
+            ];
             
-            bar.style.width = (strength * 25) + '%';
-            bar.style.backgroundColor = colors[strength - 1] || '#ddd';
-            text.textContent = strength > 0 ? translations[currentLang][labels[strength - 1]] : '';
-            text.style.color = colors[strength - 1] || '#999';
+            const level = levels[strength];
+            fill.style.width = level.width;
+            fill.style.background = level.color;
+            text.textContent = level.text;
+            text.style.color = level.color;
         }
 
-        // 显示提示
-        function showAlert(message, isSuccess = false, errorType = 'business') {
-            const alertBox = document.getElementById('alertBox');
-            alertBox.textContent = message;
-            alertBox.classList.remove('d-none', 'alert-danger', 'alert-success', 'network-error', 'validation-error', 'business-error');
-            
-            if (isSuccess) {
-                alertBox.classList.add('alert-success');
-            } else {
-                alertBox.classList.add('alert-danger');
-                if (errorType === 'network') {
-                    alertBox.classList.add('network-error');
-                } else if (errorType === 'validation') {
-                    alertBox.classList.add('validation-error');
-                } else {
-                    alertBox.classList.add('business-error');
-                }
-            }
-            
-            setTimeout(() => {
-                alertBox.classList.add('d-none');
-            }, 5000);
-        }
-
-        // 邮箱验证（实时）
+        // 邮箱验证
         let emailCheckTimeout;
-        const emailInput = document.getElementById('email');
-        const emailCheckIndicator = document.getElementById('emailCheckIndicator');
-        
-        emailInput.addEventListener('input', function() {
-            // 清除之前的检查指示器
-            emailCheckIndicator.innerHTML = '';
-            emailCheckIndicator.className = 'email-check-indicator';
+        document.getElementById('email').addEventListener('input', function() {
+            document.getElementById('emailCheckIndicator').innerHTML = '';
             this.classList.remove('is-invalid');
+            clearTimeout(emailCheckTimeout);
         });
-        
-        emailInput.addEventListener('blur', async function() {
+
+        document.getElementById('email').addEventListener('blur', async function() {
             const email = this.value.trim();
             if (!email) return;
             
-            // 清除之前的超时
             clearTimeout(emailCheckTimeout);
             emailCheckTimeout = setTimeout(async () => {
-                // 显示检查中状态
-                emailCheckIndicator.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-                emailCheckIndicator.className = 'email-check-indicator checking';
-                
-                console.log('[Email Check] Checking email:', email);
+                const indicator = document.getElementById('emailCheckIndicator');
+                indicator.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                indicator.className = 'email-check-indicator checking';
                 
                 try {
                     const response = await fetch('/api/auth/check-email', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ email: email })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
                     });
                     const data = await response.json();
                     
-                    console.log('[Email Check] Response:', data);
-                    
                     if (data.exists) {
-                        emailCheckIndicator.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
-                        emailCheckIndicator.className = 'email-check-indicator taken';
+                        indicator.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
+                        indicator.className = 'email-check-indicator taken';
                         this.classList.add('is-invalid');
-                        document.getElementById('emailError').textContent = translations[currentLang].email_used;
-                        console.log('[Email Check] Email is already taken');
-                    } else if (data.valid === false) {
-                        emailCheckIndicator.innerHTML = '';
-                        this.classList.add('is-invalid');
-                        document.getElementById('emailError').textContent = translations[currentLang].invalid_email;
-                        console.log('[Email Check] Invalid email format');
+                        document.getElementById('emailError').textContent = t('email_used');
                     } else {
-                        emailCheckIndicator.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
-                        emailCheckIndicator.className = 'email-check-indicator available';
+                        indicator.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+                        indicator.className = 'email-check-indicator available';
                         this.classList.remove('is-invalid');
-                        console.log('[Email Check] Email is available');
                     }
                 } catch (e) {
-                    console.error('[Email Check] Network error:', e);
-                    emailCheckIndicator.innerHTML = '';
-                    // 网络错误不阻止用户继续填写
+                    indicator.innerHTML = '';
                 }
             }, 500);
         });
 
-        // 密码强度监听
+        // 密码强度
         document.getElementById('password').addEventListener('input', function() {
             updateStrengthBar(this.value);
-        });
-
-        // 确认密码验证
-        document.getElementById('confirmPassword').addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            if (this.value && this.value !== password) {
-                this.classList.add('is-invalid');
-                document.getElementById('confirmError').textContent = translations[currentLang].password_mismatch;
-            } else {
-                this.classList.remove('is-invalid');
-            }
         });
 
         // 表单提交
@@ -446,115 +402,66 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             const submitBtn = document.getElementById('submitBtn');
             
-            console.log('[Register Form] Submitting registration request');
-            
-            // 前端验证
+            // 验证
             if (!email) {
-                showAlert(translations[currentLang].invalid_email, false, 'validation');
-                console.log('[Register Form] Validation failed: empty email');
+                showAlert(t('invalid_email'));
                 return;
             }
-            
             if (password.length < 8) {
-                showAlert(translations[currentLang].password_short, false, 'validation');
-                console.log('[Register Form] Validation failed: password too short');
+                showAlert(t('password_short'));
                 return;
             }
-            
             if (password !== confirmPassword) {
-                showAlert(translations[currentLang].password_mismatch, false, 'validation');
-                console.log('[Register Form] Validation failed: passwords do not match');
+                showAlert(t('password_mismatch'));
                 return;
             }
             
-            // 禁用按钮，显示加载状态
+            // 禁用按钮
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + 
-                (currentLang === 'zh' ? '注册中...' : 'Registering...');
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + (currentLang === 'zh' ? '注册中...' : 'Registering...');
             
             try {
-                console.log('[Register API] Sending request to /api/auth/register');
-                
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        email: email,
-                        password: password,
+                        email,
+                        password,
                         username: username || null
                     })
                 });
                 
-                console.log('[Register API] Response status:', response.status);
-                
-                // 检查HTTP状态码
-                if (!response.ok) {
-                    // 尝试解析错误响应
-                    let errorData;
-                    try {
-                        errorData = await response.json();
-                    } catch (e) {
-                        errorData = { message: `HTTP Error: ${response.status}` };
-                    }
-                    
-                    console.error('[Register API] HTTP Error:', response.status, errorData);
-                    
-                    // 根据状态码判断错误类型
-                    if (response.status >= 500) {
-                        showAlert(currentLang === 'zh' ? '服务器错误，请稍后重试' : 'Server error, please try again later', false, 'network');
-                    } else {
-                        // 400 错误通常是业务逻辑错误（如邮箱已注册）
-                        const errorMsg = errorData.message || translations[currentLang].register_error;
-                        console.log('[Register API] Business error:', errorMsg);
-                        showAlert(errorMsg, false, 'business');
-                    }
-                    return;
-                }
-                
-                // 解析成功响应
                 const data = await response.json();
-                console.log('[Register API] Response data:', data);
                 
-                if (data.success) {
-                    console.log('[Register API] Registration successful!');
-                    showAlert(translations[currentLang].register_success, true);
-                    
-                    // 跳转到登录页
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 2000);
+                if (response.ok && data.success) {
+                    showAlert(t('register_success'), true);
                 } else {
-                    // 业务逻辑错误（success=false 但 HTTP 200）
-                    const errorMsg = data.message || translations[currentLang].register_error;
-                    console.error('[Register API] Registration failed:', errorMsg);
-                    showAlert(errorMsg, false, 'business');
+                    showAlert(data.message || t('register_error'));
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<span data-i18n="register_btn">${t('register_btn')}</span>`;
                 }
             } catch (error) {
-                // 网络错误（请求无法发出）
-                console.error('[Register API] Network error:', error);
-                showAlert(currentLang === 'zh' ? '网络连接失败，请检查您的网络' : 'Network connection failed, please check your internet', false, 'network');
-            } finally {
-                // 恢复按钮状态
+                console.error('Registration error:', error);
+                showAlert(t('network_error'));
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span data-i18n="register_btn">' + translations[currentLang].register_btn + '</span>';
+                submitBtn.innerHTML = `<span data-i18n="register_btn">${t('register_btn')}</span>`;
             }
         });
 
-        // 检查是否已登录
-        const token = localStorage.getItem('access_token');
-        if (token) {
-            fetch('/api/auth/me', {
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                }
-            }).then(res => res.json()).then(data => {
-                if (data.success) {
-                    window.location.href = '/dashboard';
-                }
-            }).catch(() => {});
-        }
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage(currentLang);
+            
+            // 检查是否已登录
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                fetch('/api/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                }).then(res => res.json()).then(data => {
+                    if (data.success) window.location.href = '/dashboard';
+                }).catch(() => {});
+            }
+        });
     </script>
 </body>
 </html>
