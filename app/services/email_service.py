@@ -83,11 +83,35 @@ class EmailService:
                             msg.attach(part)
             
             # 发送邮件
-            with smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=30) as server:
-                if self.use_tls:
-                    server.starttls()
-                server.login(self.smtp_user, self.smtp_password)
-                server.sendmail(self.from_email, to_emails, msg.as_string())
+            try:
+                # 尝试使用 SSL 端口 465
+                if self.smtp_port == 465:
+                    import smtplib
+                    with smtplib.SMTP_SSL(self.smtp_host, self.smtp_port, timeout=30) as server:
+                        server.login(self.smtp_user, self.smtp_password)
+                        server.sendmail(self.from_email, to_emails, msg.as_string())
+                else:
+                    # 使用 TLS 端口 587
+                    with smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=30) as server:
+                        server.ehlo()
+                        if self.use_tls:
+                            server.starttls()
+                            server.ehlo()
+                        server.login(self.smtp_user, self.smtp_password)
+                        server.sendmail(self.from_email, to_emails, msg.as_string())
+            except Exception as conn_err:
+                logger.error(f"SMTP连接失败: {conn_err}")
+                # 如果 587 失败，尝试 465
+                if self.smtp_port != 465:
+                    logger.info("尝试使用 SSL 端口 465...")
+                    try:
+                        with smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=30) as server:
+                            server.login(self.smtp_user, self.smtp_password)
+                            server.sendmail(self.from_email, to_emails, msg.as_string())
+                    except Exception as e:
+                        raise e
+                else:
+                    raise conn_err
             
             logger.info(f"邮件发送成功: {subject} -> {to_emails}")
             return True, f"邮件发送成功"
