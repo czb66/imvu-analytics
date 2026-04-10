@@ -654,7 +654,9 @@
         async function loadDatasets() {
             showLoading();
             try {
-                const response = await fetch('/api/compare/datasets');
+                const response = await fetch('/api/compare/datasets', {
+                    headers: getAuthHeaders()
+                });
                 const result = await response.json();
                 
                 if (result.success && result.data && result.data.length > 0) {

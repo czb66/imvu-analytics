@@ -460,7 +460,9 @@
 
         async function loadAllData() {
             try {
-                const res = await fetch('/api/diagnosis/full-report');
+                const res = await fetch('/api/diagnosis/full-report', {
+                    headers: getAuthHeaders()
+                });
                 const data = await res.json();
                 
                 if (data.success) {
@@ -518,17 +520,12 @@
                 // 获取API Key（从localStorage）
                 const apiKey = localStorage.getItem('deepseek_api_key');
                 
-                const headers = {};
-                if (apiKey) {
-                    headers['X-DeepSeek-Key'] = apiKey;
-                }
+                const headers = getAuthHeaders();
+                headers['X-DeepSeek-Key'] = apiKey;
                 
                 const response = await fetch('/api/insights/diagnosis', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...headers
-                    },
+                    headers: headers,
                     body: JSON.stringify({
                         language: getLanguage()
                     })
