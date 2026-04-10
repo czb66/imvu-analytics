@@ -191,6 +191,9 @@ async def create_checkout_session(
     stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
     stripe.api_version = "2023-10-16"
     
+    # 设置 Stripe 请求超时
+    stripe.request_timeout = 30
+    
     if not stripe.api_key:
         return JSONResponse(
             status_code=500,
@@ -215,16 +218,22 @@ async def create_checkout_session(
             )
         
         # 获取或创建Stripe客户
-        customer_id = get_or_create_stripe_customer(
-            user_email=user.email,
-            user_id=user.id,
-            existing_customer_id=user.stripe_customer_id
-        )
-        
-        # 更新用户的Stripe客户ID
-        if not user.stripe_customer_id:
-            user.stripe_customer_id = customer_id
-            db.commit()
+        customer_id = user.stripe_customer_id
+        if not customer_id:
+            try:
+                customer = stripe.Customer.create(
+                    email=user.email,
+                    metadata={"user_id": str(user.id)}
+                )
+                customer_id = customer.id
+                user.stripe_customer_id = customer_id
+                db.commit()
+            except stripe.error.StripeError as e:
+                logger.error(f"创建Stripe客户失败: {e}")
+                return JSONResponse(
+                    status_code=500,
+                    content={"success": False, "message": f"创建支付客户失败: {str(e)}"}
+                )
         
         # 使用请求中的price_id或默认配置
         price_id = request.price_id or config.get_stripe_price_id()
@@ -241,7 +250,7 @@ async def create_checkout_session(
             ],
             mode="subscription",
             success_url=f"{config.APP_BASE_URL}/success?session_id={{CHECKOUT_SESSION_ID}}",
-            cancel_url=f"{config.APP_BASE_URL}/cancel",
+            cancel_url=f"{config.APP_BASE_URL}/pricing",
             subscription_data={
                 "metadata": {
                     "user_id": str(user.id)
