@@ -40,7 +40,7 @@ async def contact_page(request: Request):
     联系我们页面
     无需登录即可访问
     """
-    from config import BASE_URL, CANONICAL_URL, APP_NAME, APP_VERSION, DEBUG
+    from config import APP_BASE_URL, APP_NAME, APP_VERSION, DEBUG
     
     page_title = "Contact Us"
     meta_description = "Contact IMVU Analytics support team. Get help with technical issues, account questions, feature suggestions, and subscription inquiries."
@@ -54,13 +54,13 @@ async def contact_page(request: Request):
     <title>{page_title} - IMVU Analytics</title>
     <meta name="description" content="{meta_description}">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{CANONICAL_URL}/contact">
+    <link rel="canonical" href="{APP_BASE_URL}/contact">
     
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="{page_title} - IMVU Analytics">
     <meta property="og:description" content="{meta_description}">
-    <meta property="og:url" content="{CANONICAL_URL}/contact">
+    <meta property="og:url" content="{APP_BASE_URL}/contact">
     <meta property="og:site_name" content="IMVU Analytics">
     
     <!-- Bootstrap -->
