@@ -99,6 +99,27 @@ class InsightsService:
         prompt = self._build_compare_prompt(datasets, metrics_comparison, rank_changes, language)
         return await self._call_deepseek(prompt)
     
+    async def generate_seo_name_insights(
+        self,
+        products: List[Dict],
+        language: str = 'zh'
+    ) -> str:
+        """
+        生成产品名称 SEO 优化建议
+        
+        Args:
+            products: 产品列表（包含 product_id, product_name, sales 等信息）
+            language: 语言 'zh' 或 'en'
+        
+        Returns:
+            SEO 优化建议文本
+        """
+        if not self.is_configured():
+            return self._generate_offline_seo_insights(products, language)
+        
+        prompt = self._build_seo_name_prompt(products, language)
+        return await self._call_deepseek(prompt)
+    
     def _build_dashboard_prompt(self, summary: Dict, top_products: List[Dict], language: str = 'zh') -> str:
         """构建仪表盘洞察的prompt"""
         
@@ -456,6 +477,128 @@ Please use the following format:
         
         return prompt
     
+    def _build_seo_name_prompt(self, products: List[Dict], language: str = 'zh') -> str:
+        """构建产品名称 SEO 优化的 prompt"""
+        
+        def fmt(val):
+            if isinstance(val, (int, float)):
+                return f"{val:,}"
+            return str(val)
+        
+        # 取前 20 个产品进行分析
+        analysis_products = products[:20] if products else []
+        
+        if language == 'zh':
+            # 中文版本
+            products_info = "\n".join([
+                f"- [{p.get('product_id', 'N/A')}] {p.get('product_name', 'Unknown')[:60]} (销量: {fmt(p.get('total_sales', 0))})"
+                for p in analysis_products
+            ]) if analysis_products else "暂无产品数据"
+            
+            prompt = f"""你是一位专业的 IMVU 产品 SEO 优化专家。请根据 SEO 最佳实践，分析以下产品名称，并给出优化建议。
+
+## 产品名称列表（前20个）
+{products_info}
+
+## IMVU 产品名称 SEO 优化规则
+1. **关键词优化**：
+   - 产品名称应包含目标用户可能搜索的关键词
+   - 避免使用过于模糊或泛泛的名称
+   - 建议包含：产品类型、风格、颜色、特征等描述性词汇
+
+2. **命名结构建议**：
+   - 推荐格式：[风格/主题] + [产品类型] + [关键特征]
+   - 例如："Elegant Gothic Black Lace Dress" 比 "Dress 123" 更利于搜索
+   - 名称长度建议控制在 3-8 个有效词汇
+
+3. **避免的问题**：
+   - ❌ 纯数字或无意义字符（如 "Product 123"）
+   - ❌ 过长的名称（超过 100 字符可能被截断）
+   - ❌ 重复的关键词堆砌
+   - ❌ 与产品内容不相关的误导性名称
+
+4. **优化目标**：
+   - 提高搜索可见性
+   - 增加点击率
+   - 提升转化率
+
+## 要求
+1. 逐个分析产品名称的 SEO 问题
+2. 指出每个名称的优缺点
+3. 给出具体的优化建议（包含建议的新名称）
+4. 优先分析销量较低的产品名称问题
+5. 用中文输出，条理清晰，建议具体可执行
+
+请按以下格式输出：
+
+📝 **SEO 问题诊断**：
+（列出 3-5 个问题最严重的名称）
+
+🔄 **优化建议**：
+（针对每个问题名称给出优化方案）
+
+💡 **通用优化技巧**：
+（给出整体性的 SEO 优化建议）
+
+⚠️ **特别提醒**：
+（需要注意的 SEO 禁忌或风险）"""
+        else:
+            # 英文版本
+            products_info = "\n".join([
+                f"- [{p.get('product_id', 'N/A')}] {p.get('product_name', 'Unknown')[:60]} (Sales: {fmt(p.get('total_sales', 0))})"
+                for p in analysis_products
+            ]) if analysis_products else "No product data available"
+            
+            prompt = f"""You are a professional IMVU product SEO optimization expert. Please analyze the following product names based on SEO best practices and provide optimization suggestions.
+
+## Product Names List (Top 20)
+{products_info}
+
+## IMVU Product Name SEO Optimization Rules
+1. **Keyword Optimization**:
+   - Product names should include keywords that target users might search for
+   - Avoid using vague or generic names
+   - Include: product type, style, color, features and other descriptive words
+
+2. **Naming Structure Recommendations**:
+   - Recommended format: [Style/Theme] + [Product Type] + [Key Features]
+   - Example: "Elegant Gothic Black Lace Dress" is better than "Dress 123" for search
+   - Name length should be controlled to 3-8 effective words
+
+3. **Issues to Avoid**:
+   - ❌ Pure numbers or meaningless characters (e.g., "Product 123")
+   - ❌ Overly long names (may be truncated beyond 100 characters)
+   - ❌ Repetitive keyword stuffing
+   - ❌ Misleading names unrelated to product content
+
+4. **Optimization Goals**:
+   - Improve search visibility
+   - Increase click-through rate
+   - Boost conversion rate
+
+## Requirements
+1. Analyze each product name for SEO issues
+2. Point out pros and cons of each name
+3. Provide specific optimization suggestions (include suggested new names)
+4. Prioritize analyzing product names with lower sales
+5. Output in English, well-organized and actionable
+
+Please use the following format:
+
+📝 **SEO Issue Diagnosis**:
+(List 3-5 names with the most serious issues)
+
+🔄 **Optimization Suggestions**:
+(Provide optimization plans for each problematic name)
+
+💡 **General Optimization Tips**:
+(Provide overall SEO optimization advice)
+
+⚠️ **Special Reminders**:
+(SEO taboos or risks to be aware of)"""
+        
+        return prompt
+    
     async def _call_deepseek(self, prompt: str) -> str:
         """调用DeepSeek API"""
         if not self.api_key:
@@ -742,6 +885,83 @@ Please use the following format:
                 insights.append("🎯 **Action Recommendations**: Continue current strategy, expand advantages")
             else:
                 insights.append("🎯 **Action Recommendations**: Upload more data for detailed comparison analysis")
+        
+        return "\n\n".join(insights)
+    
+    def _generate_offline_seo_insights(self, products: List[Dict], language: str = 'zh') -> str:
+        """生成离线模式的 SEO 名称分析"""
+        insights = []
+        
+        if not products:
+            if language == 'zh':
+                return "📝 **SEO 分析**：暂无产品数据，请先上传 XML 数据"
+            else:
+                return "📝 **SEO Analysis**: No product data available, please upload XML data first"
+        
+        # 分析产品名称
+        problem_names = []
+        for p in products[:20]:
+            name = p.get('product_name', '')
+            pid = p.get('product_id', '')
+            sales = p.get('total_sales', 0)
+            
+            # 检测常见问题
+            issues = []
+            if not name or name.strip() == '':
+                issues.append("空名称")
+            elif name.isdigit():
+                issues.append("纯数字名称")
+            elif len(name) < 3:
+                issues.append("名称过短")
+            elif len(name) > 100:
+                issues.append("名称过长")
+            elif name.lower().startswith('product') or name.lower().startswith('item'):
+                issues.append("默认名称前缀")
+            
+            if issues:
+                problem_names.append({
+                    'id': pid,
+                    'name': name,
+                    'issues': issues,
+                    'sales': sales
+                })
+        
+        if language == 'zh':
+            # 中文版本
+            insights.append(f"📝 **SEO 问题诊断**：分析了 {len(products[:20])} 个产品名称")
+            
+            if problem_names:
+                insights.append(f"🔍 **发现问题**：{len(problem_names)} 个产品名称需要优化")
+                for p in problem_names[:5]:
+                    insights.append(f"  - [{p['id']}] {p['name'][:30]}: {', '.join(p['issues'])}")
+            else:
+                insights.append("✅ **状态良好**：未发现明显的 SEO 问题")
+            
+            insights.append("💡 **优化建议**：")
+            insights.append("  1. 使用描述性关键词（风格、类型、颜色）")
+            insights.append("  2. 避免纯数字或默认名称")
+            insights.append("  3. 控制名称长度在 3-8 个有效词")
+            insights.append("  4. 确保名称与产品内容相关")
+            
+            insights.append("⚠️ **特别提醒**：配置 DeepSeek API 可获得更详细的 SEO 分析")
+        else:
+            # 英文版本
+            insights.append(f"📝 **SEO Issue Diagnosis**: Analyzed {len(products[:20])} product names")
+            
+            if problem_names:
+                insights.append(f"🔍 **Issues Found**: {len(problem_names)} product names need optimization")
+                for p in problem_names[:5]:
+                    insights.append(f"  - [{p['id']}] {p['name'][:30]}: {', '.join(p['issues'])}")
+            else:
+                insights.append("✅ **Status Good**: No obvious SEO issues found")
+            
+            insights.append("💡 **Optimization Suggestions**:")
+            insights.append("  1. Use descriptive keywords (style, type, color)")
+            insights.append("  2. Avoid pure numbers or default names")
+            insights.append("  3. Control name length to 3-8 effective words")
+            insights.append("  4. Ensure names are relevant to product content")
+            
+            insights.append("⚠️ **Note**: Configure DeepSeek API for more detailed SEO analysis")
         
         return "\n\n".join(insights)
 

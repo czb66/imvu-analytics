@@ -507,3 +507,90 @@ def _calculate_rank_changes(datasets: List[Dict]) -> Dict:
         'new_entries': new_entries[:10],
         'dropped': dropped[:10]
     }
+
+
+@router.post("/seo-names")
+async def generate_seo_name_insights(
+    request: Request,
+    current_user: dict = Depends(require_subscription),
+    db: Session = Depends(get_db)
+):
+    """
+    生成产品名称 SEO 优化建议
+    
+    分析上传数据中的产品名称，根据 SEO 最佳实践给出优化建议
+    """
+    import time
+    start_time = time.time()
+    
+    logger.info(f"[API] 用户 {current_user.get('email')} 请求 SEO 名称分析")
+    
+    try:
+        # 获取语言设置
+        body = await request.json() if request.headers.get("content-length") else {}
+        language = body.get('language', 'zh')
+        
+        # 获取用户数据集
+        from app.database import Dataset, ProductData
+        datasets = db.query(Dataset).filter(
+            Dataset.user_id == current_user['id']
+        ).order_by(Dataset.upload_time.desc()).all()
+        
+        if not datasets:
+            no_data_msg = "📝 请先上传 XML 数据以获取 SEO 分析" if language == 'zh' else "📝 Please upload XML data first for SEO analysis"
+            return {
+                "success": True,
+                "insight": no_data_msg,
+                "is_offline": True
+            }
+        
+        # 获取最新数据集的产品数据
+        latest_dataset = datasets[0]
+        products = db.query(ProductData).filter(
+            ProductData.dataset_id == latest_dataset.id
+        ).all()
+        
+        if not products:
+            no_data_msg = "📝 数据集中暂无产品数据" if language == 'zh' else "📝 No product data in dataset"
+            return {
+                "success": True,
+                "insight": no_data_msg,
+                "is_offline": True
+            }
+        
+        # 转换为字典列表
+        products_data = []
+        for p in products:
+            products_data.append({
+                'product_id': p.product_id,
+                'product_name': p.product_name,
+                'total_sales': (p.direct_sales or 0) + (p.indirect_sales or 0) + (p.promoted_sales or 0),
+                'profit': p.profit or 0
+            })
+        
+        # 调用 SEO 分析服务
+        insight = await insights_service.generate_seo_name_insights(products_data, language)
+        
+        elapsed = time.time() - start_time
+        logger.info(f"[API] 用户 {current_user.get('email')} SEO 名称分析完成 耗时: {elapsed:.3f}s")
+        
+        return {
+            "success": True,
+            "insight": insight,
+            "is_offline": not insights_service.is_configured(),
+            "metadata": {
+                "total_products": len(products_data),
+                "dataset_name": latest_dataset.name,
+                "language": language
+            }
+        }
+        
+    except Exception as e:
+        elapsed = time.time() - start_time
+        logger.error(f"[API] 用户 {current_user.get('email')} SEO 名称分析失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        return {
+            "success": False,
+            "error": str(e),
+            "insight": "⚠️ SEO 分析时发生错误，请稍后重试",
+            "is_offline": True
+        }

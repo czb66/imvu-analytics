@@ -462,6 +462,26 @@
             </div>
         </div>
 
+        <!-- SEO 名称分析卡片 -->
+        <div class="insight-card" id="seoInsightCard">
+            <div class="insight-card-header">
+                <div class="insight-card-title">
+                    <i class="bi bi-search"></i> <span data-i18n="insights.seo.title">产品名称 SEO 分析</span>
+                    <span class="insight-offline-badge" id="seoOfflineBadge" style="display:none;">离线模式</span>
+                </div>
+                <button class="insight-refresh-btn" id="refreshSeoBtn" onclick="loadSeoInsights()" style="display:none;">
+                    <i class="bi bi-arrow-clockwise"></i> <span data-i18n="insights.refresh">刷新洞察</span>
+                </button>
+            </div>
+            <div id="seoInsightContent">
+                <div class="text-center">
+                    <button class="btn btn-primary btn-lg" id="generateSeoBtn" onclick="loadSeoInsights()">
+                        <i class="bi bi-search me-2"></i><span data-i18n="insights.seo.generate">分析产品名称</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- 转化漏斗 -->
         <div class="section-card">
             <div class="section-title">🔍 <span data-i18n="diagnosis.funnelAnalysis">Conversion Funnel Analysis</span></div>
@@ -722,6 +742,72 @@
                     <div class="insight-content" style="color: #ffd0d0;">⚠️ 加载失败，请稍后重试</div>
                     <div class="text-center mt-3">
                         <button class="btn btn-outline-light" onclick="loadDiagnosisInsights()">
+                            <i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="insights.refresh">刷新洞察</span>
+                        </button>
+                    </div>
+                `;
+            }
+            applyTranslations();
+        }
+
+        // 加载 SEO 名称分析
+        async function loadSeoInsights() {
+            const contentEl = document.getElementById('seoInsightContent');
+            const refreshBtn = document.getElementById('refreshSeoBtn');
+            const offlineBadge = document.getElementById('seoOfflineBadge');
+            
+            // 显示加载状态
+            contentEl.innerHTML = `
+                <div class="insight-loading">
+                    <div class="spinner"></div>
+                    <span data-i18n="insights.seo.analyzing">正在分析产品名称...</span>
+                </div>
+            `;
+            
+            // 隐藏刷新按钮直到完成
+            refreshBtn.style.display = 'none';
+            
+            try {
+                const headers = getAuthHeaders();
+                headers['Content-Type'] = 'application/json';
+                
+                const response = await fetch('/api/insights/seo-names', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        language: getLanguage()
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    contentEl.innerHTML = `<div class="insight-content">${result.insight}</div>`;
+                    
+                    // 显示刷新按钮
+                    refreshBtn.style.display = 'inline-flex';
+                    
+                    if (result.is_offline) {
+                        offlineBadge.style.display = 'inline';
+                    } else {
+                        offlineBadge.style.display = 'none';
+                    }
+                } else {
+                    contentEl.innerHTML = `
+                        <div class="insight-content" style="color: #ffd0d0;">⚠️ ${result.insight || 'SEO分析失败'}</div>
+                        <div class="text-center mt-3">
+                            <button class="btn btn-outline-light" onclick="loadSeoInsights()">
+                                <i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="insights.refresh">刷新洞察</span>
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载SEO分析失败:', error);
+                contentEl.innerHTML = `
+                    <div class="insight-content" style="color: #ffd0d0;">⚠️ 加载失败，请稍后重试</div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-outline-light" onclick="loadSeoInsights()">
                             <i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="insights.refresh">刷新洞察</span>
                         </button>
                     </div>

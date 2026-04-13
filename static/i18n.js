@@ -277,6 +277,11 @@ const translations = {
             configHint: 'Configure DeepSeek API Key for smarter analysis. Go to',
             settings: 'Settings Page',
             loadError: 'Failed to load, please try again later',
+            seo: {
+                title: 'Product Name SEO Analysis',
+                generate: 'Analyze Product Names',
+                analyzing: 'Analyzing product names...'
+            },
             offlineMode: 'Offline Mode',
             noData: 'No data available. Please upload product data first.',
             selectDatasets: 'Please select at least 2 datasets to compare',
@@ -813,6 +818,11 @@ const translations = {
             configHint: '配置 DeepSeek API Key 可获得更智能的分析。前往',
             settings: '设置页面',
             loadError: '加载失败，请稍后重试',
+            seo: {
+                title: '产品名称 SEO 分析',
+                generate: '分析产品名称',
+                analyzing: '正在分析产品名称...'
+            },
             offlineMode: '离线模式',
             noData: '暂无数据可分析，请先上传产品数据。',
             selectDatasets: '请至少选择2个数据集进行对比',
