@@ -67,7 +67,7 @@ async def contact_page(request: Request):
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     
-    <script src="/static/i18n.js?v=20260413c"></script>
+    <script src="/static/i18n.js?v=20260413f"></script>
     
     <style>
         :root {{
