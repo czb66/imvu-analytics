@@ -2,6 +2,7 @@
 认证路由 - 处理用户注册、登录、登出
 """
 
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr, Field
