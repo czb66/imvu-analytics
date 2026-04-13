@@ -10,7 +10,7 @@ from typing import Generator
 from datetime import datetime
 import config
 
-from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User
+from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User, PageView
 
 # 数据库引擎配置
 if "sqlite" in config.DATABASE_URL:

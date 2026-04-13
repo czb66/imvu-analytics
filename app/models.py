@@ -130,3 +130,17 @@ class SystemConfig(Base):
     key = Column(String(100), unique=True, index=True)
     value = Column(Text)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class PageView(Base):
+    """页面访问统计模型"""
+    __tablename__ = "page_views"
+
+    id = Column(Integer, primary_key=True, index=True)
+    path = Column(String(255), index=True)  # 访问路径
+    ip_address = Column(String(50))  # 访问者IP（脱敏后存储）
+    user_agent = Column(String(500))  # 浏览器信息
+    referrer = Column(String(500), nullable=True)  # 来源页面
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)  # 访问时间
+
+    def __repr__(self):
+        return f"<PageView {self.path} at {self.created_at}>"

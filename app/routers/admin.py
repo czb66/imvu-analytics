@@ -256,3 +256,115 @@ async def toggle_user_whitelist(
     except Exception as e:
         logger.error(f"切换白名单权限失败: {e}")
         raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+
+# =====================================================
+# 页面访问统计 API
+# =====================================================
+
+@router.get("/page-views")
+async def get_page_view_stats(
+    days: int = Query(7, ge=1, le=30, description="统计天数"),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取页面访问统计数据
+    - 今日访问量 (PV)
+    - 总访问量
+    - 独立访客数 (UV)
+    - 页面访问排行
+    - 访问趋势（最近N天）
+    """
+    try:
+        from app.models import PageView
+        from sqlalchemy import func
+        
+        now = datetime.utcnow()
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # 今日访问量
+        today_pv = db.query(PageView).filter(
+            PageView.created_at >= today_start
+        ).count()
+        
+        # 总访问量
+        total_pv = db.query(PageView).count()
+        
+        # 今日独立IP数（UV近似）
+        today_uv = db.query(PageView.ip_address).filter(
+            PageView.created_at >= today_start
+        ).distinct().count()
+        
+        # 页面访问排行（Top 10）
+        top_pages = db.query(
+            PageView.path,
+            func.count(PageView.id).label('count')
+        ).group_by(PageView.path).order_by(desc('count')).limit(10).all()
+        
+        # 访问趋势（最近N天）
+        trend_data = []
+        for i in range(days - 1, -1, -1):
+            day_start = today_start - timedelta(days=i)
+            day_end = day_start + timedelta(days=1)
+            
+            day_pv = db.query(PageView).filter(
+                PageView.created_at >= day_start,
+                PageView.created_at < day_end
+            ).count()
+            
+            day_uv = db.query(PageView.ip_address).filter(
+                PageView.created_at >= day_start,
+                PageView.created_at < day_end
+            ).distinct().count()
+            
+            trend_data.append({
+                "date": day_start.strftime("%Y-%m-%d"),
+                "pv": day_pv,
+                "uv": day_uv
+            })
+        
+        return {
+            "success": True,
+            "data": {
+                "today_pv": today_pv,
+                "total_pv": total_pv,
+                "today_uv": today_uv,
+                "top_pages": [{"path": p[0], "count": p[1]} for p in top_pages],
+                "trend": trend_data
+            }
+        }
+    except Exception as e:
+        logger.error(f"获取页面访问统计失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+
+
+@router.get("/page-views/recent")
+async def get_recent_page_views(
+    limit: int = Query(50, ge=1, le=200, description="返回记录数"),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取最近访问记录
+    """
+    try:
+        from app.models import PageView
+        
+        recent = db.query(PageView).order_by(
+            desc(PageView.created_at)
+        ).limit(limit).all()
+        
+        return {
+            "success": True,
+            "data": [{
+                "id": pv.id,
+                "path": pv.path,
+                "ip_address": pv.ip_address,
+                "user_agent": pv.user_agent[:100] if pv.user_agent else None,
+                "referrer": pv.referrer,
+                "created_at": pv.created_at.isoformat() if pv.created_at else None
+            } for pv in recent]
+        }
+    except Exception as e:
+        logger.error(f"获取最近访问记录失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取访问记录失败: {str(e)}")

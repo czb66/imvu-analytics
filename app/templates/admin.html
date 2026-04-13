@@ -413,6 +413,94 @@
             </div>
         </div>
 
+
+        <!-- Page Views Stats Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i><span data-i18n="page_views_stats">Page Views Statistics</span></h5>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #1890ff 0%, #69c0ff 100%); color: white;">
+                            <i class="bi bi-eye"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-value" id="todayPV">-</div>
+                            <div class="stat-label" data-i18n="stat_today_pv">Today's PV</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #722ed1 0%, #b37feb 100%); color: white;">
+                            <i class="bi bi-globe"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-value" id="totalPV">-</div>
+                            <div class="stat-label" data-i18n="stat_total_pv">Total PV</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #13c2c2 0%, #36cfc9 100%); color: white;">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-value" id="todayUV">-</div>
+                            <div class="stat-label" data-i18n="stat_today_uv">Today's UV</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa8c16 0%, #ffc53d 100%); color: white;">
+                            <i class="bi bi-bar-chart"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-value" id="avgPV">-</div>
+                            <div class="stat-label" data-i18n="stat_avg_pv">Daily Avg PV</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="user-table">
+                    <h6 class="mb-3"><i class="bi bi-trend-up me-2"></i><span data-i18n="trend_chart">访问趋势</span></h6>
+                    <canvas id="trendChart" height="100"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="user-table">
+                    <h6 class="mb-3"><i class="bi bi-list-ol me-2"></i><span data-i18n="top_pages">Top Pages</span></h6>
+                    <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="th_page">Page</th>
+                                    <th data-i18n="th_views">Views</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topPagesBody">
+                                <tr><td colspan="2" class="text-center text-muted">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- User List -->
         <div class="user-table">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -557,7 +645,16 @@
                 no_access: '您没有管理员权限。',
                 admin_only: '此页面仅限管理员访问。',
                 page: '第',
-                of: '页，共'
+                of: '页，共',
+                page_views_stats: '页面访问统计',
+                stat_today_pv: '今日PV',
+                stat_total_pv: '总PV',
+                stat_today_uv: '今日UV',
+                stat_avg_pv: '日均PV',
+                trend_chart: '访问趋势',
+                top_pages: '热门页面',
+                th_page: '页面',
+                th_views: '访问量'
             }
         };
 
@@ -669,15 +766,136 @@
         // API Calls
         async function loadStats() {
             try {
+                // 加载用户统计
                 const data = await apiCall('/api/admin/stats');
                 if (data.success) {
                     document.getElementById('totalUsers').textContent = data.data.total_users;
                     document.getElementById('subscribedUsers').textContent = data.data.subscribed_users;
                     document.getElementById('weeklyNewUsers').textContent = data.data.weekly_new_users;
                 }
+                
+                // 加载页面访问统计
+                await loadPageViewStats();
             } catch (e) {
                 showToast(e.message, 'error');
             }
+        }
+        
+        // 页面访问统计
+        let trendChart = null;
+        
+        async function loadPageViewStats() {
+            try {
+                const data = await apiCall('/api/admin/page-views?days=7');
+                if (data.success) {
+                    const stats = data.data;
+                    document.getElementById('todayPV').textContent = stats.today_pv;
+                    document.getElementById('totalPV').textContent = stats.total_pv;
+                    document.getElementById('todayUV').textContent = stats.today_uv;
+                    
+                    // 计算日均PV
+                    const trend = stats.trend || [];
+                    const totalTrendPV = trend.reduce((sum, d) => sum + d.pv, 0);
+                    const avgPV = trend.length > 0 ? Math.round(totalTrendPV / trend.length) : 0;
+                    document.getElementById('avgPV').textContent = avgPV;
+                    
+                    // 渲染热门页面
+                    renderTopPages(stats.top_pages || []);
+                    
+                    // 渲染趋势图表
+                    renderTrendChart(trend);
+                }
+            } catch (e) {
+                console.error('加载页面统计失败:', e);
+            }
+        }
+        
+        function renderTopPages(pages) {
+            const tbody = document.getElementById('topPagesBody');
+            if (!pages || pages.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">No data</td></tr>';
+                return;
+            }
+            tbody.innerHTML = pages.map(p => '<tr><td><code style="font-size: 12px;">' + escapeHtml(p.path) + '</code></td><td><span class="badge bg-primary">' + p.count + '</span></td></tr>').join('');
+        }
+        
+        function renderTrendChart(trend) {
+            const ctx = document.getElementById('trendChart');
+            if (!ctx) return;
+            
+            const labels = trend.map(d => d.date.slice(5));
+            const pvData = trend.map(d => d.pv);
+            const uvData = trend.map(d => d.uv);
+            
+            if (trendChart) {
+                trendChart.destroy();
+            }
+            
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'PV',
+                            data: pvData,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'UV',
+                            data: uvData,
+                            borderColor: '#52c41a',
+                            backgroundColor: 'rgba(82, 196, 26, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'PV'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'UV'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         async function loadUsers() {

@@ -296,3 +296,86 @@ async def robots_txt():
 
 # 使用 report_generator 模块中的调度器
 # scheduler, start_scheduler, stop_scheduler 已从 report_generator 导入
+
+
+# =====================================================
+# 页面访问统计中间件
+# =====================================================
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class PageViewMiddleware(BaseHTTPMiddleware):
+    """页面访问统计中间件"""
+    
+    # 排除的路径（不记录统计）
+    EXCLUDED_PATHS = [
+        '/static/',       # 静态资源
+        '/health',        # 健康检查
+        '/health/db',     # 数据库健康检查
+        '/api/status',    # API状态
+        '/favicon.ico',   # 图标
+        '/docs',          # API文档
+        '/openapi.json',  # OpenAPI规范
+        '/redoc',         # ReDoc文档
+    ]
+    
+    # 排除的路径前缀
+    EXCLUDED_PREFIXES = [
+        '/api/',          # API请求
+        '/_next/',        # Next.js 静态资源
+    ]
+    
+    async def dispatch(self, request, call_next):
+        path = request.url.path
+        
+        # 检查是否需要跳过记录
+        should_skip = (
+            path in self.EXCLUDED_PATHS or
+            any(path.startswith(prefix) for prefix in self.EXCLUDED_PREFIXES)
+        )
+        
+        if not should_skip:
+            import asyncio
+            asyncio.create_task(self.record_visit(request))
+        
+        response = await call_next(request)
+        return response
+    
+    async def record_visit(self, request):
+        """记录页面访问"""
+        try:
+            from app.models import PageView
+            from app.database import SessionLocal
+            
+            # 脱敏处理IP地址
+            client_ip = request.client.host if request.client else "unknown"
+            if client_ip and client_ip != "unknown":
+                parts = client_ip.split('.')
+                if len(parts) >= 2:
+                    client_ip = '.'.join(parts[:2]) + '.xxx.xxx'
+            
+            user_agent = request.headers.get('user-agent', '')[:500]
+            referrer = request.headers.get('referer', '')[:500]
+            
+            db = SessionLocal()
+            try:
+                page_view = PageView(
+                    path=request.url.path,
+                    ip_address=client_ip,
+                    user_agent=user_agent,
+                    referrer=referrer if referrer else None
+                )
+                db.add(page_view)
+                db.commit()
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(f"记录访问失败: {e}")
+                db.rollback()
+            finally:
+                db.close()
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"访问统计异常: {e}")
+
+
+# 添加中间件
+app.add_middleware(PageViewMiddleware)
