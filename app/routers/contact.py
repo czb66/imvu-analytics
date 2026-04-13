@@ -13,7 +13,7 @@ router = APIRouter(tags=["联系我们"])
 logger = logging.getLogger(__name__)
 
 # 客服邮箱
-SUPPORT_EMAIL = "support@imvu-analytics.com"
+SUPPORT_EMAIL = "nlfd8910@gmail.com"
 
 
 # ==================== 请求模型 ====================
