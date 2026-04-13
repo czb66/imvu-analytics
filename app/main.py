@@ -243,6 +243,12 @@ async def pricing_page(request: Request):
     return templates.TemplateResponse("pricing.html", {"request": request, "app_name": config.APP_NAME})
 
 
+@app.get("/guide", response_class=HTMLResponse)
+async def guide_page(request: Request):
+    """使用指南页面 - 无需登录"""
+    return templates.TemplateResponse("guide.html", {"request": request, "app_name": config.APP_NAME})
+
+
 @app.get("/success", response_class=HTMLResponse)
 async def success_page(request: Request):
     """支付成功页面"""

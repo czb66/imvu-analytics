@@ -6,10 +6,11 @@ AI洞察路由 - 提供AI洞察相关API
 from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel
 from typing import Dict, List, Optional
+from sqlalchemy.orm import Session
 import logging
 import time
 
-from app.database import get_db_context, ProductDataRepository, UserRepository
+from app.database import get_db_context, get_db, ProductDataRepository, UserRepository
 from app.services.analytics import AnalyticsService
 from app.services.insights import insights_service
 from app.services.auth import get_current_user
