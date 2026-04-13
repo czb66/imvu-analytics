@@ -378,7 +378,8 @@ const translations = {
         // 登录页面
         login: {
             pageTitle: 'Login - IMVU Analytics',
-            subtitle: 'Marketing Analytics Platform',
+            welcomeBack: 'Welcome Back',
+            subtitle: 'Sign in to your account',
             email: 'Email',
             password: 'Password',
             rememberMe: 'Remember me',
@@ -913,7 +914,8 @@ const translations = {
         // 登录页面
         login: {
             pageTitle: '登录 - IMVU Analytics',
-            subtitle: '营销数据分析平台',
+            welcomeBack: '欢迎回来',
+            subtitle: '登录您的账号',
             email: '邮箱',
             password: '密码',
             rememberMe: '记住我',
