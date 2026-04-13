@@ -271,11 +271,12 @@ async def generate_diagnosis_insights(
         
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 用户 {current_user.get('email')} 生成诊断洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        error_detail = f"{type(e).__name__}: {str(e)}"
+        logger.error(f"[API] 用户 {current_user.get('email')} 生成诊断洞察 - 失败 耗时: {elapsed:.3f}s 错误: {error_detail}", exc_info=True)
         return {
             "success": False,
-            "error": str(e),
-            "insight": "⚠️ 生成洞察时发生错误，请稍后重试",
+            "error": error_detail,
+            "insight": f"⚠️ 生成洞察时发生错误: {error_detail}",
             "is_offline": True
         }
 

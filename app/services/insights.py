@@ -615,7 +615,7 @@ Please use the following format:
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.7,
-            "max_tokens": 1000
+            "max_tokens": 4000
         }
         
         try:
@@ -658,9 +658,9 @@ Please use the following format:
         # 移除多余的空白
         content = re.sub(r'\n{3,}', '\n\n', content)
         
-        # 限制长度
-        if len(content) > 2000:
-            content = content[:2000] + "\n\n...(内容已截断)"
+        # 限制长度（SEO分析需要更长输出，提升到8000字符）
+        if len(content) > 8000:
+            content = content[:8000] + "\n\n...(内容已截断)"
         
         return content.strip()
     

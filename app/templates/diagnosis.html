@@ -849,8 +849,11 @@
                         configHint.style.display = 'none';
                     }
                 } else {
+                    // 显示详细错误信息
+                    const errorMsg = result.error || result.insight || '生成洞察失败';
+                    console.error('AI洞察错误:', errorMsg);
                     contentEl.innerHTML = `
-                        <div class="insight-content" style="color: #ffd0d0;">⚠️ ${result.insight || '生成洞察失败'}</div>
+                        <div class="insight-content" style="color: #ffd0d0;">⚠️ ${errorMsg}</div>
                         <div class="text-center mt-3">
                             <button class="btn btn-outline-light" onclick="loadDiagnosisInsights()">
                                 <i class="bi bi-arrow-clockwise me-2"></i><span data-i18n="insights.refresh">刷新洞察</span>
