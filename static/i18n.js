@@ -158,6 +158,66 @@ const translations = {
             ctaBtn: 'Get Started Free'
         },
         
+        // Privacy Policy page
+        privacy: {
+            title: 'Privacy Policy',
+            subtitle: 'How we collect, use and protect your data',
+            section1: {
+                title: '1. Introduction',
+                content: 'IMVU Analytics ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our data analytics platform.'
+            },
+            section2: {
+                title: '2. Information We Collect',
+                intro: 'We collect information that you provide directly to us:',
+                item1: 'Account Information: Email address, username, and password when you register.',
+                item2: 'Payment Information: Billing details processed securely through Stripe. We do not store your credit card numbers.',
+                item3: 'Uploaded Data: XML files and product data you upload for analysis.',
+                item4: 'Usage Data: Information about how you interact with our service.'
+            },
+            section3: {
+                title: '3. How We Use Your Information',
+                item1: 'Provide, maintain, and improve our services',
+                item2: 'Process your payments and manage your subscription',
+                item3: 'Generate analytics reports and insights',
+                item4: 'Send you technical and administrative communications',
+                item5: 'Respond to your comments and support requests'
+            },
+            section4: {
+                title: '4. Data Security',
+                content: 'We implement appropriate technical and organizational measures to protect your data, including:',
+                item1: 'Encrypted data transmission (HTTPS/TLS)',
+                item2: 'Secure password hashing (bcrypt)',
+                item3: 'Data isolation between user accounts',
+                item4: 'Regular security reviews and updates'
+            },
+            section5: {
+                title: '5. Data Retention',
+                content: 'We retain your data for as long as your account is active or as needed to provide you services. You can request deletion of your account and associated data at any time by contacting us.'
+            },
+            section6: {
+                title: '6. Third-Party Services',
+                content: 'We use the following third-party services:',
+                item1: 'Stripe: Payment processing (they handle your payment information)',
+                item2: 'DeepSeek: AI-powered insights (optional feature)',
+                item3: 'Resend: Email delivery for reports and notifications'
+            },
+            section7: {
+                title: '7. Your Rights',
+                content: 'You have the right to:',
+                item1: 'Access and download your personal data',
+                item2: 'Correct inaccurate information',
+                item3: 'Request deletion of your data',
+                item4: 'Opt-out of marketing communications'
+            },
+            section8: {
+                title: '8. Contact Us',
+                content: 'If you have any questions about this Privacy Policy, please contact us at:'
+            },
+            home: 'Home',
+            terms: 'Terms of Service',
+            lastUpdated: 'Last Updated: April 13, 2026'
+        },
+        
         // 页面标题
         pageTitles: {
             dashboard: 'Data Overview',
@@ -755,7 +815,16 @@ const translations = {
         // Footer
         footer: {
             terms: 'Terms of Service',
-            privacy: 'Privacy Policy'
+            privacy: 'Privacy Policy',
+            links: 'Links',
+            home: 'Home',
+            guide: 'User Guide',
+            pricing: 'Pricing',
+            support: 'Support',
+            login: 'Login',
+            register: 'Register',
+            tagline: 'Professional IMVU Creator Data Analysis Tool',
+            copyright: '© 2024-2026 IMVU Analytics. All rights reserved.'
         }
     },
     
@@ -908,6 +977,66 @@ const translations = {
             },
             ctaTitle: '准备好提升您的 IMVU 创作收益了吗？',
             ctaBtn: '免费开始使用'
+        },
+        
+        // Privacy Policy page
+        privacy: {
+            title: '隐私政策',
+            subtitle: '我们如何收集、使用和保护您的数据',
+            section1: {
+                title: '1. 简介',
+                content: 'IMVU Analytics（简称"我们"）致力于保护您的隐私。本隐私政策说明了当您使用我们的数据分析平台时，我们如何收集、使用、披露和保护您的信息。'
+            },
+            section2: {
+                title: '2. 我们收集的信息',
+                intro: '我们收集您直接提供给我们的信息：',
+                item1: '账户信息：您注册时提供的电子邮件地址、用户名和密码。',
+                item2: '支付信息：通过Stripe安全处理的账单详情。我们不存储您的信用卡号码。',
+                item3: '上传数据：您上传用于分析的XML文件和产品数据。',
+                item4: '使用数据：关于您如何与我们服务互动的信息。'
+            },
+            section3: {
+                title: '3. 我们如何使用您的信息',
+                item1: '提供、维护和改进我们的服务',
+                item2: '处理您的付款并管理您的订阅',
+                item3: '生成分析报告和洞察',
+                item4: '向您发送技术和行政通知',
+                item5: '回应您的评论和支持请求'
+            },
+            section4: {
+                title: '4. 数据安全',
+                content: '我们采取适当的技术和组织措施来保护您的数据，包括：',
+                item1: '加密数据传输（HTTPS/TLS）',
+                item2: '安全密码哈希（bcrypt）',
+                item3: '用户账户间的数据隔离',
+                item4: '定期安全审查和更新'
+            },
+            section5: {
+                title: '5. 数据保留',
+                content: '我们会保留您的数据，直到您的账户处于活跃状态或需要为您提供服务。您可以随时联系我们请求删除您的账户和相关数据。'
+            },
+            section6: {
+                title: '6. 第三方服务',
+                content: '我们使用以下第三方服务：',
+                item1: 'Stripe：支付处理（他们处理您的支付信息）',
+                item2: 'DeepSeek：AI驱动洞察（可选功能）',
+                item3: 'Resend：报告和通知的邮件发送'
+            },
+            section7: {
+                title: '7. 您的权利',
+                content: '您有权：',
+                item1: '访问和下载您的个人数据',
+                item2: '更正不准确的信息',
+                item3: '请求删除您的数据',
+                item4: '选择退出营销通讯'
+            },
+            section8: {
+                title: '8. 联系我们',
+                content: '如果您对本隐私政策有任何疑问，请通过以下方式联系我们：'
+            },
+            home: '首页',
+            terms: '服务条款',
+            lastUpdated: '最后更新：2026年4月13日'
         },
         
         // 页面标题
@@ -1487,7 +1616,16 @@ const translations = {
         // Footer
         footer: {
             terms: '服务条款',
-            privacy: '隐私政策'
+            privacy: '隐私政策',
+            links: '链接',
+            home: '首页',
+            guide: '使用指南',
+            pricing: '价格',
+            support: '支持',
+            login: '登录',
+            register: '注册',
+            tagline: '专业的 IMVU Creator 数据分析工具',
+            copyright: '© 2024-2026 IMVU Analytics. All rights reserved.'
         }
     }
 };
