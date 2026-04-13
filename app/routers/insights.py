@@ -240,19 +240,9 @@ async def generate_diagnosis_insights(
         # 异常检测
         anomalies = analytics.detect_sales_anomalies()
         
-        # 产品名称数据（用于 SEO 分析）
-        products_for_seo = [
-            {
-                'product_id': p.get('product_id', ''),
-                'product_name': p.get('product_name', ''),
-                'total_sales': (p.get('direct_sales', 0) or 0) + (p.get('indirect_sales', 0) or 0) + (p.get('promoted_sales', 0) or 0)
-            }
-            for p in product_dicts[:50]  # 取前50个产品
-        ]
-        
-        # 生成洞察（包含 SEO 分析）
+        # 生成洞察
         insight = await insights_service.generate_diagnosis_insights(
-            sales_diagnosis, funnel_data, anomalies, language, products_for_seo
+            sales_diagnosis, funnel_data, anomalies, language
         )
         
         elapsed = time.time() - start_time
