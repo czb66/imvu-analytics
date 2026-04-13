@@ -69,6 +69,19 @@
             margin-bottom: 30px;
             font-weight: bold;
         }
+        .sidebar .brand-link {
+            display: block;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+        }
+        .sidebar .brand-link:hover {
+            color: white;
+            opacity: 0.9;
+        }
         .sidebar a {
             display: block;
             padding: 12px 20px;
@@ -330,7 +343,7 @@
 
     <!-- 侧边栏 -->
     <nav class="sidebar">
-        <h4><i class="bi bi-graph-up"></i> {{ app_name }}</h4>
+        <a href="/dashboard" class="brand-link"><i class="bi bi-graph-up"></i> IMVU Analytics Platform</a>
         <a href="/dashboard" class="active"><i class="bi bi-speedometer2 me-2"></i><span data-i18n="nav.dashboard">Dashboard</span></a>
         <a href="/diagnosis"><i class="bi bi-search me-2"></i><span data-i18n="nav.diagnosis">Deep Analysis</span></a>
         <a href="/compare"><i class="bi bi-bar-chart-steps me-2"></i><span data-i18n="nav.compare">Data Compare</span></a>

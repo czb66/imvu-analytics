@@ -240,21 +240,17 @@ async def contact_page(request: Request):
             color: white;
             font-weight: 700;
             font-size: 20px;
+            text-decoration: none;
+            cursor: pointer;
         }}
         
-        .brand-title span {{
+        .brand-title:hover {{
             opacity: 0.9;
-            font-size: 14px;
-            display: block;
-            font-weight: 400;
         }}
     </style>
 </head>
 <body>
-    <div class="brand-title">
-        IMVU Analytics
-        <span>Data Platform</span>
-    </div>
+    <a href="/dashboard" class="brand-title">IMVU Analytics Platform</a>
     
     <div class="lang-switch">
         <button class="lang-btn" data-lang="en">EN</button>
