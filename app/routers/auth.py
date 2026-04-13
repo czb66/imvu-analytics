@@ -230,6 +230,51 @@ async def update_profile(
     }
 
 
+class ChangePasswordRequest(BaseModel):
+    """修改密码请求"""
+    old_password: str = Field(..., min_length=8, description="当前密码")
+    new_password: str = Field(..., min_length=8, description="新密码（至少8位）")
+
+
+@router.post("/change-password")
+async def change_password(
+    request: ChangePasswordRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    修改密码
+    """
+    from passlib.context import CryptContext
+    from app.database import UserRepository
+    
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    # 验证旧密码
+    if not pwd_context.verify(request.old_password, user.password_hash):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"success": False, "message": "当前密码不正确"}
+        )
+    
+    # 更新密码
+    user.password_hash = pwd_context.hash(request.new_password)
+    db.commit()
+    
+    return {
+        "success": True,
+        "message": "密码修改成功"
+    }
+
+
 # ==================== 密码重置 ====================
 
 class ForgotPasswordRequest(BaseModel):
