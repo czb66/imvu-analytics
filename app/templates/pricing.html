@@ -288,8 +288,12 @@
 
         // 检查订阅状态
         async function checkSubscription() {
+            console.log('=== checkSubscription called ===');
             const token = localStorage.getItem('access_token');
+            console.log('Token:', token ? 'exists' : 'null');
+            
             if (!token) {
+                console.log('No token, showing subscribe button');
                 updateUI({ is_subscribed: false });
                 hideLoading();
                 return;
@@ -300,6 +304,7 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const result = await response.json();
+                console.log('Subscription status result:', result);
 
                 if (result.success) {
                     updateUI(result.data);
@@ -316,8 +321,10 @@
 
         // 更新UI
         function updateUI(data) {
+            console.log('=== updateUI called with data:', data);
             const area = document.getElementById('subscriptionArea');
             const manageArea = document.getElementById('manageArea');
+            console.log('subscriptionArea element:', area);
 
             if (data.is_subscribed) {
                 area.innerHTML = `
@@ -326,14 +333,20 @@
                 `;
                 manageArea.style.display = 'block';
             } else {
+                console.log('Setting up subscribe button...');
+                const lang = typeof getLanguage === 'function' ? getLanguage() : 'en';
+                const subscribeText = typeof t === 'function' ? t('subscribe_btn') : 'Subscribe Now - $12/month';
+                console.log('Language:', lang, 'Subscribe text:', subscribeText);
+                
                 area.innerHTML = `
-                    <p class="text-muted mb-4">${getLang() === 'zh' ? '订阅以访问所有功能' : 'Subscribe to access all features'}</p>
+                    <p class="text-muted mb-4">${lang === 'zh' ? '订阅以访问所有功能' : 'Subscribe to access all features'}</p>
                     <button class="btn-subscribe" id="subscribeBtn" onclick="startSubscription()">
-                        <i class="bi bi-lightning me-2"></i>${t('subscribe_btn')}
+                        <i class="bi bi-lightning me-2"></i>${subscribeText}
                     </button>
                 `;
                 manageArea.style.display = 'none';
             }
+            console.log('=== updateUI done, area.innerHTML set ===');
         }
 
         // 开始订阅
