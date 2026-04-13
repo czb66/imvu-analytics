@@ -19,6 +19,7 @@ const translations = {
             report: 'Reports',
             profile: 'Profile',
             contact: 'Contact Us',
+            subscribe: 'Subscribe',
             logout: 'Logout'
         },
         
@@ -590,6 +591,7 @@ const translations = {
             report: '报告中心',
             profile: '个人中心',
             contact: '联系我们',
+            subscribe: '订阅',
             logout: '退出登录'
         },
         
