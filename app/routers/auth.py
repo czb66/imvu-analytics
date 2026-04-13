@@ -249,7 +249,7 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
         db.commit()
         
         # 构建重置链接
-        reset_url = f"https://imvu-analytics-production.up.railway.app/reset-password?token={reset_token}"
+        reset_url = f"https://imvucreators.com/reset-password?token={reset_token}"
         
         # 发送邮件
         html_content = f"""
