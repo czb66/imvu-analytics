@@ -217,3 +217,42 @@ async def toggle_user_admin(
     except Exception as e:
         logger.error(f"切换管理员权限失败: {e}")
         raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+
+
+@router.post("/users/{user_id}/toggle-whitelist")
+async def toggle_user_whitelist(
+    user_id: int,
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    切换用户白名单状态
+    
+    白名单用户可以跳过订阅检查，免费使用所有功能
+    """
+    try:
+        user_repo = UserRepository(db)
+        user = user_repo.get_by_id(user_id)
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="用户不存在")
+        
+        user.is_whitelisted = not user.is_whitelisted
+        db.commit()
+        
+        logger.info(f"管理员 {current_user.get('email')} {'添加' if user.is_whitelisted else '移除'}用户 {user.email} 的白名单权限")
+        
+        return {
+            "success": True,
+            "message": f"白名单权限已{'授予' if user.is_whitelisted else '撤销'}",
+            "data": {
+                "user_id": user.id,
+                "email": user.email,
+                "is_whitelisted": user.is_whitelisted
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"切换白名单权限失败: {e}")
+        raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")

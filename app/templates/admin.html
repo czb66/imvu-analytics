@@ -379,12 +379,14 @@
                 btn_activate: 'Activate',
                 btn_deactivate: 'Deactivate',
                 btn_toggle_admin: 'Toggle Admin',
+                btn_toggle_whitelist: 'Toggle Whitelist',
                 subscribed: 'Subscribed',
                 not_subscribed: 'Not Subscribed',
                 never: 'Never',
                 confirm_activate: 'Are you sure you want to activate subscription for this user?',
                 confirm_deactivate: 'Are you sure you want to deactivate subscription for this user?',
                 confirm_toggle_admin: 'Are you sure you want to toggle admin rights for this user?',
+                confirm_toggle_whitelist: 'Toggle whitelist? Whitelisted users can use all features for free.',
                 success: 'Success',
                 error: 'Error',
                 no_access: 'You do not have admin access.',
@@ -421,12 +423,14 @@
                 btn_activate: '激活订阅',
                 btn_deactivate: '取消订阅',
                 btn_toggle_admin: '切换管理员',
+                btn_toggle_whitelist: '切换白名单',
                 subscribed: '已订阅',
                 not_subscribed: '未订阅',
                 never: '从未',
                 confirm_activate: '确定要激活此用户的订阅吗？',
                 confirm_deactivate: '确定要取消此用户的订阅吗？',
                 confirm_toggle_admin: '确定要切换此用户的管理员权限吗？',
+                confirm_toggle_whitelist: '切换白名单？白名单用户可以免费使用所有功能。',
                 success: '成功',
                 error: '错误',
                 no_access: '您没有管理员权限。',
@@ -617,6 +621,23 @@
             }
         }
 
+        async function toggleWhitelist(userId) {
+            const t = translations[currentLang];
+            if (!confirm(t.confirm_toggle_whitelist)) return;
+
+            try {
+                const data = await apiCall(`/api/admin/users/${userId}/toggle-whitelist`, {
+                    method: 'POST'
+                });
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    await loadUsers();
+                }
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+        }
+
         // Render
         function renderUsers(users) {
             const t = translations[currentLang];
@@ -649,7 +670,10 @@
                                     <i class="bi bi-check-circle"></i>
                                    </button>`}
                             <button class="btn btn-outline-primary" onclick="toggleAdmin(${user.id})" title="${t.btn_toggle_admin}">
-                                <i class="bi bi-shield"></i>
+                                <i class="bi bi-shield${user.is_admin ? '-fill' : ''}"></i>
+                            </button>
+                            <button class="btn btn-outline-${user.is_whitelisted ? 'warning' : 'secondary'}" onclick="toggleWhitelist(${user.id})" title="${t.btn_toggle_whitelist}">
+                                <i class="bi bi-star${user.is_whitelisted ? '-fill' : ''}"></i>
                             </button>
                         </div>
                     </td>

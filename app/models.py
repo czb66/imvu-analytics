@@ -20,6 +20,7 @@ class User(Base):
     username = Column(String(100), nullable=True)  # 可选的用户名
     is_active = Column(Boolean, default=True)  # 账户是否激活
     is_admin = Column(Boolean, default=False)  # 是否是管理员
+    is_whitelisted = Column(Boolean, default=False)  # 是否在白名单中（跳过订阅检查）
     
     # 时间戳
     created_at = Column(DateTime, default=datetime.utcnow)

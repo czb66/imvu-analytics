@@ -25,14 +25,14 @@ def check_subscription_required(user_id: int, user_email: str = None) -> bool:
     
     白名单用户自动通过
     """
-    # 白名单用户跳过检查
-    if user_email and is_whitelisted(user_email):
-        return True
-    
     with get_db_context() as db:
+        # 白名单用户跳过检查
+        if user_email and is_whitelisted(user_email, db):
+            return True
+        
         user_repo = UserRepository(db)
         user = user_repo.get_by_id(user_id)
-        if user and (user.is_subscribed or is_whitelisted(user.email)):
+        if user and (user.is_subscribed or is_whitelisted(user.email, db)):
             return True
         return False
 
@@ -240,9 +240,19 @@ async def generate_diagnosis_insights(
         # 异常检测
         anomalies = analytics.detect_sales_anomalies()
         
-        # 生成洞察
+        # 产品名称数据（用于 SEO 分析）
+        products_for_seo = [
+            {
+                'product_id': p.get('product_id', ''),
+                'product_name': p.get('product_name', ''),
+                'total_sales': (p.get('direct_sales', 0) or 0) + (p.get('indirect_sales', 0) or 0) + (p.get('promoted_sales', 0) or 0)
+            }
+            for p in product_dicts[:50]  # 取前50个产品
+        ]
+        
+        # 生成洞察（包含 SEO 分析）
         insight = await insights_service.generate_diagnosis_insights(
-            sales_diagnosis, funnel_data, anomalies, language
+            sales_diagnosis, funnel_data, anomalies, language, products_for_seo
         )
         
         elapsed = time.time() - start_time

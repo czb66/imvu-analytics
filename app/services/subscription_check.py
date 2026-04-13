@@ -8,16 +8,33 @@ from sqlalchemy.orm import Session
 from app.database import get_db, UserRepository
 from app.services.auth import get_current_user
 
-# 白名单邮箱列表 - 这些用户跳过订阅检查
-WHITELIST_EMAILS = [
+# 白名单邮箱列表 - 这些用户跳过订阅检查（硬编码备用）
+HARDCODED_WHITELIST_EMAILS = [
     "whitelist@imvu-analytics.com",
     "nlfd8910@gmail.com"
 ]
 
 
-def is_whitelisted(email: str) -> bool:
-    """检查用户是否在白名单中"""
-    return email.lower() in [e.lower() for e in WHITELIST_EMAILS]
+def is_whitelisted(email: str, db: Session = None) -> bool:
+    """
+    检查用户是否在白名单中
+    
+    同时检查：
+    1. 硬编码的白名单列表
+    2. 数据库中的 is_whitelisted 字段
+    """
+    # 检查硬编码白名单
+    if email.lower() in [e.lower() for e in HARDCODED_WHITELIST_EMAILS]:
+        return True
+    
+    # 检查数据库白名单字段
+    if db:
+        from app.models import User
+        user = db.query(User).filter(User.email == email).first()
+        if user and user.is_whitelisted:
+            return True
+    
+    return False
 
 
 def has_active_subscription(db: Session, user_id: int) -> bool:
@@ -38,7 +55,7 @@ def has_active_subscription(db: Session, user_id: int) -> bool:
         return False
     
     # 白名单用户跳过检查
-    if is_whitelisted(user.email):
+    if is_whitelisted(user.email, db):
         return True
     
     # 检查订阅状态
@@ -67,7 +84,7 @@ async def require_subscription(
     user_id = current_user.get("id")
     
     # 白名单用户跳过检查
-    if is_whitelisted(user_email):
+    if is_whitelisted(user_email, db):
         return current_user
     
     # 检查订阅状态
