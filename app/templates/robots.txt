@@ -3,53 +3,68 @@
 # ===========================================
 
 User-agent: *
-Allow: /
 
-# 主要页面
+# 公开页面 - 允许爬取
 Allow: /login
 Allow: /register
 Allow: /pricing
-Allow: /dashboard
-Allow: /upload
-Allow: /report
-Allow: /diagnosis
-Allow: /compare
-Allow: /insights
+Allow: /guide
+Allow: /contact
+Allow: /terms
+Allow: /privacy
 
-# Sitemap
-Sitemap: https://imvu-analytics-production.up.railway.app/sitemap.xml
-
-# 禁止爬取
-Disallow: /api/
-Disallow: /admin/
-Disallow: /settings
+# 需要登录的页面 - 禁止爬取
+Disallow: /dashboard
+Disallow: /upload
+Disallow: /report
+Disallow: /diagnosis
+Disallow: /compare
+Disallow: /insights
 Disallow: /profile
+Disallow: /settings
+Disallow: /admin/
+Disallow: /api/
 Disallow: /health/
-Disallow: /static/
+
+# 功能性页面 - 禁止爬取
 Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /success
 Disallow: /cancel
+Disallow: /static/
 
-# Bing Webmaster
-User-agent: Bingbot
-Allow: /
-Disallow: /api/
-Disallow: /admin/
+# Sitemap
+Sitemap: https://imvucreators.com/sitemap.xml
 
-# Googlebot
+# Googlebot 特定规则
 User-agent: Googlebot
-Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /settings
-Disallow: /profile
+Allow: /login
+Allow: /register
+Allow: /pricing
+Allow: /guide
+Allow: /contact
+Allow: /terms
+Allow: /privacy
+Disallow: /
 
-# Baidubot
+# Bingbot 特定规则
+User-agent: Bingbot
+Allow: /login
+Allow: /register
+Allow: /pricing
+Allow: /guide
+Allow: /contact
+Allow: /terms
+Allow: /privacy
+Disallow: /
+
+# Baiduspider 特定规则
 User-agent: Baiduspider
-Allow: /
-Disallow: /api/
-Disallow: /admin/
-
-# Sitemap 引用
-Sitemap: https://imvu-analytics-production.up.railway.app/sitemap.xml
+Allow: /login
+Allow: /register
+Allow: /pricing
+Allow: /guide
+Allow: /contact
+Allow: /terms
+Allow: /privacy
+Disallow: /

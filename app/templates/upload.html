@@ -123,9 +123,109 @@
             align-items: center;
             gap: 10px;
         }
+        
+        /* 移动端适配 */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 0 15px;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .mobile-header .brand {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                width: 280px;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 70px 15px 20px;
+            }
+            .lang-switcher {
+                top: 65px;
+                right: 10px;
+                left: 10px;
+                justify-content: center;
+                padding: 8px 10px;
+            }
+            .user-info {
+                display: none;
+            }
+            .upload-card {
+                padding: 20px 15px;
+            }
+            .upload-zone {
+                padding: 25px 15px;
+            }
+            .upload-zone i {
+                font-size: 36px;
+            }
+            .upload-zone h4 {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-header {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- 移动端顶部导航 -->
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+        <span class="brand">IMVU Analytics</span>
+        <div style="width: 40px;"></div>
+    </div>
+    
+    <!-- 侧边栏遮罩 -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    
     <div class="lang-switcher">
         <button class="btn btn-sm btn-light lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
         <button class="btn btn-sm btn-light lang-btn" data-lang="zh" onclick="setLanguage('zh')">中文</button>
@@ -136,7 +236,7 @@
         <span id="userEmail"></span>
     </div>
 
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <h4><i class="bi bi-graph-up"></i> {{ app_name }}</h4>
         <a href="/dashboard"><i class="bi bi-speedometer2 me-2"></i><span data-i18n="nav.dashboard">Dashboard</span></a>
         <a href="/upload" class="active"><i class="bi bi-cloud-upload me-2"></i><span data-i18n="nav.upload">Upload</span></a>
@@ -274,6 +374,23 @@
             alert.className = 'alert ' + (success ? 'alert-success' : 'alert-danger');
             alert.textContent = message;
         }
+        
+        // 移动端侧边栏切换
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+        
+        // 点击导航链接后关闭侧边栏（移动端）
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
+        });
     </script>
 </body>
 </html>

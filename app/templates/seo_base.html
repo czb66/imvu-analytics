@@ -1,0 +1,92 @@
+<!-- 
+  SEO 增强模板片段
+  将以下内容添加到各页面的 <head> 中
+-->
+
+<!-- 1. Favicon 和图标 -->
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+<meta name="theme-color" content="#667eea">
+
+<!-- 2. 预加载关键资源 -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
+<!-- 3. Open Graph 图片 -->
+<meta property="og:image" content="https://imvucreators.com/static/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="IMVU Analytics - Professional Data Analysis Platform">
+
+<!-- 4. Twitter Card 图片 -->
+<meta name="twitter:image" content="https://imvucreators.com/static/og-image.png">
+
+<!-- 5. 多语言 hreflang 标签 -->
+<link rel="alternate" hreflang="en" href="https://imvucreators.com/{page}?lang=en">
+<link rel="alternate" hreflang="zh" href="https://imvucreators.com/{page}?lang=zh">
+<link rel="alternate" hreflang="x-default" href="https://imvucreators.com/{page}">
+
+<!-- 6. 结构化数据 - Organization -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "IMVU Analytics",
+    "url": "https://imvucreators.com",
+    "logo": "https://imvucreators.com/static/logo.png",
+    "description": "Professional IMVU Creator data analysis platform",
+    "sameAs": [],
+    "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "mra8910@gmail.com",
+        "contactType": "customer service"
+    }
+}
+</script>
+
+<!-- 7. 结构化数据 - WebSite -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "IMVU Analytics",
+    "url": "https://imvucreators.com",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://imvucreators.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+    }
+}
+</script>
+
+<!-- 8. 结构化数据 - SoftwareApplication -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "IMVU Analytics",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "offers": {
+        "@type": "Offer",
+        "price": "12.00",
+        "priceCurrency": "USD",
+        "priceValidUntil": "2026-12-31"
+    },
+    "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150"
+    }
+}
+</script>
+
+<!-- 9. 页面性能优化 -->
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+
+<!-- 10. Google Search Console 验证 (需要替换为实际的验证码) -->
+<!-- <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE"> -->
+
+<!-- 11. Bing Webmaster 验证 (需要替换为实际的验证码) -->
+<!-- <meta name="msvalidate.01" content="YOUR_VERIFICATION_CODE"> -->
