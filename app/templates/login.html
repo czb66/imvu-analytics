@@ -23,7 +23,7 @@
         }
         
         body {
-            background: linear-gradient(180deg, #2d2640 0%, #1e1a2e 50%, #16131f 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
@@ -182,32 +182,28 @@
             color: rgba(255, 255, 255, 0.6);
         }
         
-        .form-floating {
+        .input-group-custom {
             margin-bottom: 18px;
         }
         
-        .form-floating .form-control {
+        .input-group-custom .form-control {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
             height: 52px;
             color: white;
             font-size: 15px;
+            padding: 14px 16px;
         }
         
-        .form-floating .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.4);
+        .input-group-custom .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
         
-        .form-floating .form-control:focus {
+        .input-group-custom .form-control:focus {
             background: rgba(255, 255, 255, 0.12);
             border-color: rgba(255, 255, 255, 0.3);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
-        }
-        
-        .form-floating label {
-            color: rgba(255, 255, 255, 0.5);
-            padding-left: 16px;
         }
         
         .btn-login {
@@ -441,14 +437,12 @@
                 <div id="alertBox" class="alert alert-danger d-none mb-3"></div>
                 
                 <form id="loginForm">
-                    <div class="form-floating">
-                        <input type="email" class="form-control" id="email" placeholder="Email" required>
-                        <label for="email" data-i18n="login.email">Email</label>
+                    <div class="input-group-custom">
+                        <input type="email" class="form-control" id="email" data-i18n-placeholder="login.email" placeholder="Email" required>
                     </div>
                     
-                    <div class="form-floating password-wrapper">
-                        <input type="password" class="form-control" id="password" placeholder="Password" required>
-                        <label for="password" data-i18n="login.password">Password</label>
+                    <div class="input-group-custom password-wrapper">
+                        <input type="password" class="form-control" id="password" data-i18n-placeholder="login.password" placeholder="Password" required>
                         <span class="password-toggle" onclick="togglePassword()">
                             <i class="bi bi-eye" id="eyeIcon"></i>
                         </span>
