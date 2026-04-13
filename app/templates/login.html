@@ -23,7 +23,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 40%, #3d7ab5 100%);
+            background: linear-gradient(180deg, #2d2640 0%, #1e1a2e 50%, #16131f 100%);
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
@@ -37,8 +37,8 @@
             width: 100%;
             height: 100%;
             background-image: 
-                radial-gradient(circle at 15% 25%, rgba(102, 126, 234, 0.25) 0%, transparent 45%),
-                radial-gradient(circle at 85% 75%, rgba(118, 75, 162, 0.2) 0%, transparent 45%);
+                radial-gradient(circle at 15% 25%, rgba(118, 75, 162, 0.2) 0%, transparent 45%),
+                radial-gradient(circle at 85% 75%, rgba(102, 126, 234, 0.15) 0%, transparent 45%);
             pointer-events: none;
             z-index: 0;
         }
@@ -564,14 +564,18 @@
                 });
         }
 
-        function setLanguage(lang) {
-            localStorage.setItem('language', lang);
-            location.reload();
-        }
-        
-        const currentLang = localStorage.getItem('language') || 'en';
-        document.getElementById('langEn').classList.toggle('active', currentLang === 'en');
-        document.getElementById('langZh').classList.toggle('active', currentLang === 'zh');
+        // 语言设置已在 i18n.js 中处理
+        // 页面加载完成后应用翻译
+        document.addEventListener('DOMContentLoaded', function() {
+            // 调用 i18n.js 的翻译函数
+            if (typeof applyTranslations === 'function') {
+                applyTranslations();
+            }
+            // 更新语言按钮状态
+            const currentLang = localStorage.getItem('imvu_lang') || 'en';
+            document.getElementById('langEn').classList.toggle('active', currentLang === 'en');
+            document.getElementById('langZh').classList.toggle('active', currentLang === 'zh');
+        });
     </script>
 </body>
 </html>
