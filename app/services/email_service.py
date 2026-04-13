@@ -187,7 +187,8 @@ class EmailService:
     def send_daily_report(
         self,
         report_data: dict,
-        recipients: List[str] = None
+        recipients: List[str] = None,
+        download_url: str = None
     ) -> tuple:
         """
         发送每日报告
@@ -195,6 +196,7 @@ class EmailService:
         Args:
             report_data: 报告数据字典
             recipients: 收件人列表（为空则使用配置的默认收件人）
+            download_url: 带token的下载链接（可选）
             
         Returns:
             (success, message)
@@ -206,16 +208,28 @@ class EmailService:
             return False, "没有配置收件人"
         
         subject = f"📊 {config.APP_NAME} - 每日营销报告 {datetime.now().strftime('%Y-%m-%d')}"
-        html_content = self._generate_daily_report_html(report_data)
+        html_content = self._generate_daily_report_html(report_data, download_url)
         
         return self.send_report(recipients, subject, html_content)
     
-    def _generate_daily_report_html(self, data: dict) -> str:
+    def _generate_daily_report_html(self, data: dict, download_url: str = None) -> str:
         """生成每日报告HTML"""
         summary = data.get('summary', {})
         top_products = data.get('top_products', [])[:5]
         bottom_products = data.get('bottom_products', [])[:5]
         anomalies = data.get('anomalies', [])
+        
+        # 下载链接按钮
+        download_section = ""
+        if download_url:
+            download_section = f"""
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{download_url}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                        📥 查看完整报告
+                    </a>
+                    <p style="font-size: 12px; color: #999; margin-top: 10px;">链接24小时内有效</p>
+                </div>
+            """
         
         html = f"""
         <!DOCTYPE html>
@@ -270,8 +284,10 @@ class EmailService:
                 
                 {f'<h2>⚠️ 异常检测 ({len(anomalies)} 个)</h2>' + "".join(f'<div class="anomaly">{a}</div>' for a in anomalies[:5]) if anomalies else ''}
                 
+                {download_section}
+                
                 <p style="text-align: center; color: #666; margin-top: 30px;">
-                    此报告由 {config.APP_NAME} 自动生成
+                    此报告由 <a href="{config.APP_BASE_URL}" style="color: #667eea;">{config.APP_NAME}</a> 自动生成
                 </p>
             </div>
         </body>

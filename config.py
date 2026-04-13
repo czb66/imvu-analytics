@@ -18,11 +18,11 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", "8000"))
 
-# ==================== 网站配置 ====================
-SITE_URL = os.getenv("SITE_URL", "https://imvu-analytics-production.up.railway.app")
+# 网站配置 ====================
+SITE_URL = os.getenv("SITE_URL", "https://imvucreators.com")
 SITE_NAME = "IMVU Analytics"
 SITE_DESCRIPTION = "IMVU营销数据分析平台 - 专业的产品销售数据追踪、分析和报告工具"
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "https://imvu-analytics-production.up.railway.app").split(",")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "https://imvucreators.com,https://www.imvucreators.com").split(",")
 
 # ==================== 数据库配置 ====================
 # Railway PostgreSQL 或 SQLite
@@ -137,4 +137,4 @@ def get_stripe_product_id():
 SUBSCRIPTION_PRICE = 12.00
 
 # 应用基础URL（用于Stripe回调）
-APP_BASE_URL = os.getenv("APP_BASE_URL", "https://imvu-analytics-production.up.railway.app")
+APP_BASE_URL = os.getenv("APP_BASE_URL", "https://imvucreators.com")

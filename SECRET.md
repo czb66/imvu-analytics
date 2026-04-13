@@ -7,3 +7,9 @@
 
 ## 网站
 - **地址:** https://imvu-analytics-production.up.railway.app
+
+## 白名单账号
+- **邮箱:** whitelist@imvu-analytics.com
+- **密码:** Admin@2024
+- **用途:** 测试白名单跳过订阅检查功能
+- **白名单邮箱列表:** whitelist@imvu-analytics.com, nlfd8910@gmail.com

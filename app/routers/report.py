@@ -17,6 +17,7 @@ from app.services.analytics import AnalyticsService
 from app.services.email_service import email_service
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
+from app.services.download_token import generate_download_token, verify_download_token
 import html as html_module
 
 logger = logging.getLogger(__name__)
@@ -173,12 +174,18 @@ async def create_report(
                 file_path=report_path
             )
         
+        # 生成临时下载 token（有效期24小时）
+        download_token = generate_download_token(report_filename, user_id)
+        
         # 发送邮件
         email_sent = False
         if request.send_email:
             recipients = request.email_recipients or [e.strip() for e in config.EMAIL_TO.split(',') if e.strip()]
-            logger.info(f"准备发送邮件，收件人: {recipients}, SMTP_USER: {config.SMTP_USER}")
+            logger.info(f"准备发送邮件，收件人: {recipients}")
             if recipients:
+                # 构建带 token 的下载链接
+                download_url = f"{config.APP_BASE_URL}/api/report/download-public?token={download_token}"
+                
                 success, message = email_service.send_daily_report(
                     {
                         'summary': summary,
@@ -186,7 +193,8 @@ async def create_report(
                         'bottom_products': bottom_products,
                         'anomalies': anomalies
                     },
-                    recipients
+                    recipients,
+                    download_url=download_url
                 )
                 email_sent = success
                 logger.info(f"邮件发送结果: success={success}, message={message}")
@@ -223,13 +231,43 @@ async def download_report(
     filename: str,
     current_user: dict = Depends(require_subscription)
 ):
-    """下载报告文件"""
+    """下载报告文件（需要登录）"""
     # 安全检查：只允许下载reports目录下的文件
     safe_name = os.path.basename(filename)
     file_path = os.path.join(config.REPORT_DIR, safe_name)
     
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="报告文件不存在")
+    
+    return FileResponse(
+        path=file_path,
+        filename=safe_name,
+        media_type='text/html'
+    )
+
+
+@router.get("/download-public")
+async def download_report_public(token: str):
+    """
+    通过临时 token 下载报告（无需登录）
+    
+    Token 有效期 24 小时，用于邮件中的下载链接
+    """
+    # 验证 token
+    token_data = verify_download_token(token)
+    
+    if not token_data:
+        raise HTTPException(status_code=403, detail="下载链接无效或已过期")
+    
+    # 获取文件信息
+    filename = token_data["filename"]
+    safe_name = os.path.basename(filename)
+    file_path = os.path.join(config.REPORT_DIR, safe_name)
+    
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="报告文件不存在")
+    
+    logger.info(f"Token 下载: user_id={token_data['user_id']}, filename={filename}")
     
     return FileResponse(
         path=file_path,
