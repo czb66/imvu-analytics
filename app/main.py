@@ -250,6 +250,20 @@ async def guide_page(request: Request):
     return templates.TemplateResponse("guide.html", {"request": request, "app_name": config.APP_NAME})
 
 
+@app.get("/terms", response_class=HTMLResponse)
+async def terms_page(request: Request):
+    """服务条款页面 - 无需登录"""
+    ctx = get_seo_context("Terms of Service", "/terms", "IMVU Analytics Terms of Service - Rules and guidelines for using our platform")
+    return templates.TemplateResponse("terms.html", {"request": request, **ctx})
+
+
+@app.get("/privacy", response_class=HTMLResponse)
+async def privacy_page(request: Request):
+    """隐私政策页面 - 无需登录"""
+    ctx = get_seo_context("Privacy Policy", "/privacy", "IMVU Analytics Privacy Policy - How we collect, use and protect your data")
+    return templates.TemplateResponse("privacy.html", {"request": request, **ctx})
+
+
 @app.get("/success", response_class=HTMLResponse)
 async def success_page(request: Request):
     """支付成功页面"""

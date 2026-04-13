@@ -121,7 +121,41 @@ const translations = {
             seoAiHint: 'Smart SEO Analysis',
             seoAiHintDesc: 'Use the "Deep Diagnosis" feature, AI will automatically analyze your product names and provide specific SEO optimization suggestions.',
             pricing: 'Subscription Plans',
-            faq: 'FAQ'
+            faq: 'FAQ',
+            faq1: {
+                q: 'Is my data secure?',
+                a: 'Yes, data security is our top priority. All data transfers use HTTPS encryption, and data is stored on secure cloud servers. Your product data is used only for analysis and is never shared with third parties.'
+            },
+            faq2: {
+                q: 'What data formats are supported?',
+                a: 'Currently only XML format files exported from IMVU Creator dashboard are supported. This is the official product statistics format provided by IMVU, containing complete product information and sales data.'
+            },
+            faq3: {
+                q: 'Does AI Insights require extra payment?',
+                a: 'AI Insights is included in the Pro subscription at no extra cost. After subscribing, you can use AI analysis features unlimited times, including data insights, SEO analysis, comparison analysis, and more.'
+            },
+            faq4: {
+                q: 'How do I cancel my subscription?',
+                a: 'You can manage your subscription anytime in the "Profile" page. Click "Manage Subscription" to access the Stripe customer portal and cancel. After cancellation, you can continue using the service until the current billing period ends.'
+            },
+            faq5: {
+                q: 'How long is my data stored?',
+                a: 'Uploaded data is stored in your account indefinitely. You can view historical data and generate comparison reports anytime. To delete data, manually remove specific datasets from the dashboard.'
+            },
+            faq6: {
+                q: 'Can I get a refund?',
+                a: 'We do not offer refunds for partial months. However, you can cancel anytime and continue using the service until your billing period ends. No additional charges will be made after cancellation.'
+            },
+            faq7: {
+                q: 'What AI technology is used?',
+                a: 'We use DeepSeek AI for intelligent analysis. It automatically generates trend insights, SEO optimization suggestions, and data comparison reports. Supports bilingual output in Chinese and English.'
+            },
+            faq8: {
+                q: 'How accurate is the analysis?',
+                a: 'Data parsing is 100% accurate based on IMVU official XML format. AI insights provide trend analysis and optimization suggestions based on your actual data. Results may vary depending on data quality.'
+            },
+            ctaTitle: 'Ready to Boost Your IMVU Creator Revenue?',
+            ctaBtn: 'Get Started Free'
         },
         
         // 页面标题
@@ -648,6 +682,80 @@ const translations = {
             previous: 'Previous',
             yes: 'Yes',
             no: 'No'
+        },
+
+        // Terms of Service page
+        terms: {
+            title: 'Terms of Service',
+            subtitle: 'Please read these terms carefully before using our service',
+            section1: {
+                title: '1. Acceptance of Terms',
+                content: 'By accessing and using IMVU Analytics Platform ("the Service"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.'
+            },
+            section2: {
+                title: '2. Description of Service',
+                content: 'IMVU Analytics Platform provides data analysis tools for IMVU creators, including but not limited to:',
+                item1: 'Product sales data upload and parsing',
+                item2: 'Data dashboard and visualization',
+                item3: 'AI-powered insights and analysis',
+                item4: 'Data comparison and trend analysis',
+                item5: 'Report generation and export'
+            },
+            section3: {
+                title: '3. User Accounts',
+                item1: 'You must provide accurate and complete information during registration.',
+                item2: 'You are responsible for maintaining the security of your account credentials.',
+                item3: 'You are responsible for all activities that occur under your account.',
+                item4: 'You must notify us immediately of any unauthorized use of your account.'
+            },
+            section4: {
+                title: '4. Subscription and Payment',
+                price: 'Subscription Price: $12 USD per month',
+                item1: 'Subscriptions are billed monthly through Stripe.',
+                item2: 'You may cancel your subscription at any time.',
+                item3: 'Cancelled subscriptions remain active until the end of the billing period.',
+                item4: 'No refunds are provided for partial months.'
+            },
+            section5: {
+                title: '5. Acceptable Use',
+                content: 'You agree NOT to:',
+                item1: 'Upload malicious files or attempt to compromise our systems',
+                item2: 'Use the Service for any illegal purpose',
+                item3: 'Attempt to reverse engineer or extract source code from the Service',
+                item4: 'Share your account credentials with others',
+                item5: 'Upload data that infringes on others\' intellectual property rights'
+            },
+            section6: {
+                title: '6. Data and Privacy',
+                content: 'Your use of the Service is also governed by our Privacy Policy. Key points:',
+                item1: 'We collect and process your data as described in our Privacy Policy',
+                item2: 'You retain ownership of your uploaded data',
+                item3: 'We implement security measures to protect your data'
+            },
+            section7: {
+                title: '7. Intellectual Property',
+                content: 'IMVU Analytics Platform and its original content, features, and functionality are owned by us and are protected by international copyright, trademark, and other intellectual property laws.'
+            },
+            section8: {
+                title: '8. Limitation of Liability',
+                content: 'To the maximum extent permitted by law, we shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the Service.'
+            },
+            section9: {
+                title: '9. Changes to Terms',
+                content: 'We reserve the right to modify these terms at any time. We will notify users of significant changes via email or through the Service. Continued use of the Service after changes constitutes acceptance of the new terms.'
+            },
+            section10: {
+                title: '10. Contact Information',
+                content: 'For questions about these Terms of Service, please contact us at:'
+            },
+            backHome: 'Back to Home',
+            lastUpdated: 'Last Updated: April 13, 2026'
+        },
+
+        // Footer
+        footer: {
+            terms: 'Terms of Service',
+            privacy: 'Privacy Policy'
         }
     },
     
@@ -765,7 +873,41 @@ const translations = {
             seoAiHint: '智能 SEO 分析',
             seoAiHintDesc: '使用平台的「深度诊断」功能，AI 会自动分析您的产品名称并给出具体的 SEO 优化建议。',
             pricing: '订阅方案',
-            faq: '常见问题'
+            faq: '常见问题',
+            faq1: {
+                q: '数据是否安全？',
+                a: '是的，数据安全是我们的首要任务。所有数据传输都使用 HTTPS 加密，数据存储在安全的云服务器上。您的产品数据仅用于分析，不会与第三方共享。'
+            },
+            faq2: {
+                q: '支持哪些数据格式？',
+                a: '目前仅支持从 IMVU Creator 后台导出的 XML 格式文件。这是 IMVU 官方提供的产品统计数据格式，包含完整的产品信息和销售数据。'
+            },
+            faq3: {
+                q: 'AI 洞察功能需要额外付费吗？',
+                a: 'AI 洞察功能包含在 Pro 订阅中，无需额外付费。订阅后即可无限次使用 AI 分析功能，包括数据洞察、SEO 分析、对比分析等。'
+            },
+            faq4: {
+                q: '如何取消订阅？',
+                a: '您可以随时在「个人中心」页面管理订阅，点击「管理订阅」即可进入 Stripe 客户门户取消订阅。取消后，您仍可使用服务直到当前计费周期结束。'
+            },
+            faq5: {
+                q: '数据可以保存多久？',
+                a: '上传的数据会一直保存在您的账户中，您可以随时查看历史数据、生成对比报告。如需删除数据，可以在仪表盘中手动删除特定数据集。'
+            },
+            faq6: {
+                q: '可以退款吗？',
+                a: '我们不提供部分月份的退款。但您可以随时取消订阅，并继续使用服务直到计费周期结束。取消后不会再产生新的费用。'
+            },
+            faq7: {
+                q: '使用的是什么 AI 技术？',
+                a: '我们使用 DeepSeek AI 进行智能分析。它会自动生成趋势洞察、SEO 优化建议和数据对比报告。支持中英文双语输出。'
+            },
+            faq8: {
+                q: '分析结果准确吗？',
+                a: '数据解析基于 IMVU 官方 XML 格式，准确率 100%。AI 洞察基于您的实际数据提供趋势分析和优化建议，结果可能因数据质量而异。'
+            },
+            ctaTitle: '准备好提升您的 IMVU 创作收益了吗？',
+            ctaBtn: '免费开始使用'
         },
         
         // 页面标题
@@ -1272,6 +1414,80 @@ const translations = {
             upgrade: '立即升级',
             contactSales: '联系销售',
             currentPlan: '当前计划'
+        },
+
+        // 服务条款页面
+        terms: {
+            title: '服务条款',
+            subtitle: '请在使用我们的服务前仔细阅读这些条款',
+            section1: {
+                title: '1. 接受条款',
+                content: '访问和使用 IMVU Analytics 平台（简称"服务"），即表示您接受并同意受这些服务条款的约束。如果您不同意这些条款，请不要使用本服务。'
+            },
+            section2: {
+                title: '2. 服务描述',
+                content: 'IMVU Analytics 平台为 IMVU 创作者提供数据分析工具，包括但不限于：',
+                item1: '产品销售数据上传和解析',
+                item2: '数据仪表盘和可视化',
+                item3: 'AI 智能洞察和分析',
+                item4: '数据对比和趋势分析',
+                item5: '报告生成和导出'
+            },
+            section3: {
+                title: '3. 用户账户',
+                item1: '您必须在注册时提供准确完整的信息。',
+                item2: '您有责任保护账户凭据的安全。',
+                item3: '您对账户下发生的所有活动负责。',
+                item4: '如发现账户被未授权使用，请立即通知我们。'
+            },
+            section4: {
+                title: '4. 订阅和付款',
+                price: '订阅价格：$12 美元/月',
+                item1: '订阅通过 Stripe 按月计费。',
+                item2: '您可以随时取消订阅。',
+                item3: '取消的订阅在计费周期结束前保持有效。',
+                item4: '部分月份不提供退款。'
+            },
+            section5: {
+                title: '5. 可接受使用',
+                content: '您同意不会：',
+                item1: '上传恶意文件或试图破坏我们的系统',
+                item2: '将服务用于任何非法目的',
+                item3: '尝试逆向工程或从服务中提取源代码',
+                item4: '与他人共享您的账户凭据',
+                item5: '上传侵犯他人知识产权的数据'
+            },
+            section6: {
+                title: '6. 数据和隐私',
+                content: '您对服务的使用也受我们的隐私政策约束。要点：',
+                item1: '我们按照隐私政策收集和处理您的数据',
+                item2: '您保留上传数据的所有权',
+                item3: '我们实施安全措施保护您的数据'
+            },
+            section7: {
+                title: '7. 知识产权',
+                content: 'IMVU Analytics 平台及其原创内容、功能和特性归我们所有，受国际版权、商标和其他知识产权法保护。'
+            },
+            section8: {
+                title: '8. 责任限制',
+                content: '在法律允许的最大范围内，我们不对因您使用服务而产生的任何间接、偶然、特殊、后果性或惩罚性损害承担责任。'
+            },
+            section9: {
+                title: '9. 条款变更',
+                content: '我们保留随时修改这些条款的权利。我们将通过电子邮件或服务通知用户重大变更。变更后继续使用服务即表示接受新条款。'
+            },
+            section10: {
+                title: '10. 联系信息',
+                content: '如有关于服务条款的问题，请联系我们：'
+            },
+            backHome: '返回首页',
+            lastUpdated: '最后更新：2026年4月13日'
+        },
+
+        // Footer
+        footer: {
+            terms: '服务条款',
+            privacy: '隐私政策'
         }
     }
 };
