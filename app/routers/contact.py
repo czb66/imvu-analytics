@@ -9,7 +9,7 @@ import logging
 
 from app.services.email_service import send_contact_email
 
-router = APIRouter(prefix="/contact", tags=["联系我们"])
+router = APIRouter(tags=["联系我们"])
 logger = logging.getLogger(__name__)
 
 # 客服邮箱
@@ -34,7 +34,7 @@ class ContactResponse(BaseModel):
 
 # ==================== 页面路由 ====================
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("/contact", response_class=HTMLResponse)
 async def contact_page(request: Request):
     """
     联系我们页面
@@ -390,7 +390,7 @@ async def contact_page(request: Request):
 
 # ==================== API路由 ====================
 
-@router.post("/api", response_model=ContactResponse)
+@router.post("/api/contact", response_model=ContactResponse)
 async def submit_contact(request: ContactRequest):
     """
     提交联系表单
