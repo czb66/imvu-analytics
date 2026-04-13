@@ -161,7 +161,11 @@ def get_current_user(
         "id": user.id,
         "email": user.email,
         "username": user.username,
-        "is_admin": user.is_admin
+        "is_admin": user.is_admin,
+        "is_subscribed": user.is_subscribed,
+        "subscription_status": user.subscription_status,
+        "subscription_end_date": user.subscription_end_date.isoformat() if user.subscription_end_date else None,
+        "is_whitelisted": user.is_whitelisted
     }
 
 

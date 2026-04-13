@@ -773,13 +773,24 @@
 
         function formatDate(dateStr) {
             if (!dateStr) return '-';
-            const date = new Date(dateStr);
+            // 如果时间字符串没有时区信息，假设是 UTC 时间
+            let dateStrWithTZ = dateStr;
+            if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('T')) {
+                // 格式如 "2024-01-01 12:00:00"，添加 T 和 Z
+                dateStrWithTZ = dateStr.replace(' ', 'T') + 'Z';
+            } else if (dateStr.includes('T') && !dateStr.endsWith('Z') && !dateStr.includes('+')) {
+                // 格式如 "2024-01-01T12:00:00"，添加 Z
+                dateStrWithTZ = dateStr + 'Z';
+            }
+            const date = new Date(dateStrWithTZ);
+            // 使用北京时间显示 (UTC+8)
             return date.toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
-                minute: '2-digit'
+                minute: '2-digit',
+                timeZone: 'Asia/Shanghai'
             });
         }
 
