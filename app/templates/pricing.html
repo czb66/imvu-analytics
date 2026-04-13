@@ -334,8 +334,9 @@
                 manageArea.style.display = 'block';
             } else {
                 console.log('Setting up subscribe button...');
-                const lang = typeof getLanguage === 'function' ? getLanguage() : 'en';
-                const subscribeText = typeof t === 'function' ? t('subscribe_btn') : 'Subscribe Now - $12/month';
+                // 直接使用翻译文本，避免函数调用时机问题
+                const lang = localStorage.getItem('imvu_lang') || 'en';
+                const subscribeText = lang === 'zh' ? '立即订阅 - $12/月' : 'Subscribe Now - $12/month';
                 console.log('Language:', lang, 'Subscribe text:', subscribeText);
                 
                 area.innerHTML = `
@@ -370,7 +371,8 @@
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({})
                 });
 
                 const result = await response.json();
