@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, EmailStr, Field
 import logging
 
-from app.services.email_service import email_service
+from app.services.email_service import send_contact_email
 
 router = APIRouter(prefix="/contact", tags=["联系我们"])
 logger = logging.getLogger(__name__)
@@ -428,7 +428,7 @@ async def submit_contact(request: ContactRequest):
         """
         
         # 发送邮件
-        success, message = email_service.send_contact_email(
+        success, message = send_contact_email(
             to_email=SUPPORT_EMAIL,
             subject=email_subject,
             html_content=html_content,
