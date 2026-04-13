@@ -18,6 +18,7 @@ const translations = {
             compare: 'Data Compare',
             report: 'Reports',
             profile: 'Profile',
+            guide: 'User Guide',
             contact: 'Contact Us',
             subscribe: 'Subscribe',
             logout: 'Logout'
@@ -590,6 +591,7 @@ const translations = {
             compare: '数据对比',
             report: '报告中心',
             profile: '个人中心',
+            guide: '使用指南',
             contact: '联系我们',
             subscribe: '订阅',
             logout: '退出登录'
