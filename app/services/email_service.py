@@ -298,3 +298,33 @@ class EmailService:
 
 # 全局邮件服务实例
 email_service = EmailService()
+
+
+def send_contact_email(
+    to_email: str,
+    subject: str,
+    html_content: str,
+    user_email: str = None,
+    user_name: str = None,
+    attachments: list = None
+) -> tuple:
+    """
+    发送联系表单邮件
+    
+    Args:
+        to_email: 收件人邮箱（客服邮箱）
+        subject: 邮件主题
+        html_content: HTML格式的邮件内容
+        user_email: 用户邮箱（用于回复）
+        user_name: 用户姓名
+        attachments: 附件文件路径列表
+        
+    Returns:
+        (success, message)
+    """
+    return email_service.send_report(
+        to_emails=[to_email],
+        subject=subject,
+        html_content=html_content,
+        attachments=attachments
+    )

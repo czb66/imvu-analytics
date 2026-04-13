@@ -18,7 +18,37 @@ const translations = {
             compare: 'Data Compare',
             report: 'Reports',
             profile: 'Profile',
+            contact: 'Contact Us',
             logout: 'Logout'
+        },
+        
+        // 联系我们页面
+        contact: {
+            pageTitle: 'Contact Us',
+            title: 'Contact Us',
+            subtitle: "We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
+            name: 'Name',
+            namePlaceholder: 'Your name (optional)',
+            email: 'Email',
+            emailPlaceholder: 'your.email@example.com',
+            subject: 'Subject',
+            selectSubject: 'Select a subject',
+            subjectTechnical: 'Technical Support',
+            subjectAccount: 'Account Issues',
+            subjectFeature: 'Feature Suggestions',
+            subjectSubscription: 'Subscription Questions',
+            subjectOther: 'Other',
+            message: 'Message',
+            messagePlaceholder: 'Please describe your question or feedback in detail (minimum 10 characters)',
+            messageHint: 'Minimum 10 characters',
+            submit: 'Send Message',
+            sending: 'Sending...',
+            success: 'Your message has been sent successfully! We\'ll get back to you soon.',
+            error: 'An error occurred. Please try again later.',
+            errorEmailRequired: 'Please enter your email address.',
+            errorSubjectRequired: 'Please select a subject.',
+            errorMessageTooShort: 'Message must be at least 10 characters.',
+            backHome: 'Back to Login'
         },
         
         // 页面标题
@@ -559,7 +589,37 @@ const translations = {
             compare: '数据对比',
             report: '报告中心',
             profile: '个人中心',
+            contact: '联系我们',
             logout: '退出登录'
+        },
+        
+        // 联系我们页面
+        contact: {
+            pageTitle: '联系我们',
+            title: '联系我们',
+            subtitle: '我们很乐意收到您的来信。请发送消息，我们会尽快回复。',
+            name: '姓名',
+            namePlaceholder: '您的姓名（可选）',
+            email: '邮箱',
+            emailPlaceholder: 'your.email@example.com',
+            subject: '主题',
+            selectSubject: '请选择主题',
+            subjectTechnical: '技术支持',
+            subjectAccount: '账户问题',
+            subjectFeature: '功能建议',
+            subjectSubscription: '订阅问题',
+            subjectOther: '其他',
+            message: '消息内容',
+            messagePlaceholder: '请详细描述您的问题或反馈（至少10个字符）',
+            messageHint: '至少10个字符',
+            submit: '发送消息',
+            sending: '发送中...',
+            success: '消息发送成功！我们会尽快回复您。',
+            error: '发生错误，请稍后重试。',
+            errorEmailRequired: '请输入您的邮箱地址。',
+            errorSubjectRequired: '请选择主题。',
+            errorMessageTooShort: '消息内容至少需要10个字符。',
+            backHome: '返回登录'
         },
         
         // 页面标题
