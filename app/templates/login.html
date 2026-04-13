@@ -2,7 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>{% if page_title %}{{ page_title }}{% else %}Login - IMVU Analytics{% endif %}</title>
     <meta name="description" content="{% if meta_description %}{{ meta_description }}{% else %}IMVU Analytics - Professional sales data tracking, analysis and reporting tool{% endif %}">
     <meta name="robots" content="index, follow">
@@ -19,6 +21,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -28,6 +31,8 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
         /* Background Glow */
@@ -85,6 +90,12 @@
             font-size: 14px;
             transition: all 0.2s;
             font-weight: 500;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        .lang-switch button:active {
+            transform: scale(0.95);
         }
         
         .lang-switch button:hover {
@@ -232,6 +243,12 @@
             color: white;
             font-size: 16px;
             padding: 16px 18px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .input-group-custom .form-control:focus {
+            outline: none;
         }
         
         .input-group-custom .form-control::placeholder {
@@ -255,6 +272,13 @@
             font-size: 17px;
             transition: all 0.3s ease;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            -webkit-appearance: none;
+            touch-action: manipulation;
+        }
+        
+        .btn-login:active {
+            transform: scale(0.98);
         }
         
         .btn-login:hover {
@@ -382,16 +406,163 @@
             }
         }
         
-        @media (max-width: 700px) {
+        @media (max-width: 900px) {
+            .main-container {
+                padding: 100px 30px 30px;
+            }
+            .features-section {
+                width: 100%;
+            }
             .feature-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 16px;
+            }
+            .feature-card {
+                padding: 24px 20px;
+            }
+            .feature-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+            .feature-card h3 {
+                font-size: 16px;
+            }
+            .feature-card p {
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 700px) {
+            .main-container {
+                padding: 80px 20px 20px;
+            }
+            .brand-title {
+                left: 20px;
+                top: 20px;
             }
             .brand-title h1 {
-                font-size: 26px;
+                font-size: 22px;
+            }
+            .brand-title p {
+                font-size: 12px;
             }
             .lang-switch {
                 right: 20px;
+                top: 20px;
+            }
+            .lang-switch button {
+                padding: 6px 14px;
+                font-size: 12px;
+            }
+            .features-section {
+                width: 100%;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .feature-card {
+                padding: 18px 16px;
+            }
+            .feature-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+            .feature-card h3 {
+                font-size: 15px;
+                margin-bottom: 6px;
+            }
+            .feature-card p {
+                font-size: 12px;
+                line-height: 1.4;
+            }
+            .login-section {
+                max-width: 100%;
+            }
+            .login-card {
+                padding: 30px 24px;
+                border-radius: 20px;
+            }
+            .login-header h2 {
+                font-size: 24px;
+            }
+            .input-group-custom .form-control {
+                height: 50px;
+                font-size: 15px;
+            }
+            .btn-login {
+                padding: 14px;
+                font-size: 15px;
+            }
+            .footer {
+                padding: 18px 20px;
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 70px 16px 16px;
+            }
+            .brand-title h1 {
+                font-size: 18px;
+            }
+            .brand-title p {
+                font-size: 11px;
+            }
+            .content-wrapper {
+                gap: 24px;
+            }
+            .feature-card {
+                padding: 14px 14px;
+            }
+            .feature-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+            .feature-card h3 {
+                font-size: 14px;
+            }
+            .feature-card p {
+                font-size: 11px;
+            }
+            .login-card {
+                padding: 24px 20px;
+                border-radius: 16px;
+            }
+            .login-header {
+                margin-bottom: 24px;
+            }
+            .login-header h2 {
+                font-size: 22px;
+            }
+            .login-header p {
+                font-size: 13px;
+            }
+            .input-group-custom {
+                margin-bottom: 16px;
+            }
+            .input-group-custom .form-control {
+                height: 48px;
+                font-size: 14px;
+                border-radius: 10px;
+            }
+            .form-check-label, .forgot-link a {
+                font-size: 13px;
+            }
+            .btn-login {
+                padding: 12px;
+                font-size: 14px;
+                border-radius: 10px;
+            }
+            .register-link {
+                margin-top: 20px;
+                padding-top: 20px;
+                font-size: 13px;
             }
         }
     </style>
