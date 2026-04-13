@@ -560,7 +560,10 @@
 
                 const response = await fetch('/api/auth/profile', {
                     method: 'PUT',
-                    headers: getAuthHeaders(),
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({ username: username })
                 });
 
@@ -580,12 +583,13 @@
                     }
                 } else {
                     alertBox.className = 'alert alert-danger';
-                    alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + data.message;
+                    alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + (data.message || t('profile.updateFailed') || 'Update failed');
                     alertBox.classList.remove('d-none');
                 }
             } catch (e) {
+                console.error('Update username error:', e);
                 alertBox.className = 'alert alert-danger';
-                alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + t('profile.updateFailed');
+                alertBox.innerHTML = '<i class="bi bi-exclamation-circle me-2"></i>' + (t('profile.updateFailed') || 'Update failed');
                 alertBox.classList.remove('d-none');
             } finally {
                 submitBtn.disabled = false;

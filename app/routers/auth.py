@@ -191,6 +191,44 @@ async def get_profile(
     }
 
 
+class UpdateProfileRequest(BaseModel):
+    """更新用户信息请求"""
+    username: Optional[str] = Field(None, max_length=50, description="用户名")
+
+
+@router.put("/profile")
+async def update_profile(
+    request: UpdateProfileRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    更新用户信息
+    """
+    from app.database import UserRepository
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    # 更新用户名
+    if request.username is not None:
+        user.username = request.username.strip() if request.username.strip() else None
+        db.commit()
+    
+    return {
+        "success": True,
+        "message": "用户名更新成功",
+        "data": {
+            "username": user.username
+        }
+    }
+
+
 # ==================== 密码重置 ====================
 
 class ForgotPasswordRequest(BaseModel):
