@@ -7,17 +7,12 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db, UserRepository
 from app.services.auth import get_current_user
-
-# 白名单邮箱列表 - 这些用户视为管理员
-ADMIN_WHITELIST_EMAILS = [
-    "whitelist@imvu-analytics.com",
-    "nlfd8910@gmail.com"
-]
+import config  # 使用统一的配置管理
 
 
 def is_admin_whitelisted(email: str) -> bool:
     """检查用户是否在管理员白名单中"""
-    return email.lower() in [e.lower() for e in ADMIN_WHITELIST_EMAILS]
+    return config.is_email_whitelisted(email)
 
 
 async def require_admin(

@@ -138,3 +138,13 @@ SUBSCRIPTION_PRICE = 12.00
 
 # 应用基础URL（用于Stripe回调）
 APP_BASE_URL = os.getenv("APP_BASE_URL", "https://imvucreators.com")
+
+# 白名单邮箱列表 - 统一管理
+WHITELIST_EMAILS = [
+    "whitelist@imvu-analytics.com",
+    "nlfd8910@gmail.com"
+]
+
+def is_email_whitelisted(email: str) -> bool:
+    """检查邮箱是否在白名单中"""
+    return email.lower() in [e.lower() for e in WHITELIST_EMAILS]

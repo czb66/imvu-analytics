@@ -7,12 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db, UserRepository
 from app.services.auth import get_current_user
-
-# 白名单邮箱列表 - 这些用户跳过订阅检查（硬编码备用）
-HARDCODED_WHITELIST_EMAILS = [
-    "whitelist@imvu-analytics.com",
-    "nlfd8910@gmail.com"
-]
+import config  # 使用统一的配置管理
 
 
 def is_whitelisted(email: str, db: Session = None) -> bool:
@@ -20,11 +15,11 @@ def is_whitelisted(email: str, db: Session = None) -> bool:
     检查用户是否在白名单中
     
     同时检查：
-    1. 硬编码的白名单列表
+    1. 配置文件中的白名单列表
     2. 数据库中的 is_whitelisted 字段
     """
-    # 检查硬编码白名单
-    if email.lower() in [e.lower() for e in HARDCODED_WHITELIST_EMAILS]:
+    # 检查配置文件白名单
+    if config.is_email_whitelisted(email):
         return True
     
     # 检查数据库白名单字段

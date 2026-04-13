@@ -312,32 +312,32 @@ async def stripe_webhook(
     payload = await request.body()
     sig_header = stripe_signature
     
-    # 如果没有配置Webhook密钥，直接解析payload
-    if not config.get_stripe_webhook_secret():
-        logger.warning("STRIPE_WEBHOOK_SECRET 未配置，Webhooks可能不安全")
-        try:
-            event = stripe.Event.construct_from(
-                stripe.util.convert_to_dict(payload),
-                None
-            )
-        except Exception as e:
-            logger.error(f"解析Webhook事件失败: {e}")
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={"received": False, "message": f"无效的payload: {str(e)}"}
-            )
-    else:
-        # 验证Webhook签名
-        try:
-            event = stripe.Webhook.construct_event(
-                payload, sig_header, config.get_stripe_webhook_secret()
-            )
-        except stripe.error.SignatureVerificationError as e:
-            logger.error(f"Webhook签名验证失败: {e}")
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={"received": False, "message": "签名验证失败"}
-            )
+    # 强制要求 Webhook 签名验证（生产环境必须配置 STRIPE_WEBHOOK_SECRET）
+    webhook_secret = config.get_stripe_webhook_secret()
+    if not webhook_secret:
+        logger.error("STRIPE_WEBHOOK_SECRET 未配置，拒绝处理 Webhook 请求")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"received": False, "message": "服务器配置错误：STRIPE_WEBHOOK_SECRET 未配置"}
+        )
+    
+    # 验证 Webhook 签名
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, webhook_secret
+        )
+    except stripe.error.SignatureVerificationError as e:
+        logger.error(f"Webhook签名验证失败: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"received": False, "message": "签名验证失败"}
+        )
+    except Exception as e:
+        logger.error(f"解析Webhook事件失败: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"received": False, "message": f"无效的请求: {str(e)}"}
+        )
     
     # 处理不同类型的事件
     event_type = event.type

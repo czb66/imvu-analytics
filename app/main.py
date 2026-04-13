@@ -139,8 +139,8 @@ async def api_status():
     }
 
 
-# Base URL for SEO
-BASE_URL = "https://imvu-analytics-production.up.railway.app"
+# Base URL for SEO - 从环境变量读取，避免硬编码
+BASE_URL = config.APP_BASE_URL
 APP_DESCRIPTION = "IMVU营销数据分析平台 - 专业的产品销售数据追踪、分析和报告工具"
 APP_KEYWORDS = "IMVU,数据分析,营销,销售报告,产品追踪,商业智能"
 
