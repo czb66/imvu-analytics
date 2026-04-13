@@ -1204,6 +1204,13 @@ function applyTranslations() {
 }
 
 /**
+ * 更新页面翻译（applyTranslations 的别名）
+ */
+function updateLanguage() {
+    applyTranslations();
+}
+
+/**
  * 更新语言按钮状态
  */
 function updateLanguageButtons() {
