@@ -348,9 +348,156 @@
         .btn-primary {
             border-radius: 8px;
         }
+        
+        /* 移动端适配 */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 0 15px;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .mobile-header .brand {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                width: 280px;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 70px 15px 20px;
+            }
+            .lang-switcher {
+                top: 65px;
+                right: 10px;
+                left: 10px;
+                justify-content: center;
+                padding: 8px 10px;
+            }
+            .subscribe-btn {
+                font-size: 12px;
+                padding: 5px 12px;
+            }
+            .metric-value {
+                font-size: 22px;
+            }
+            .metric-card {
+                padding: 15px;
+            }
+            .chart-container {
+                height: 280px;
+                padding: 15px;
+            }
+            .chart-container canvas {
+                max-height: 220px !important;
+            }
+            .header-title {
+                font-size: 18px;
+            }
+            .upload-zone {
+                padding: 25px 15px;
+            }
+            .upload-zone h5 {
+                font-size: 1rem;
+            }
+            .table-container {
+                font-size: 12px;
+            }
+            .table-container th, .table-container td {
+                padding: 8px 4px;
+                white-space: nowrap;
+            }
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .insight-card {
+                padding: 15px;
+            }
+            .insight-card-title {
+                font-size: 15px;
+            }
+            .insight-content {
+                font-size: 13px;
+            }
+            /* 隐藏桌面端语言切换器中的订阅按钮 */
+            .lang-switcher .subscribe-btn {
+                display: none;
+            }
+            /* 移动端显示订阅按钮在侧边栏 */
+            .sidebar .mobile-subscribe {
+                display: block;
+                background: rgba(255,255,255,0.2);
+                margin: 10px 15px;
+                padding: 10px 15px;
+                border-radius: 8px;
+                text-align: center;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-header {
+                display: none !important;
+            }
+            .sidebar .mobile-subscribe {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- 移动端顶部导航 -->
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+        <span class="brand">IMVU Analytics</span>
+        <div style="width: 40px;"></div>
+    </div>
+    
+    <!-- 侧边栏遮罩 -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    
     <!-- 语言切换器 -->
     <div class="lang-switcher">
         <a href="/pricing" class="subscribe-btn" id="subscribeBtn">
@@ -362,8 +509,11 @@
     </div>
 
     <!-- 侧边栏 -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
         <a href="/dashboard" class="brand-link"><i class="bi bi-graph-up"></i> IMVU Analytics Platform</a>
+        <a href="/pricing" class="mobile-subscribe" id="mobileSubscribeBtn">
+            <i class="bi bi-star-fill me-1"></i><span data-i18n="nav.subscribe">Subscribe</span>
+        </a>
         <a href="/dashboard" class="active"><i class="bi bi-speedometer2 me-2"></i><span data-i18n="nav.dashboard">Dashboard</span></a>
         <a href="/diagnosis"><i class="bi bi-search me-2"></i><span data-i18n="nav.diagnosis">Deep Analysis</span></a>
         <a href="/compare"><i class="bi bi-bar-chart-steps me-2"></i><span data-i18n="nav.compare">Data Compare</span></a>
@@ -1010,6 +1160,23 @@
         window.addEventListener('languageChanged', () => {
             updateVisibilityChart({ visible: visibilityChart.data.datasets[0].data[0], hidden: visibilityChart.data.datasets[0].data[1] });
             updateTrafficChart({ organic: { total_impressions: trafficChart.data.datasets[0].data[0] }, paid: { total_impressions: trafficChart.data.datasets[0].data[1] } });
+        });
+        
+        // 移动端侧边栏切换
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+        
+        // 点击导航链接后关闭侧边栏（移动端）
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    toggleSidebar();
+                }
+            });
         });
     </script>
 </body>
