@@ -42,8 +42,46 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def init_db():
-    """初始化数据库，创建所有表"""
+    """初始化数据库，创建所有表并执行迁移"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # 创建所有表
     Base.metadata.create_all(bind=engine)
+    
+    # 执行数据库迁移（添加缺失的列）
+    _run_migrations(logger)
+
+
+def _run_migrations(logger):
+    """执行数据库迁移 - 添加缺失的列"""
+    from sqlalchemy import text, inspect
+    
+    try:
+        with engine.connect() as conn:
+            # 检查 users 表是否存在
+            inspector = inspect(engine)
+            if 'users' not in inspector.get_table_names():
+                logger.info("users 表不存在，跳过迁移")
+                return
+            
+            # 获取 users 表现有的列
+            existing_columns = [col['name'] for col in inspector.get_columns('users')]
+            
+            # 迁移 1: 添加 is_whitelisted 列
+            if 'is_whitelisted' not in existing_columns:
+                logger.info("正在添加 is_whitelisted 列到 users 表...")
+                if "sqlite" in config.DATABASE_URL:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN is_whitelisted BOOLEAN DEFAULT 0"))
+                else:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN is_whitelisted BOOLEAN DEFAULT FALSE"))
+                conn.commit()
+                logger.info("is_whitelisted 列添加成功")
+            
+            logger.info("数据库迁移完成")
+            
+    except Exception as e:
+        logger.warning(f"数据库迁移失败（可能已存在）: {e}")
 
 
 def get_db() -> Generator[Session, None, None]:
