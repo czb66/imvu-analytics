@@ -314,6 +314,15 @@ async def contact_page(request: Request):
     </div>
     
     <script>
+        // 语言切换按钮事件
+        document.querySelectorAll('.lang-btn').forEach(btn => {{
+            btn.addEventListener('click', function() {{
+                const lang = this.getAttribute('data-lang');
+                setLanguage(lang);
+                updateLanguage();
+            }});
+        }});
+        
         // 表单提交
         document.getElementById('contact-form').addEventListener('submit', async function(e) {{
             e.preventDefault();

@@ -1236,3 +1236,10 @@ function getLanguage() {
 document.addEventListener('DOMContentLoaded', () => {
     applyTranslations();
 });
+
+// 导出到全局作用域，供 HTML 页面使用
+window.t = t;
+window.setLanguage = setLanguage;
+window.updateLanguage = updateLanguage;
+window.getCurrentLanguage = getCurrentLanguage;
+window.getLanguage = getLanguage;
