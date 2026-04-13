@@ -3,6 +3,9 @@
  * 支持中英文切换，默认英文
  */
 
+// 先初始化当前语言
+let currentLang = localStorage.getItem('imvu_lang') || 'en';
+
 const translations = {
     en: {
         // 应用名称
@@ -1057,9 +1060,6 @@ const translations = {
     }
 };
 
-// 当前语言
-let currentLang = localStorage.getItem('imvu_lang') || 'en';
-
 /**
  * 获取翻译文本
  * @param {string} key - 翻译键，支持点号分隔的嵌套键，如 'dashboard.directSales'
@@ -1161,9 +1161,6 @@ function getCurrentLanguage() {
 function getLanguage() {
     return currentLang;
 }
-
-// 立即初始化语言设置（不等待 DOMContentLoaded）
-currentLang = localStorage.getItem('imvu_lang') || 'en';
 
 // 页面加载完成后应用翻译
 document.addEventListener('DOMContentLoaded', () => {
