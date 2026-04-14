@@ -7,6 +7,7 @@ from typing import Optional
 import logging
 import time
 from functools import lru_cache
+from datetime import datetime, timedelta, timezone
 
 from app.database import get_db_context, ProductDataRepository
 from app.services.analytics import AnalyticsService
@@ -15,6 +16,17 @@ from app.services.subscription_check import require_subscription
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/dashboard", tags=["仪表盘"])
+
+# 北京时间 (UTC+8)
+BEIJING_TZ = timezone(timedelta(hours=8))
+
+def to_beijing_time(dt: datetime) -> datetime:
+    """将 UTC 时间转换为北京时间"""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(BEIJING_TZ)
 
 # 缓存相关（按用户ID隔离）
 _dashboard_cache = {}
@@ -396,11 +408,14 @@ async def get_revenue_trend(
                     ProductData.dataset_id == dataset.id
                 ).scalar()
                 
+                # 转换为北京时间
+                beijing_time = to_beijing_time(dataset.upload_time)
+                
                 upload_records.append({
-                    'date': dataset.upload_time.strftime('%Y-%m-%d'),
+                    'date': beijing_time.strftime('%Y-%m-%d'),
                     'revenue': float(total_profit or 0),
                     'products': int(product_count or 0),
-                    'upload_time': dataset.upload_time
+                    'upload_time': beijing_time
                 })
             
             if not upload_records:
@@ -428,19 +443,20 @@ async def get_revenue_trend(
             values = [round(d['revenue'], 2) for d in dates_list]
             
             # 计算统计数据
-            total_revenue = sum(values)
-            data_days = len(dates_list)
-            avg_revenue = total_revenue / data_days if data_days > 0 else 0
+            # 最新一次上传的总收入（不是累加）
+            latest_revenue = values[-1] if values else 0
+            upload_count = len(dates_list)
+            avg_revenue = sum(values) / upload_count if upload_count > 0 else 0
             
             # 计算趋势
             trend = "neutral"
-            if data_days == 1:
+            if upload_count == 1:
                 trend = "neutral"
-            elif data_days >= 2:
+            elif upload_count >= 2:
                 # 比较前半段和后半段的平均值
-                mid = data_days // 2
+                mid = upload_count // 2
                 first_half_avg = sum(values[:mid]) / mid if mid > 0 else 0
-                second_half_avg = sum(values[mid:]) / (data_days - mid) if (data_days - mid) > 0 else 0
+                second_half_avg = sum(values[mid:]) / (upload_count - mid) if (upload_count - mid) > 0 else 0
                 
                 if second_half_avg > first_half_avg * 1.05:
                     trend = "up"
@@ -478,10 +494,10 @@ async def get_revenue_trend(
                 "labels": labels,
                 "values": values,
                 "dates": dates_with_change,
-                "total_revenue": round(total_revenue, 2),
+                "latest_revenue": round(latest_revenue, 2),
                 "avg_revenue": round(avg_revenue, 2),
                 "trend": trend,
-                "upload_count": data_days
+                "upload_count": upload_count
             }
             
             # 更新缓存（缓存5分钟）

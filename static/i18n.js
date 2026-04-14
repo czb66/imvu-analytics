@@ -257,8 +257,8 @@ const translations = {
             // Top 5 产品卡片
             top5Products: 'Top 5 Products',
             revenueTrend: 'Revenue Trend',
-            totalRevenue: 'Total Revenue',
-            avgDailyRevenue: 'Avg Daily Revenue',
+            totalRevenue: 'Latest Revenue',
+            avgDailyRevenue: 'Avg Revenue',
             trendUp: 'Rising',
             trendDown: 'Falling',
             trendNeutral: 'Stable',
@@ -1113,8 +1113,8 @@ const translations = {
             // Top 5 产品卡片
             top5Products: 'Top 5 产品',
             revenueTrend: '收入趋势',
-            totalRevenue: '总收入',
-            avgDailyRevenue: '日均收入',
+            totalRevenue: '最新收入',
+            avgDailyRevenue: '平均收入',
             trendUp: '上升',
             trendDown: '下降',
             trendNeutral: '持平',
@@ -1980,8 +1980,8 @@ const translations = {
             // Top 5 produits et tendances
             top5Products: 'Top 5 des produits',
             revenueTrend: 'Tendance des revenus',
-            totalRevenue: 'Revenu total',
-            avgDailyRevenue: 'Revenu journalier moyen',
+            totalRevenue: 'Revenu récent',
+            avgDailyRevenue: 'Revenu moyen',
             trendUp: 'En hausse',
             trendDown: 'En baisse',
             trendNeutral: 'Stable',

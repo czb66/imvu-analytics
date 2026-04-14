@@ -68,16 +68,20 @@ async def upload_xml_file(
             repo = ProductDataRepository(db)
             dataset_repo = DatasetRepository(db)
             
-            from datetime import datetime
+            from datetime import datetime, timedelta, timezone
             from typing import Dict
+            
+            # 北京时间
+            beijing_tz = timezone(timedelta(hours=8))
+            beijing_now = datetime.now(beijing_tz)
             
             if dataset_name:
                 # 使用用户提供的数据集名称，添加时间戳确保唯一性
-                timestamp = datetime.now().strftime("%m-%d %H:%M")
+                timestamp = beijing_now.strftime("%m-%d %H:%M")
                 unique_name = f"{dataset_name} ({timestamp})"
             else:
                 # 自动生成带时间戳的数据集名称，确保每次上传都是独立数据集
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+                timestamp = beijing_now.strftime("%Y-%m-%d %H:%M")
                 unique_name = f"数据集 {timestamp}"
             
             # 始终创建新的数据集记录，确保数据独立性，并关联用户

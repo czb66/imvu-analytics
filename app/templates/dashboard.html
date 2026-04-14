@@ -39,7 +39,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
     <script src="/static/auth.js"></script>
-    <script src="/static/i18n.js?v=20260414l"></script>
+    <script src="/static/i18n.js?v=20260414m"></script>
     <style>
         :root {
             --primary: #667eea;
@@ -161,6 +161,24 @@
         }
         .revenue-trend-hint i {
             color: #faad14;
+        }
+        .revenue-comparison-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .revenue-comparison-table table {
+            width: 100%;
+            font-size: 12px;
+            margin-bottom: 0;
+        }
+        .revenue-comparison-table th {
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .revenue-comparison-table td, .revenue-comparison-table th {
+            padding: 8px 10px;
+            text-align: left;
         }
         .trend-badge {
             display: inline-flex;
@@ -1648,8 +1666,9 @@
                 if (result.success) {
                     const data = result.data;
                     
-                    // 更新摘要数据（兼容新旧字段名）
-                    document.getElementById('totalRevenueValue').textContent = formatNumber(data.total_revenue) + ' c';
+                    // 更新摘要数据（最新上传的总收入）
+                    const latestRevenue = data.latest_revenue || data.total_revenue || 0;
+                    document.getElementById('totalRevenueValue').textContent = formatNumber(latestRevenue) + ' c';
                     document.getElementById('avgDailyRevenueValue').textContent = formatNumber(data.avg_revenue || data.avg_daily_revenue) + ' c';
                     
                     // 更新趋势标签
