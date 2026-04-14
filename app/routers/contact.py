@@ -67,7 +67,7 @@ async def contact_page(request: Request):
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     
-    <script src="/static/i18n.js?v=20260414e"></script>
+    <script src="/static/i18n.js?v=20260414n"></script>
     
     <style>
         :root {{
@@ -205,14 +205,14 @@ async def contact_page(request: Request):
             margin-bottom: 20px;
         }}
         
-        .lang-select-wrapper {
+        .lang-select-wrapper {{
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 100;
-        }
+        }}
         
-        .lang-select {
+        .lang-select {{
             appearance: none;
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.25);
@@ -227,22 +227,22 @@ async def contact_page(request: Request):
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: calc(100% - 12px) center;
-        }
+        }}
         
-        .lang-select:hover {
+        .lang-select:hover {{
             background-color: rgba(255, 255, 255, 0.25);
-        }
+        }}
         
-        .lang-select:focus {
+        .lang-select:focus {{
             outline: none;
             box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
-        }
+        }}
         
-        .lang-select option {
+        .lang-select option {{
             background: var(--primary);
             color: white;
             padding: 8px;
-        }
+        }}
         
         .brand-title {{
             position: fixed;

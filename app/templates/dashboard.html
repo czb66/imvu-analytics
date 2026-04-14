@@ -39,7 +39,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
     <script src="/static/auth.js"></script>
-    <script src="/static/i18n.js?v=20260414m"></script>
+    <script src="/static/i18n.js?v=20260414n"></script>
     <style>
         :root {
             --primary: #667eea;
@@ -1335,6 +1335,26 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#999'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#999'
+                        }
+                    }
                 }
             };
 
@@ -1379,7 +1399,24 @@
                 options: {
                     ...chartOptions,
                     scales: {
-                        y: { beginAtZero: true }
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#999'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#999'
+                            }
+                        }
                     }
                 }
             });
