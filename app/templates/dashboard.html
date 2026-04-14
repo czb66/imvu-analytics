@@ -942,7 +942,7 @@
                 <div id="topProductsCards"></div>
             </div>
             <div class="col-md-6">
-                <div class="chart-container" style="position: relative;">
+                <div class="chart-container" style="position: relative; height: auto; min-height: 500px;">
                     <div id="revenueTrendLoading" class="chart-loading-overlay" style="display: none;">
                         <div class="mini-spinner"></div>
                     </div>
@@ -962,7 +962,7 @@
                         <button class="time-toggle-btn" id="toggle30Days" onclick="loadRevenueTrend(30)" data-i18n="dashboard.days30">30 Days</button>
                     </div>
                     <div id="revenueTrendHint" class="revenue-trend-hint" style="display: none;"></div>
-                    <canvas id="revenueTrendChart" style="max-height: 200px;"></canvas>
+                    <canvas id="revenueTrendChart" style="max-height: 280px;"></canvas>
                     <!-- 数据对比表格 -->
                     <div id="revenueComparisonTable" class="revenue-comparison-table" style="display: none; margin-top: 15px;">
                         <table class="table table-sm">
@@ -1418,15 +1418,28 @@
                     },
                     scales: {
                         y: {
-                            beginAtZero: true,
+                            beginAtZero: false,
                             grid: {
                                 color: 'rgba(0, 0, 0, 0.05)',
-                                drawBorder: false,
-                                borderRadius: 8
+                                drawBorder: false
                             },
                             ticks: {
                                 color: '#666',
-                                font: { size: 11 }
+                                font: { size: 11 },
+                                callback: function(value) {
+                                    if (value >= 1000000) {
+                                        return (value / 1000000).toFixed(1) + 'M';
+                                    } else if (value >= 1000) {
+                                        return (value / 1000).toFixed(0) + 'K';
+                                    }
+                                    return value;
+                                }
+                            },
+                            afterDataLimits: function(axis) {
+                                // 给 Y 轴留 10% 的上下边距
+                                const range = axis.max - axis.min;
+                                axis.min = Math.max(0, axis.min - range * 0.1);
+                                axis.max = axis.max + range * 0.1;
                             }
                         },
                         x: {
@@ -1439,7 +1452,17 @@
                                 maxRotation: 45,
                                 minRotation: 0,
                                 autoSkip: true,
-                                maxTicksLimit: 8
+                                maxTicksLimit: 8,
+                                callback: function(value, index, values) {
+                                    // 简化时间标签显示
+                                    const label = this.getLabelForValue(value);
+                                    if (label && label.includes(' ')) {
+                                        // 只显示时间部分（HH:MM）
+                                        const parts = label.split(' ');
+                                        return parts[parts.length - 1] || label;
+                                    }
+                                    return label;
+                                }
                             }
                         }
                     },
