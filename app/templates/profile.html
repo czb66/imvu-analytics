@@ -84,35 +84,67 @@
             margin-left: 250px;
             padding: 20px;
         }
-        /* Language Switcher */
-        .lang-switcher {
+        /* Language Switcher - Dropdown */
+        .lang-select-wrapper {
             position: fixed;
             top: 15px;
             right: 20px;
             z-index: 1001;
             display: flex;
-            gap: 5px;
-            background: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            align-items: center;
+            gap: 10px;
         }
-        .lang-btn {
-            padding: 5px 12px;
-            border-radius: 15px;
+        
+        .subscribe-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
             border: none;
-            background: transparent;
-            color: #666;
+            padding: 6px 16px;
+            border-radius: 15px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .subscribe-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .lang-select {
+            appearance: none;
+            background: white;
+            border: 1px solid #e0e0e0;
+            color: #333;
+            padding: 6px 32px 6px 14px;
+            border-radius: 15px;
             cursor: pointer;
             font-size: 13px;
+            font-weight: 500;
             transition: all 0.2s;
+            min-width: 95px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 10px) center;
         }
-        .lang-btn:hover {
-            background: #f0f0f0;
+        
+        .lang-select:hover {
+            background-color: #f5f5f5;
+            border-color: #ccc;
         }
-        .lang-btn.active {
-            background: var(--primary);
-            color: white;
+        
+        .lang-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+            border-color: var(--primary);
+        }
+        
+        .lang-select option {
+            background: white;
+            color: #333;
+            padding: 8px;
         }
         .profile-container {
             max-width: 800px;
@@ -293,13 +325,6 @@
                 margin-left: 0;
                 padding: 70px 15px 20px;
             }
-            .lang-switcher {
-                top: 65px;
-                right: 10px;
-                left: 10px;
-                justify-content: center;
-                padding: 8px 10px;
-            }
             .profile-container {
                 padding: 0;
             }
@@ -345,10 +370,16 @@
     </div>
 
     <!-- 语言切换 -->
-    <div class="lang-switcher">
-        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">English</button>
-        <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">中文</button>
-        <button class="lang-btn" data-lang="fr" onclick="setLanguage('fr')">FR</button>
+        <!-- 语言切换器 -->
+    <div class="lang-select-wrapper">
+        <a href="/pricing" class="subscribe-btn" id="subscribeBtn">
+            <i class="bi bi-star-fill me-1"></i><span data-i18n="nav.subscribe">Subscribe</span>
+        </a>
+        <select id="langSelect" class="lang-select" onchange="setLanguage(this.value)">
+            <option value="en">EN</option>
+            <option value="zh">中文</option>
+            <option value="fr">FR</option>
+        </select>
     </div>
 
     <!-- 导航栏 -->

@@ -2512,6 +2512,16 @@ function updateLanguage() {
 }
 
 /**
+ * 更新下拉选择框的选中状态
+ */
+function updateLanguageSelect() {
+    const select = document.getElementById('langSelect');
+    if (select) {
+        select.value = currentLang;
+    }
+}
+
+/**
  * 更新语言按钮状态
  */
 function updateLanguageButtons() {
@@ -2523,6 +2533,8 @@ function updateLanguageButtons() {
             btn.classList.remove('active');
         }
     });
+    // 同时更新下拉选择框
+    updateLanguageSelect();
 }
 
 /**
@@ -2551,3 +2563,4 @@ window.setLanguage = setLanguage;
 window.updateLanguage = updateLanguage;
 window.getCurrentLanguage = getCurrentLanguage;
 window.getLanguage = getLanguage;
+window.updateLanguageSelect = updateLanguageSelect;

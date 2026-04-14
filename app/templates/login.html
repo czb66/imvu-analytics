@@ -122,44 +122,6 @@
             font-weight: 400;
         }
         
-        /* Language Switcher */
-        .lang-switch {
-            position: fixed;
-            top: 30px;
-            right: 50px;
-            z-index: 100;
-            display: flex;
-            gap: 8px;
-        }
-        
-        .lang-switch button {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-            font-weight: 500;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-        
-        .lang-switch button:active {
-            transform: scale(0.95);
-        }
-        
-        .lang-switch button:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
-        
-        .lang-switch button.active {
-            background: rgba(255, 255, 255, 0.95);
-            color: var(--primary);
-            border-color: transparent;
-        }
-        
         /* Main Container */
         .main-container {
             flex: 1;
@@ -504,14 +466,6 @@
             .brand-title p {
                 font-size: 12px;
             }
-            .lang-switch {
-                right: 20px;
-                top: 20px;
-            }
-            .lang-switch button {
-                padding: 6px 14px;
-                font-size: 12px;
-            }
             .features-section {
                 width: 100%;
             }
@@ -623,6 +577,49 @@
                 font-size: 13px;
             }
         }
+    
+    <style>
+        /* Language Switcher - Dropdown */
+        .lang-select-wrapper {
+            position: fixed;
+            top: 30px;
+            right: 50px;
+            z-index: 100;
+        }
+        
+        .lang-select {
+            appearance: none;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            padding: 8px 36px 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            min-width: 110px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 12px) center;
+        }
+        
+        .lang-select:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .lang-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+        
+        .lang-select option {
+            background: var(--primary);
+            color: white;
+            padding: 8px;
+        }
     </style>
 </head>
 <body>
@@ -635,10 +632,13 @@
     </div>
     
     <!-- Language Switcher -->
-    <div class="lang-switch">
-        <button onclick="setLanguage('en')" id="langEn" class="lang-btn" data-lang="en">EN</button>
-        <button onclick="setLanguage('zh')" id="langZh" class="lang-btn" data-lang="zh">中文</button>
-        <button onclick="setLanguage('fr')" id="langFr" class="lang-btn" data-lang="fr">FR</button>
+        <!-- Language Switcher -->
+    <div class="lang-select-wrapper">
+        <select id="langSelect" class="lang-select" onchange="setLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+            <option value="fr">Français</option>
+        </select>
     </div>
     
     <!-- Main Container -->

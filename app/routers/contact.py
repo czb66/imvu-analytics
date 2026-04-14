@@ -67,7 +67,7 @@ async def contact_page(request: Request):
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     
-    <script src="/static/i18n.js?v=20260413h"></script>
+    <script src="/static/i18n.js?v=20260414a"></script>
     
     <style>
         :root {{
@@ -205,33 +205,44 @@ async def contact_page(request: Request):
             margin-bottom: 20px;
         }}
         
-        .lang-switch {{
+        .lang-select-wrapper {
             position: fixed;
             top: 20px;
             right: 20px;
-            display: flex;
-            gap: 8px;
-        }}
+            z-index: 100;
+        }
         
-        .lang-switch button {{
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .lang-select {
+            appearance: none;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             color: white;
-            padding: 8px 16px;
+            padding: 8px 36px 8px 16px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 500;
             transition: all 0.2s;
-        }}
+            min-width: 110px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 12px) center;
+        }
         
-        .lang-switch button:hover {{
-            background: rgba(255, 255, 255, 0.3);
-        }}
+        .lang-select:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
         
-        .lang-switch button.active {{
-            background: white;
-            color: var(--primary);
-        }}
+        .lang-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+        
+        .lang-select option {
+            background: var(--primary);
+            color: white;
+            padding: 8px;
+        }
         
         .brand-title {{
             position: fixed;
@@ -252,10 +263,12 @@ async def contact_page(request: Request):
 <body>
     <a href="/dashboard" class="brand-title">IMVU Analytics Platform</a>
     
-    <div class="lang-switch">
-        <button class="lang-btn" data-lang="en">EN</button>
-        <button class="lang-btn" data-lang="zh">中文</button>
-        <button class="lang-btn" data-lang="fr">FR</button>
+    <div class="lang-select-wrapper">
+        <select id="langSelect" class="lang-select" onchange="setLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+            <option value="fr">Français</option>
+        </select>
     </div>
     
     <div class="contact-container">
@@ -311,13 +324,12 @@ async def contact_page(request: Request):
     </div>
     
     <script>
-        // 语言切换按钮事件
-        document.querySelectorAll('.lang-btn').forEach(btn => {{
-            btn.addEventListener('click', function() {{
-                const lang = this.getAttribute('data-lang');
-                setLanguage(lang);
-                updateLanguage();
-            }});
+        // 页面加载时设置语言选择框
+        document.addEventListener('DOMContentLoaded', function() {{
+            const select = document.getElementById('langSelect');
+            if (select && window.currentLang) {{
+                select.value = window.currentLang;
+            }}
         }});
         
         // 表单提交
