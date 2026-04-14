@@ -255,6 +255,7 @@ async def contact_page(request: Request):
     <div class="lang-switch">
         <button class="lang-btn" data-lang="en">EN</button>
         <button class="lang-btn" data-lang="zh">中文</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
     </div>
     
     <div class="contact-container">
