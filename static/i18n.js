@@ -262,8 +262,8 @@ const translations = {
             trendUp: 'Rising',
             trendDown: 'Falling',
             trendNeutral: 'Stable',
-            7days: '7 Days',
-            30days: '30 Days',
+            days7: '7 Days',
+            days30: '30 Days',
             revenue: 'Revenue',
             conversion: 'Conversion',
             
@@ -1107,8 +1107,8 @@ const translations = {
             trendUp: '上升',
             trendDown: '下降',
             trendNeutral: '持平',
-            7days: '7天',
-            30days: '30天',
+            days7: '7天',
+            days30: '30天',
             revenue: '收入',
             conversion: '转化率',
             
