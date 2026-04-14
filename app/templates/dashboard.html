@@ -814,6 +814,9 @@
             <a href="/api/upload/template" class="btn btn-outline-secondary mt-2 ms-2" download>
                 <i class="bi bi-download"></i> <span data-i18n="dashboard.downloadTemplate">Download Template</span>
             </a>
+            <button class="btn btn-outline-danger mt-2 ms-2" onclick="clearAllData()">
+                <i class="bi bi-trash"></i> <span data-i18n="dashboard.clearAllData">Clear All Data</span>
+            </button>
             <div class="mt-3">
                 <input type="text" class="form-control" id="datasetName" 
                        data-i18n-placeholder="dashboard.datasetNamePlaceholder" 
@@ -1532,6 +1535,42 @@
                 status.textContent = t('dashboard.uploadFailed') + ': ' + error.message;
             }
 
+            setTimeout(() => status.classList.add('d-none'), 5000);
+        }
+
+        async function clearAllData() {
+            if (!confirm(t('dashboard.confirmClearAll') || 'Are you sure you want to delete ALL your XML data? This action cannot be undone.')) {
+                return;
+            }
+            
+            const status = document.getElementById('uploadStatus');
+            status.className = 'alert alert-warning';
+            status.innerHTML = '<i class="bi bi-hourglass-split"></i> ' + (t('dashboard.clearing') || 'Clearing data...');
+            status.classList.remove('d-none');
+            
+            try {
+                const res = await fetch('/api/upload/clear-all', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + getToken()
+                    }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    status.className = 'alert alert-success';
+                    status.innerHTML = `<i class="bi bi-check-circle"></i> ${data.message || t('dashboard.clearSuccess')}`;
+                    // 刷新仪表盘数据
+                    loadDashboardData();
+                } else {
+                    status.className = 'alert alert-danger';
+                    status.textContent = data.detail || t('dashboard.clearFailed');
+                }
+            } catch (error) {
+                status.className = 'alert alert-danger';
+                status.textContent = (t('dashboard.clearFailed') || 'Clear failed') + ': ' + error.message;
+            }
+            
             setTimeout(() => status.classList.add('d-none'), 5000);
         }
 

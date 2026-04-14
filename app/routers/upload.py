@@ -195,3 +195,46 @@ async def download_template():
             "Content-Disposition": "attachment; filename=template.xml"
         }
     )
+
+
+@router.delete("/clear-all")
+async def clear_all_data(current_user: dict = Depends(require_subscription)):
+    """
+    清空当前用户的所有 XML 数据（删除所有 Dataset 及关联的产品数据）
+    """
+    user_id = current_user.get('id')
+    logger.info(f"[API] 用户 {current_user.get('email')} 请求清空所有数据 - 开始")
+    
+    try:
+        with get_db_context() as db:
+            dataset_repo = DatasetRepository(db)
+            
+            # 获取用户的所有数据集
+            datasets = dataset_repo.get_all(user_id=user_id)
+            
+            if not datasets:
+                logger.info(f"[API] 用户 {current_user.get('email')} 没有数据需要清空")
+                return {
+                    "success": True,
+                    "message": "No data to clear"
+                }
+            
+            # 删除所有数据集（关联的产品数据会级联删除）
+            deleted_count = 0
+            for dataset in datasets:
+                dataset_repo.delete(dataset.id)
+                deleted_count += 1
+            
+            # 清除仪表盘缓存
+            _clear_cache()
+            
+            logger.info(f"[API] 用户 {current_user.get('email')} 成功清空 {deleted_count} 个数据集")
+            
+            return {
+                "success": True,
+                "message": f"Successfully deleted {deleted_count} dataset(s)"
+            }
+            
+    except Exception as e:
+        logger.error(f"[API] 清空数据失败: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to clear data: {str(e)}")

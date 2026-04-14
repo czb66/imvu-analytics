@@ -270,6 +270,11 @@ const translations = {
             uploadTime: 'Upload Time',
             products: 'Products',
             change: 'Change',
+            clearAllData: 'Clear All Data',
+            confirmClearAll: 'Are you sure you want to delete ALL your XML data? This action cannot be undone.',
+            clearing: 'Clearing data...',
+            clearSuccess: 'All data has been cleared',
+            clearFailed: 'Failed to clear data',
             conversion: 'Conversion',
             
             // 产品表格
@@ -1120,6 +1125,11 @@ const translations = {
             uploadTime: '上传时间',
             products: '产品数',
             change: '变化',
+            clearAllData: '清空数据',
+            confirmClearAll: '确定要删除所有 XML 数据吗？此操作不可撤销！',
+            clearing: '正在清空数据...',
+            clearSuccess: '数据已清空',
+            clearFailed: '清空失败',
             conversion: '转化率',
             
             // 产品表格
