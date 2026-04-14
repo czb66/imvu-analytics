@@ -249,13 +249,13 @@ const translations = {
             totalProducts: 'Total Products',
             
             // 图表标题
-            topProductsBySales: 'Top 10 Products (Sales)',
+            top10BySales: 'Top 10 Products (Sales)',
+            top10ByRevenue: 'Top 10 Products (Revenue)',
             visibilityDistribution: 'Visibility Distribution',
             trafficComparison: 'Traffic Comparison',
             priceRangeDistribution: 'Price Range Distribution',
             
-            // Top 5 产品卡片
-            top5Products: 'Top 5 Products',
+            // Top 10 产品卡片
             revenueTrend: 'Revenue Trend',
             totalRevenue: 'Latest Revenue',
             avgDailyRevenue: 'Avg Revenue',
@@ -1105,13 +1105,13 @@ const translations = {
             totalProducts: '总产品数',
             
             // 图表标题
-            topProductsBySales: 'Top 10 产品（销量）',
+            top10BySales: 'Top 10 产品（销量）',
+            top10ByRevenue: 'Top 10 产品（收入）',
             visibilityDistribution: '可见性分布',
             trafficComparison: '流量对比',
             priceRangeDistribution: '价格区间分布',
             
-            // Top 5 产品卡片
-            top5Products: 'Top 5 产品',
+            // Top 10 产品卡片
             revenueTrend: '收入趋势',
             totalRevenue: '最新收入',
             avgDailyRevenue: '平均收入',
@@ -1941,7 +1941,8 @@ const translations = {
             totalProducts: 'Total des produits',
             
             // Titres des graphiques
-            topProductsBySales: 'Top 10 des produits (Ventes)',
+            top10BySales: 'Top 10 des produits (Ventes)',
+            top10ByRevenue: 'Top 10 des produits (Revenus)',
             visibilityDistribution: 'Distribution de visibilité',
             trafficComparison: 'Comparaison du trafic',
             priceRangeDistribution: 'Distribution par gamme de prix',
@@ -1977,8 +1978,7 @@ const translations = {
             datasetNamePlaceholder: 'Nom de l\'ensemble de données (optionnel, ex. 2024-01)',
             datasetNameHint: 'Laissez vide pour utiliser l\'ensemble de données par défaut',
             
-            // Top 5 produits et tendances
-            top5Products: 'Top 5 des produits',
+            // Top 10 produits et tendances
             revenueTrend: 'Tendance des revenus',
             totalRevenue: 'Revenu récent',
             avgDailyRevenue: 'Revenu moyen',

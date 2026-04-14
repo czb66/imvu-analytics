@@ -930,10 +930,10 @@
             </div>
         </div>
 
-        <!-- Top 5 产品卡片 -->
+        <!-- Top 10 产品卡片 -->
         <div class="row g-4 mb-4 top-products-section">
             <div class="col-12">
-                <h5 class="mb-3"><i class="bi bi-trophy"></i> <span data-i18n="dashboard.top5Products">Top 5 Products</span></h5>
+                <h5 class="mb-3"><i class="bi bi-trophy"></i> <span data-i18n="dashboard.top10ByRevenue">Top 10 Products (Revenue)</span></h5>
             </div>
             <div class="col-md-6" id="topProductsCardsContainer">
                 <div id="topProductsCardsLoading" class="chart-loading">
@@ -985,7 +985,7 @@
         <div class="row g-4 mb-4">
             <div class="col-lg-6">
                 <div class="chart-container">
-                    <h5 class="mb-3"><i class="bi bi-bar-chart"></i> <span data-i18n="dashboard.topProductsBySales">Top 10 Products (Sales)</span></h5>
+                    <h5 class="mb-3"><i class="bi bi-bar-chart"></i> <span data-i18n="dashboard.top10BySales">Top 10 Products (Sales)</span></h5>
                     <canvas id="topProductsChart"></canvas>
                 </div>
             </div>
@@ -1692,7 +1692,7 @@
             setTimeout(() => status.classList.add('d-none'), 5000);
         }
 
-        // 加载 Top 5 产品卡片
+        // 加载 Top 10 产品卡片（按收入排序）
         async function loadTopProductsCards() {
             const loadingEl = document.getElementById('topProductsCardsLoading');
             const container = document.getElementById('topProductsCards');
@@ -1700,7 +1700,7 @@
             loadingEl.style.display = 'flex';
             
             try {
-                const response = await fetchWithRetry('/api/dashboard/products-detailed?limit=5&sort_by=revenue', {
+                const response = await fetchWithRetry('/api/dashboard/products-detailed?limit=10&sort_by=revenue', {
                     headers: getAuthHeaders()
                 });
                 const result = await response.json();
