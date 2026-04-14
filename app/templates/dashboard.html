@@ -1093,7 +1093,8 @@
             setupSort();
             loadDashboardData();
             loadTopProductsCards();
-            loadRevenueTrend(7);
+            // 确保图表初始化完成后再加载收入趋势
+            setTimeout(() => loadRevenueTrend(7), 100);
             // AI洞察改为手动生成，初始状态显示按钮
             initInsightCard();
         });
