@@ -382,14 +382,10 @@ async def get_revenue_trend(
                     "data": result
                 }
             
-            # 按日期分组计算每个 Dataset 的总利润
-            # 如果同一天有多次上传，取最后一次的数据
-            daily_data = {}
+            # 按每个 Dataset 分别计算（不合并同一天的上传）
+            upload_records = []
             
             for dataset in datasets_query:
-                # 格式化日期为 YYYY-MM-DD
-                date_str = dataset.upload_time.strftime('%Y-%m-%d')
-                
                 # 计算该 Dataset 的总利润
                 total_profit = db.query(func.coalesce(func.sum(ProductData.profit), 0)).filter(
                     ProductData.dataset_id == dataset.id
@@ -400,16 +396,14 @@ async def get_revenue_trend(
                     ProductData.dataset_id == dataset.id
                 ).scalar()
                 
-                # 如果同一天有多次上传，只保留最后一次
-                if date_str not in daily_data or dataset.upload_time > daily_data[date_str]['upload_time']:
-                    daily_data[date_str] = {
-                        'date': date_str,
-                        'revenue': float(total_profit or 0),
-                        'products': int(product_count or 0),
-                        'upload_time': dataset.upload_time
-                    }
+                upload_records.append({
+                    'date': dataset.upload_time.strftime('%Y-%m-%d'),
+                    'revenue': float(total_profit or 0),
+                    'products': int(product_count or 0),
+                    'upload_time': dataset.upload_time
+                })
             
-            if not daily_data:
+            if not upload_records:
                 elapsed = time.time() - start_time
                 logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(无有效数据) 耗时: {elapsed:.3f}s")
                 result = {
@@ -426,17 +420,17 @@ async def get_revenue_trend(
                     "data": result
                 }
             
-            # 转换为列表并排序
-            dates_list = sorted(daily_data.values(), key=lambda x: x['date'])
+            # 按上传时间排序
+            dates_list = sorted(upload_records, key=lambda x: x['upload_time'])
             
-            # 生成返回数据
-            labels = [d['date'] for d in dates_list]
+            # 生成返回数据（显示上传时间 HH:MM 区分同一天的不同上传）
+            labels = [d['upload_time'].strftime('%Y-%m-%d %H:%M') for d in dates_list]
             values = [round(d['revenue'], 2) for d in dates_list]
             
             # 计算统计数据
             total_revenue = sum(values)
             data_days = len(dates_list)
-            avg_daily_revenue = total_revenue / data_days if data_days > 0 else 0
+            avg_revenue = total_revenue / data_days if data_days > 0 else 0
             
             # 计算趋势
             trend = "neutral"
@@ -485,9 +479,9 @@ async def get_revenue_trend(
                 "values": values,
                 "dates": dates_with_change,
                 "total_revenue": round(total_revenue, 2),
-                "avg_daily_revenue": round(avg_daily_revenue, 2),
+                "avg_revenue": round(avg_revenue, 2),
                 "trend": trend,
-                "data_days": data_days
+                "upload_count": data_days
             }
             
             # 更新缓存（缓存5分钟）

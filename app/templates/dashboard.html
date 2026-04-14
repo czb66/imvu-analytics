@@ -39,7 +39,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
     <script src="/static/auth.js"></script>
-    <script src="/static/i18n.js?v=20260414k"></script>
+    <script src="/static/i18n.js?v=20260414l"></script>
     <style>
         :root {
             --primary: #667eea;
@@ -1648,9 +1648,9 @@
                 if (result.success) {
                     const data = result.data;
                     
-                    // 更新摘要数据
+                    // 更新摘要数据（兼容新旧字段名）
                     document.getElementById('totalRevenueValue').textContent = formatNumber(data.total_revenue) + ' c';
-                    document.getElementById('avgDailyRevenueValue').textContent = formatNumber(data.avg_daily_revenue) + ' c';
+                    document.getElementById('avgDailyRevenueValue').textContent = formatNumber(data.avg_revenue || data.avg_daily_revenue) + ' c';
                     
                     // 更新趋势标签
                     const trendLabel = data.trend === 'up' ? t('dashboard.trendUp') : (data.trend === 'down' ? t('dashboard.trendDown') : t('dashboard.trendNeutral'));
@@ -1668,9 +1668,10 @@
                     const tableEl = document.getElementById('revenueComparisonTable');
                     const tbodyEl = document.getElementById('revenueComparisonBody');
                     
-                    if (data.labels && data.labels.length === 1) {
-                        // 只有一天的数据
-                        hintEl.innerHTML = '<i class="bi bi-info-circle-fill"></i> ' + t('dashboard.singleDayHint');
+                    const uploadCount = data.upload_count || data.data_days || (data.labels ? data.labels.length : 0);
+                    if (uploadCount === 1) {
+                        // 只有一次上传
+                        hintEl.innerHTML = '<i class="bi bi-info-circle-fill"></i> ' + t('dashboard.singleUploadHint');
                         hintEl.style.display = 'flex';
                     } else if (!data.labels || data.labels.length === 0) {
                         // 没有数据
