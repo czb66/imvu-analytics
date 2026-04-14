@@ -151,6 +151,13 @@
     </style>
 </head>
 <body>
+    <!-- Language Switcher -->
+    <div class="lang-switcher" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+        <button class="btn btn-sm btn-light lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <button class="btn btn-sm btn-light lang-btn" data-lang="zh" onclick="setLanguage('zh')">中文</button>
+        <button class="btn btn-sm btn-light lang-btn" data-lang="fr" onclick="setLanguage('fr')">FR</button>
+    </div>
+    
     <div class="cancel-container">
         <div class="cancel-icon">
             <i class="bi bi-x-lg"></i>
@@ -208,6 +215,17 @@
                 'cancel.available3': '诊断与对比分析',
                 'cancel.tryAgain': '再次尝试',
                 'cancel.goHome': '返回仪表板'
+            },
+            fr: {
+                'cancel.pageTitle': 'Paiement annulé - IMVU Analytics',
+                'cancel.title': 'Paiement annulé',
+                'cancel.subtitle': 'Pas de souci, vous pouvez vous abonner à tout moment quand vous êtes prêt',
+                'cancel.stillAvailable': 'Fonctionnalités encore disponibles',
+                'cancel.available1': 'Tableau de bord analytique de base',
+                'cancel.available2': 'Import de données (5 fichiers/mois)',
+                'cancel.available3': 'Diagnostic et comparaison',
+                'cancel.tryAgain': 'Réessayer',
+                'cancel.goHome': 'Aller au tableau de bord'
             }
         };
 

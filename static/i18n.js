@@ -1627,6 +1627,807 @@ const translations = {
             tagline: '专业的 IMVU Creator 数据分析工具',
             copyright: '© 2024-2026 IMVU Analytics. All rights reserved.'
         }
+    },
+    
+    fr: {
+        // Nom de l'application
+        appName: 'Plateforme IMVU Analytics',
+        
+        // Navigation
+        nav: {
+            dashboard: 'Tableau de bord',
+            diagnosis: 'Analyse approfondie',
+            compare: 'Comparaison de données',
+            report: 'Rapports',
+            profile: 'Profil',
+            guide: 'Guide utilisateur',
+            contact: 'Contactez-nous',
+            subscribe: 'Abonnement',
+            login: 'Connexion',
+            register: 'Inscription',
+            logout: 'Déconnexion'
+        },
+        
+        // Page Contactez-nous
+        contact: {
+            pageTitle: 'Contactez-nous',
+            title: 'Contactez-nous',
+            subtitle: 'Nous serions ravis d\'avoir de vos nouvelles. Envoyez-nous un message et nous vous répondrons dès que possible.',
+            name: 'Nom',
+            namePlaceholder: 'Votre nom (optionnel)',
+            email: 'E-mail',
+            emailPlaceholder: 'votre.email@exemple.com',
+            subject: 'Sujet',
+            selectSubject: 'Sélectionnez un sujet',
+            subjectTechnical: 'Support technique',
+            subjectAccount: 'Problèmes de compte',
+            subjectFeature: 'Suggestions de fonctionnalités',
+            subjectSubscription: 'Questions d\'abonnement',
+            subjectOther: 'Autre',
+            message: 'Message',
+            messagePlaceholder: 'Veuillez décrire votre question ou feedback en détail (minimum 10 caractères)',
+            messageHint: 'Minimum 10 caractères',
+            submit: 'Envoyer le message',
+            sending: 'Envoi en cours...',
+            success: 'Votre message a été envoyé avec succès ! Nous vous répondrons bientôt.',
+            error: 'Une erreur s\'est produite. Veuillez réessayer plus tard.',
+            errorEmailRequired: 'Veuillez entrer votre adresse e-mail.',
+            errorSubjectRequired: 'Veuillez sélectionner un sujet.',
+            errorMessageTooShort: 'Le message doit contenir au moins 10 caractères.',
+            backHome: 'Retour à la connexion'
+        },
+        
+        // Page Guide utilisateur
+        guide: {
+            heroTitle: '📖 Guide utilisateur IMVU Analytics',
+            heroSubtitle: 'Apprenez à utiliser les outils d\'analyse de données pour augmenter vos revenus de créateur IMVU',
+            quickStart: 'Démarrage rapide',
+            step1: { title: 'Créer un compte', desc: 'Inscrivez-vous gratuitement pour commencer à utiliser les fonctionnalités de base. Abonnez-vous pour débloquer toutes les fonctionnalités premium.' },
+            step2: { title: 'Télécharger les données XML', desc: 'Connectez-vous à votre compte IMVU Creator, allez sur la page Product Stats et téléchargez votre fichier XML de données produits.' },
+            step3: { title: 'Importer les données', desc: 'Importez le fichier XML sur la plateforme, le système analysera automatiquement et générera des rapports d\'analyse détaillés.' },
+            step4: { title: 'Voir l\'analyse', desc: 'Parcourez le tableau de bord, le diagnostic approfondi, la comparaison de données et autres fonctionnalités pour obtenir des informations IA et des suggestions d\'optimisation.' },
+            features: 'Fonctionnalités principales',
+            feature: {
+                upload: 'Import de données',
+                upload1: 'Prend en charge les données produits IMVU au format XML',
+                upload2: 'Analyse automatique des informations produits, ventes, données de profit',
+                upload3: 'Prend en charge la comparaison de données sur plusieurs périodes',
+                upload4: 'Stockage sécurisé des données, consultation de l\'historique à tout moment',
+                dashboard: 'Tableau de bord',
+                dashboard1: 'Ventes totales, profit, nombre de produits en un coup d\'œil',
+                dashboard2: 'Classement des meilleurs produits',
+                dashboard3: 'Statistiques des produits visibles/cachés',
+                dashboard4: 'Affichage de la conversion du profit en USD',
+                diagnosis: 'Diagnostic approfondi',
+                diagnosis1: 'Analyse de l\'entonnoir de conversion (exposition → panier → favoris → achat)',
+                diagnosis2: 'Diagnostic des ventes et analyse des profits',
+                diagnosis3: 'Détection d\'anomalies (algorithme Z-score)',
+                diagnosis4: 'Suggestions d\'optimisation SEO des noms de produits',
+                ai: 'Insights IA',
+                ai1: 'Analyse intelligente basée sur DeepSeek AI',
+                ai2: 'Génération automatique d\'aperçus de tendances et de suggestions d\'optimisation',
+                ai3: 'Analyse d\'optimisation SEO des noms de produits',
+                ai4: 'Prend en charge la sortie bilingue (français/anglais)',
+                compare: 'Comparaison de données',
+                compare1: 'Analyse comparative de données sur plusieurs périodes',
+                compare2: 'Suivi des changements de classement des produits',
+                compare3: 'Analyse des tendances des ventes et des profits',
+                compare4: 'Rapports d\'insights comparatifs IA',
+                report: 'Génération de rapports',
+                report1: 'Génère des rapports d\'analyse de données détaillés',
+                report2: 'Prend en charge l\'exportation PDF',
+                report3: 'Consultez les rapports historiques à tout moment',
+                report4: 'Abonnement aux rapports par e-mail (optionnel)'
+            },
+            dataFormat: 'Format des données',
+            howToDownload: 'Comment obtenir le fichier de données',
+            howToDownloadDesc: 'Suivez ces étapes pour télécharger les données produits depuis le tableau de bord IMVU Creator :',
+            downloadStep1: 'Connectez-vous au compte IMVU Creator',
+            downloadStep2: 'Allez sur la page Products → Product Stats',
+            downloadStep3: 'Sélectionnez la période à analyser',
+            downloadStep4: 'Cliquez sur "Export to XML" pour télécharger le fichier',
+            xmlFields: 'Champs de données du fichier XML :',
+            seoGuide: 'Guide d\'optimisation SEO',
+            seoTips: 'Conseils d\'optimisation des noms de produits',
+            seoTipsDesc: 'Un bon nom de produit peut améliorer considérablement l\'exposition dans les recherches. Voici quelques conseils d\'optimisation :',
+            seoBestPractices: 'Bonnes pratiques :',
+            seoTip1: 'Utilisez des mots-clés descriptifs : incluez le type de produit, le style, la couleur, etc.',
+            seoTip2: 'Nommage structuré : [Style/Thème] + [Type de produit] + [Caractéristiques clés]',
+            seoTip3: 'Contrôlez la longueur : 3-8 mots efficaces recommandés',
+            seoTip4: 'Évitez les caractères sans signification : n\'utilisez pas de chiffres purs ou de noms par défaut',
+            seoAvoid: 'Évitez ces problèmes :',
+            seoAvoid1: '❌ Noms avec uniquement des chiffres (comme "Produit 123")',
+            seoAvoid2: '❌ Noms trop longs (plus de 100 caractères seront tronqués)',
+            seoAvoid3: '❌ Remplissage de mots-clés',
+            seoAvoid4: '❌ Noms sans rapport avec le contenu du produit',
+            seoAiHint: 'Analyse SEO intelligente',
+            seoAiHintDesc: 'Utilisez la fonctionnalité "Diagnostic approfondi", l\'IA analysera automatiquement vos noms de produits et fournira des suggestions d\'optimisation SEO spécifiques.',
+            pricing: 'Plans d\'abonnement',
+            faq: 'FAQ',
+            faq1: {
+                q: 'Mes données sont-elles sécurisées ?',
+                a: 'Oui, la sécurité des données est notre priorité absolue. Toutes les transmissions de données utilisent le chiffrement HTTPS, et les données sont stockées sur des serveurs cloud sécurisés. Vos données produits sont utilisées uniquement pour l\'analyse et ne sont jamais partagées avec des tiers.'
+            },
+            faq2: {
+                q: 'Quels formats de données sont pris en charge ?',
+                a: 'Actuellement, seuls les fichiers au format XML exportés depuis le tableau de bord IMVU Creator sont pris en charge. C\'est le format officiel de statistiques produits fourni par IMVU, contenant les informations complètes sur les produits et les données de ventes.'
+            },
+            faq3: {
+                q: 'Les Insights IA nécessitent-ils un paiement supplémentaire ?',
+                a: 'Les Insights IA sont inclus dans l\'abonnement Pro sans frais supplémentaires. Après votre abonnement, vous pouvez utiliser les fonctionnalités d\'analyse IA un nombre illimité de fois, y compris les aperçus de données, l\'analyse SEO, l\'analyse comparative, et plus encore.'
+            },
+            faq4: {
+                q: 'Comment annuler mon abonnement ?',
+                a: 'Vous pouvez gérer votre abonnement à tout moment depuis la page "Profil". Cliquez sur "Gérer l\'abonnement" pour accéder au portail client Stripe et annuler. Après l\'annulation, vous pouvez continuer à utiliser le service jusqu\'à la fin de la période de facturation en cours.'
+            },
+            faq5: {
+                q: 'Combien de temps mes données sont-elles stockées ?',
+                a: 'Les données importées sont stockées dans votre compte indéfiniment. Vous pouvez consulter les données historiques et générer des rapports comparatifs à tout moment. Pour supprimer des données, supprimez manuellement des ensembles de données spécifiques depuis le tableau de bord.'
+            },
+            faq6: {
+                q: 'Puis-je obtenir un remboursement ?',
+                a: 'Nous n\'offrons pas de remboursements pour les mois partiels. Cependant, vous pouvez annuler à tout moment et continuer à utiliser le service jusqu\'à la fin de votre période de facturation. Aucun frais supplémentaire ne sera facturé après l\'annulation.'
+            },
+            faq7: {
+                q: 'Quelle technologie IA est utilisée ?',
+                a: 'Nous utilisons DeepSeek AI pour l\'analyse intelligente. Il génère automatiquement des aperçus de tendances, des suggestions d\'optimisation SEO et des rapports comparatifs de données. Prend en charge la sortie bilingue en français et en anglais.'
+            },
+            faq8: {
+                q: 'Quelle est la précision de l\'analyse ?',
+                a: 'L\'analyse des données est précise à 100% selon le format XML officiel IMVU. Les insights IA fournissent une analyse des tendances et des suggestions d\'optimisation basées sur vos données réelles. Les résultats peuvent varier en fonction de la qualité des données.'
+            },
+            ctaTitle: 'Prêt à augmenter vos revenus de créateur IMVU ?',
+            ctaBtn: 'Commencer gratuitement'
+        },
+        
+        // Page Politique de confidentialité
+        privacy: {
+            title: 'Politique de confidentialité',
+            subtitle: 'Comment nous collectons, utilisons et protégeons vos données',
+            section1: {
+                title: '1. Introduction',
+                content: 'IMVU Analytics ("nous", "notre" ou "nos") s\'engage à protéger votre vie privée. Cette politique de confidentialité explique comment nous collectons, utilisons, divulguons et protégeons vos informations lorsque vous utilisez notre plateforme d\'analyse de données.'
+            },
+            section2: {
+                title: '2. Informations que nous collectons',
+                intro: 'Nous collectons les informations que vous nous fournissez directement :',
+                item1: 'Informations de compte : Adresse e-mail, nom d\'utilisateur et mot de passe lors de votre inscription.',
+                item2: 'Informations de paiement : Détails de facturation traités de manière sécurisée via Stripe. Nous ne stockons pas vos numéros de carte de crédit.',
+                item3: 'Données importées : Fichiers XML et données de produits que vous importez pour analyse.',
+                item4: 'Données d\'utilisation : Informations sur la façon dont vous interagissez avec notre service.'
+            },
+            section3: {
+                title: '3. Comment nous utilisons vos informations',
+                item1: 'Fournir, maintenir et améliorer nos services',
+                item2: 'Traiter vos paiements et gérer votre abonnement',
+                item3: 'Générer des rapports d\'analyse et des aperçus',
+                item4: 'Vous envoyer des communications techniques et administratives',
+                item5: 'Répondre à vos commentaires et demandes de support'
+            },
+            section4: {
+                title: '4. Sécurité des données',
+                content: 'Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos données, y compris :',
+                item1: 'Transmission de données chiffrée (HTTPS/TLS)',
+                item2: 'Hachage de mot de passe sécurisé (bcrypt)',
+                item3: 'Isolation des données entre les comptes utilisateurs',
+                item4: 'Examens et mises à jour de sécurité réguliers'
+            },
+            section5: {
+                title: '5. Conservation des données',
+                content: 'Nous conservons vos données tant que votre compte est actif ou selon nécessaire pour vous fournir des services. Vous pouvez demander la suppression de votre compte et des données associées à tout moment en nous contactant.'
+            },
+            section6: {
+                title: '6. Services tiers',
+                content: 'Nous utilisons les services tiers suivants :',
+                item1: 'Stripe : Traitement des paiements (ils gèrent vos informations de paiement)',
+                item2: 'DeepSeek : Insights alimentés par l\'IA (fonctionnalité optionnelle)',
+                item3: 'Resend : Envoi d\'e-mails pour les rapports et notifications'
+            },
+            section7: {
+                title: '7. Vos droits',
+                content: 'Vous avez le droit de :',
+                item1: 'Accéder et télécharger vos données personnelles',
+                item2: 'Corriger les informations inexactes',
+                item3: 'Demander la suppression de vos données',
+                item4: 'Vous désinscrire des communications marketing'
+            },
+            section8: {
+                title: '8. Contactez-nous',
+                content: 'Si vous avez des questions concernant cette politique de confidentialité, veuillez nous contacter à :'
+            },
+            home: 'Accueil',
+            terms: 'Conditions d\'utilisation',
+            lastUpdated: 'Dernière mise à jour : 13 avril 2026'
+        },
+        
+        // Titres des pages
+        pageTitles: {
+            dashboard: 'Aperçu des données',
+            diagnosis: 'Analyse approfondie',
+            compare: 'Comparaison de données',
+            report: 'Centre de rapports'
+        },
+        
+        // Tableau de bord
+        dashboard: {
+            uploadTitle: 'Importer des données XML',
+            uploadHint: 'Glissez le fichier ici ou cliquez pour sélectionner',
+            selectFile: 'Sélectionner un fichier',
+            downloadTemplate: 'Télécharger le modèle',
+            uploading: 'Import et analyse en cours...',
+            uploadSuccess: 'Import réussi !',
+            uploadFailed: 'Échec de l\'import',
+            
+            // Cartes métriques
+            directSales: 'Ventes directes',
+            indirectSales: 'Ventes indirectes',
+            promotedSales: 'Ventes promotionnelles',
+            totalSales: 'Ventes totales',
+            totalProfit: 'Profit total',
+            totalProfitCredits: 'Profit total (Credits)',
+            totalProfitUsd: 'Profit total (USD)',
+            visibleProducts: 'Produits visibles',
+            hiddenProducts: 'Produits cachés',
+            totalProducts: 'Total des produits',
+            
+            // Titres des graphiques
+            topProductsBySales: 'Top 10 des produits (Ventes)',
+            visibilityDistribution: 'Distribution de visibilité',
+            trafficComparison: 'Comparaison du trafic',
+            priceRangeDistribution: 'Distribution par gamme de prix',
+            
+            // Tableau des produits
+            productList: 'Liste des produits',
+            searchPlaceholder: 'Rechercher par ID ou nom...',
+            productId: 'ID du produit',
+            productName: 'Nom du produit',
+            price: 'Prix',
+            profit: 'Profit',
+            profitMargin: 'Marge bénéficiaire',
+            visibility: 'Visibilité',
+            visible: 'Visible',
+            hidden: 'Caché',
+            
+            // Étiquettes des graphiques
+            sales: 'Ventes',
+            visibleLabel: 'Visible',
+            hiddenLabel: 'Caché',
+            organicTraffic: 'Trafic organique',
+            paidTraffic: 'Trafic payant',
+            
+            // Messages d\'état
+            noData: 'Aucune donnée disponible',
+            loading: 'Chargement des données...',
+            loadingFailed: 'Échec du chargement des données',
+            retry: 'Réessayer',
+            requestTimeout: 'Délai d\'attente dépassé, veuillez vérifier votre connexion',
+            items: 'éléments',
+            
+            // Nom de l\'ensemble de données
+            datasetNamePlaceholder: 'Nom de l\'ensemble de données (optionnel, ex. 2024-01)',
+            datasetNameHint: 'Laissez vide pour utiliser l\'ensemble de données par défaut'
+        },
+        
+        // Diagnostic approfondi
+        diagnosis: {
+            funnelAnalysis: 'Analyse de l\'entonnoir de conversion',
+            impressions: 'Impressions',
+            addToCart: 'Ajout au panier',
+            wishlist: 'Favoris',
+            sales: 'Ventes',
+            impressionToCart: 'Impression → Panier',
+            cartToWishlist: 'Panier → Favoris',
+            wishlistToSales: 'Favoris → Commande',
+            
+            // Diagnostic des ventes
+            totalSalesAmount: 'Montant total des ventes',
+            totalProfit: 'Profit total',
+            avgProfitMargin: 'Marge bénéficiaire moyenne',
+            
+            // Gamme de prix
+            priceRangeAnalysis: 'Analyse par gamme de prix',
+            priceRange: 'Gamme de prix',
+            productCount: 'Produits',
+            totalSalesQty: 'Ventes totales',
+            totalProfitAmount: 'Profit total',
+            avgProfitAmount: 'Profit moyen',
+            
+            // Trafic et ROI
+            trafficAnalysis: 'Analyse du trafic',
+            roiAnalysis: 'Analyse du ROI',
+            organicRevenue: 'Revenu organique',
+            paidRevenue: 'Revenu payant',
+            estimatedCost: 'Coût estimé (payant)',
+            estimatedRoi: 'ROI estimé',
+            ratio: 'ratio',
+            
+            // Comportement utilisateur
+            userBehavior: 'Analyse du comportement utilisateur',
+            cartToSalesRate: 'Taux Panier → Commande',
+            cartToWishlistRate: 'Taux Panier → Favoris',
+            wishlistToSalesRate: 'Taux Favoris → Commande',
+            
+            // Produits à haut profit
+            highProfitProducts: 'Produits à haut profit',
+            noHighProfitProducts: 'Aucun produit à haut profit',
+            
+            // Détection d\'anomalies
+            anomalyDetection: 'Détection d\'anomalies',
+            noAnomalyDetected: 'Aucune anomalie de ventes détectée',
+            type: 'Type',
+            zScore: 'Z-score',
+            
+            // Alerte de faible conversion
+            lowConversionAlert: 'Alerte de faible conversion',
+            noLowConversionAlert: 'Aucune alerte de faible conversion',
+            cartAdds: 'Ajouts au panier',
+            conversionRate: 'Taux de conversion'
+        },
+        
+        // Centre de rapports
+        report: {
+            quickActions: 'Actions rapides',
+            generateFullReport: 'Générer le rapport complet',
+            viewHtmlReport: 'Voir le rapport HTML',
+            downloadLatest: 'Télécharger le dernier',
+            generating: 'Génération du rapport en cours...',
+            generationSuccess: 'Rapport généré avec succès !',
+            generationFailed: 'Échec de la génération',
+            emailSent: 'E-mail envoyé.',
+            
+            customReport: 'Paramètres du rapport personnalisé',
+            reportOptions: 'Options du rapport',
+            includeAnomalyDetection: 'Inclure la détection d\'anomalies',
+            includeTopBottomProducts: 'Inclure les produits Top/Bottom',
+            sendEmailNotification: 'Envoyer une notification par e-mail',
+            topProductsLimit: 'Limite des produits Top',
+            emailRecipients: 'Destinataires (séparés par des virgules)',
+            generateCustomReport: 'Générer le rapport personnalisé',
+            
+            reportHistory: 'Historique des rapports',
+            dailyReport: 'Rapport quotidien',
+            manualReport: 'Rapport manuel',
+            noReportHistory: 'Aucun historique de rapports',
+            loading: 'Chargement...',
+            loadFailed: 'Échec du chargement',
+            status: {
+                pending: 'En cours',
+                completed: 'Terminé',
+                failed: 'Échoué'
+            },
+            sentTo: 'Envoyé à',
+            
+            scheduledReport: 'Paramètres des rapports planifiés',
+            scheduledReportInfo: 'Le système génère automatiquement un rapport à 1h00 UTC (9h00 Beijing) et l\'envoie à l\'e-mail configuré.',
+            modifySchedule: 'Pour modifier la planification, modifiez REPORT_CRON_HOUR et REPORT_CRON_MINUTE dans config.py.',
+            
+            emailConfig: 'Configuration e-mail',
+            configEnvVariables: 'Configurez les variables d\'environnement suivantes pour activer l\'envoi d\'e-mails :',
+            envVariable: 'Variable d\'environnement',
+            description: 'Description',
+            example: 'Exemple',
+            smtpHost: 'Serveur SMTP',
+            smtpPort: 'Port SMTP',
+            smtpUser: 'E-mail de l\'expéditeur',
+            smtpPassword: 'Mot de passe / Mot de passe d\'application',
+            emailTo: 'Destinataire par défaut',
+            securityTip: 'Conseil de sécurité : Ne saisissez pas de mots de passe dans le code. Utilisez un fichier .env ou des variables d\'environnement.',
+            
+            download: 'Télécharger'
+        },
+        
+        // Comparaison de données
+        compare: {
+            selectDatasets: 'Sélectionner les ensembles de données',
+            selectHint: 'Sélectionnez 2-10 ensembles de données à comparer',
+            noDatasets: 'Aucun ensemble de données disponible. Importez d\'abord des données.',
+            uploadData: 'Importer des données',
+            runCompare: 'Comparer la sélection',
+            loading: 'Chargement...',
+            
+            // Métriques
+            metricsComparison: 'Comparaison des métriques',
+            totalSales: 'Ventes totales',
+            totalProfit: 'Profit total',
+            totalProducts: 'Total des produits',
+            visibleProducts: 'Produits visibles',
+            changeTrend: 'Tendance du changement',
+            sales: 'Ventes',
+            profit: 'Profit',
+            
+            // Graphiques de tendance
+            salesTrend: 'Tendance des ventes',
+            profitTrend: 'Tendance du profit',
+            
+            // Changements de classement
+            rankUpProducts: 'Produits en hausse',
+            rankDownProducts: 'Produits en baisse',
+            newInTop: 'Nouveau dans le Top 10',
+            exitedTop: 'Sorti du Top 10',
+            rank: 'rang',
+            new: 'NOUVEAU',
+            exited: 'SORTI',
+            noChange: 'Aucun changement de classement',
+            noneInTop: 'Aucun',
+            
+            // Comparaison des Top 10
+            topProductsComparison: 'Comparaison des Top 10 produits',
+            rankingImproved: 'Classement amélioré',
+            rankingDeclined: 'Classement baissé',
+            newEntries: 'Nouvelles entrées',
+            droppedOut: 'Sortis du Top 10',
+            productName: 'Nom du produit',
+            oldRank: 'Ancien rang',
+            newRank: 'Nouveau rang',
+            change: 'Changement',
+            
+            // Opérations
+            products: 'produits',
+            confirmDelete: 'Êtes-vous sûr de vouloir supprimer cet ensemble de données ?'
+        },
+        
+        // Insights IA
+        insights: {
+            pageTitle: 'Insights IA',
+            dashboard: {
+                title: 'Insights de données IA'
+            },
+            diagnosis: {
+                title: 'Insights de diagnostic IA'
+            },
+            compare: {
+                title: 'Insights comparatifs IA'
+            },
+            quickAnalysis: 'Analyse rapide',
+            salesTrends: 'Analyse des tendances de ventes',
+            profitOptimization: 'Optimisation du profit',
+            productRecommendations: 'Recommandations de produits',
+            suggestedQuestions: 'Questions suggérées',
+            q1: 'Top 5 des produits les plus vendus',
+            q2: 'Produits avec la marge bénéficiaire la plus élevée',
+            q3: 'Suggestions de stratégie marketing',
+            aiChat: 'Assistant IA',
+            welcome: 'Bonjour ! Je suis votre assistant IA. Posez-moi n\'importe quelle question sur vos données marketing.',
+            askPlaceholder: 'Posez des questions sur vos données...',
+            apiKeyRequired: 'La clé API DeepSeek est requise. Veuillez la configurer dans les Paramètres.',
+            generate: 'Générer les Insights IA',
+            refresh: 'Actualiser les insights',
+            generating: 'Génération des insights IA en cours...',
+            configHint: 'Configurez la clé API DeepSeek pour une analyse plus intelligente. Allez sur',
+            settings: 'Page des paramètres',
+            loadError: 'Échec du chargement, veuillez réessayer plus tard',
+            seo: {
+                title: 'Analyse SEO des noms de produits',
+                generate: 'Analyser les noms de produits',
+                analyzing: 'Analyse des noms de produits en cours...'
+            },
+            offlineMode: 'Mode hors ligne',
+            noData: 'Aucune donnée disponible. Veuillez d\'abord importer des données de produits.',
+            selectDatasets: 'Veuillez sélectionner au moins 2 ensembles de données à comparer',
+            insufficientData: 'Ensembles de données valides insuffisants pour la comparaison',
+            generatingFailed: 'Échec de la génération des insights',
+            retry: 'Réessayer',
+            analyzing: 'Analyse de vos données en cours...',
+            error: 'Une erreur s\'est produite. Veuillez réessayer.'
+        },
+
+        // Page d\'import
+        upload: {
+            dataFormat: 'Exigences de format de données',
+            formatXml: 'Fichier au format XML',
+            maxSize: 'Taille maximale du fichier : 50 Mo',
+            requiredFields: 'Champs requis : ID du produit, Nom du produit, Prix de gros, Profit',
+            invalidFormat: 'Veuillez importer un fichier XML.',
+            uploadSuccess: 'Données importées avec succès !',
+            uploadError: 'Échec de l\'import. Veuillez réessayer.',
+            processing: 'Traitement des données en cours...'
+        },
+        
+        // Page des paramètres
+        settings: {
+            nav: 'Paramètres',
+            pageTitle: 'Paramètres',
+            systemInfo: 'Informations système',
+            apiNote: 'Les fonctionnalités IA (DeepSeek) sont configurées par l\'administrateur du serveur. La clé API n\'est pas exposée aux utilisateurs pour des raisons de sécurité.'
+        },
+        
+        // Centre personnel
+        profile: {
+            pageTitle: 'Centre personnel',
+            userInfo: 'Informations utilisateur',
+            email: 'E-mail',
+            username: 'Nom d\'utilisateur',
+            memberSince: 'Membre depuis',
+            subscription: 'Abonnement',
+            subscriptionStatus: 'Statut',
+            subscriptionEndDate: 'Date de fin',
+            notSubscribed: 'Non abonné',
+            subscribed: 'Abonné',
+            updateUsername: 'Modifier le nom d\'utilisateur',
+            newUsername: 'Nouveau nom d\'utilisateur',
+            usernamePlaceholder: 'Entrez un nouveau nom d\'utilisateur (optionnel)',
+            usernameHint: 'Laissez vide pour supprimer le nom d\'utilisateur',
+            saveUsername: 'Enregistrer le nom d\'utilisateur',
+            changePassword: 'Modifier le mot de passe',
+            oldPassword: 'Mot de passe actuel',
+            oldPasswordPlaceholder: 'Entrez le mot de passe actuel',
+            newPassword: 'Nouveau mot de passe',
+            newPasswordPlaceholder: 'Entrez un nouveau mot de passe (minimum 8 caractères)',
+            confirmPassword: 'Confirmer le mot de passe',
+            confirmPasswordPlaceholder: 'Confirmez le nouveau mot de passe',
+            passwordHint: 'Le mot de passe doit comporter au moins 8 caractères',
+            changePasswordBtn: 'Modifier le mot de passe',
+            logout: 'Déconnexion',
+            logoutHint: 'Cliquez sur le bouton ci-dessous pour vous déconnecter en toute sécurité.',
+            logoutBtn: 'Déconnexion',
+            loading: 'Chargement...',
+            updateSuccess: 'Mise à jour réussie !',
+            updateFailed: 'Échec de la mise à jour. Veuillez réessayer.',
+            passwordChangeSuccess: 'Mot de passe modifié avec succès !',
+            passwordChangeFailed: 'Échec de la modification du mot de passe. Veuillez réessayer.',
+            passwordMinLength: 'Le mot de passe doit comporter au moins 8 caractères.',
+            passwordMismatch: 'Les nouveaux mots de passe ne correspondent pas.'
+        },
+        
+        // Changement de langue
+        language: {
+            switchTo: 'Passer à',
+            current: 'Actuel'
+        },
+
+        // Page d\'inscription
+        register: {
+            pageTitle: 'Inscription - IMVU Analytics',
+            subtitle: 'Créez votre compte',
+            email: 'E-mail',
+            username: 'Nom d\'utilisateur (optionnel)',
+            usernamePlaceholder: 'Nom d\'utilisateur (optionnel)',
+            password: 'Mot de passe',
+            confirmPassword: 'Confirmer le mot de passe',
+            passwordReq: 'Le mot de passe doit comporter au moins 8 caractères',
+            registerBtn: 'S\'inscrire',
+            hasAccount: 'Vous avez déjà un compte ?',
+            loginLink: 'Se connecter maintenant',
+            // Messages de validation du formulaire
+            registerSuccess: 'Inscription réussie ! Redirection vers la connexion...',
+            registerError: 'Échec de l\'inscription. Veuillez réessayer.',
+            emailUsed: 'Cet e-mail est déjà enregistré',
+            invalidEmail: 'Veuillez entrer une adresse e-mail valide',
+            passwordMismatch: 'Les mots de passe ne correspondent pas',
+            passwordShort: 'Le mot de passe doit comporter au moins 8 caractères',
+            // Force du mot de passe
+            weak: 'Faible',
+            medium: 'Moyen',
+            strong: 'Fort',
+            veryStrong: 'Très fort'
+        },
+
+        // Page de connexion
+        login: {
+            pageTitle: 'Connexion - IMVU Analytics',
+            welcomeBack: 'Bon retour',
+            subtitle: 'Connectez-vous à votre compte',
+            email: 'E-mail',
+            password: 'Mot de passe',
+            rememberMe: 'Se souvenir de moi',
+            forgotPassword: 'Mot de passe oublié ?',
+            loginBtn: 'Connexion',
+            noAccount: 'Vous n\'avez pas de compte ?',
+            registerLink: 'S\'inscrire maintenant',
+            // Messages de validation du formulaire
+            loginSuccess: 'Connexion réussie ! Redirection...',
+            loginError: 'Échec de la connexion. Veuillez vérifier vos identifiants.',
+            invalidEmail: 'Veuillez entrer une adresse e-mail valide',
+            passwordRequired: 'Le mot de passe est requis'
+        },
+
+        // Page mot de passe oublié
+        forgotPassword: {
+            pageTitle: 'Mot de passe oublié - IMVU Analytics',
+            title: 'Mot de passe oublié',
+            description: 'Entrez votre e-mail enregistré, nous enverrons un lien de réinitialisation du mot de passe',
+            email: 'E-mail',
+            sendResetLink: 'Envoyer le lien de réinitialisation',
+            backToLogin: 'Retour à la connexion',
+            // Messages de validation du formulaire
+            invalidEmail: 'Veuillez entrer une adresse e-mail valide',
+            emailRequired: 'L\'e-mail est requis',
+            sending: 'Envoi en cours...',
+            sendSuccess: 'Si cet e-mail est enregistré, un lien de réinitialisation a été envoyé. Veuillez vérifier votre dossier de spam.',
+            sendError: 'Échec de l\'envoi de l\'e-mail. Veuillez réessayer plus tard.'
+        },
+
+        // Page de réinitialisation du mot de passe
+        resetPassword: {
+            pageTitle: 'Réinitialisation du mot de passe - IMVU Analytics',
+            title: 'Réinitialisation du mot de passe',
+            enterNewPassword: 'Veuillez entrer votre nouveau mot de passe',
+            newPassword: 'Nouveau mot de passe',
+            confirmPassword: 'Confirmer le mot de passe',
+            passwordsMatch: 'Les mots de passe correspondent',
+            passwordsMismatch: 'Les mots de passe ne correspondent pas',
+            passwordHint: 'Le mot de passe doit comporter au moins 8 caractères',
+            resetBtn: 'Réinitialiser le mot de passe',
+            backToLogin: 'Retour à la connexion',
+            validatingToken: 'Validation du lien en cours...',
+            // Messages de validation du formulaire
+            passwordRequired: 'Le mot de passe est requis',
+            passwordTooShort: 'Le mot de passe doit comporter au moins 8 caractères',
+            passwordsNotMatch: 'Les mots de passe ne correspondent pas',
+            resetSuccess: 'Mot de passe réinitialisé avec succès ! Redirection vers la connexion...',
+            resetError: 'Échec de la réinitialisation du mot de passe. Le lien peut avoir expiré.',
+            invalidToken: 'Lien invalide ou expiré'
+        },
+
+        // Traductions communes
+        common: {
+            loading: 'Chargement...',
+            error: 'Erreur',
+            success: 'Succès',
+            confirm: 'Confirmer',
+            cancel: 'Annuler',
+            close: 'Fermer',
+            submit: 'Soumettre',
+            save: 'Enregistrer',
+            delete: 'Supprimer',
+            edit: 'Modifier',
+            view: 'Voir',
+            back: 'Retour',
+            next: 'Suivant',
+            previous: 'Précédent',
+            yes: 'Oui',
+            no: 'Non'
+        },
+
+        // Page d\'annulation
+        cancel: {
+            pageTitle: 'Compte annulé',
+            title: 'Compte annulé',
+            description: 'Votre compte a été annulé avec succès.',
+            message: 'Nous sommes désolés de vous voir partir. Si vous souhaitez rejoindre à nouveau, vous pouvez vous réinscrire à tout moment.',
+            returnHome: 'Retour à l\'accueil',
+            registerAgain: 'Se réinscrire'
+        },
+
+        // Page de succès
+        success: {
+            pageTitle: 'Succès',
+            title: 'Succès !',
+            message: 'Votre opération a été terminée avec succès.',
+            continueText: 'Continuer',
+            returnHome: 'Retour à l\'accueil'
+        },
+
+        // Page de tarification
+        pricing: {
+            pageTitle: 'Tarifs - IMVU Analytics',
+            title: 'Tarification simple et transparente',
+            subtitle: 'Un plan, toutes les fonctionnalités, sans frais cachés',
+            // Noms des plans
+            free: 'Gratuit',
+            pro: 'Pro',
+            enterprise: 'Entreprise',
+            // Descriptions des plans
+            freeDesc: 'Parfait pour commencer',
+            proDesc: 'Pour les entreprises en croissance',
+            enterpriseDesc: 'Pour les grandes organisations',
+            // Liste des fonctionnalités
+            compare1: 'Import de données',
+            compare2: 'Tableau de bord de base',
+            compare3: 'Diagnostic des données',
+            compare4: 'Insights IA',
+            compare5: 'Rapports par e-mail',
+            subscribe_btn: 'S\'abonner maintenant - 12$/mois',
+            manage: 'Gérer l\'abonnement',
+            current_plan: 'Plan actuel',
+            renews_at: 'Renouvellement le',
+            subscribe_success: 'Redirection vers le paiement...',
+            subscribe_error: 'Échec de la création de la session de paiement',
+            not_logged_in: 'Veuillez d\'abord vous connecter',
+            network_error: 'Erreur réseau, veuillez réessayer',
+            // Fonctionnalités
+            features: {
+                uploads: 'Imports mensuels',
+                products: 'Produits par import',
+                datasets: 'Ensembles de données historiques',
+                aiInsights: 'Insights IA',
+                reports: 'Génération de rapports',
+                emailReports: 'Rapports par e-mail',
+                support: 'Support prioritaire',
+                customBranding: 'Marque personnalisée'
+            },
+            // Limites des fonctionnalités
+            unlimited: 'Illimité',
+            notIncluded: 'Non inclus',
+            // Boutons CTA
+            getStarted: 'Commencer',
+            upgrade: 'Mettre à niveau maintenant',
+            contactSales: 'Contacter les ventes',
+            currentPlan: 'Plan actuel'
+        },
+
+        // Page des conditions d\'utilisation
+        terms: {
+            title: 'Conditions d\'utilisation',
+            subtitle: 'Veuillez lire attentivement ces conditions avant d\'utiliser notre service',
+            section1: {
+                title: '1. Acceptation des conditions',
+                content: 'En accédant et en utilisant la plateforme IMVU Analytics ("le Service"), vous acceptez et acceptez d\'être lié par ces conditions d\'utilisation. Si vous n\'acceptez pas ces conditions, veuillez ne pas utiliser le Service.'
+            },
+            section2: {
+                title: '2. Description du service',
+                content: 'La plateforme IMVU Analytics fournit des outils d\'analyse de données pour les créateurs IMVU, y compris mais sans s\'y limiter :',
+                item1: 'Import et analyse de données de ventes de produits',
+                item2: 'Tableau de bord et visualisation des données',
+                item3: 'Insights et analyse alimentés par l\'IA',
+                item4: 'Comparaison et analyse des tendances des données',
+                item5: 'Génération et exportation de rapports'
+            },
+            section3: {
+                title: '3. Comptes utilisateurs',
+                item1: 'Vous devez fournir des informations exactes et complètes lors de l\'inscription.',
+                item2: 'Vous êtes responsable du maintien de la sécurité de vos identifiants de compte.',
+                item3: 'Vous êtes responsable de toutes les activités effectuées sous votre compte.',
+                item4: 'Vous devez nous notifier immédiatement de toute utilisation non autorisée de votre compte.'
+            },
+            section4: {
+                title: '4. Abonnement et paiement',
+                price: 'Prix de l\'abonnement : 12 USD par mois',
+                item1: 'Les abonnements sont facturés mensuellement via Stripe.',
+                item2: 'Vous pouvez annuler votre abonnement à tout moment.',
+                item3: 'Les abonnements annulés restent actifs jusqu\'à la fin de la période de facturation.',
+                item4: 'Aucun remboursement n\'est fourni pour les mois partiels.'
+            },
+            section5: {
+                title: '5. Utilisation acceptable',
+                content: 'Vous acceptez de NE PAS :',
+                item1: 'Importer des fichiers malveillants ou tenter de compromettre nos systèmes',
+                item2: 'Utiliser le Service à des fins illégales',
+                item3: 'Tenter de désosser ou d\'extraire le code source du Service',
+                item4: 'Partager vos identifiants de compte avec d\'autres',
+                item5: 'Importer des données qui enfreignent les droits de propriété intellectuelle d\'autrui'
+            },
+            section6: {
+                title: '6. Données et confidentialité',
+                content: 'Votre utilisation du Service est également régie par notre Politique de confidentialité. Points clés :',
+                item1: 'Nous collectons et traitons vos données comme décrit dans notre Politique de confidentialité',
+                item2: 'Vous conservez la propriété de vos données importées',
+                item3: 'Nous mettons en œuvre des mesures de sécurité pour protéger vos données'
+            },
+            section7: {
+                title: '7. Propriété intellectuelle',
+                content: 'La plateforme IMVU Analytics et son contenu original, ses fonctionnalités et ses fonctions sont notre propriété et sont protégés par les lois internationales sur le droit d\'auteur, les marques commerciales et autres lois sur la propriété intellectuelle.'
+            },
+            section8: {
+                title: '8. Limitation de responsabilité',
+                content: 'Dans la mesure maximale autorisée par la loi, nous ne serons pas responsables des dommages indirects, accidentels, spéciaux, consécutifs ou punitifs résultant de votre utilisation du Service.'
+            },
+            section9: {
+                title: '9. Modifications des conditions',
+                content: 'Nous nous réservons le droit de modifier ces conditions à tout moment. Nous notifierons les utilisateurs des changements importants par e-mail ou via le Service. L\'utilisation continue du Service après les modifications constitue l\'acceptation des nouvelles conditions.'
+            },
+            section10: {
+                title: '10. Informations de contact',
+                content: 'Pour toute question concernant ces conditions d\'utilisation, veuillez nous contacter à :'
+            },
+            backHome: 'Retour à l\'accueil',
+            lastUpdated: 'Dernière mise à jour : 13 avril 2026'
+        },
+
+        // Footer
+        footer: {
+            terms: 'Conditions d\'utilisation',
+            privacy: 'Politique de confidentialité',
+            links: 'Liens',
+            home: 'Accueil',
+            guide: 'Guide utilisateur',
+            pricing: 'Tarifs',
+            support: 'Support',
+            login: 'Connexion',
+            register: 'Inscription',
+            tagline: 'Outil d\'analyse de données professionnel pour créateurs IMVU',
+            copyright: '© 2024-2026 IMVU Analytics. Tous droits réservés.'
+        }
     }
 };
 

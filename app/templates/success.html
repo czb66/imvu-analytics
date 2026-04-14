@@ -149,6 +149,13 @@
     </style>
 </head>
 <body>
+    <!-- Language Switcher -->
+    <div class="lang-switcher" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+        <button class="btn btn-sm btn-light lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <button class="btn btn-sm btn-light lang-btn" data-lang="zh" onclick="setLanguage('zh')">中文</button>
+        <button class="btn btn-sm btn-light lang-btn" data-lang="fr" onclick="setLanguage('fr')">FR</button>
+    </div>
+    
     <div class="success-container">
         <div class="success-icon">
             <i class="bi bi-check-lg"></i>
@@ -212,6 +219,18 @@
                 'success.feature4': '优先客户支持',
                 'success.startExploring': '开始探索',
                 'success.tryAI': '体验AI洞察'
+            },
+            fr: {
+                'success.pageTitle': 'Paiement réussi - IMVU Analytics',
+                'success.title': 'Paiement réussi !',
+                'success.subtitle': 'Merci de vous abonner à IMVU Analytics Pro',
+                'success.yourAccess': 'Votre nouvel accès',
+                'success.feature1': 'Imports de données illimités',
+                'success.feature2': 'Insights et prédictions alimentés par l\'IA',
+                'success.feature3': 'Rapports hebdomadaires automatisés',
+                'success.feature4': 'Support prioritaire',
+                'success.startExploring': 'Commencer à explorer',
+                'success.tryAI': 'Essayer les Insights IA'
             }
         };
 
