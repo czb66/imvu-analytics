@@ -346,29 +346,34 @@
         }
         
         .form-check-input {
-            background-color: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.35);
-            width: 18px;
-            height: 18px;
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            border-color: rgba(255, 255, 255, 0.35) !important;
+            width: 18px !important;
+            height: 18px !important;
             cursor: pointer;
             position: relative;
+            background-image: none !important;
         }
         
         .form-check-input:checked {
-            background-color: white;
-            border-color: white;
+            background-color: white !important;
+            border-color: white !important;
         }
         
-        .form-check-input:checked::before {
+        .form-check-input:checked::after {
             content: '';
             position: absolute;
             left: 5px;
-            top: 2px;
-            width: 5px;
+            top: 1px;
+            width: 6px;
             height: 10px;
             border: solid #667eea;
             border-width: 0 2px 2px 0;
             transform: rotate(45deg);
+        }
+        
+        .form-check-input:focus {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3) !important;
         }
         
         .form-check-label {
