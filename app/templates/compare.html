@@ -957,6 +957,12 @@
             const user = await protectPage();
             if (!user) return;
             
+            // 如果用户已订阅或在白名单中，隐藏订阅按钮
+            if (user.is_subscribed || user.subscription_status === 'active' || user.is_whitelisted) {
+                const subscribeBtn = document.getElementById('subscribeBtn');
+                if (subscribeBtn) subscribeBtn.style.display = 'none';
+            }
+            
             // 初始化用户菜单
             initUserMenu(user);
             
