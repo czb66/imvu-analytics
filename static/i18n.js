@@ -2555,6 +2555,7 @@ function getLanguage() {
 // 页面加载完成后应用翻译
 document.addEventListener('DOMContentLoaded', () => {
     applyTranslations();
+    updateLanguageSelect();
 });
 
 // 导出到全局作用域，供 HTML 页面使用
