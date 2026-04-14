@@ -1974,6 +1974,29 @@ const translations = {
             // Nom de l\'ensemble de données
             datasetNamePlaceholder: 'Nom de l\'ensemble de données (optionnel, ex. 2024-01)',
             datasetNameHint: 'Laissez vide pour utiliser l\'ensemble de données par défaut'
+            
+            // Top 5 produits et tendances
+            top5Products: 'Top 5 des produits',
+            revenueTrend: 'Tendance des revenus',
+            totalRevenue: 'Revenu total',
+            avgDailyRevenue: 'Revenu journalier moyen',
+            trendUp: 'En hausse',
+            trendDown: 'En baisse',
+            trendNeutral: 'Stable',
+            days7: '7 jours',
+            days30: '30 jours',
+            revenue: 'Revenu',
+            singleDayHint: 'Une seule journée de données. Importez plus de fichiers XML pour voir les changements de tendance.',
+            noDataHint: 'Aucune donnée historique disponible. Importez des fichiers XML pour commencer le suivi des tendances.',
+            uploadTime: 'Date d'import',
+            products: 'Produits',
+            change: 'Variation',
+            clearAllData: 'Effacer les données',
+            confirmClearAll: 'Êtes-vous sûr de vouloir supprimer TOUTES vos données XML ? Cette action est irréversible.',
+            clearing: 'Suppression en cours...',
+            clearSuccess: 'Toutes les données ont été effacées',
+            clearFailed: 'Échec de la suppression',
+            conversion: 'Conversion'
         },
         
         // Diagnostic approfondi
