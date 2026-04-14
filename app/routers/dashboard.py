@@ -322,78 +322,169 @@ async def refresh_cache(current_user: dict = Depends(require_subscription)):
 
 @router.get("/revenue-trend")
 async def get_revenue_trend(
-    days: int = Query(7, ge=7, le=30),
+    days: int = Query(30, ge=7, le=90),
     current_user: dict = Depends(require_subscription)
 ):
     """
-    获取收入趋势数据
+    获取收入趋势数据（真实历史数据追踪）
     
-    - **days**: 时间范围（7 或 30 天）
+    - **days**: 时间范围（默认30天，最大90天）
     """
     start_time = time.time()
     user_id = current_user.get('id')
     logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 days={days} - 开始")
     
-    try:
-        product_dicts = _get_cached_products(user_id=user_id)
-        
-        if not product_dicts:
+    # 检查缓存
+    cache_key = f"revenue_trend_{user_id}_{days}"
+    current_time = time.time()
+    if cache_key in _dashboard_cache:
+        cache_entry = _dashboard_cache[cache_key]
+        if current_time - cache_entry["timestamp"] < cache_entry.get("ttl", 60):
+            logger.info(f"[API] 用户 {current_user.get('email')} 使用缓存的收入趋势数据")
             elapsed = time.time() - start_time
-            logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(缓存) 耗时: {elapsed:.3f}s")
             return {
                 "success": True,
-                "data": {
+                "data": cache_entry["data"]
+            }
+    
+    try:
+        with get_db_context() as db:
+            from app.models import Dataset, ProductData
+            from sqlalchemy import func, extract
+            from datetime import datetime, timedelta
+            
+            # 计算日期范围
+            end_date = datetime.utcnow()
+            start_date = end_date - timedelta(days=days)
+            
+            # 查询用户的所有 Dataset，按 upload_time 排序
+            datasets_query = db.query(Dataset).filter(
+                Dataset.user_id == user_id,
+                Dataset.upload_time >= start_date
+            ).order_by(Dataset.upload_time.asc()).all()
+            
+            if not datasets_query:
+                # 如果没有数据，返回空
+                elapsed = time.time() - start_time
+                logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(无数据) 耗时: {elapsed:.3f}s")
+                result = {
                     "labels": [],
                     "values": [],
+                    "dates": [],
                     "total_revenue": 0,
                     "avg_daily_revenue": 0,
-                    "trend": "neutral"
+                    "trend": "neutral",
+                    "data_days": 0
                 }
+                return {
+                    "success": True,
+                    "data": result
+                }
+            
+            # 按日期分组计算每个 Dataset 的总利润
+            # 如果同一天有多次上传，取最后一次的数据
+            daily_data = {}
+            
+            for dataset in datasets_query:
+                # 格式化日期为 YYYY-MM-DD
+                date_str = dataset.upload_time.strftime('%Y-%m-%d')
+                
+                # 计算该 Dataset 的总利润
+                total_profit = db.query(func.coalesce(func.sum(ProductData.profit), 0)).filter(
+                    ProductData.dataset_id == dataset.id
+                ).scalar()
+                
+                # 统计产品数量
+                product_count = db.query(func.count(ProductData.id)).filter(
+                    ProductData.dataset_id == dataset.id
+                ).scalar()
+                
+                # 如果同一天有多次上传，只保留最后一次
+                if date_str not in daily_data or dataset.upload_time > daily_data[date_str]['upload_time']:
+                    daily_data[date_str] = {
+                        'date': date_str,
+                        'revenue': float(total_profit or 0),
+                        'products': int(product_count or 0),
+                        'upload_time': dataset.upload_time
+                    }
+            
+            if not daily_data:
+                elapsed = time.time() - start_time
+                logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(无有效数据) 耗时: {elapsed:.3f}s")
+                result = {
+                    "labels": [],
+                    "values": [],
+                    "dates": [],
+                    "total_revenue": 0,
+                    "avg_daily_revenue": 0,
+                    "trend": "neutral",
+                    "data_days": 0
+                }
+                return {
+                    "success": True,
+                    "data": result
+                }
+            
+            # 转换为列表并排序
+            dates_list = sorted(daily_data.values(), key=lambda x: x['date'])
+            
+            # 生成返回数据
+            labels = [d['date'] for d in dates_list]
+            values = [round(d['revenue'], 2) for d in dates_list]
+            
+            # 计算统计数据
+            total_revenue = sum(values)
+            data_days = len(dates_list)
+            avg_daily_revenue = total_revenue / data_days if data_days > 0 else 0
+            
+            # 计算趋势
+            trend = "neutral"
+            if data_days == 1:
+                trend = "neutral"
+            elif data_days >= 2:
+                # 比较前半段和后半段的平均值
+                mid = data_days // 2
+                first_half_avg = sum(values[:mid]) / mid if mid > 0 else 0
+                second_half_avg = sum(values[mid:]) / (data_days - mid) if (data_days - mid) > 0 else 0
+                
+                if second_half_avg > first_half_avg * 1.05:
+                    trend = "up"
+                elif second_half_avg < first_half_avg * 0.95:
+                    trend = "down"
+                else:
+                    trend = "neutral"
+            
+            result = {
+                "labels": labels,
+                "values": values,
+                "dates": [
+                    {
+                        "date": d['date'],
+                        "revenue": round(d['revenue'], 2),
+                        "products": d['products']
+                    } for d in dates_list
+                ],
+                "total_revenue": round(total_revenue, 2),
+                "avg_daily_revenue": round(avg_daily_revenue, 2),
+                "trend": trend,
+                "data_days": data_days
             }
-        
-        # 计算总收入
-        total_revenue = sum(p.get('profit', 0) for p in product_dicts)
-        
-        # 生成趋势数据（模拟每天的收入分布）
-        labels = []
-        values = []
-        import random
-        random.seed(sum(ord(c) for c in str(user_id)) if user_id else 42)
-        
-        for i in range(days):
-            day_label = f"Day {i + 1}"
-            labels.append(day_label)
-            # 模拟每天的收入波动
-            avg_daily = total_revenue / max(len(product_dicts), 1)
-            daily_value = max(0, avg_daily * (0.5 + random.random()))
-            values.append(round(daily_value, 2))
-        
-        # 计算趋势
-        mid = len(values) // 2
-        first_half = sum(values[:mid]) if mid > 0 else 0
-        second_half = sum(values[mid:]) if mid > 0 else 0
-        
-        trend = "neutral"
-        if second_half > first_half * 1.1:
-            trend = "up"
-        elif second_half < first_half * 0.9:
-            trend = "down"
-        
-        result = {
-            "labels": labels,
-            "values": values,
-            "total_revenue": round(total_revenue, 2),
-            "avg_daily_revenue": round(total_revenue / days, 2) if days > 0 else 0,
-            "trend": trend
-        }
-        
-        elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 成功 耗时: {elapsed:.3f}s")
-        
-        return {
-            "success": True,
-            "data": result
-        }
+            
+            # 更新缓存（缓存5分钟）
+            _dashboard_cache[cache_key] = {
+                "data": result,
+                "timestamp": current_time,
+                "ttl": 300
+            }
+            
+            elapsed = time.time() - start_time
+            logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 成功 数据天数:{data_days} 耗时: {elapsed:.3f}s")
+            
+            return {
+                "success": True,
+                "data": result
+            }
     except Exception as e:
         elapsed = time.time() - start_time
         logger.error(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
@@ -403,9 +494,11 @@ async def get_revenue_trend(
             "data": {
                 "labels": [],
                 "values": [],
+                "dates": [],
                 "total_revenue": 0,
                 "avg_daily_revenue": 0,
-                "trend": "neutral"
+                "trend": "neutral",
+                "data_days": 0
             }
         }
 
