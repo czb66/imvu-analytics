@@ -759,6 +759,17 @@
                 loginBtn: '登录',
                 noAccount: '还没有账号？',
                 registerLink: '立即注册'
+            },
+            fr: {
+                welcomeBack: 'Bon retour',
+                subtitle: 'Connectez-vous à votre compte',
+                email: 'E-mail',
+                password: 'Mot de passe',
+                rememberMe: 'Se souvenir de moi',
+                forgotPassword: 'Mot de passe oublié ?',
+                loginBtn: 'Connexion',
+                noAccount: 'Pas encore de compte ?',
+                registerLink: 'S\'inscrire'
             }
         };
         
@@ -783,9 +794,11 @@
                 }
             });
             
-            // 更新按钮状态
-            document.getElementById('langEn').classList.toggle('active', loginLang === 'en');
-            document.getElementById('langZh').classList.toggle('active', loginLang === 'zh');
+            // 更新下拉框状态
+            const langSelect = document.getElementById('langSelect');
+            if (langSelect) {
+                langSelect.value = loginLang;
+            }
         }
         
         // 切换语言
