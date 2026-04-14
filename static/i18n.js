@@ -254,6 +254,19 @@ const translations = {
             trafficComparison: 'Traffic Comparison',
             priceRangeDistribution: 'Price Range Distribution',
             
+            // Top 5 产品卡片
+            top5Products: 'Top 5 Products',
+            revenueTrend: 'Revenue Trend',
+            totalRevenue: 'Total Revenue',
+            avgDailyRevenue: 'Avg Daily Revenue',
+            trendUp: 'Rising',
+            trendDown: 'Falling',
+            trendNeutral: 'Stable',
+            7days: '7 Days',
+            30days: '30 Days',
+            revenue: 'Revenue',
+            conversion: 'Conversion',
+            
             // 产品表格
             productList: 'Product List',
             searchPlaceholder: 'Search by ID or name...',
@@ -1085,6 +1098,19 @@ const translations = {
             visibilityDistribution: '可见性分布',
             trafficComparison: '流量对比',
             priceRangeDistribution: '价格区间分布',
+            
+            // Top 5 产品卡片
+            top5Products: 'Top 5 产品',
+            revenueTrend: '收入趋势',
+            totalRevenue: '总收入',
+            avgDailyRevenue: '日均收入',
+            trendUp: '上升',
+            trendDown: '下降',
+            trendNeutral: '持平',
+            7days: '7天',
+            30days: '30天',
+            revenue: '收入',
+            conversion: '转化率',
             
             // 产品表格
             productList: '产品列表',
