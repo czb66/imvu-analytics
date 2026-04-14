@@ -594,6 +594,15 @@ const translations = {
             registerLink: 'Register now',
             guideTitle: 'User Guide',
             guideDesc: 'Learn how to use IMVU Analytics effectively with our comprehensive guide.',
+            // Feature cards
+            feature1Title: 'AI-Powered Sales Reports',
+            feature1Desc: 'Automatically generate comprehensive sales reports with AI insights and trend analysis.',
+            feature2Title: 'Crystal Clear Visualizations',
+            feature2Desc: 'Interactive charts that make data interpretation effortless and intuitive.',
+            feature3Title: 'Smart Decision Support',
+            feature3Desc: 'Data-driven recommendations to optimize your product strategy and pricing.',
+            feature4Title: 'Secure & Private',
+            feature4Desc: 'Your data stays local. We never store or share your information externally.',
             // 表单验证消息
             loginSuccess: 'Login successful! Redirecting...',
             loginError: 'Login failed. Please check your credentials.',
@@ -1417,6 +1426,15 @@ const translations = {
             registerLink: '立即注册',
             guideTitle: '用户指南',
             guideDesc: '查看完整的使用指南，快速掌握 IMVU Analytics 的各项功能。',
+            // Feature cards
+            feature1Title: 'AI智能销售报告',
+            feature1Desc: '自动生成包含AI洞察和趋势分析的综合销售报告。',
+            feature2Title: '清晰数据可视化',
+            feature2Desc: '交互式图表让数据解读变得轻松直观。',
+            feature3Title: '智能决策支持',
+            feature3Desc: '基于数据的建议，优化您的产品策略和定价。',
+            feature4Title: '安全与隐私',
+            feature4Desc: '您的数据保存在本地，我们绝不存储或对外分享您的信息。',
             // 表单验证消息
             loginSuccess: '登录成功！正在跳转...',
             loginError: '登录失败，请检查邮箱和密码。',
@@ -2220,6 +2238,15 @@ const translations = {
             registerLink: 'S\'inscrire maintenant',
             guideTitle: 'Guide d\'utilisation',
             guideDesc: 'Consultez notre guide complet pour maîtriser rapidement IMVU Analytics.',
+            // Feature cards
+            feature1Title: 'Rapports de vente IA',
+            feature1Desc: 'Générez automatiquement des rapports de vente complets avec des insights IA et une analyse de tendances.',
+            feature2Title: 'Visualisations claires',
+            feature2Desc: 'Des graphiques interactifs qui rendent l\'interprétation des données simple et intuitive.',
+            feature3Title: 'Support décisionnel intelligent',
+            feature3Desc: 'Des recommandations basées sur les données pour optimiser votre stratégie produit et vos prix.',
+            feature4Title: 'Sécurité et confidentialité',
+            feature4Desc: 'Vos données restent locales. Nous ne stockons ni ne partageons vos informations.',
             // Messages de validation du formulaire
             loginSuccess: 'Connexion réussie ! Redirection...',
             loginError: 'Échec de la connexion. Veuillez vérifier vos identifiants.',
