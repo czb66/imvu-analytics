@@ -626,19 +626,19 @@
 <body>
     <div class="bg-glow"></div>
     
-    <!-- Brand Title - Top Left -->
-    <div class="brand-title">
-        <h1>IMVU Analytics</h1>
-        <p>Professional Sales Intelligence Platform</p>
-    </div>
-    
-    <!-- Language Switcher -->
-    <div class="lang-select-wrapper">
+    <!-- Language Switcher - Fixed Top Right -->
+    <div class="lang-select-wrapper" style="position: fixed !important; top: 20px !important; right: 20px !important; z-index: 99999 !important;">
         <select id="langSelect" class="lang-select" onchange="setLanguage(this.value)">
             <option value="en">English</option>
             <option value="zh">中文</option>
             <option value="fr">Français</option>
         </select>
+    </div>
+    
+    <!-- Brand Title - Top Left -->
+    <div class="brand-title">
+        <h1>IMVU Analytics</h1>
+        <p>Professional Sales Intelligence Platform</p>
     </div>
     
     <!-- Main Container -->
