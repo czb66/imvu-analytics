@@ -39,7 +39,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
     <script src="/static/auth.js"></script>
-    <script src="/static/i18n.js?v=20260414c"></script>
+    <script src="/static/i18n.js?v=20260414d"></script>
     <style>
         :root {
             --primary: #667eea;
@@ -733,6 +733,9 @@
             }
             
             applyTranslations(); // 立即应用翻译
+            if (typeof updateLanguageSelect === 'function') {
+                updateLanguageSelect(); // 更新语言下拉框状态
+            }
             initCharts();
             setupUploadZone();
             setupSearch();
