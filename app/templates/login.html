@@ -582,10 +582,10 @@
     <style>
         /* Language Switcher - Dropdown */
         .lang-select-wrapper {
-            position: fixed;
-            top: 30px;
-            right: 50px;
-            z-index: 100;
+            position: fixed !important;
+            top: 20px !important;
+            right: 20px !important;
+            z-index: 9999 !important;
         }
         
         .lang-select {
@@ -633,7 +633,6 @@
     </div>
     
     <!-- Language Switcher -->
-        <!-- Language Switcher -->
     <div class="lang-select-wrapper">
         <select id="langSelect" class="lang-select" onchange="setLanguage(this.value)">
             <option value="en">English</option>
