@@ -942,6 +942,20 @@
                     </div>
                     <div id="revenueTrendHint" class="revenue-trend-hint" style="display: none;"></div>
                     <canvas id="revenueTrendChart" style="max-height: 200px;"></canvas>
+                    <!-- 数据对比表格 -->
+                    <div id="revenueComparisonTable" class="revenue-comparison-table" style="display: none; margin-top: 15px;">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="dashboard.uploadTime">Upload Time</th>
+                                    <th data-i18n="dashboard.products">Products</th>
+                                    <th data-i18n="dashboard.revenue">Revenue</th>
+                                    <th data-i18n="dashboard.change">Change</th>
+                                </tr>
+                            </thead>
+                            <tbody id="revenueComparisonBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1612,6 +1626,9 @@
                     
                     // 处理提示信息
                     const hintEl = document.getElementById('revenueTrendHint');
+                    const tableEl = document.getElementById('revenueComparisonTable');
+                    const tbodyEl = document.getElementById('revenueComparisonBody');
+                    
                     if (data.labels && data.labels.length === 1) {
                         // 只有一天的数据
                         hintEl.innerHTML = '<i class="bi bi-info-circle-fill"></i> ' + t('dashboard.singleDayHint');
@@ -1620,8 +1637,35 @@
                         // 没有数据
                         hintEl.innerHTML = '<i class="bi bi-info-circle-fill"></i> ' + t('dashboard.noDataHint');
                         hintEl.style.display = 'flex';
+                        tableEl.style.display = 'none';
                     } else {
                         hintEl.style.display = 'none';
+                    }
+                    
+                    // 渲染数据对比表格
+                    if (data.dates && data.dates.length > 0) {
+                        tbodyEl.innerHTML = data.dates.map((item, index) => {
+                            let changeHtml = '<span class="text-muted">-</span>';
+                            if (item.change_from_last !== null && item.change_percent !== null) {
+                                const isPositive = item.change_from_last >= 0;
+                                const colorClass = isPositive ? 'text-success' : 'text-danger';
+                                const icon = isPositive ? 'bi-arrow-up' : 'bi-arrow-down';
+                                const sign = isPositive ? '+' : '';
+                                changeHtml = `<span class="${colorClass}"><i class="bi ${icon}"></i> ${sign}${formatNumber(item.change_from_last)} c (${sign}${item.change_percent}%)</span>`;
+                            }
+                            
+                            return `
+                                <tr>
+                                    <td><small>${item.upload_time || item.date}</small></td>
+                                    <td><small>${item.products}</small></td>
+                                    <td><small>${formatNumber(item.revenue)} c</small></td>
+                                    <td><small>${changeHtml}</small></td>
+                                </tr>
+                            `;
+                        }).join('');
+                        tableEl.style.display = 'block';
+                    } else {
+                        tableEl.style.display = 'none';
                     }
                 }
             } catch (error) {

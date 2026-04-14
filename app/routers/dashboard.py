@@ -455,16 +455,35 @@ async def get_revenue_trend(
                 else:
                     trend = "neutral"
             
+            # 计算每次上传的变化（与上次对比）
+            dates_with_change = []
+            for i, d in enumerate(dates_list):
+                change_from_last = None
+                change_percent = None
+                
+                if i > 0:
+                    prev_revenue = dates_list[i-1]['revenue']
+                    if prev_revenue > 0:
+                        change_from_last = round(d['revenue'] - prev_revenue, 2)
+                        change_percent = round((d['revenue'] - prev_revenue) / prev_revenue * 100, 1)
+                    elif d['revenue'] > 0:
+                        # 从 0 增长
+                        change_from_last = round(d['revenue'], 2)
+                        change_percent = 100.0
+                
+                dates_with_change.append({
+                    "date": d['date'],
+                    "revenue": round(d['revenue'], 2),
+                    "products": d['products'],
+                    "upload_time": d['upload_time'].strftime('%Y-%m-%d %H:%M') if d['upload_time'] else d['date'],
+                    "change_from_last": change_from_last,
+                    "change_percent": change_percent
+                })
+            
             result = {
                 "labels": labels,
                 "values": values,
-                "dates": [
-                    {
-                        "date": d['date'],
-                        "revenue": round(d['revenue'], 2),
-                        "products": d['products']
-                    } for d in dates_list
-                ],
+                "dates": dates_with_change,
                 "total_revenue": round(total_revenue, 2),
                 "avg_daily_revenue": round(avg_daily_revenue, 2),
                 "trend": trend,

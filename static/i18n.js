@@ -267,6 +267,9 @@ const translations = {
             revenue: 'Revenue',
             singleDayHint: 'Only one day of data. Upload more XML files to see trend changes.',
             noDataHint: 'No historical data available. Upload XML files to start tracking trends.',
+            uploadTime: 'Upload Time',
+            products: 'Products',
+            change: 'Change',
             conversion: 'Conversion',
             
             // 产品表格
@@ -1114,6 +1117,9 @@ const translations = {
             revenue: '收入',
             singleDayHint: '仅有一天的数据，上传更多 XML 可查看趋势变化。',
             noDataHint: '暂无历史数据，上传 XML 文件即可开始趋势追踪。',
+            uploadTime: '上传时间',
+            products: '产品数',
+            change: '变化',
             conversion: '转化率',
             
             // 产品表格
