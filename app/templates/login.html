@@ -350,11 +350,25 @@
             border-color: rgba(255, 255, 255, 0.35);
             width: 18px;
             height: 18px;
+            cursor: pointer;
+            position: relative;
         }
         
         .form-check-input:checked {
             background-color: white;
             border-color: white;
+        }
+        
+        .form-check-input:checked::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid #667eea;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
         }
         
         .form-check-label {
