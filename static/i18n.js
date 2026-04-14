@@ -592,6 +592,8 @@ const translations = {
             loginBtn: 'Login',
             noAccount: "Don't have an account?",
             registerLink: 'Register now',
+            guideTitle: 'User Guide',
+            guideDesc: 'Learn how to use IMVU Analytics effectively with our comprehensive guide.',
             // 表单验证消息
             loginSuccess: 'Login successful! Redirecting...',
             loginError: 'Login failed. Please check your credentials.',
@@ -1413,6 +1415,8 @@ const translations = {
             loginBtn: '登录',
             noAccount: '还没有账号？',
             registerLink: '立即注册',
+            guideTitle: '用户指南',
+            guideDesc: '查看完整的使用指南，快速掌握 IMVU Analytics 的各项功能。',
             // 表单验证消息
             loginSuccess: '登录成功！正在跳转...',
             loginError: '登录失败，请检查邮箱和密码。',
@@ -2214,6 +2218,8 @@ const translations = {
             loginBtn: 'Connexion',
             noAccount: 'Vous n\'avez pas de compte ?',
             registerLink: 'S\'inscrire maintenant',
+            guideTitle: 'Guide d\'utilisation',
+            guideDesc: 'Consultez notre guide complet pour maîtriser rapidement IMVU Analytics.',
             // Messages de validation du formulaire
             loginSuccess: 'Connexion réussie ! Redirection...',
             loginError: 'Échec de la connexion. Veuillez vérifier vos identifiants.',
