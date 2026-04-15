@@ -38,6 +38,7 @@ Sitemap: https://imvucreators.com/sitemap.xml
 
 # Googlebot 特定规则
 User-agent: Googlebot
+Allow: /
 Allow: /login
 Allow: /register
 Allow: /pricing
@@ -45,10 +46,26 @@ Allow: /guide
 Allow: /contact
 Allow: /terms
 Allow: /privacy
-Disallow: /
+Disallow: /dashboard
+Disallow: /upload
+Disallow: /report
+Disallow: /diagnosis
+Disallow: /compare
+Disallow: /insights
+Disallow: /profile
+Disallow: /settings
+Disallow: /admin/
+Disallow: /api/
+Disallow: /health/
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /success
+Disallow: /cancel
+Disallow: /static/
 
 # Bingbot 特定规则
 User-agent: Bingbot
+Allow: /
 Allow: /login
 Allow: /register
 Allow: /pricing
@@ -56,10 +73,26 @@ Allow: /guide
 Allow: /contact
 Allow: /terms
 Allow: /privacy
-Disallow: /
+Disallow: /dashboard
+Disallow: /upload
+Disallow: /report
+Disallow: /diagnosis
+Disallow: /compare
+Disallow: /insights
+Disallow: /profile
+Disallow: /settings
+Disallow: /admin/
+Disallow: /api/
+Disallow: /health/
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /success
+Disallow: /cancel
+Disallow: /static/
 
 # Baiduspider 特定规则
 User-agent: Baiduspider
+Allow: /
 Allow: /login
 Allow: /register
 Allow: /pricing
@@ -67,4 +100,19 @@ Allow: /guide
 Allow: /contact
 Allow: /terms
 Allow: /privacy
-Disallow: /
+Disallow: /dashboard
+Disallow: /upload
+Disallow: /report
+Disallow: /diagnosis
+Disallow: /compare
+Disallow: /insights
+Disallow: /profile
+Disallow: /settings
+Disallow: /admin/
+Disallow: /api/
+Disallow: /health/
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /success
+Disallow: /cancel
+Disallow: /static/
