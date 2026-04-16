@@ -1,0 +1,24 @@
+{
+    "title": "Upgrade Your Experience",
+    "subtitle": "Premium IMVU Collections",
+    "intro": "Discover our premium multi-avatar collections. Crafted for the elite.",
+    "footer": "Click to view High-Res previews and secure your copy before the price update.",
+    "products": [
+        {
+            "tag": "Top Seller AP",
+            "tag_type": "normal",
+            "name": "Spread Cheeks",
+            "description": "The #1 rated realistic animation.",
+            "image": "https://placehold.co/600x400/8b5cf6/white?text=Product+1",
+            "link": "https://imvu.com/shop/product-1"
+        },
+        {
+            "tag": "Premium 3P VIP",
+            "tag_type": "vip",
+            "name": "Butterfly 3P VIP",
+            "description": "Ultimate multi-avatar experience.",
+            "image": "https://placehold.co/600x400/a855f7/white?text=Product+2",
+            "link": "https://imvu.com/shop/product-2"
+        }
+    ]
+}

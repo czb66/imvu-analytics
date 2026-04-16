@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMVU 产品推广卡片生成器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #a855f7; text-align: center; margin-bottom: 30px; font-size: 28px; }
+        .main-grid { display: grid; grid-template-columns: 400px 1fr; gap: 20px; }
+        
+        .panel {
+            background: linear-gradient(145deg, #1e1e3f 0%, #252550 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .panel h2 { 
+            color: #a855f7; 
+            margin-bottom: 20px; 
+            font-size: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .form-row { margin-bottom: 15px; }
+        .form-row label { display: block; color: #a5b4fc; margin-bottom: 8px; font-size: 13px; font-weight: 500; }
+        .form-row input, .form-row textarea, .form-row select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+        .form-row small { color: #6b7280; font-size: 11px; margin-top: 5px; display: block; }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+        .btn-primary { 
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+        .btn-secondary { 
+            background: rgba(139, 92, 246, 0.2);
+            color: #a855f7;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .btn-danger { 
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 15px;
+        }
+        
+        .product-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+        }
+        .product-title { color: #a855f7; font-weight: 600; font-size: 15px; }
+        
+        /* 预览卡片样式 */
+        .card-preview {
+            background: linear-gradient(145deg, #1e1e3f 0%, #252550 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .card-header-preview {
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 50%, #c026d3 100%);
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-header-preview::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        .badge-preview {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: white;
+            margin-bottom: 15px;
+        }
+        .card-header-preview h3 { 
+            color: white; 
+            font-size: 28px; 
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .card-header-preview p { 
+            color: rgba(255,255,255,0.9); 
+            font-size: 14px; 
+        }
+        .card-body-preview { padding: 30px; }
+        .card-intro-preview { 
+            color: #a5b4fc; 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        /* 样式1: 两列网格 */
+        .style-grid .products-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .style-grid .product-card {
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .style-grid .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.2);
+        }
+        .style-grid .product-card .img-container {
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .style-grid .product-card .img-container img { width: 100px; height: 80px; object-fit: cover; border-radius: 8px; }
+        .style-grid .product-card .info { padding: 15px; }
+        .style-grid .product-card .tag {
+            display: inline-block;
+            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .style-grid .product-card .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
+        .style-grid .product-card h4 { color: white; font-size: 16px; margin-bottom: 5px; font-weight: 700; }
+        .style-grid .product-card p { color: #a5b4fc; font-size: 12px; margin-bottom: 10px; }
+        .style-grid .product-card .shop-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* 样式2: 横向列表 */
+        .style-list .products-container { display: block; }
+        .style-list .product-card {
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+            display: flex;
+        }
+        .style-list .product-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.2);
+        }
+        .style-list .product-card .img-container {
+            width: 100px;
+            height: 80px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .style-list .product-card .img-container img { width: 100px; height: 80px; object-fit: cover; border-radius: 8px; }
+        .style-list .product-card .info { padding: 15px; flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+        .style-list .product-card .info-left { flex: 1; }
+        .style-list .product-card .tag {
+            display: inline-block;
+            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .style-list .product-card .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
+        .style-list .product-card h4 { color: white; font-size: 18px; margin-bottom: 3px; font-weight: 700; }
+        .style-list .product-card p { color: #a5b4fc; font-size: 13px; }
+        .style-list .product-card .shop-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        /* 样式3: 大卡片 */
+        .style-card .products-container { display: block; }
+        .style-card .product-card {
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .style-card .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+        }
+        .style-card .product-card .img-container {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .style-card .product-card .img-container img { width: 150px; height: 120px; object-fit: cover; border-radius: 10px; }
+        .style-card .product-card .info { padding: 20px; text-align: center; }
+        .style-card .product-card .tag {
+            display: inline-block;
+            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .style-card .product-card .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
+        .style-card .product-card h4 { color: white; font-size: 22px; margin-bottom: 8px; font-weight: 700; }
+        .style-card .product-card p { color: #a5b4fc; font-size: 14px; margin-bottom: 15px; }
+        .style-card .product-card .shop-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+            color: white;
+            padding: 12px 35px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        
+        /* 样式4: 紧凑三列 */
+        .style-compact .products-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .style-compact .product-card {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .style-compact .product-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2);
+        }
+        .style-compact .product-card .img-container {
+            width: 100%;
+            text-align: center;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .style-compact .product-card .img-container img { width: 80px; height: 60px; object-fit: cover; border-radius: 6px; }
+        .style-compact .product-card .info { padding: 10px; text-align: center; }
+        .style-compact .product-card .tag {
+            display: inline-block;
+            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .style-compact .product-card .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
+        .style-compact .product-card h4 { color: white; font-size: 13px; margin-bottom: 3px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .style-compact .product-card p { display: none; }
+        .style-compact .product-card .shop-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        /* 样式5: 精品展示 */
+        .style-featured .products-container { display: block; }
+        .style-featured .product-card {
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.15) 0%, rgba(168, 85, 247, 0.08) 100%);
+            border: 2px solid rgba(139, 92, 246, 0.4);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .style-featured .product-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
+        }
+        .style-featured .product-card .img-container {
+            width: 100%;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+        }
+        .style-featured .product-card .img-container img { width: 180px; height: 140px; object-fit: cover; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .style-featured .product-card .info { padding: 25px; text-align: center; }
+        .style-featured .product-card .tag {
+            display: inline-block;
+            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+        .style-featured .product-card .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
+        .style-featured .product-card h4 { color: white; font-size: 26px; margin-bottom: 10px; font-weight: 700; }
+        .style-featured .product-card p { color: #a5b4fc; font-size: 15px; margin-bottom: 20px; line-height: 1.5; }
+        .style-featured .product-card .shop-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+            color: white;
+            padding: 15px 45px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 5px 25px rgba(139, 92, 246, 0.5);
+        }
+        
+        .card-footer-preview {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px 30px;
+            text-align: center;
+            color: #a5b4fc;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .actions-panel {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .style-selector {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .style-selector label { color: #a5b4fc; font-size: 14px; margin-right: 10px; }
+        
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .style-grid .products-container { grid-template-columns: 1fr; }
+            .style-compact .products-container { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 500px) {
+            .style-compact .products-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 IMVU 产品推广卡片生成器</h1>
+        
+        <div class="main-grid">
+            <div class="left-panel">
+                <div class="panel">
+                    <h2>📝 基本信息</h2>
+                    <div class="form-row">
+                        <label>标题</label>
+                        <input type="text" id="cardTitle" value="Upgrade Your Experience" oninput="updatePreview()">
+                    </div>
+                    <div class="form-row">
+                        <label>副标题</label>
+                        <input type="text" id="cardSubtitle" value="Premium IMVU Collections" oninput="updatePreview()">
+                    </div>
+                    <div class="form-row">
+                        <label>介绍文字</label>
+                        <textarea id="cardIntro" oninput="updatePreview()">Discover our premium multi-avatar collections. Crafted for the elite.</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>底部提示</label>
+                        <textarea id="cardFooter" oninput="updatePreview()">Click to view High-Res previews and secure your copy before the price update.</textarea>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h2>🛍️ 产品列表</h2>
+                    <button class="btn btn-primary" id="addBtn">+ 添加产品</button>
+                    <div id="productsList"></div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="panel">
+                    <div class="style-selector">
+                        <label>🎨 选择样式：</label>
+                        <select id="styleSelect" onchange="updatePreview()" style="padding: 10px 20px; background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.3); border-radius: 10px; color: white; font-size: 14px; cursor: pointer;">
+                            <option value="grid">样式1: 两列网格</option>
+                            <option value="list">样式2: 横向列表</option>
+                            <option value="card">样式3: 大卡片</option>
+                            <option value="compact">样式4: 紧凑三列</option>
+                            <option value="featured">样式5: 精品展示</option>
+                        </select>
+                    </div>
+                    <h2>👁️ 实时预览</h2>
+                    <div id="previewCard" class="card-preview"></div>
+                </div>
+                
+                <div class="panel">
+                    <div class="actions-panel">
+                        <button class="btn btn-primary" id="getCodeBtn">📋 复制代码</button>
+                        <button class="btn btn-primary" id="downloadBtn">⬇️ 下载HTML</button>
+                        <button class="btn btn-secondary" id="resetBtn">🔄 重置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var products = [
+            {
+                tag: 'Top Seller AP',
+                tagType: 'normal',
+                name: 'Spread Cheeks',
+                description: 'The #1 rated realistic animation.',
+                image: 'https://userimages01-akm.imvu.com/productdata/images_467847cdc3306eee569ff29bb5b46493.gif',
+                link: 'https://www.imvu.com/shop/product.php?products_id=1'
+            },
+            {
+                tag: 'Premium 3P VIP',
+                tagType: 'vip',
+                name: 'Butterfly 3P VIP',
+                description: 'Ultimate multi-avatar experience.',
+                image: 'https://userimages03-akm.imvu.com/productdata/images_cef9b0d661f4688e2808209086970e64.gif',
+                link: 'https://www.imvu.com/shop/product.php?products_id=2'
+            }
+        ];
+
+        var productsListEl = document.getElementById('productsList');
+        var previewCardEl = document.getElementById('previewCard');
+        var styleSelectEl = document.getElementById('styleSelect');
+
+        function renderProductsList() {
+            var html = '';
+            for (var i = 0; i < products.length; i++) {
+                var p = products[i];
+                html += '<div class="product-item">';
+                html += '<div class="product-header">';
+                html += '<span class="product-title">产品 ' + (i + 1) + '</span>';
+                html += '<button class="btn btn-danger" onclick="removeProduct(' + i + ')">✕ 删除</button>';
+                html += '</div>';
+                html += '<div class="form-row"><label>标签</label><input type="text" value="' + p.tag + '" onchange="updateProduct(' + i + ', \'tag\', this.value)"></div>';
+                html += '<div class="form-row"><label>标签类型</label><select style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.3);border-radius:10px;color:white;" onchange="updateProduct(' + i + ', \'tagType\', this.value)"><option value="normal"' + (p.tagType === 'normal' ? ' selected' : '') + '>普通（橙色）</option><option value="vip"' + (p.tagType === 'vip' ? ' selected' : '') + '>VIP（紫色）</option></select></div>';
+                html += '<div class="form-row"><label>名称</label><input type="text" value="' + p.name + '" onchange="updateProduct(' + i + ', \'name\', this.value)"></div>';
+                html += '<div class="form-row"><label>描述</label><input type="text" value="' + p.description + '" onchange="updateProduct(' + i + ', \'description\', this.value)"></div>';
+                html += '<div class="form-row"><label>图片地址</label><input type="text" value="' + p.image + '" onchange="updateProduct(' + i + ', \'image\', this.value)"></div>';
+                html += '<div class="form-row"><label>产品链接</label><input type="text" value="' + p.link + '" onchange="updateProduct(' + i + ', \'link\', this.value)"></div>';
+                html += '</div>';
+            }
+            productsListEl.innerHTML = html;
+        }
+
+        function addProduct() {
+            products.push({
+                tag: 'New Product',
+                tagType: 'normal',
+                name: 'Product Name',
+                description: 'Product description.',
+                image: 'https://userimages01-akm.imvu.com/productdata/images_467847cdc3306eee569ff29bb5b46493.gif',
+                link: 'https://www.imvu.com/shop/product.php?products_id=XXX'
+            });
+            renderProductsList();
+            updatePreview();
+        }
+
+        function removeProduct(index) {
+            products.splice(index, 1);
+            renderProductsList();
+            updatePreview();
+        }
+
+        function updateProduct(index, field, value) {
+            products[index][field] = value;
+            updatePreview();
+        }
+
+        function getProductCardHTML(p, style) {
+            var tagClass = p.tagType === 'vip' ? ' vip' : '';
+            var tagBg = p.tagType === 'vip' ? 'linear-gradient(90deg,#8b5cf6,#a855f7)' : 'linear-gradient(90deg,#f59e0b,#f97316)';
+            
+            if (style === 'grid') {
+                return '<div class="product-card"><div class="img-container"><img src="' + p.image + '" alt="' + p.name + '"></div><div class="info"><span class="tag' + tagClass + '">' + p.tag + '</span><h4>' + p.name + '</h4><p>' + p.description + '</p><a href="' + p.link + '" class="shop-btn" target="_blank">Shop Now →</a></div></div>';
+            } else if (style === 'list') {
+                return '<div class="product-card"><div class="img-container"><img src="' + p.image + '" alt="' + p.name + '"></div><div class="info"><div class="info-left"><span class="tag' + tagClass + '">' + p.tag + '</span><h4>' + p.name + '</h4><p>' + p.description + '</p></div><a href="' + p.link + '" class="shop-btn" target="_blank">Shop Now →</a></div></div>';
+            } else if (style === 'card') {
+                return '<div class="product-card"><div class="img-container"><img src="' + p.image + '" alt="' + p.name + '"></div><div class="info"><span class="tag' + tagClass + '">' + p.tag + '</span><h4>' + p.name + '</h4><p>' + p.description + '</p><a href="' + p.link + '" class="shop-btn" target="_blank">Shop Now →</a></div></div>';
+            } else if (style === 'compact') {
+                return '<div class="product-card"><div class="img-container"><img src="' + p.image + '" alt="' + p.name + '"></div><div class="info"><span class="tag' + tagClass + '">' + p.tag + '</span><h4>' + p.name + '</h4><a href="' + p.link + '" class="shop-btn" target="_blank">Buy</a></div></div>';
+            } else if (style === 'featured') {
+                return '<div class="product-card"><div class="img-container"><img src="' + p.image + '" alt="' + p.name + '"></div><div class="info"><span class="tag' + tagClass + '">' + p.tag + '</span><h4>' + p.name + '</h4><p>' + p.description + '</p><a href="' + p.link + '" class="shop-btn" target="_blank">Shop Now →</a></div></div>';
+            }
+        }
+
+        function updatePreview() {
+            var title = document.getElementById('cardTitle').value;
+            var subtitle = document.getElementById('cardSubtitle').value;
+            var intro = document.getElementById('cardIntro').value;
+            var footer = document.getElementById('cardFooter').value;
+            var style = styleSelectEl.value;
+            
+            var productsHtml = '';
+            for (var i = 0; i < products.length; i++) {
+                productsHtml += getProductCardHTML(products[i], style);
+            }
+            
+            var html = '<div class="card-header-preview">';
+            html += '<div class="badge-preview">🌟 Exclusive VIP Offer</div>';
+            html += '<h3>' + title + '</h3>';
+            html += '<p>' + subtitle + '</p>';
+            html += '</div>';
+            html += '<div class="card-body-preview">';
+            html += '<p class="card-intro-preview">' + intro + '</p>';
+            html += '<div class="products-container">' + productsHtml + '</div>';
+            html += '</div>';
+            html += '<div class="card-footer-preview">' + footer + '</div>';
+            
+            previewCardEl.className = 'card-preview style-' + style;
+            previewCardEl.innerHTML = html;
+        }
+
+        function getStyleCSS(style) {
+            var baseCSS = '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:\'Segoe UI\',sans-serif;background:linear-gradient(135deg,#1a1a2e,#0f0f23);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}.container{max-width:600px;width:100%;background:linear-gradient(145deg,#1e1e3f,#252550);border-radius:20px;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.5),0 0 40px rgba(139,92,246,0.3);border:1px solid rgba(139,92,246,0.2);}.header{background:linear-gradient(90deg,#8b5cf6,#a855f7,#c026d3);padding:25px;text-align:center;position:relative;overflow:hidden;}.header::before{content:\'\';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.1),transparent 60%);animation:shimmer 3s infinite;}@keyframes shimmer{0%,100%{transform:rotate(0deg);}50%{transform:rotate(180deg);}}.badge{display:inline-block;background:rgba(255,255,255,0.2);padding:8px 20px;border-radius:30px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:white;margin-bottom:15px;}.header h1{color:white;font-size:28px;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,0.3);}.header p{color:rgba(255,255,255,0.9);font-size:14px;margin-top:10px;}.content{padding:30px;}.intro{text-align:center;color:#a5b4fc;font-size:16px;line-height:1.6;margin-bottom:30px;}.footer{background:rgba(0,0,0,0.2);padding:20px 30px;text-align:center;color:#a5b4fc;font-size:13px;}';
+            
+            if (style === 'grid') {
+                return baseCSS + '.products{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}.product{background:linear-gradient(145deg,rgba(139,92,246,0.1),rgba(168,85,247,0.05));border:1px solid rgba(139,92,246,0.3);border-radius:15px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:translateY(-5px);box-shadow:0 15px 30px rgba(139,92,246,0.2);}.product .img{text-align:center;padding:10px;background:rgba(0,0,0,0.2);}.product img{width:100px;height:80px;border-radius:8px;object-fit:cover;}.product .info{padding:15px;}.product .tag{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;margin-bottom:8px;}.product .tag.vip{background:linear-gradient(90deg,#8b5cf6,#a855f7);}.product h3{color:white;font-size:16px;margin-bottom:5px;font-weight:700;}.product p{color:#a5b4fc;font-size:12px;margin-bottom:10px;}.product a{display:inline-block;background:linear-gradient(90deg,#8b5cf6,#a855f7);color:white;padding:8px 20px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:600;}@media(max-width:500px){.products{grid-template-columns:1fr;}}';
+            } else if (style === 'list') {
+                return baseCSS + '.products{display:block;}.product{background:linear-gradient(145deg,rgba(139,92,246,0.1),rgba(168,85,247,0.05));border:1px solid rgba(139,92,246,0.3);border-radius:15px;margin-bottom:15px;overflow:hidden;display:flex;transition:all 0.3s;}.product:hover{transform:translateX(5px);box-shadow:0 10px 25px rgba(139,92,246,0.2);}.product .img{width:100px;height:80px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);}.product img{width:100px;height:80px;border-radius:8px;object-fit:cover;}.product .info{padding:15px;flex:1;display:flex;align-items:center;justify-content:space-between;gap:15px;}.product .info-left{flex:1;}.product .tag{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;margin-bottom:5px;}.product .tag.vip{background:linear-gradient(90deg,#8b5cf6,#a855f7);}.product h3{color:white;font-size:18px;margin-bottom:3px;font-weight:700;}.product p{color:#a5b4fc;font-size:13px;}.product a{display:inline-block;background:linear-gradient(90deg,#8b5cf6,#a855f7);color:white;padding:10px 25px;border-radius:25px;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap;}';
+            } else if (style === 'card') {
+                return baseCSS + '.products{display:block;}.product{background:linear-gradient(145deg,rgba(139,92,246,0.1),rgba(168,85,247,0.05));border:1px solid rgba(139,92,246,0.3);border-radius:15px;margin-bottom:20px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(139,92,246,0.2);}.product .img{width:100%;height:120px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);}.product img{width:150px;height:120px;border-radius:10px;object-fit:cover;}.product .info{padding:20px;text-align:center;}.product .tag{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;padding:6px 15px;border-radius:20px;font-size:12px;font-weight:600;text-transform:uppercase;margin-bottom:10px;}.product .tag.vip{background:linear-gradient(90deg,#8b5cf6,#a855f7);}.product h3{color:white;font-size:22px;margin-bottom:8px;font-weight:700;}.product p{color:#a5b4fc;font-size:14px;margin-bottom:15px;}.product a{display:inline-block;background:linear-gradient(90deg,#8b5cf6,#a855f7);color:white;padding:12px 35px;border-radius:25px;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 4px 15px rgba(139,92,246,0.4);}';
+            } else if (style === 'compact') {
+                return baseCSS + '.products{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}.product{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:10px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:scale(1.03);box-shadow:0 10px 20px rgba(139,92,246,0.2);}.product .img{text-align:center;padding:8px;background:rgba(0,0,0,0.2);}.product img{width:80px;height:60px;border-radius:6px;object-fit:cover;}.product .info{padding:10px;text-align:center;}.product .tag{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;text-transform:uppercase;margin-bottom:5px;}.product .tag.vip{background:linear-gradient(90deg,#8b5cf6,#a855f7);}.product h3{color:white;font-size:13px;margin-bottom:3px;font-weight:600;}.product a{display:inline-block;background:linear-gradient(90deg,#8b5cf6,#a855f7);color:white;padding:5px 12px;border-radius:15px;text-decoration:none;font-size:10px;font-weight:600;}@media(max-width:500px){.products{grid-template-columns:repeat(2,1fr);}}';
+            } else if (style === 'featured') {
+                return baseCSS + '.products{display:block;}.product{background:linear-gradient(145deg,rgba(139,92,246,0.15),rgba(168,85,247,0.08));border:2px solid rgba(139,92,246,0.4);border-radius:20px;margin-bottom:20px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(139,92,246,0.3);}.product .img{width:100%;height:150px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(168,85,247,0.1));}.product img{width:180px;height:140px;border-radius:12px;object-fit:cover;box-shadow:0 5px 20px rgba(0,0,0,0.3);}.product .info{padding:25px;text-align:center;}.product .tag{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;padding:8px 20px;border-radius:25px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;}.product .tag.vip{background:linear-gradient(90deg,#8b5cf6,#a855f7);}.product h3{color:white;font-size:26px;margin-bottom:10px;font-weight:700;}.product p{color:#a5b4fc;font-size:15px;margin-bottom:20px;line-height:1.5;}.product a{display:inline-block;background:linear-gradient(90deg,#8b5cf6,#a855f7);color:white;padding:15px 45px;border-radius:30px;text-decoration:none;font-size:16px;font-weight:700;box-shadow:0 5px 25px rgba(139,92,246,0.5);}';
+            }
+        }
+
+        function getProductsHTML(style) {
+            var html = '';
+            for (var i = 0; i < products.length; i++) {
+                var p = products[i];
+                var tagClass = p.tagType === 'vip' ? ' vip' : '';
+                html += '<div class="product">';
+                html += '<div class="img"><img src="' + p.image + '" alt="' + p.name + '"></div>';
+                html += '<div class="info">';
+                if (style === 'list') {
+                    html += '<div class="info-left"><span class="tag' + tagClass + '">' + p.tag + '</span><h3>' + p.name + '</h3><p>' + p.description + '</p></div>';
+                    html += '<a href="' + p.link + '" target="_blank">Shop Now →</a>';
+                } else {
+                    html += '<span class="tag' + tagClass + '">' + p.tag + '</span>';
+                    html += '<h3>' + p.name + '</h3>';
+                    if (style !== 'compact') html += '<p>' + p.description + '</p>';
+                    html += '<a href="' + p.link + '" target="_blank">' + (style === 'compact' ? 'Buy' : 'Shop Now →') + '</a>';
+                }
+                html += '</div></div>\n';
+            }
+            return html;
+        }
+
+        function generateHTML() {
+            var title = document.getElementById('cardTitle').value;
+            var subtitle = document.getElementById('cardSubtitle').value;
+            var intro = document.getElementById('cardIntro').value;
+            var footer = document.getElementById('cardFooter').value;
+            var style = styleSelectEl.value;
+            
+            var css = getStyleCSS(style);
+            var productsHtml = getProductsHTML(style);
+            
+            return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>' + title + ' - VIP Offer</title>\n<style>\n' + css + '\n</style>\n</head>\n<body>\n<div class="container">\n<div class="header">\n<div class="badge">🌟 Exclusive VIP Offer</div>\n<h1>' + title + '</h1>\n<p>' + subtitle + '</p>\n</div>\n<div class="content">\n<p class="intro">' + intro + '</p>\n<div class="products">\n' + productsHtml + '</div>\n</div>\n<div class="footer">' + footer + '</div>\n</div>\n</body>\n</html>';
+        }
+
+        function copyCode() {
+            var code = generateHTML();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).then(function() {
+                    alert('✅ 代码已复制到剪贴板！');
+                }).catch(function() {
+                    fallbackCopy(code);
+                });
+            } else {
+                fallbackCopy(code);
+            }
+        }
+
+        function fallbackCopy(text) {
+            var textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alert('✅ 代码已复制到剪贴板！');
+            } catch (err) {
+                alert('❌ 复制失败，请使用下载功能');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function downloadHTML() {
+            var code = generateHTML();
+            var blob = new Blob([code], { type: 'text/html' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'promo_card.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function resetForm() {
+            if (confirm('确定要重置吗？')) {
+                document.getElementById('cardTitle').value = 'Upgrade Your Experience';
+                document.getElementById('cardSubtitle').value = 'Premium IMVU Collections';
+                document.getElementById('cardIntro').value = 'Discover our premium multi-avatar collections. Crafted for the elite.';
+                document.getElementById('cardFooter').value = 'Click to view High-Res previews and secure your copy before the price update.';
+                products = [
+                    { tag: 'Top Seller AP', tagType: 'normal', name: 'Spread Cheeks', description: 'The #1 rated realistic animation.', image: 'https://userimages01-akm.imvu.com/productdata/images_467847cdc3306eee569ff29bb5b46493.gif', link: 'https://www.imvu.com/shop/product.php?products_id=1' }
+                ];
+                renderProductsList();
+                updatePreview();
+            }
+        }
+
+        document.getElementById('addBtn').onclick = addProduct;
+        document.getElementById('getCodeBtn').onclick = copyCode;
+        document.getElementById('downloadBtn').onclick = downloadHTML;
+        document.getElementById('resetBtn').onclick = resetForm;
+
+        renderProductsList();
+        updatePreview();
+    </script>
+</body>
+</html>

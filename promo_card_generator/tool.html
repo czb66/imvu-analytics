@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMVU 产品推广卡片生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+        .app-container {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            min-height: 100vh;
+        }
+        
+        /* 左侧编辑区 */
+        .editor-panel {
+            background: #1a1a2e;
+            border-right: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #a855f7;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .section {
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #a5b4fc;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        /* 产品列表 */
+        .products-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .product-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .product-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .product-item-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #a855f7;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+        .btn-secondary {
+            background: rgba(139, 92, 246, 0.2);
+            color: #a855f7;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .btn-secondary:hover {
+            background: rgba(139, 92, 246, 0.3);
+        }
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 4px 10px;
+            font-size: 11px;
+        }
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        /* 操作按钮 */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .actions .btn {
+            flex: 1;
+        }
+        
+        /* 右侧预览区 */
+        .preview-panel {
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .preview-container {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+        .preview-frame {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 卡片样式 */
+        .card-container {
+            max-width: 600px;
+            width: 100%;
+            background: linear-gradient(145deg, #1e1e3f 0%, #252550 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                        0 0 40px rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .card-header {
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 50%, #c026d3 100%);
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        .card-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: white;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .card-header h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .card-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin-top: 10px;
+            position: relative;
+        }
+        .card-content {
+            padding: 30px;
+        }
+        .card-intro {
+            text-align: center;
+            color: #a5b4fc;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .card-product {
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card-product:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.2);
+        }
+        .card-product img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #2a2a4a;
+        }
+        .card-product-info {
+            padding: 20px;
+        }
+        .card-product-tag {
+            display: inline-block;
+            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .card-product-tag.vip {
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+        }
+        .card-product-name {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .card-product-desc {
+            color: #a5b4fc;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .card-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        .card-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+        .card-footer {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px 30px;
+            text-align: center;
+        }
+        .card-footer p {
+            color: #a5b4fc;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        /* 代码模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #a855f7;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            color: #e0e0e0;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .modal-actions {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(139, 92, 246, 0.3);
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .editor-panel {
+                max-height: 50vh;
+            }
+            .preview-panel {
+                min-height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 左侧编辑面板 -->
+        <div class="editor-panel">
+            <h2 class="panel-title">🎨 推广卡片生成器</h2>
+            
+            <!-- 基本信息 -->
+            <div class="section">
+                <div class="section-title">📝 基本信息</div>
+                <div class="form-group">
+                    <label>标题</label>
+                    <input type="text" id="cardTitle" value="升级您的体验" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>副标题</label>
+                    <input type="text" id="cardSubtitle" value="IMVU 精选系列" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>介绍文字</label>
+                    <textarea id="cardIntro" oninput="updatePreview()">发现我们的高级多头像系列，专为精英打造。</textarea>
+                </div>
+                <div class="form-group">
+                    <label>底部提示</label>
+                    <textarea id="cardFooter" oninput="updatePreview()">点击查看高清预览，在价格更新前抢先入手！</textarea>
+                </div>
+            </div>
+            
+            <!-- 产品列表 -->
+            <div class="section">
+                <div class="section-title">
+                    🛍️ 产品列表
+                    <button class="btn btn-secondary btn-sm" onclick="addProduct()">+ 添加</button>
+                </div>
+                <div class="products-list" id="productsList">
+                    <!-- 产品项会动态添加 -->
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="resetForm()">🔄 重置</button>
+                <button class="btn btn-primary" onclick="showCodeModal()">📋 获取代码</button>
+                <button class="btn btn-primary" onclick="downloadHTML()">⬇️ 下载</button>
+            </div>
+        </div>
+        
+        <!-- 右侧预览面板 -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h2 style="color: #a855f7;">👁️ 实时预览</h2>
+                <button class="btn btn-secondary btn-sm" onclick="refreshPreview()">刷新</button>
+            </div>
+            <div class="preview-container">
+                <div id="previewCard" class="card-container">
+                    <!-- 预览内容 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 代码模态框 -->
+    <div class="modal" id="codeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">📋 生成的 HTML 代码</span>
+                <button class="modal-close" onclick="closeCodeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <pre class="code-block" id="generatedCode"></pre>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="copyCode()">📋 复制代码</button>
+                <button class="btn btn-secondary" onclick="closeCodeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 产品数据
+        let products = [
+            {
+                tag: '热销 AP',
+                tagType: 'normal',
+                name: 'Spread Cheeks',
+                description: '评分最高的真实动画效果。',
+                image: 'https://placehold.co/600x400/8b5cf6/white?text=产品+1',
+                link: 'https://imvu.com/shop/product-1'
+            },
+            {
+                tag: '精选 3P VIP',
+                tagType: 'vip',
+                name: 'Butterfly 3P VIP',
+                description: '极致多头像体验。',
+                image: 'https://placehold.co/600x400/a855f7/white?text=产品+2',
+                link: 'https://imvu.com/shop/product-2'
+            }
+        ];
+
+        // 初始化
+        function init() {
+            renderProductsList();
+            updatePreview();
+        }
+
+        // 渲染产品列表
+        function renderProductsList() {
+            const container = document.getElementById('productsList');
+            container.innerHTML = products.map((p, index) => `
+                <div class="product-item">
+                    <div class="product-item-header">
+                        <span class="product-item-title">产品 ${index + 1}</span>
+                        <button class="btn btn-danger" onclick="removeProduct(${index})">✕ 删除</button>
+                    </div>
+                    <div class="form-group">
+                        <label>标签</label>
+                        <input type="text" value="${p.tag}" onchange="updateProduct(${index}, 'tag', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>标签类型</label>
+                        <select style="width:100%;padding:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.3);border-radius:8px;color:white;" onchange="updateProduct(${index}, 'tagType', this.value)">
+                            <option value="normal" ${p.tagType === 'normal' ? 'selected' : ''}>普通（橙色）</option>
+                            <option value="vip" ${p.tagType === 'vip' ? 'selected' : ''}>VIP（紫色）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>名称</label>
+                        <input type="text" value="${p.name}" onchange="updateProduct(${index}, 'name', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>描述</label>
+                        <input type="text" value="${p.description}" onchange="updateProduct(${index}, 'description', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>图片地址</label>
+                        <input type="text" value="${p.image}" onchange="updateProduct(${index}, 'image', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>链接</label>
+                        <input type="text" value="${p.link}" onchange="updateProduct(${index}, 'link', this.value)">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 添加产品
+        function addProduct() {
+            console.log('添加产品被调用');
+            products.push({
+                tag: '新产品',
+                tagType: 'normal',
+                name: '产品名称',
+                description: '产品描述文字。',
+                image: 'https://placehold.co/600x400/8b5cf6/white?text=新产品',
+                link: 'https://imvu.com/shop/product'
+            });
+            renderProductsList();
+            updatePreview();
+            console.log('当前产品数量:', products.length);
+        }
+
+        // 移除产品
+        function removeProduct(index) {
+            products.splice(index, 1);
+            renderProductsList();
+            updatePreview();
+        }
+
+        // 更新产品属性
+        function updateProduct(index, field, value) {
+            products[index][field] = value;
+            updatePreview();
+        }
+
+        // 更新预览
+        function updatePreview() {
+            const title = document.getElementById('cardTitle').value;
+            const subtitle = document.getElementById('cardSubtitle').value;
+            const intro = document.getElementById('cardIntro').value;
+            const footer = document.getElementById('cardFooter').value;
+
+            const productsHtml = products.map(p => `
+                <div class="card-product">
+                    <img src="${p.image}" alt="${p.name}" onerror="this.src='https://placehold.co/600x400/8b5cf6/white?text=Image'">
+                    <div class="card-product-info">
+                        <span class="card-product-tag ${p.tagType === 'vip' ? 'vip' : ''}">${p.tag}</span>
+                        <h3 class="card-product-name">${p.name}</h3>
+                        <p class="card-product-desc">${p.description}</p>
+                        <a href="${p.link}" class="card-btn" target="_blank">立即购买 →</a>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('previewCard').innerHTML = `
+                <div class="card-header">
+                    <div class="card-badge">🌟 VIP 专属优惠</div>
+                    <h1>${title}</h1>
+                    <p>${subtitle}</p>
+                </div>
+                <div class="card-content">
+                    <p class="card-intro">${intro}</p>
+                    ${productsHtml}
+                </div>
+                <div class="card-footer">
+                    <p>${footer}</p>
+                </div>
+            `;
+        }
+
+        // 刷新预览
+        function refreshPreview() {
+            updatePreview();
+        }
+
+        // 重置表单
+        function resetForm() {
+            if (confirm('确定要重置所有内容吗？')) {
+                document.getElementById('cardTitle').value = '升级您的体验';
+                document.getElementById('cardSubtitle').value = 'IMVU 精选系列';
+                document.getElementById('cardIntro').value = '发现我们的高级多头像系列，专为精英打造。';
+                document.getElementById('cardFooter').value = '点击查看高清预览，在价格更新前抢先入手！';
+                products = [
+                    {
+                        tag: '热销 AP',
+                        tagType: 'normal',
+                        name: 'Spread Cheeks',
+                        description: '评分最高的真实动画效果。',
+                        image: 'https://placehold.co/600x400/8b5cf6/white?text=产品+1',
+                        link: 'https://imvu.com/shop/product-1'
+                    }
+                ];
+                renderProductsList();
+                updatePreview();
+            }
+        }
+
+        // 生成完整HTML代码
+        function generateFullHTML() {
+            const title = document.getElementById('cardTitle').value;
+            const subtitle = document.getElementById('cardSubtitle').value;
+            const intro = document.getElementById('cardIntro').value;
+            const footer = document.getElementById('cardFooter').value;
+
+            const productsHtml = products.map(p => `
+            <div class="product-card">
+                <img src="${p.image}" alt="${p.name}" class="product-image">
+                <div class="product-info">
+                    <span class="product-tag ${p.tagType === 'vip' ? 'vip' : ''}">${p.tag}</span>
+                    <h3 class="product-name">${p.name}</h3>
+                    <p class="product-desc">${p.description}</p>
+                    <a href="${p.link}" class="shop-btn" target="_blank">立即购买 →</a>
+                </div>
+            </div>`).join('\n');
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title} - VIP Offer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: linear-gradient(145deg, #1e1e3f 0%, #252550 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .header {
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 50%, #c026d3 100%);
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: white;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .header h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin-top: 10px;
+            position: relative;
+        }
+        .content { padding: 30px; }
+        .intro {
+            text-align: center;
+            color: #a5b4fc;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .product-card {
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.2);
+        }
+        .product-image { width: 100%; height: 200px; object-fit: cover; }
+        .product-info { padding: 20px; }
+        .product-tag {
+            display: inline-block;
+            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .product-tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
+        .product-name { color: white; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .product-desc { color: #a5b4fc; font-size: 14px; margin-bottom: 15px; }
+        .shop-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        .shop-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+        .footer { background: rgba(0, 0, 0, 0.2); padding: 20px 30px; text-align: center; }
+        .footer p { color: #a5b4fc; font-size: 13px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="badge">🌟 VIP 专属优惠</div>
+            <h1>${title}</h1>
+            <p>${subtitle}</p>
+        </div>
+        <div class="content">
+            <p class="intro">${intro}</p>
+${productsHtml}
+        </div>
+        <div class="footer">
+            <p>${footer}</p>
+        </div>
+    </div>
+</body>
+</html>`;
+        }
+
+        // 显示代码模态框
+        function showCodeModal() {
+            const code = generateFullHTML();
+            document.getElementById('generatedCode').textContent = code;
+            document.getElementById('codeModal').classList.add('active');
+        }
+
+        // 关闭代码模态框
+        function closeCodeModal() {
+            document.getElementById('codeModal').classList.remove('active');
+        }
+
+        // 复制代码
+        function copyCode() {
+            const code = generateFullHTML();
+            navigator.clipboard.writeText(code).then(() => {
+                alert('代码已复制到剪贴板！');
+            });
+        }
+
+        // 下载HTML
+        function downloadHTML() {
+            const code = generateFullHTML();
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'promo_card.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+            console.log('工具已加载，当前产品数量:', products.length);
+        });
+    </script>
+</body>
+</html>

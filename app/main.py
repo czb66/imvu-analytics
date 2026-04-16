@@ -119,6 +119,12 @@ async def health_check():
     return {"status": "healthy", "service": config.APP_NAME, "version": config.APP_VERSION}
 
 
+@app.get("/promo-card", response_class=HTMLResponse)
+async def promo_card_generator(request: Request):
+    """产品推广卡片生成器 - 独立工具页面"""
+    return templates.TemplateResponse("promo_card.html", {"request": request})
+
+
 @app.get("/api/status")
 async def api_status():
     """API状态端点"""
