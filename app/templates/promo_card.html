@@ -100,6 +100,17 @@
         }
         .product-title { color: #a855f7; font-weight: 600; font-size: 15px; }
         
+        /* 配色预览小方块 */
+        .color-preview {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            margin-right: 8px;
+            vertical-align: middle;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
         /* 预览卡片样式 */
         .card-preview {
             background: linear-gradient(145deg, #1e1e3f 0%, #252550 100%);
@@ -108,14 +119,18 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
             border: 1px solid rgba(139, 92, 246, 0.2);
         }
-        .card-header-preview {
+        
+        /* ========== 配色方案 ========== */
+        
+        /* 紫色神秘风（默认） */
+        .color-purple .card-header-preview {
             background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 50%, #c026d3 100%);
             padding: 25px;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
-        .card-header-preview::before {
+        .color-purple .card-header-preview::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -125,10 +140,184 @@
             background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
             animation: shimmer 3s infinite;
         }
+        .color-purple .badge-preview { background: rgba(255, 255, 255, 0.2); }
+        .color-purple .card-intro-preview { color: #a5b4fc; }
+        .color-purple .product-card { 
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .color-purple .product-card:hover { box-shadow: 0 15px 30px rgba(139, 92, 246, 0.2); }
+        .color-purple .product-card h4 { color: white; }
+        .color-purple .product-card p { color: #a5b4fc; }
+        .color-purple .tag { background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%); }
+        .color-purple .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
+        .color-purple .shop-btn { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
+        .color-purple .card-footer-preview { color: #a5b4fc; }
+        
+        /* 金色奢华风 */
+        .color-gold .card-header-preview {
+            background: linear-gradient(135deg, #b8860b 0%, #ffd700 25%, #daa520 50%, #ffd700 75%, #b8860b 100%);
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .color-gold .card-header-preview::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 50%);
+            animation: shimmer 2s infinite;
+        }
+        .color-gold .badge-preview { 
+            background: linear-gradient(90deg, #1a1a1a, #2d2d2d);
+            color: #ffd700;
+            border: 1px solid #ffd700;
+        }
+        .color-gold .card-header-preview h3 { 
+            color: #1a1a1a; 
+            text-shadow: 0 1px 2px rgba(255,215,0,0.3);
+        }
+        .color-gold .card-header-preview p { color: #2d2d2d; }
+        .color-gold .card-intro-preview { color: #d4af37; }
+        .color-gold .product-card { 
+            background: linear-gradient(145deg, rgba(218, 165, 32, 0.15) 0%, rgba(184, 134, 11, 0.1) 100%);
+            border: 1px solid rgba(218, 165, 32, 0.4);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+        }
+        .color-gold .product-card:hover { 
+            box-shadow: 0 15px 30px rgba(255, 215, 0, 0.2), 0 0 20px rgba(218, 165, 32, 0.3);
+            border-color: #ffd700;
+        }
+        .color-gold .product-card h4 { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
+        .color-gold .product-card p { color: #d4af37; }
+        .color-gold .tag { 
+            background: linear-gradient(90deg, #1a1a1a, #2d2d2d);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+        }
+        .color-gold .tag.vip { 
+            background: linear-gradient(90deg, #ffd700, #ffec8b);
+            color: #1a1a1a;
+        }
+        .color-gold .shop-btn { 
+            background: linear-gradient(135deg, #ffd700 0%, #daa520 50%, #ffd700 100%);
+            color: #1a1a1a;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+        .color-gold .card-footer-preview { 
+            background: linear-gradient(90deg, rgba(26,26,26,0.8), rgba(45,45,45,0.8));
+            color: #d4af37;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        /* 蓝色科技风 */
+        .color-blue .card-header-preview {
+            background: linear-gradient(90deg, #0ea5e9 0%, #3b82f6 50%, #6366f1 100%);
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .color-blue .card-header-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            animation: scan 20s linear infinite;
+        }
+        @keyframes scan { from { background-position: 0 0; } to { background-position: 60px 60px; } }
+        .color-blue .badge-preview { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.2); }
+        .color-blue .card-intro-preview { color: #93c5fd; }
+        .color-blue .product-card { 
+            background: linear-gradient(145deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .color-blue .product-card:hover { box-shadow: 0 0 25px rgba(59, 130, 246, 0.3); }
+        .color-blue .product-card h4 { color: #60a5fa; }
+        .color-blue .product-card p { color: #93c5fd; }
+        .color-blue .tag { background: linear-gradient(90deg, #06b6d4 0%, #0ea5e9 100%); }
+        .color-blue .tag.vip { background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%); }
+        .color-blue .shop-btn { background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%); }
+        .color-blue .card-footer-preview { color: #93c5fd; }
+        
+        /* 红色热情风 */
+        .color-red .card-header-preview {
+            background: linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #f97316 100%);
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .color-red .card-header-preview::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
+        .color-red .badge-preview { background: rgba(0, 0, 0, 0.3); }
+        .color-red .card-intro-preview { color: #fca5a5; }
+        .color-red .product-card { 
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.1) 0%, rgba(249, 115, 22, 0.05) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .color-red .product-card:hover { box-shadow: 0 0 25px rgba(239, 68, 68, 0.3); }
+        .color-red .product-card h4 { color: #fca5a5; }
+        .color-red .product-card p { color: #fdba74; }
+        .color-red .tag { background: linear-gradient(90deg, #f97316 0%, #fbbf24 100%); }
+        .color-red .tag.vip { background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%); }
+        .color-red .shop-btn { background: linear-gradient(90deg, #ef4444 0%, #f97316 100%); }
+        .color-red .card-footer-preview { color: #fca5a5; }
+        
+        /* 绿色清新风 */
+        .color-green .card-header-preview {
+            background: linear-gradient(90deg, #059669 0%, #10b981 50%, #34d399 100%);
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .color-green .card-header-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+        .color-green .badge-preview { background: rgba(0, 0, 0, 0.3); }
+        .color-green .card-intro-preview { color: #6ee7b7; }
+        .color-green .product-card { 
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.1) 0%, rgba(52, 211, 153, 0.05) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .color-green .product-card:hover { box-shadow: 0 0 25px rgba(16, 185, 129, 0.3); }
+        .color-green .product-card h4 { color: #6ee7b7; }
+        .color-green .product-card p { color: #a7f3d0; }
+        .color-green .tag { background: linear-gradient(90deg, #14b8a6 0%, #2dd4bf 100%); }
+        .color-green .tag.vip { background: linear-gradient(90deg, #059669 0%, #10b981 100%); }
+        .color-green .shop-btn { background: linear-gradient(90deg, #10b981 0%, #34d399 100%); }
+        .color-green .card-footer-preview { color: #6ee7b7; }
+        
         @keyframes shimmer {
             0%, 100% { transform: rotate(0deg); }
             50% { transform: rotate(180deg); }
         }
+        
         .badge-preview {
             display: inline-block;
             background: rgba(255, 255, 255, 0.2);
@@ -146,14 +335,15 @@
             font-size: 28px; 
             margin-bottom: 10px;
             text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: relative;
         }
         .card-header-preview p { 
             color: rgba(255,255,255,0.9); 
-            font-size: 14px; 
+            font-size: 14px;
+            position: relative;
         }
         .card-body-preview { padding: 30px; }
         .card-intro-preview { 
-            color: #a5b4fc; 
             text-align: center; 
             margin-bottom: 30px;
             font-size: 16px;
@@ -167,15 +357,12 @@
             gap: 15px;
         }
         .style-grid .product-card {
-            background: linear-gradient(145deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
-            border: 1px solid rgba(139, 92, 246, 0.3);
             border-radius: 15px;
             overflow: hidden;
             transition: all 0.3s;
         }
         .style-grid .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.2);
         }
         .style-grid .product-card .img-container {
             width: 100%;
@@ -187,7 +374,6 @@
         .style-grid .product-card .info { padding: 15px; }
         .style-grid .product-card .tag {
             display: inline-block;
-            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
             color: white;
             padding: 4px 10px;
             border-radius: 20px;
@@ -197,12 +383,10 @@
             letter-spacing: 1px;
             margin-bottom: 8px;
         }
-        .style-grid .product-card .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
-        .style-grid .product-card h4 { color: white; font-size: 16px; margin-bottom: 5px; font-weight: 700; }
-        .style-grid .product-card p { color: #a5b4fc; font-size: 12px; margin-bottom: 10px; }
+        .style-grid .product-card h4 { font-size: 16px; margin-bottom: 5px; font-weight: 700; }
+        .style-grid .product-card p { font-size: 12px; margin-bottom: 10px; }
         .style-grid .product-card .shop-btn {
             display: inline-block;
-            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
             color: white;
             padding: 8px 20px;
             border-radius: 20px;
@@ -214,8 +398,6 @@
         /* 样式2: 横向列表 */
         .style-list .products-container { display: block; }
         .style-list .product-card {
-            background: linear-gradient(145deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
-            border: 1px solid rgba(139, 92, 246, 0.3);
             border-radius: 15px;
             margin-bottom: 15px;
             overflow: hidden;
@@ -224,7 +406,6 @@
         }
         .style-list .product-card:hover {
             transform: translateX(5px);
-            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.2);
         }
         .style-list .product-card .img-container {
             width: 100px;
@@ -240,7 +421,6 @@
         .style-list .product-card .info-left { flex: 1; }
         .style-list .product-card .tag {
             display: inline-block;
-            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
             color: white;
             padding: 4px 12px;
             border-radius: 20px;
@@ -249,12 +429,10 @@
             text-transform: uppercase;
             margin-bottom: 5px;
         }
-        .style-list .product-card .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
-        .style-list .product-card h4 { color: white; font-size: 18px; margin-bottom: 3px; font-weight: 700; }
-        .style-list .product-card p { color: #a5b4fc; font-size: 13px; }
+        .style-list .product-card h4 { font-size: 18px; margin-bottom: 3px; font-weight: 700; }
+        .style-list .product-card p { font-size: 13px; }
         .style-list .product-card .shop-btn {
             display: inline-block;
-            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
             color: white;
             padding: 10px 25px;
             border-radius: 25px;
@@ -267,8 +445,6 @@
         /* 样式3: 大卡片 */
         .style-card .products-container { display: block; }
         .style-card .product-card {
-            background: linear-gradient(145deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%);
-            border: 1px solid rgba(139, 92, 246, 0.3);
             border-radius: 15px;
             margin-bottom: 20px;
             overflow: hidden;
@@ -276,7 +452,6 @@
         }
         .style-card .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
         }
         .style-card .product-card .img-container {
             width: 100%;
@@ -290,7 +465,6 @@
         .style-card .product-card .info { padding: 20px; text-align: center; }
         .style-card .product-card .tag {
             display: inline-block;
-            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
             color: white;
             padding: 6px 15px;
             border-radius: 20px;
@@ -299,19 +473,16 @@
             text-transform: uppercase;
             margin-bottom: 10px;
         }
-        .style-card .product-card .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
-        .style-card .product-card h4 { color: white; font-size: 22px; margin-bottom: 8px; font-weight: 700; }
-        .style-card .product-card p { color: #a5b4fc; font-size: 14px; margin-bottom: 15px; }
+        .style-card .product-card h4 { font-size: 22px; margin-bottom: 8px; font-weight: 700; }
+        .style-card .product-card p { font-size: 14px; margin-bottom: 15px; }
         .style-card .product-card .shop-btn {
             display: inline-block;
-            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
             color: white;
             padding: 12px 35px;
             border-radius: 25px;
             text-decoration: none;
             font-size: 14px;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
         }
         
         /* 样式4: 紧凑三列 */
@@ -321,15 +492,12 @@
             gap: 10px;
         }
         .style-compact .product-card {
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.2);
             border-radius: 10px;
             overflow: hidden;
             transition: all 0.3s;
         }
         .style-compact .product-card:hover {
             transform: scale(1.03);
-            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2);
         }
         .style-compact .product-card .img-container {
             width: 100%;
@@ -341,7 +509,6 @@
         .style-compact .product-card .info { padding: 10px; text-align: center; }
         .style-compact .product-card .tag {
             display: inline-block;
-            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
             color: white;
             padding: 2px 8px;
             border-radius: 10px;
@@ -350,12 +517,10 @@
             text-transform: uppercase;
             margin-bottom: 5px;
         }
-        .style-compact .product-card .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
-        .style-compact .product-card h4 { color: white; font-size: 13px; margin-bottom: 3px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .style-compact .product-card h4 { font-size: 13px; margin-bottom: 3px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .style-compact .product-card p { display: none; }
         .style-compact .product-card .shop-btn {
             display: inline-block;
-            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
             color: white;
             padding: 5px 12px;
             border-radius: 15px;
@@ -367,8 +532,6 @@
         /* 样式5: 精品展示 */
         .style-featured .products-container { display: block; }
         .style-featured .product-card {
-            background: linear-gradient(145deg, rgba(139, 92, 246, 0.15) 0%, rgba(168, 85, 247, 0.08) 100%);
-            border: 2px solid rgba(139, 92, 246, 0.4);
             border-radius: 20px;
             margin-bottom: 20px;
             overflow: hidden;
@@ -377,7 +540,6 @@
         }
         .style-featured .product-card:hover {
             transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(139, 92, 246, 0.3);
         }
         .style-featured .product-card .img-container {
             width: 100%;
@@ -385,13 +547,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            background: rgba(0, 0, 0, 0.2);
         }
         .style-featured .product-card .img-container img { width: 180px; height: 140px; object-fit: cover; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
         .style-featured .product-card .info { padding: 25px; text-align: center; }
         .style-featured .product-card .tag {
             display: inline-block;
-            background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
             color: white;
             padding: 8px 20px;
             border-radius: 25px;
@@ -401,26 +562,22 @@
             letter-spacing: 2px;
             margin-bottom: 12px;
         }
-        .style-featured .product-card .tag.vip { background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%); }
-        .style-featured .product-card h4 { color: white; font-size: 26px; margin-bottom: 10px; font-weight: 700; }
-        .style-featured .product-card p { color: #a5b4fc; font-size: 15px; margin-bottom: 20px; line-height: 1.5; }
+        .style-featured .product-card h4 { font-size: 26px; margin-bottom: 10px; font-weight: 700; }
+        .style-featured .product-card p { font-size: 15px; margin-bottom: 20px; line-height: 1.5; }
         .style-featured .product-card .shop-btn {
             display: inline-block;
-            background: linear-gradient(90deg, #8b5cf6 0%, #a855f7 100%);
             color: white;
             padding: 15px 45px;
             border-radius: 30px;
             text-decoration: none;
             font-size: 16px;
             font-weight: 700;
-            box-shadow: 0 5px 25px rgba(139, 92, 246, 0.5);
         }
         
         .card-footer-preview {
             background: rgba(0, 0, 0, 0.2);
             padding: 20px 30px;
             text-align: center;
-            color: #a5b4fc;
             font-size: 13px;
             line-height: 1.5;
         }
@@ -439,6 +596,15 @@
             margin-bottom: 20px;
         }
         .style-selector label { color: #a5b4fc; font-size: 14px; margin-right: 10px; }
+        
+        .color-selector {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .color-selector label { color: #ffd700; font-size: 14px; margin-right: 10px; }
         
         @media (max-width: 900px) {
             .main-grid { grid-template-columns: 1fr; }
@@ -495,6 +661,18 @@
                             <option value="featured">样式5: 精品展示</option>
                         </select>
                     </div>
+                    
+                    <div class="color-selector">
+                        <label>✨ 选择配色：</label>
+                        <select id="colorSelect" onchange="updatePreview()" style="padding: 10px 20px; background: rgba(255,215,0,0.2); border: 1px solid rgba(255,215,0,0.3); border-radius: 10px; color: white; font-size: 14px; cursor: pointer;">
+                            <option value="purple">💜 紫色神秘风</option>
+                            <option value="gold">💛 金色奢华风</option>
+                            <option value="blue">💙 蓝色科技风</option>
+                            <option value="red">❤️ 红色热情风</option>
+                            <option value="green">💚 绿色清新风</option>
+                        </select>
+                    </div>
+                    
                     <h2>👁️ 实时预览</h2>
                     <div id="previewCard" class="card-preview"></div>
                 </div>
@@ -533,6 +711,7 @@
         var productsListEl = document.getElementById('productsList');
         var previewCardEl = document.getElementById('previewCard');
         var styleSelectEl = document.getElementById('styleSelect');
+        var colorSelectEl = document.getElementById('colorSelect');
 
         function renderProductsList() {
             var html = '';
@@ -544,7 +723,7 @@
                 html += '<button class="btn btn-danger" onclick="removeProduct(' + i + ')">✕ 删除</button>';
                 html += '</div>';
                 html += '<div class="form-row"><label>标签</label><input type="text" value="' + p.tag + '" onchange="updateProduct(' + i + ', \'tag\', this.value)"></div>';
-                html += '<div class="form-row"><label>标签类型</label><select style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.3);border-radius:10px;color:white;" onchange="updateProduct(' + i + ', \'tagType\', this.value)"><option value="normal"' + (p.tagType === 'normal' ? ' selected' : '') + '>普通（橙色）</option><option value="vip"' + (p.tagType === 'vip' ? ' selected' : '') + '>VIP（紫色）</option></select></div>';
+                html += '<div class="form-row"><label>标签类型</label><select style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.3);border-radius:10px;color:white;" onchange="updateProduct(' + i + ', \'tagType\', this.value)"><option value="normal"' + (p.tagType === 'normal' ? ' selected' : '') + '>普通</option><option value="vip"' + (p.tagType === 'vip' ? ' selected' : '') + '>VIP</option></select></div>';
                 html += '<div class="form-row"><label>名称</label><input type="text" value="' + p.name + '" onchange="updateProduct(' + i + ', \'name\', this.value)"></div>';
                 html += '<div class="form-row"><label>描述</label><input type="text" value="' + p.description + '" onchange="updateProduct(' + i + ', \'description\', this.value)"></div>';
                 html += '<div class="form-row"><label>图片地址</label><input type="text" value="' + p.image + '" onchange="updateProduct(' + i + ', \'image\', this.value)"></div>';
@@ -578,9 +757,8 @@
             updatePreview();
         }
 
-        function getProductCardHTML(p, style) {
+        function getProductCardHTML(p, style, color) {
             var tagClass = p.tagType === 'vip' ? ' vip' : '';
-            var tagBg = p.tagType === 'vip' ? 'linear-gradient(90deg,#8b5cf6,#a855f7)' : 'linear-gradient(90deg,#f59e0b,#f97316)';
             
             if (style === 'grid') {
                 return '<div class="product-card"><div class="img-container"><img src="' + p.image + '" alt="' + p.name + '"></div><div class="info"><span class="tag' + tagClass + '">' + p.tag + '</span><h4>' + p.name + '</h4><p>' + p.description + '</p><a href="' + p.link + '" class="shop-btn" target="_blank">Shop Now →</a></div></div>';
@@ -601,10 +779,11 @@
             var intro = document.getElementById('cardIntro').value;
             var footer = document.getElementById('cardFooter').value;
             var style = styleSelectEl.value;
+            var color = colorSelectEl.value;
             
             var productsHtml = '';
             for (var i = 0; i < products.length; i++) {
-                productsHtml += getProductCardHTML(products[i], style);
+                productsHtml += getProductCardHTML(products[i], style, color);
             }
             
             var html = '<div class="card-header-preview">';
@@ -618,27 +797,142 @@
             html += '</div>';
             html += '<div class="card-footer-preview">' + footer + '</div>';
             
-            previewCardEl.className = 'card-preview style-' + style;
+            previewCardEl.className = 'card-preview style-' + style + ' color-' + color;
             previewCardEl.innerHTML = html;
         }
 
-        function getStyleCSS(style) {
-            var baseCSS = '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:\'Segoe UI\',sans-serif;background:linear-gradient(135deg,#1a1a2e,#0f0f23);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}.container{max-width:600px;width:100%;background:linear-gradient(145deg,#1e1e3f,#252550);border-radius:20px;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.5),0 0 40px rgba(139,92,246,0.3);border:1px solid rgba(139,92,246,0.2);}.header{background:linear-gradient(90deg,#8b5cf6,#a855f7,#c026d3);padding:25px;text-align:center;position:relative;overflow:hidden;}.header::before{content:\'\';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.1),transparent 60%);animation:shimmer 3s infinite;}@keyframes shimmer{0%,100%{transform:rotate(0deg);}50%{transform:rotate(180deg);}}.badge{display:inline-block;background:rgba(255,255,255,0.2);padding:8px 20px;border-radius:30px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:white;margin-bottom:15px;}.header h1{color:white;font-size:28px;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,0.3);}.header p{color:rgba(255,255,255,0.9);font-size:14px;margin-top:10px;}.content{padding:30px;}.intro{text-align:center;color:#a5b4fc;font-size:16px;line-height:1.6;margin-bottom:30px;}.footer{background:rgba(0,0,0,0.2);padding:20px 30px;text-align:center;color:#a5b4fc;font-size:13px;}';
+        function getColorCSS(color) {
+            var colorSchemes = {
+                purple: {
+                    header: 'linear-gradient(90deg, #8b5cf6 0%, #a855f7 50%, #c026d3 100%)',
+                    headerText: '#fff',
+                    headerSub: 'rgba(255,255,255,0.9)',
+                    badge: 'rgba(255,255,255,0.2)',
+                    badgeText: '#fff',
+                    intro: '#a5b4fc',
+                    cardBg: 'linear-gradient(145deg, rgba(139,92,246,0.1), rgba(168,85,247,0.05))',
+                    cardBorder: 'rgba(139,92,246,0.3)',
+                    cardShadow: 'rgba(139,92,246,0.2)',
+                    title: '#fff',
+                    desc: '#a5b4fc',
+                    tagNormal: 'linear-gradient(90deg, #f59e0b, #f97316)',
+                    tagVip: 'linear-gradient(90deg, #8b5cf6, #a855f7)',
+                    btn: 'linear-gradient(90deg, #8b5cf6, #a855f7)',
+                    btnText: '#fff',
+                    footer: '#a5b4fc'
+                },
+                gold: {
+                    header: 'linear-gradient(135deg, #b8860b 0%, #ffd700 25%, #daa520 50%, #ffd700 75%, #b8860b 100%)',
+                    headerText: '#1a1a1a',
+                    headerSub: '#2d2d2d',
+                    badge: 'linear-gradient(90deg, #1a1a1a, #2d2d2d)',
+                    badgeText: '#ffd700',
+                    badgeBorder: '1px solid #ffd700',
+                    intro: '#d4af37',
+                    cardBg: 'linear-gradient(145deg, rgba(218,165,32,0.15), rgba(184,134,11,0.1))',
+                    cardBorder: 'rgba(218,165,32,0.4)',
+                    cardShadow: 'rgba(255,215,0,0.2)',
+                    title: '#ffd700',
+                    titleShadow: '0 0 10px rgba(255,215,0,0.3)',
+                    desc: '#d4af37',
+                    tagNormal: 'linear-gradient(90deg, #1a1a1a, #2d2d2d)',
+                    tagNormalText: '#ffd700',
+                    tagNormalBorder: '1px solid rgba(255,215,0,0.5)',
+                    tagVip: 'linear-gradient(90deg, #ffd700, #ffec8b)',
+                    tagVipText: '#1a1a1a',
+                    btn: 'linear-gradient(135deg, #ffd700 0%, #daa520 50%, #ffd700 100%)',
+                    btnText: '#1a1a1a',
+                    btnShadow: 'rgba(255,215,0,0.4)',
+                    footer: '#d4af37',
+                    footerBg: 'linear-gradient(90deg, rgba(26,26,26,0.8), rgba(45,45,45,0.8))',
+                    footerBorder: '1px solid rgba(255,215,0,0.2)'
+                },
+                blue: {
+                    header: 'linear-gradient(90deg, #0ea5e9 0%, #3b82f6 50%, #6366f1 100%)',
+                    headerText: '#fff',
+                    headerSub: 'rgba(255,255,255,0.9)',
+                    badge: 'rgba(0,0,0,0.3)',
+                    badgeText: '#fff',
+                    intro: '#93c5fd',
+                    cardBg: 'linear-gradient(145deg, rgba(59,130,246,0.1), rgba(99,102,241,0.05))',
+                    cardBorder: 'rgba(59,130,246,0.3)',
+                    cardShadow: 'rgba(59,130,246,0.3)',
+                    title: '#60a5fa',
+                    desc: '#93c5fd',
+                    tagNormal: 'linear-gradient(90deg, #06b6d4, #0ea5e9)',
+                    tagVip: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+                    btn: 'linear-gradient(90deg, #3b82f6, #6366f1)',
+                    btnText: '#fff',
+                    footer: '#93c5fd'
+                },
+                red: {
+                    header: 'linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #f97316 100%)',
+                    headerText: '#fff',
+                    headerSub: 'rgba(255,255,255,0.9)',
+                    badge: 'rgba(0,0,0,0.3)',
+                    badgeText: '#fff',
+                    intro: '#fca5a5',
+                    cardBg: 'linear-gradient(145deg, rgba(239,68,68,0.1), rgba(249,115,22,0.05))',
+                    cardBorder: 'rgba(239,68,68,0.3)',
+                    cardShadow: 'rgba(239,68,68,0.3)',
+                    title: '#fca5a5',
+                    desc: '#fdba74',
+                    tagNormal: 'linear-gradient(90deg, #f97316, #fbbf24)',
+                    tagVip: 'linear-gradient(90deg, #dc2626, #ef4444)',
+                    btn: 'linear-gradient(90deg, #ef4444, #f97316)',
+                    btnText: '#fff',
+                    footer: '#fca5a5'
+                },
+                green: {
+                    header: 'linear-gradient(90deg, #059669 0%, #10b981 50%, #34d399 100%)',
+                    headerText: '#fff',
+                    headerSub: 'rgba(255,255,255,0.9)',
+                    badge: 'rgba(0,0,0,0.3)',
+                    badgeText: '#fff',
+                    intro: '#6ee7b7',
+                    cardBg: 'linear-gradient(145deg, rgba(16,185,129,0.1), rgba(52,211,153,0.05))',
+                    cardBorder: 'rgba(16,185,129,0.3)',
+                    cardShadow: 'rgba(16,185,129,0.3)',
+                    title: '#6ee7b7',
+                    desc: '#a7f3d0',
+                    tagNormal: 'linear-gradient(90deg, #14b8a6, #2dd4bf)',
+                    tagVip: 'linear-gradient(90deg, #059669, #10b981)',
+                    btn: 'linear-gradient(90deg, #10b981, #34d399)',
+                    btnText: '#fff',
+                    footer: '#6ee7b7'
+                }
+            };
+            return colorSchemes[color] || colorSchemes.purple;
+        }
+
+        function getStyleCSS(style, color) {
+            var c = getColorCSS(color);
+            var isGold = color === 'gold';
+            
+            var baseCSS = '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:\'Segoe UI\',sans-serif;background:linear-gradient(135deg,#1a1a2e,#0f0f23);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}.container{max-width:600px;width:100%;background:linear-gradient(145deg,#1e1e3f,#252550);border-radius:20px;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.5),0 0 40px ' + c.cardShadow + ';border:1px solid ' + c.cardBorder + ';}.header{background:' + c.header + ';padding:25px;text-align:center;position:relative;overflow:hidden;}.header::before{content:\'\';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.1),transparent 60%);animation:shimmer 3s infinite;}@keyframes shimmer{0%,100%{transform:rotate(0deg);}50%{transform:rotate(180deg);}}.badge{display:inline-block;background:' + c.badge + ';padding:8px 20px;border-radius:30px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:' + c.badgeText + ';margin-bottom:15px;' + (isGold ? 'border:1px solid #ffd700;' : '') + '}.header h1{color:' + c.headerText + ';font-size:28px;font-weight:700;' + (isGold ? 'text-shadow:0 1px 2px rgba(255,215,0,0.3);' : 'text-shadow:0 2px 10px rgba(0,0,0,0.3);') + '}.header p{color:' + c.headerSub + ';font-size:14px;margin-top:10px;}.content{padding:30px;}.intro{text-align:center;color:' + c.intro + ';font-size:16px;line-height:1.6;margin-bottom:30px;}.footer{' + (isGold ? 'background:' + c.footerBg + ';border-top:' + c.footerBorder + ';' : 'background:rgba(0,0,0,0.2);') + 'padding:20px 30px;text-align:center;color:' + c.footer + ';font-size:13px;}';
+            
+            var tagNormalCSS = isGold 
+                ? 'background:' + c.tagNormal + ';color:' + c.tagNormalText + ';border:' + c.tagNormalBorder + ';'
+                : 'background:' + c.tagNormal + ';color:white;';
+            var tagVipCSS = isGold 
+                ? 'background:' + c.tagVip + ';color:' + c.tagVipText + ';'
+                : 'background:' + c.tagVip + ';color:white;';
+            var btnCSS = 'background:' + c.btn + ';color:' + c.btnText + ';' + (isGold ? 'font-weight:700;box-shadow:0 4px 15px ' + c.btnShadow + ';' : '');
             
             if (style === 'grid') {
-                return baseCSS + '.products{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}.product{background:linear-gradient(145deg,rgba(139,92,246,0.1),rgba(168,85,247,0.05));border:1px solid rgba(139,92,246,0.3);border-radius:15px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:translateY(-5px);box-shadow:0 15px 30px rgba(139,92,246,0.2);}.product .img{text-align:center;padding:10px;background:rgba(0,0,0,0.2);}.product img{width:100px;height:80px;border-radius:8px;object-fit:cover;}.product .info{padding:15px;}.product .tag{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;margin-bottom:8px;}.product .tag.vip{background:linear-gradient(90deg,#8b5cf6,#a855f7);}.product h3{color:white;font-size:16px;margin-bottom:5px;font-weight:700;}.product p{color:#a5b4fc;font-size:12px;margin-bottom:10px;}.product a{display:inline-block;background:linear-gradient(90deg,#8b5cf6,#a855f7);color:white;padding:8px 20px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:600;}@media(max-width:500px){.products{grid-template-columns:1fr;}}';
+                return baseCSS + '.products{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}.product{background:' + c.cardBg + ';border:1px solid ' + c.cardBorder + ';border-radius:15px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:translateY(-5px);box-shadow:0 15px 30px ' + c.cardShadow + ';}.product .img{text-align:center;padding:10px;background:rgba(0,0,0,0.2);}.product img{width:100px;height:80px;border-radius:8px;object-fit:cover;}.product .info{padding:15px;}.product .tag{display:inline-block;' + tagNormalCSS + 'padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;margin-bottom:8px;}.product .tag.vip{' + tagVipCSS + '}.product h3{color:' + c.title + ';' + (isGold ? 'text-shadow:' + c.titleShadow + ';' : '') + 'font-size:16px;margin-bottom:5px;font-weight:700;}.product p{color:' + c.desc + ';font-size:12px;margin-bottom:10px;}.product a{display:inline-block;' + btnCSS + 'padding:8px 20px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:600;}@media(max-width:500px){.products{grid-template-columns:1fr;}}';
             } else if (style === 'list') {
-                return baseCSS + '.products{display:block;}.product{background:linear-gradient(145deg,rgba(139,92,246,0.1),rgba(168,85,247,0.05));border:1px solid rgba(139,92,246,0.3);border-radius:15px;margin-bottom:15px;overflow:hidden;display:flex;transition:all 0.3s;}.product:hover{transform:translateX(5px);box-shadow:0 10px 25px rgba(139,92,246,0.2);}.product .img{width:100px;height:80px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);}.product img{width:100px;height:80px;border-radius:8px;object-fit:cover;}.product .info{padding:15px;flex:1;display:flex;align-items:center;justify-content:space-between;gap:15px;}.product .info-left{flex:1;}.product .tag{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;margin-bottom:5px;}.product .tag.vip{background:linear-gradient(90deg,#8b5cf6,#a855f7);}.product h3{color:white;font-size:18px;margin-bottom:3px;font-weight:700;}.product p{color:#a5b4fc;font-size:13px;}.product a{display:inline-block;background:linear-gradient(90deg,#8b5cf6,#a855f7);color:white;padding:10px 25px;border-radius:25px;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap;}';
+                return baseCSS + '.products{display:block;}.product{background:' + c.cardBg + ';border:1px solid ' + c.cardBorder + ';border-radius:15px;margin-bottom:15px;overflow:hidden;display:flex;transition:all 0.3s;}.product:hover{transform:translateX(5px);box-shadow:0 10px 25px ' + c.cardShadow + ';}.product .img{width:100px;height:80px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);}.product img{width:100px;height:80px;border-radius:8px;object-fit:cover;}.product .info{padding:15px;flex:1;display:flex;align-items:center;justify-content:space-between;gap:15px;}.product .info-left{flex:1;}.product .tag{display:inline-block;' + tagNormalCSS + 'padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;margin-bottom:5px;}.product .tag.vip{' + tagVipCSS + '}.product h3{color:' + c.title + ';' + (isGold ? 'text-shadow:' + c.titleShadow + ';' : '') + 'font-size:18px;margin-bottom:3px;font-weight:700;}.product p{color:' + c.desc + ';font-size:13px;}.product a{display:inline-block;' + btnCSS + 'padding:10px 25px;border-radius:25px;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap;}';
             } else if (style === 'card') {
-                return baseCSS + '.products{display:block;}.product{background:linear-gradient(145deg,rgba(139,92,246,0.1),rgba(168,85,247,0.05));border:1px solid rgba(139,92,246,0.3);border-radius:15px;margin-bottom:20px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(139,92,246,0.2);}.product .img{width:100%;height:120px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);}.product img{width:150px;height:120px;border-radius:10px;object-fit:cover;}.product .info{padding:20px;text-align:center;}.product .tag{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;padding:6px 15px;border-radius:20px;font-size:12px;font-weight:600;text-transform:uppercase;margin-bottom:10px;}.product .tag.vip{background:linear-gradient(90deg,#8b5cf6,#a855f7);}.product h3{color:white;font-size:22px;margin-bottom:8px;font-weight:700;}.product p{color:#a5b4fc;font-size:14px;margin-bottom:15px;}.product a{display:inline-block;background:linear-gradient(90deg,#8b5cf6,#a855f7);color:white;padding:12px 35px;border-radius:25px;text-decoration:none;font-size:14px;font-weight:600;box-shadow:0 4px 15px rgba(139,92,246,0.4);}';
+                return baseCSS + '.products{display:block;}.product{background:' + c.cardBg + ';border:1px solid ' + c.cardBorder + ';border-radius:15px;margin-bottom:20px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:translateY(-5px);box-shadow:0 20px 40px ' + c.cardShadow + ';}.product .img{width:100%;height:120px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);}.product img{width:150px;height:120px;border-radius:10px;object-fit:cover;}.product .info{padding:20px;text-align:center;}.product .tag{display:inline-block;' + tagNormalCSS + 'padding:6px 15px;border-radius:20px;font-size:12px;font-weight:600;text-transform:uppercase;margin-bottom:10px;}.product .tag.vip{' + tagVipCSS + '}.product h3{color:' + c.title + ';' + (isGold ? 'text-shadow:' + c.titleShadow + ';' : '') + 'font-size:22px;margin-bottom:8px;font-weight:700;}.product p{color:' + c.desc + ';font-size:14px;margin-bottom:15px;}.product a{display:inline-block;' + btnCSS + 'padding:12px 35px;border-radius:25px;text-decoration:none;font-size:14px;font-weight:600;}';
             } else if (style === 'compact') {
-                return baseCSS + '.products{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}.product{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2);border-radius:10px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:scale(1.03);box-shadow:0 10px 20px rgba(139,92,246,0.2);}.product .img{text-align:center;padding:8px;background:rgba(0,0,0,0.2);}.product img{width:80px;height:60px;border-radius:6px;object-fit:cover;}.product .info{padding:10px;text-align:center;}.product .tag{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;text-transform:uppercase;margin-bottom:5px;}.product .tag.vip{background:linear-gradient(90deg,#8b5cf6,#a855f7);}.product h3{color:white;font-size:13px;margin-bottom:3px;font-weight:600;}.product a{display:inline-block;background:linear-gradient(90deg,#8b5cf6,#a855f7);color:white;padding:5px 12px;border-radius:15px;text-decoration:none;font-size:10px;font-weight:600;}@media(max-width:500px){.products{grid-template-columns:repeat(2,1fr);}}';
+                return baseCSS + '.products{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}.product{background:' + c.cardBg + ';border:1px solid ' + c.cardBorder + ';border-radius:10px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:scale(1.03);box-shadow:0 10px 20px ' + c.cardShadow + ';}.product .img{text-align:center;padding:8px;background:rgba(0,0,0,0.2);}.product img{width:80px;height:60px;border-radius:6px;object-fit:cover;}.product .info{padding:10px;text-align:center;}.product .tag{display:inline-block;' + tagNormalCSS + 'padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600;text-transform:uppercase;margin-bottom:5px;}.product .tag.vip{' + tagVipCSS + '}.product h3{color:' + c.title + ';' + (isGold ? 'text-shadow:' + c.titleShadow + ';' : '') + 'font-size:13px;margin-bottom:3px;font-weight:600;}.product a{display:inline-block;' + btnCSS + 'padding:5px 12px;border-radius:15px;text-decoration:none;font-size:10px;font-weight:600;}@media(max-width:500px){.products{grid-template-columns:repeat(2,1fr);}}';
             } else if (style === 'featured') {
-                return baseCSS + '.products{display:block;}.product{background:linear-gradient(145deg,rgba(139,92,246,0.15),rgba(168,85,247,0.08));border:2px solid rgba(139,92,246,0.4);border-radius:20px;margin-bottom:20px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:scale(1.02);box-shadow:0 0 30px rgba(139,92,246,0.3);}.product .img{width:100%;height:150px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(168,85,247,0.1));}.product img{width:180px;height:140px;border-radius:12px;object-fit:cover;box-shadow:0 5px 20px rgba(0,0,0,0.3);}.product .info{padding:25px;text-align:center;}.product .tag{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);color:white;padding:8px 20px;border-radius:25px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;}.product .tag.vip{background:linear-gradient(90deg,#8b5cf6,#a855f7);}.product h3{color:white;font-size:26px;margin-bottom:10px;font-weight:700;}.product p{color:#a5b4fc;font-size:15px;margin-bottom:20px;line-height:1.5;}.product a{display:inline-block;background:linear-gradient(90deg,#8b5cf6,#a855f7);color:white;padding:15px 45px;border-radius:30px;text-decoration:none;font-size:16px;font-weight:700;box-shadow:0 5px 25px rgba(139,92,246,0.5);}';
+                return baseCSS + '.products{display:block;}.product{background:' + c.cardBg + ';border:2px solid ' + c.cardBorder + ';border-radius:20px;margin-bottom:20px;overflow:hidden;transition:all 0.3s;}.product:hover{transform:scale(1.02);box-shadow:0 0 30px ' + c.cardShadow + ';}.product .img{width:100%;height:150px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);}.product img{width:180px;height:140px;border-radius:12px;object-fit:cover;box-shadow:0 5px 20px rgba(0,0,0,0.3);}.product .info{padding:25px;text-align:center;}.product .tag{display:inline-block;' + tagNormalCSS + 'padding:8px 20px;border-radius:25px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;}.product .tag.vip{' + tagVipCSS + '}.product h3{color:' + c.title + ';' + (isGold ? 'text-shadow:' + c.titleShadow + ';' : '') + 'font-size:26px;margin-bottom:10px;font-weight:700;}.product p{color:' + c.desc + ';font-size:15px;margin-bottom:20px;line-height:1.5;}.product a{display:inline-block;' + btnCSS + 'padding:15px 45px;border-radius:30px;text-decoration:none;font-size:16px;font-weight:700;}';
             }
         }
 
-        function getProductsHTML(style) {
+        function getProductsHTML(style, color) {
             var html = '';
             for (var i = 0; i < products.length; i++) {
                 var p = products[i];
@@ -666,9 +960,10 @@
             var intro = document.getElementById('cardIntro').value;
             var footer = document.getElementById('cardFooter').value;
             var style = styleSelectEl.value;
+            var color = colorSelectEl.value;
             
-            var css = getStyleCSS(style);
-            var productsHtml = getProductsHTML(style);
+            var css = getStyleCSS(style, color);
+            var productsHtml = getProductsHTML(style, color);
             
             return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>' + title + ' - VIP Offer</title>\n<style>\n' + css + '\n</style>\n</head>\n<body>\n<div class="container">\n<div class="header">\n<div class="badge">🌟 Exclusive VIP Offer</div>\n<h1>' + title + '</h1>\n<p>' + subtitle + '</p>\n</div>\n<div class="content">\n<p class="intro">' + intro + '</p>\n<div class="products">\n' + productsHtml + '</div>\n</div>\n<div class="footer">' + footer + '</div>\n</div>\n</body>\n</html>';
         }
