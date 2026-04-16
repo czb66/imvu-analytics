@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMVU 产品推广卡片生成器</title>
     <script src="/static/i18n.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -741,6 +742,7 @@
                     <div class="actions-panel">
                         <button class="btn btn-primary" id="getCodeBtn">📋 <span data-i18n="nav.promoTool.copyCode">复制代码</span></button>
                         <button class="btn btn-primary" id="downloadBtn">⬇️ <span data-i18n="nav.promoTool.downloadHTML">下载HTML</span></button>
+                        <button class="btn btn-primary" id="exportImgBtn" style="background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);">🖼️ <span data-i18n="nav.promoTool.exportImage">导出图片</span></button>
                         <button class="btn btn-secondary" id="resetBtn">🔄 <span data-i18n="nav.promoTool.reset">重置</span></button>
                     </div>
                 </div>
@@ -1129,9 +1131,48 @@
             }
         }
 
+        function exportImage() {
+            var previewEl = document.getElementById('previewCard');
+            if (!previewEl) {
+                alert('Preview not found');
+                return;
+            }
+            
+            // 显示加载提示
+            var btn = document.getElementById('exportImgBtn');
+            var originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Exporting...';
+            btn.disabled = true;
+            
+            // 使用 html2canvas 截图
+            html2canvas(previewEl, {
+                backgroundColor: '#1e1e3f',
+                scale: 2, // 2倍清晰度
+                useCORS: true, // 允许跨域图片
+                allowTaint: true,
+                logging: false
+            }).then(function(canvas) {
+                // 转换为图片并下载
+                var link = document.createElement('a');
+                link.download = 'promo_card_' + Date.now() + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // 恢复按钮
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }).catch(function(err) {
+                console.error('Export failed:', err);
+                alert('Export failed. Please try again or use HTML download.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+
         document.getElementById('addBtn').onclick = addProduct;
         document.getElementById('getCodeBtn').onclick = copyCode;
         document.getElementById('downloadBtn').onclick = downloadHTML;
+        document.getElementById('exportImgBtn').onclick = exportImage;
         document.getElementById('resetBtn').onclick = resetForm;
 
         // 初始化
