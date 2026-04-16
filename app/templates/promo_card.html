@@ -722,9 +722,15 @@
         }
         
         .actions-panel {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            flex-wrap: wrap;
+        }
+        .actions-panel .btn {
+            width: 100%;
+            margin-right: 0;
+            text-align: center;
+            justify-content: center;
         }
         
         .style-selector, .color-selector {
@@ -845,8 +851,6 @@
                         <button class="btn btn-primary" id="getCodeBtn">📋 <span data-i18n="nav.promoTool.copyCode">复制代码</span></button>
                         <button class="btn btn-primary" id="downloadBtn">⬇️ <span data-i18n="nav.promoTool.downloadHTML">下载HTML</span></button>
                         <button class="btn btn-primary" id="exportImgBtn" style="background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);">🖼️ <span data-i18n="nav.promoTool.exportImage">导出图片</span></button>
-                    </div>
-                    <div class="actions-panel" style="margin-top: 10px;">
                         <button class="btn btn-secondary" id="saveBtn" style="background: linear-gradient(90deg, #10b981 0%, #34d399 100%); color: white; border: none;">💾 <span data-i18n="nav.promoTool.saveData">保存数据</span></button>
                         <button class="btn btn-secondary" id="clearSavedBtn" style="background: rgba(239, 68, 68, 0.3); color: #fca5a5;">🗑️ <span data-i18n="nav.promoTool.clearSaved">清除保存</span></button>
                         <button class="btn btn-secondary" id="resetBtn">🔄 <span data-i18n="nav.promoTool.reset">重置</span></button>
