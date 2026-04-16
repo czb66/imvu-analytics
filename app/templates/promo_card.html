@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMVU 产品推广卡片生成器</title>
+    <script src="/static/i18n.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -14,6 +15,52 @@
             padding: 20px;
         }
         .container { max-width: 1200px; margin: 0 auto; }
+        
+        /* 顶部导航 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(139, 92, 246, 0.2);
+            color: #a855f7;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: rgba(139, 92, 246, 0.3);
+            transform: translateX(-3px);
+        }
+        .lang-switch {
+            display: flex;
+            gap: 10px;
+        }
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #a5b4fc;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .lang-btn:hover, .lang-btn.active {
+            background: rgba(139, 92, 246, 0.3);
+            border-color: rgba(139, 92, 246, 0.5);
+            color: white;
+        }
+        
         h1 { color: #a855f7; text-align: center; margin-bottom: 30px; font-size: 28px; }
         .main-grid { display: grid; grid-template-columns: 400px 1fr; gap: 20px; }
         
@@ -99,17 +146,6 @@
             border-bottom: 1px solid rgba(139, 92, 246, 0.1);
         }
         .product-title { color: #a855f7; font-weight: 600; font-size: 15px; }
-        
-        /* 配色预览小方块 */
-        .color-preview {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-            margin-right: 8px;
-            vertical-align: middle;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
         
         /* 预览卡片样式 */
         .card-preview {
@@ -588,23 +624,33 @@
             flex-wrap: wrap;
         }
         
-        .style-selector {
-            background: rgba(139, 92, 246, 0.1);
+        .style-selector, .color-selector {
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(139, 92, 246, 0.3);
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 20px;
         }
-        .style-selector label { color: #a5b4fc; font-size: 14px; margin-right: 10px; }
+        .style-selector label, .color-selector label { color: #a5b4fc; font-size: 14px; margin-right: 10px; }
         
-        .color-selector {
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.3);
+        /* 透明下拉框样式 */
+        select.transparent-select {
+            background: rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid rgba(139, 92, 246, 0.4) !important;
             border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 10px 20px;
         }
-        .color-selector label { color: #ffd700; font-size: 14px; margin-right: 10px; }
+        select.transparent-select:focus {
+            outline: none;
+            border-color: rgba(139, 92, 246, 0.6) !important;
+        }
+        select.transparent-select option {
+            background: #1e1e3f;
+            color: white;
+        }
         
         @media (max-width: 900px) {
             .main-grid { grid-template-columns: 1fr; }
@@ -618,33 +664,47 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎨 IMVU 产品推广卡片生成器</h1>
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+            <a href="/dashboard" class="back-btn" id="backBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <span data-i18n="nav.backToDashboard">返回首页</span>
+            </a>
+            <div class="lang-switch">
+                <button class="lang-btn" onclick="switchLang('en')">EN</button>
+                <button class="lang-btn" onclick="switchLang('zh')">中文</button>
+            </div>
+        </div>
+        
+        <h1 data-i18n="nav.promoTool.title">🎨 IMVU 产品推广卡片生成器</h1>
         
         <div class="main-grid">
             <div class="left-panel">
                 <div class="panel">
-                    <h2>📝 基本信息</h2>
+                    <h2>📝 <span data-i18n="nav.promoTool.basicInfo">基本信息</span></h2>
                     <div class="form-row">
-                        <label>标题</label>
+                        <label data-i18n="nav.promoTool.cardTitle">标题</label>
                         <input type="text" id="cardTitle" value="Upgrade Your Experience" oninput="updatePreview()">
                     </div>
                     <div class="form-row">
-                        <label>副标题</label>
+                        <label data-i18n="nav.promoTool.cardSubtitle">副标题</label>
                         <input type="text" id="cardSubtitle" value="Premium IMVU Collections" oninput="updatePreview()">
                     </div>
                     <div class="form-row">
-                        <label>介绍文字</label>
+                        <label data-i18n="nav.promoTool.cardIntro">介绍文字</label>
                         <textarea id="cardIntro" oninput="updatePreview()">Discover our premium multi-avatar collections. Crafted for the elite.</textarea>
                     </div>
                     <div class="form-row">
-                        <label>底部提示</label>
+                        <label data-i18n="nav.promoTool.cardFooter">底部提示</label>
                         <textarea id="cardFooter" oninput="updatePreview()">Click to view High-Res previews and secure your copy before the price update.</textarea>
                     </div>
                 </div>
                 
                 <div class="panel">
-                    <h2>🛍️ 产品列表</h2>
-                    <button class="btn btn-primary" id="addBtn">+ 添加产品</button>
+                    <h2>🛍️ <span data-i18n="nav.promoTool.productList">产品列表</span></h2>
+                    <button class="btn btn-primary" id="addBtn"><span data-i18n="nav.promoTool.addProduct">+ 添加产品</span></button>
                     <div id="productsList"></div>
                 </div>
             </div>
@@ -652,36 +712,36 @@
             <div class="right-panel">
                 <div class="panel">
                     <div class="style-selector">
-                        <label>🎨 选择样式：</label>
-                        <select id="styleSelect" onchange="updatePreview()" style="padding: 10px 20px; background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.3); border-radius: 10px; color: white; font-size: 14px; cursor: pointer;">
-                            <option value="grid">样式1: 两列网格</option>
-                            <option value="list">样式2: 横向列表</option>
-                            <option value="card">样式3: 大卡片</option>
-                            <option value="compact">样式4: 紧凑三列</option>
-                            <option value="featured">样式5: 精品展示</option>
+                        <label>🎨 <span data-i18n="nav.promoTool.selectStyle">选择样式：</span></label>
+                        <select id="styleSelect" onchange="updatePreview()" class="transparent-select">
+                            <option value="grid" data-i18n="nav.promoTool.styleGrid">样式1: 两列网格</option>
+                            <option value="list" data-i18n="nav.promoTool.styleList">样式2: 横向列表</option>
+                            <option value="card" data-i18n="nav.promoTool.styleCard">样式3: 大卡片</option>
+                            <option value="compact" data-i18n="nav.promoTool.styleCompact">样式4: 紧凑三列</option>
+                            <option value="featured" data-i18n="nav.promoTool.styleFeatured">样式5: 精品展示</option>
                         </select>
                     </div>
                     
                     <div class="color-selector">
-                        <label>✨ 选择配色：</label>
-                        <select id="colorSelect" onchange="updatePreview()" style="padding: 10px 20px; background: rgba(255,215,0,0.2); border: 1px solid rgba(255,215,0,0.3); border-radius: 10px; color: white; font-size: 14px; cursor: pointer;">
-                            <option value="purple">💜 紫色神秘风</option>
-                            <option value="gold">💛 金色奢华风</option>
-                            <option value="blue">💙 蓝色科技风</option>
-                            <option value="red">❤️ 红色热情风</option>
-                            <option value="green">💚 绿色清新风</option>
+                        <label>✨ <span data-i18n="nav.promoTool.selectColor">选择配色：</span></label>
+                        <select id="colorSelect" onchange="updatePreview()" class="transparent-select">
+                            <option value="purple">💜 <span data-i18n="nav.promoTool.colorPurple">紫色神秘风</span></option>
+                            <option value="gold">💛 <span data-i18n="nav.promoTool.colorGold">金色奢华风</span></option>
+                            <option value="blue">💙 <span data-i18n="nav.promoTool.colorBlue">蓝色科技风</span></option>
+                            <option value="red">❤️ <span data-i18n="nav.promoTool.colorRed">红色热情风</span></option>
+                            <option value="green">💚 <span data-i18n="nav.promoTool.colorGreen">绿色清新风</span></option>
                         </select>
                     </div>
                     
-                    <h2>👁️ 实时预览</h2>
+                    <h2>👁️ <span data-i18n="nav.promoTool.preview">实时预览</span></h2>
                     <div id="previewCard" class="card-preview"></div>
                 </div>
                 
                 <div class="panel">
                     <div class="actions-panel">
-                        <button class="btn btn-primary" id="getCodeBtn">📋 复制代码</button>
-                        <button class="btn btn-primary" id="downloadBtn">⬇️ 下载HTML</button>
-                        <button class="btn btn-secondary" id="resetBtn">🔄 重置</button>
+                        <button class="btn btn-primary" id="getCodeBtn">📋 <span data-i18n="nav.promoTool.copyCode">复制代码</span></button>
+                        <button class="btn btn-primary" id="downloadBtn">⬇️ <span data-i18n="nav.promoTool.downloadHTML">下载HTML</span></button>
+                        <button class="btn btn-secondary" id="resetBtn">🔄 <span data-i18n="nav.promoTool.reset">重置</span></button>
                     </div>
                 </div>
             </div>
@@ -689,6 +749,53 @@
     </div>
 
     <script>
+        // 多语言支持
+        function switchLang(lang) {
+            if (typeof setLanguage === 'function') {
+                setLanguage(lang);
+            } else {
+                localStorage.setItem('imvu_lang', lang);
+                location.reload();
+            }
+        }
+        
+        // 初始化语言按钮状态
+        function initLangBtns() {
+            var currentLang = localStorage.getItem('imvu_lang') || 'en';
+            var btns = document.querySelectorAll('.lang-btn');
+            btns.forEach(function(btn) {
+                if (btn.textContent === 'EN' && currentLang === 'en') {
+                    btn.classList.add('active');
+                } else if (btn.textContent === '中文' && currentLang === 'zh') {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        // 翻译函数
+        function t(key) {
+            if (typeof getTranslation === 'function') {
+                return getTranslation(key);
+            }
+            var keys = key.split('.');
+            var result = translations[currentLang] || translations['en'];
+            for (var i = 0; i < keys.length; i++) {
+                result = result[keys[i]];
+                if (!result) break;
+            }
+            return result || key;
+        }
+        
+        // 应用翻译
+        function applyTranslations() {
+            var elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(function(el) {
+                var key = el.getAttribute('data-i18n');
+                var text = t(key);
+                if (text) el.textContent = text;
+            });
+        }
+
         var products = [
             {
                 tag: 'Top Seller AP',
@@ -719,15 +826,15 @@
                 var p = products[i];
                 html += '<div class="product-item">';
                 html += '<div class="product-header">';
-                html += '<span class="product-title">产品 ' + (i + 1) + '</span>';
-                html += '<button class="btn btn-danger" onclick="removeProduct(' + i + ')">✕ 删除</button>';
+                html += '<span class="product-title">' + t('nav.promoTool.product') + ' ' + (i + 1) + '</span>';
+                html += '<button class="btn btn-danger" onclick="removeProduct(' + i + ')">✕ ' + t('nav.promoTool.delete') + '</button>';
                 html += '</div>';
-                html += '<div class="form-row"><label>标签</label><input type="text" value="' + p.tag + '" onchange="updateProduct(' + i + ', \'tag\', this.value)"></div>';
-                html += '<div class="form-row"><label>标签类型</label><select style="width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(139,92,246,0.3);border-radius:10px;color:white;" onchange="updateProduct(' + i + ', \'tagType\', this.value)"><option value="normal"' + (p.tagType === 'normal' ? ' selected' : '') + '>普通</option><option value="vip"' + (p.tagType === 'vip' ? ' selected' : '') + '>VIP</option></select></div>';
-                html += '<div class="form-row"><label>名称</label><input type="text" value="' + p.name + '" onchange="updateProduct(' + i + ', \'name\', this.value)"></div>';
-                html += '<div class="form-row"><label>描述</label><input type="text" value="' + p.description + '" onchange="updateProduct(' + i + ', \'description\', this.value)"></div>';
-                html += '<div class="form-row"><label>图片地址</label><input type="text" value="' + p.image + '" onchange="updateProduct(' + i + ', \'image\', this.value)"></div>';
-                html += '<div class="form-row"><label>产品链接</label><input type="text" value="' + p.link + '" onchange="updateProduct(' + i + ', \'link\', this.value)"></div>';
+                html += '<div class="form-row"><label>' + t('nav.promoTool.tag') + '</label><input type="text" value="' + p.tag + '" onchange="updateProduct(' + i + ', \'tag\', this.value)"></div>';
+                html += '<div class="form-row"><label>' + t('nav.promoTool.tagType') + '</label><select class="transparent-select" style="width:100%;" onchange="updateProduct(' + i + ', \'tagType\', this.value)"><option value="normal"' + (p.tagType === 'normal' ? ' selected' : '') + '>' + t('nav.promoTool.tagNormal') + '</option><option value="vip"' + (p.tagType === 'vip' ? ' selected' : '') + '>' + t('nav.promoTool.tagVip') + '</option></select></div>';
+                html += '<div class="form-row"><label>' + t('nav.promoTool.productName') + '</label><input type="text" value="' + p.name + '" onchange="updateProduct(' + i + ', \'name\', this.value)"></div>';
+                html += '<div class="form-row"><label>' + t('nav.promoTool.productDesc') + '</label><input type="text" value="' + p.description + '" onchange="updateProduct(' + i + ', \'description\', this.value)"></div>';
+                html += '<div class="form-row"><label>' + t('nav.promoTool.imageUrl') + '</label><input type="text" value="' + p.image + '" onchange="updateProduct(' + i + ', \'image\', this.value)"></div>';
+                html += '<div class="form-row"><label>' + t('nav.promoTool.productLink') + '</label><input type="text" value="' + p.link + '" onchange="updateProduct(' + i + ', \'link\', this.value)"></div>';
                 html += '</div>';
             }
             productsListEl.innerHTML = html;
@@ -972,7 +1079,7 @@
             var code = generateHTML();
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(code).then(function() {
-                    alert('✅ 代码已复制到剪贴板！');
+                    alert('✅ ' + t('nav.promoTool.codeCopied'));
                 }).catch(function() {
                     fallbackCopy(code);
                 });
@@ -990,9 +1097,9 @@
             textarea.select();
             try {
                 document.execCommand('copy');
-                alert('✅ 代码已复制到剪贴板！');
+                alert('✅ ' + t('nav.promoTool.codeCopied'));
             } catch (err) {
-                alert('❌ 复制失败，请使用下载功能');
+                alert('❌ ' + t('nav.promoTool.copyFailed'));
             }
             document.body.removeChild(textarea);
         }
@@ -1009,7 +1116,7 @@
         }
 
         function resetForm() {
-            if (confirm('确定要重置吗？')) {
+            if (confirm(t('nav.promoTool.confirmReset'))) {
                 document.getElementById('cardTitle').value = 'Upgrade Your Experience';
                 document.getElementById('cardSubtitle').value = 'Premium IMVU Collections';
                 document.getElementById('cardIntro').value = 'Discover our premium multi-avatar collections. Crafted for the elite.';
@@ -1027,6 +1134,9 @@
         document.getElementById('downloadBtn').onclick = downloadHTML;
         document.getElementById('resetBtn').onclick = resetForm;
 
+        // 初始化
+        initLangBtns();
+        applyTranslations();
         renderProductsList();
         updatePreview();
     </script>
