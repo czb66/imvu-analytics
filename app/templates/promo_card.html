@@ -845,8 +845,13 @@
                         <button class="btn btn-primary" id="getCodeBtn">📋 <span data-i18n="nav.promoTool.copyCode">复制代码</span></button>
                         <button class="btn btn-primary" id="downloadBtn">⬇️ <span data-i18n="nav.promoTool.downloadHTML">下载HTML</span></button>
                         <button class="btn btn-primary" id="exportImgBtn" style="background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);">🖼️ <span data-i18n="nav.promoTool.exportImage">导出图片</span></button>
+                    </div>
+                    <div class="actions-panel" style="margin-top: 10px;">
+                        <button class="btn btn-secondary" id="saveBtn" style="background: linear-gradient(90deg, #10b981 0%, #34d399 100%); color: white; border: none;">💾 <span data-i18n="nav.promoTool.saveData">保存数据</span></button>
+                        <button class="btn btn-secondary" id="clearSavedBtn" style="background: rgba(239, 68, 68, 0.3); color: #fca5a5;">🗑️ <span data-i18n="nav.promoTool.clearSaved">清除保存</span></button>
                         <button class="btn btn-secondary" id="resetBtn">🔄 <span data-i18n="nav.promoTool.reset">重置</span></button>
                     </div>
+                    <div id="saveStatus" style="margin-top: 10px; font-size: 12px; color: #6ee7b7; text-align: center; display: none;"></div>
                 </div>
             </div>
         </div>
@@ -911,6 +916,11 @@
                     'nav.promoTool.downloadHTML': 'Download HTML',
                     'nav.promoTool.exportImage': 'Export Image',
                     'nav.promoTool.reset': 'Reset',
+                    'nav.promoTool.saveData': 'Save Data',
+                    'nav.promoTool.clearSaved': 'Clear Saved',
+                    'nav.promoTool.saveSuccess': '✅ Data saved!',
+                    'nav.promoTool.clearSuccess': '✅ Saved data cleared!',
+                    'nav.promoTool.dataLoaded': '✅ Loaded saved data',
                     'nav.backToDashboard': 'Back to Dashboard'
                 },
                 zh: {
@@ -941,6 +951,11 @@
                     'nav.promoTool.downloadHTML': '下载HTML',
                     'nav.promoTool.exportImage': '导出图片',
                     'nav.promoTool.reset': '重置',
+                    'nav.promoTool.saveData': '保存数据',
+                    'nav.promoTool.clearSaved': '清除保存',
+                    'nav.promoTool.saveSuccess': '✅ 数据已保存！',
+                    'nav.promoTool.clearSuccess': '✅ 已清除保存的数据！',
+                    'nav.promoTool.dataLoaded': '✅ 已加载保存的数据',
                     'nav.backToDashboard': '返回首页'
                 }
             };
@@ -1300,6 +1315,62 @@
             }
         }
 
+        // 保存数据到 localStorage
+        function saveData() {
+            var data = {
+                cardTitle: document.getElementById('cardTitle').value,
+                cardSubtitle: document.getElementById('cardSubtitle').value,
+                cardIntro: document.getElementById('cardIntro').value,
+                cardFooter: document.getElementById('cardFooter').value,
+                style: styleSelectEl.value,
+                color: colorSelectEl.value,
+                products: products
+            };
+            localStorage.setItem('promoCardData', JSON.stringify(data));
+            showSaveStatus(t('nav.promoTool.saveSuccess'));
+        }
+
+        // 从 localStorage 加载数据
+        function loadData() {
+            var saved = localStorage.getItem('promoCardData');
+            if (saved) {
+                try {
+                    var data = JSON.parse(saved);
+                    document.getElementById('cardTitle').value = data.cardTitle || '';
+                    document.getElementById('cardSubtitle').value = data.cardSubtitle || '';
+                    document.getElementById('cardIntro').value = data.cardIntro || '';
+                    document.getElementById('cardFooter').value = data.cardFooter || '';
+                    styleSelectEl.value = data.style || 'grid';
+                    colorSelectEl.value = data.color || 'purple';
+                    if (data.products && data.products.length > 0) {
+                        products = data.products;
+                    }
+                    return true;
+                } catch (e) {
+                    console.error('Failed to load saved data:', e);
+                }
+            }
+            return false;
+        }
+
+        // 清除保存的数据
+        function clearSavedData() {
+            if (confirm(t('nav.promoTool.confirmReset'))) {
+                localStorage.removeItem('promoCardData');
+                showSaveStatus(t('nav.promoTool.clearSuccess'));
+            }
+        }
+
+        // 显示保存状态
+        function showSaveStatus(msg) {
+            var statusEl = document.getElementById('saveStatus');
+            statusEl.textContent = msg;
+            statusEl.style.display = 'block';
+            setTimeout(function() {
+                statusEl.style.display = 'none';
+            }, 2000);
+        }
+
         function exportImage() {
             var previewEl = document.getElementById('previewCard');
             if (!previewEl) {
@@ -1342,11 +1413,17 @@
         document.getElementById('getCodeBtn').onclick = copyCode;
         document.getElementById('downloadBtn').onclick = downloadHTML;
         document.getElementById('exportImgBtn').onclick = exportImage;
+        document.getElementById('saveBtn').onclick = saveData;
+        document.getElementById('clearSavedBtn').onclick = clearSavedData;
         document.getElementById('resetBtn').onclick = resetForm;
 
         // 初始化
         initLangBtns();
         applyTranslations();
+        // 加载保存的数据
+        if (loadData()) {
+            showSaveStatus(t('nav.promoTool.dataLoaded'));
+        }
         renderProductsList();
         updatePreview();
     </script>
