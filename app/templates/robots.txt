@@ -12,6 +12,7 @@ Allow: /guide
 Allow: /contact
 Allow: /terms
 Allow: /privacy
+Allow: /promo-card
 
 # 需要登录的页面 - 禁止爬取
 Disallow: /dashboard
@@ -46,6 +47,7 @@ Allow: /guide
 Allow: /contact
 Allow: /terms
 Allow: /privacy
+Allow: /promo-card
 Disallow: /dashboard
 Disallow: /upload
 Disallow: /report
@@ -73,6 +75,7 @@ Allow: /guide
 Allow: /contact
 Allow: /terms
 Allow: /privacy
+Allow: /promo-card
 Disallow: /dashboard
 Disallow: /upload
 Disallow: /report
@@ -100,6 +103,7 @@ Allow: /guide
 Allow: /contact
 Allow: /terms
 Allow: /privacy
+Allow: /promo-card
 Disallow: /dashboard
 Disallow: /upload
 Disallow: /report
