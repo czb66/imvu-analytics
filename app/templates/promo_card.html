@@ -381,27 +381,106 @@
         }
         .card-body-preview { padding: 30px; }
         
-        /* 跑马灯效果 */
+        /* 跑马灯效果 - 炫酷版 */
         .card-intro-preview { 
             text-align: center; 
             margin-bottom: 30px;
             font-size: 16px;
-            line-height: 1.6;
+            line-height: 2;
             overflow: hidden;
             position: relative;
+            padding: 15px 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(139, 92, 246, 0.1) 20%, 
+                rgba(168, 85, 247, 0.15) 50%, 
+                rgba(139, 92, 246, 0.1) 80%, 
+                transparent 100%);
+            border-radius: 30px;
+        }
+        .card-intro-preview::before {
+            content: '✨ ✨ ✨';
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            animation: sparkle 1.5s ease-in-out infinite;
+            opacity: 0.8;
+        }
+        .card-intro-preview::after {
+            content: '✨ ✨ ✨';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            animation: sparkle 1.5s ease-in-out infinite 0.5s;
+            opacity: 0.8;
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.5; transform: translateY(-50%) scale(1); }
+            50% { opacity: 1; transform: translateY(-50%) scale(1.2); }
         }
         .card-intro-preview .marquee-container {
             display: inline-block;
             white-space: nowrap;
             animation: marquee 15s linear infinite;
             padding-left: 100%;
+            font-weight: 700;
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+            letter-spacing: 1px;
         }
         .card-intro-preview:hover .marquee-container {
             animation-play-state: paused;
+            text-shadow: 0 0 15px currentColor, 0 0 30px currentColor, 0 0 45px currentColor;
         }
         @keyframes marquee {
             0% { transform: translateX(0); }
             100% { transform: translateX(-100%); }
+        }
+        
+        /* 金色配色特殊样式 */
+        .color-gold .card-intro-preview {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 215, 0, 0.1) 20%, 
+                rgba(218, 165, 32, 0.15) 50%, 
+                rgba(255, 215, 0, 0.1) 80%, 
+                transparent 100%);
+        }
+        .color-gold .card-intro-preview .marquee-container {
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        /* 蓝色配色特殊样式 */
+        .color-blue .card-intro-preview {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(59, 130, 246, 0.1) 20%, 
+                rgba(99, 102, 241, 0.15) 50%, 
+                rgba(59, 130, 246, 0.1) 80%, 
+                transparent 100%);
+        }
+        
+        /* 红色配色特殊样式 */
+        .color-red .card-intro-preview {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(239, 68, 68, 0.1) 20%, 
+                rgba(249, 115, 22, 0.15) 50%, 
+                rgba(239, 68, 68, 0.1) 80%, 
+                transparent 100%);
+        }
+        
+        /* 绿色配色特殊样式 */
+        .color-green .card-intro-preview {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(16, 185, 129, 0.1) 20%, 
+                rgba(52, 211, 153, 0.15) 50%, 
+                rgba(16, 185, 129, 0.1) 80%, 
+                transparent 100%);
         }
         
         /* 样式1: 两列网格 */
@@ -1102,7 +1181,7 @@
             var c = getColorCSS(color);
             var isGold = color === 'gold';
             
-            var baseCSS = '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:\'Segoe UI\',sans-serif;background:linear-gradient(135deg,#1a1a2e,#0f0f23);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}.container{max-width:600px;width:100%;background:linear-gradient(145deg,#1e1e3f,#252550);border-radius:20px;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.5),0 0 40px ' + c.cardShadow + ';border:1px solid ' + c.cardBorder + ';}.header{background:' + c.header + ';padding:25px;text-align:center;position:relative;overflow:hidden;}.header::before{content:\'\';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.1),transparent 60%);animation:shimmer 3s infinite;}@keyframes shimmer{0%,100%{transform:rotate(0deg);}50%{transform:rotate(180deg);}}.badge{display:inline-block;background:' + c.badge + ';padding:8px 20px;border-radius:30px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:' + c.badgeText + ';margin-bottom:15px;' + (isGold ? 'border:1px solid #ffd700;' : '') + '}.header h1{color:' + c.headerText + ';font-size:28px;font-weight:700;' + (isGold ? 'text-shadow:0 1px 2px rgba(255,215,0,0.3);' : 'text-shadow:0 2px 10px rgba(0,0,0,0.3);') + '}.header p{color:' + c.headerSub + ';font-size:14px;margin-top:10px;}.content{padding:30px;}.intro{text-align:center;color:' + c.intro + ';font-size:16px;line-height:1.6;margin-bottom:30px;overflow:hidden;}.intro span{display:inline-block;white-space:nowrap;animation:marquee 15s linear infinite;padding-left:100%;}.intro:hover span{animation-play-state:paused;}@keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}.footer{' + (isGold ? 'background:' + c.footerBg + ';border-top:' + c.footerBorder + ';' : 'background:rgba(0,0,0,0.2);') + 'padding:20px 30px;text-align:center;color:' + c.footer + ';font-size:13px;}';
+            var baseCSS = '*{margin:0;padding:0;box-sizing:border-box;}body{font-family:\'Segoe UI\',sans-serif;background:linear-gradient(135deg,#1a1a2e,#0f0f23);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}.container{max-width:600px;width:100%;background:linear-gradient(145deg,#1e1e3f,#252550);border-radius:20px;overflow:hidden;box-shadow:0 25px 50px rgba(0,0,0,0.5),0 0 40px ' + c.cardShadow + ';border:1px solid ' + c.cardBorder + ';}.header{background:' + c.header + ';padding:25px;text-align:center;position:relative;overflow:hidden;}.header::before{content:\'\';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,0.1),transparent 60%);animation:shimmer 3s infinite;}@keyframes shimmer{0%,100%{transform:rotate(0deg);}50%{transform:rotate(180deg);}}.badge{display:inline-block;background:' + c.badge + ';padding:8px 20px;border-radius:30px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:' + c.badgeText + ';margin-bottom:15px;' + (isGold ? 'border:1px solid #ffd700;' : '') + '}.header h1{color:' + c.headerText + ';font-size:28px;font-weight:700;' + (isGold ? 'text-shadow:0 1px 2px rgba(255,215,0,0.3);' : 'text-shadow:0 2px 10px rgba(0,0,0,0.3);') + '}.header p{color:' + c.headerSub + ';font-size:14px;margin-top:10px;}.content{padding:30px;}.intro{text-align:center;color:' + c.intro + ';font-size:16px;line-height:2;margin-bottom:30px;overflow:hidden;position:relative;padding:15px 0;background:linear-gradient(90deg,transparent 0%,' + c.cardBorder.replace('0.3','0.1') + ' 50%,transparent 100%);border-radius:30px;}.intro::before{content:\'✨ ✨ ✨\';position:absolute;left:20px;top:50%;transform:translateY(-50%);font-size:14px;animation:sparkle 1.5s ease-in-out infinite;opacity:0.8;}@keyframes sparkle{0%,100%{opacity:0.5;transform:translateY(-50%) scale(1);}50%{opacity:1;transform:translateY(-50%) scale(1.2);}}.intro::after{content:\'✨ ✨ ✨\';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:14px;animation:sparkle 1.5s ease-in-out infinite 0.5s;opacity:0.8;}.intro span{display:inline-block;white-space:nowrap;animation:marquee 15s linear infinite;padding-left:100%;font-weight:700;text-shadow:0 0 10px currentColor,0 0 20px currentColor;letter-spacing:1px;}.intro:hover span{animation-play-state:paused;text-shadow:0 0 15px currentColor,0 0 30px currentColor,0 0 45px currentColor;}@keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}.footer{' + (isGold ? 'background:' + c.footerBg + ';border-top:' + c.footerBorder + ';' : 'background:rgba(0,0,0,0.2);') + 'padding:20px 30px;text-align:center;color:' + c.footer + ';font-size:13px;}';
             
             var tagNormalCSS = isGold 
                 ? 'background:' + c.tagNormal + ';color:' + c.tagNormalText + ';border:' + c.tagNormalBorder + ';'
