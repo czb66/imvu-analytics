@@ -48,6 +48,14 @@
         <priority>0.7</priority>
     </url>
     
+    <!-- 工具页面 - 公开 -->
+    <url>
+        <loc>https://imvucreators.com/promo-card</loc>
+        <lastmod>2026-04-16</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    
     <!-- 法律页面 - 公开 -->
     <url>
         <loc>https://imvucreators.com/terms</loc>

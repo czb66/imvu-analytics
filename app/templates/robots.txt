@@ -5,6 +5,7 @@
 User-agent: *
 
 # 公开页面 - 允许爬取
+Allow: /$
 Allow: /login
 Allow: /register
 Allow: /pricing
