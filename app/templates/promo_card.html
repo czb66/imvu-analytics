@@ -753,22 +753,23 @@
     <script>
         // 多语言支持
         function switchLang(lang) {
-            if (typeof setLanguage === 'function') {
-                setLanguage(lang);
-            } else {
-                localStorage.setItem('imvu_lang', lang);
-                location.reload();
-            }
+            localStorage.setItem('imvu_lang', lang);
+            location.reload();
+        }
+        
+        // 获取当前语言
+        function getCurrentLang() {
+            return localStorage.getItem('imvu_lang') || 'en';
         }
         
         // 初始化语言按钮状态
         function initLangBtns() {
-            var currentLang = localStorage.getItem('imvu_lang') || 'en';
+            var currentLang = getCurrentLang();
             var btns = document.querySelectorAll('.lang-btn');
             btns.forEach(function(btn) {
-                if (btn.textContent === 'EN' && currentLang === 'en') {
-                    btn.classList.add('active');
-                } else if (btn.textContent === '中文' && currentLang === 'zh') {
+                btn.classList.remove('active');
+                if ((btn.textContent === 'EN' && currentLang === 'en') || 
+                    (btn.textContent === '中文' && currentLang === 'zh')) {
                     btn.classList.add('active');
                 }
             });
@@ -776,26 +777,38 @@
         
         // 翻译函数
         function t(key) {
-            if (typeof getTranslation === 'function') {
-                return getTranslation(key);
-            }
+            var lang = getCurrentLang();
+            var trans = window.translations || {};
+            var langTrans = trans[lang] || trans['en'] || {};
+            
             var keys = key.split('.');
-            var result = translations[currentLang] || translations['en'];
+            var result = langTrans;
             for (var i = 0; i < keys.length; i++) {
-                result = result[keys[i]];
-                if (!result) break;
+                if (result && result[keys[i]]) {
+                    result = result[keys[i]];
+                } else {
+                    return key; // 找不到翻译，返回key
+                }
             }
             return result || key;
         }
         
         // 应用翻译
         function applyTranslations() {
+            var currentLang = getCurrentLang();
+            document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+            
             var elements = document.querySelectorAll('[data-i18n]');
             elements.forEach(function(el) {
                 var key = el.getAttribute('data-i18n');
                 var text = t(key);
-                if (text) el.textContent = text;
+                if (text && text !== key) {
+                    el.textContent = text;
+                }
             });
+            
+            // 更新页面标题
+            document.title = currentLang === 'zh' ? 'IMVU 产品推广卡片生成器' : 'IMVU Product Promo Card Generator';
         }
 
         var products = [
