@@ -775,22 +775,76 @@
             });
         }
         
-        // 翻译函数
+        // 翻译函数 - 内置翻译字典，不依赖外部i18n.js
         function t(key) {
             var lang = getCurrentLang();
-            var trans = window.translations || {};
-            var langTrans = trans[lang] || trans['en'] || {};
             
-            var keys = key.split('.');
-            var result = langTrans;
-            for (var i = 0; i < keys.length; i++) {
-                if (result && result[keys[i]]) {
-                    result = result[keys[i]];
-                } else {
-                    return key; // 找不到翻译，返回key
+            // 内置翻译字典
+            var dict = {
+                en: {
+                    'nav.promoTool.product': 'Product',
+                    'nav.promoTool.delete': 'Delete',
+                    'nav.promoTool.tag': 'Tag',
+                    'nav.promoTool.tagType': 'Tag Type',
+                    'nav.promoTool.tagNormal': 'Normal',
+                    'nav.promoTool.tagVip': 'VIP',
+                    'nav.promoTool.productName': 'Name',
+                    'nav.promoTool.productDesc': 'Description',
+                    'nav.promoTool.imageUrl': 'Image URL',
+                    'nav.promoTool.productLink': 'Product Link',
+                    'nav.promoTool.codeCopied': 'Code copied to clipboard!',
+                    'nav.promoTool.copyFailed': 'Copy failed, please use download',
+                    'nav.promoTool.confirmReset': 'Reset all data?',
+                    'nav.promoTool.basicInfo': 'Basic Info',
+                    'nav.promoTool.cardTitle': 'Title',
+                    'nav.promoTool.cardSubtitle': 'Subtitle',
+                    'nav.promoTool.cardIntro': 'Intro Text',
+                    'nav.promoTool.cardFooter': 'Footer Text',
+                    'nav.promoTool.productList': 'Products',
+                    'nav.promoTool.addProduct': '+ Add Product',
+                    'nav.promoTool.selectStyle': 'Style:',
+                    'nav.promoTool.selectColor': 'Color Theme:',
+                    'nav.promoTool.preview': 'Preview',
+                    'nav.promoTool.copyCode': 'Copy Code',
+                    'nav.promoTool.downloadHTML': 'Download HTML',
+                    'nav.promoTool.exportImage': 'Export Image',
+                    'nav.promoTool.reset': 'Reset',
+                    'nav.backToDashboard': 'Back to Dashboard'
+                },
+                zh: {
+                    'nav.promoTool.product': '产品',
+                    'nav.promoTool.delete': '删除',
+                    'nav.promoTool.tag': '标签',
+                    'nav.promoTool.tagType': '标签类型',
+                    'nav.promoTool.tagNormal': '普通',
+                    'nav.promoTool.tagVip': 'VIP',
+                    'nav.promoTool.productName': '名称',
+                    'nav.promoTool.productDesc': '描述',
+                    'nav.promoTool.imageUrl': '图片地址',
+                    'nav.promoTool.productLink': '产品链接',
+                    'nav.promoTool.codeCopied': '代码已复制到剪贴板！',
+                    'nav.promoTool.copyFailed': '复制失败，请使用下载功能',
+                    'nav.promoTool.confirmReset': '确定要重置吗？',
+                    'nav.promoTool.basicInfo': '基本信息',
+                    'nav.promoTool.cardTitle': '标题',
+                    'nav.promoTool.cardSubtitle': '副标题',
+                    'nav.promoTool.cardIntro': '介绍文字',
+                    'nav.promoTool.cardFooter': '底部提示',
+                    'nav.promoTool.productList': '产品列表',
+                    'nav.promoTool.addProduct': '+ 添加产品',
+                    'nav.promoTool.selectStyle': '选择样式：',
+                    'nav.promoTool.selectColor': '选择配色：',
+                    'nav.promoTool.preview': '实时预览',
+                    'nav.promoTool.copyCode': '复制代码',
+                    'nav.promoTool.downloadHTML': '下载HTML',
+                    'nav.promoTool.exportImage': '导出图片',
+                    'nav.promoTool.reset': '重置',
+                    'nav.backToDashboard': '返回首页'
                 }
-            }
-            return result || key;
+            };
+            
+            var langDict = dict[lang] || dict['en'];
+            return langDict[key] || key;
         }
         
         // 应用翻译
