@@ -144,7 +144,7 @@ const translations = {
                 promoCard1: 'Create stunning product promotional cards',
                 promoCard2: 'Multiple styles and color themes available',
                 promoCard3: 'One-click copy HTML code or download',
-                promoCard4: 'Click tracking statistics'
+                promoCard4: 'Click tracking statistics (Coming Soon)'
             },
             dataFormat: 'Data Format',
             howToDownload: 'How to Get Data File',
@@ -1106,7 +1106,7 @@ const translations = {
                 promoCard1: '创建精美的产品推广卡片',
                 promoCard2: '多种样式和颜色主题可选',
                 promoCard3: '一键复制 HTML 代码或下载',
-                promoCard4: '点击追踪统计功能'
+                promoCard4: '点击追踪统计功能（待开发）'
             },
             dataFormat: '数据格式说明',
             howToDownload: '如何获取数据文件',
@@ -2004,7 +2004,7 @@ const translations = {
                 promoCard1: 'Créez de superbes cartes promotionnelles de produits',
                 promoCard2: 'Plusieurs styles et thèmes de couleur disponibles',
                 promoCard3: 'Copiez le code HTML ou téléchargez en un clic',
-                promoCard4: 'Fonctionnalité de suivi des clics'
+                promoCard4: 'Suivi des clics (À venir)'
             },
             dataFormat: 'Format des données',
             howToDownload: 'Comment obtenir le fichier de données',
