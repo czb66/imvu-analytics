@@ -417,8 +417,8 @@
         <div class="row mb-4">
             <!-- Basic User Stats Card -->
             <div class="col-lg-6 mb-3">
-                <div class="stat-card h-100" style="border-left: 4px solid #667eea;">
-                    <h5 class="mb-3 pb-2" style="border-bottom: 1px solid #f0f0f0;">
+                <div class="stat-card h-100" style="border-left: 4px solid #667eea; background: linear-gradient(135deg, #f0f4ff 0%, #f5f7ff 100%);">
+                    <h5 class="mb-3 pb-2" style="border-bottom: 1px solid #e0e6ff;">
                         <i class="bi bi-people me-2" style="color: #667eea;"></i>
                         <span data-i18n="admin.basic_user_stats">Basic User Statistics</span>
                     </h5>
@@ -456,8 +456,8 @@
             
             <!-- Active Users Stats Card -->
             <div class="col-lg-6 mb-3">
-                <div class="stat-card h-100" style="border-left: 4px solid #eb2f96;">
-                    <h5 class="mb-3 pb-2" style="border-bottom: 1px solid #f0f0f0;">
+                <div class="stat-card h-100" style="border-left: 4px solid #eb2f96; background: linear-gradient(135deg, #fff0f6 0%, #fff5f8 100%);">
+                    <h5 class="mb-3 pb-2" style="border-bottom: 1px solid #ffe0ed;">
                         <i class="bi bi-activity me-2" style="color: #eb2f96;"></i>
                         <span data-i18n="admin.active_users_stats">Active Users Statistics</span>
                     </h5>
@@ -801,17 +801,33 @@
             }
         }
 
+        // 获取嵌套翻译值
+        function getNestedTranslation(lang, key) {
+            const keys = key.split('.');
+            let value = translations[lang];
+            for (const k of keys) {
+                if (value && typeof value === 'object' && k in value) {
+                    value = value[k];
+                } else {
+                    return null;
+                }
+            }
+            return value;
+        }
+
         function applyLanguage(lang) {
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.dataset.i18n;
-                if (translations[lang][key]) {
-                    el.textContent = translations[lang][key];
+                const text = getNestedTranslation(lang, key);
+                if (text) {
+                    el.textContent = text;
                 }
             });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.dataset.i18nPlaceholder;
-                if (translations[lang][key]) {
-                    el.placeholder = translations[lang][key];
+                const text = getNestedTranslation(lang, key);
+                if (text) {
+                    el.placeholder = text;
                 }
             });
         }
