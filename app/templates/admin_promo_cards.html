@@ -794,7 +794,8 @@
                                         <thead>
                                             <tr>
                                                 <th>Product</th>
-                                                <th>Source (Referrer)</th>
+                                                <th>Source Page</th>
+                                                <th>Target Link</th>
                                                 <th>Time</th>
                                             </tr>
                                         </thead>
@@ -802,7 +803,8 @@
                                             ${card.recent_clicks.map(click => `
                                                 <tr>
                                                     <td>${escapeHtml(click.product_name) || '-'}</td>
-                                                    <td><small>${click.referrer ? escapeHtml(click.referrer) : 'Direct / Unknown'}</small></td>
+                                                    <td><small title="${escapeHtml(click.referrer || '')}">${click.referrer ? shortenUrl(click.referrer) : 'Direct'}</small></td>
+                                                    <td><small><a href="${click.target_link || '#'}" target="_blank" title="${escapeHtml(click.target_link || '')}">${click.target_link ? shortenUrl(click.target_link) : '-'}</a></small></td>
                                                     <td><small>${formatDateTime(click.clicked_at)}</small></td>
                                                 </tr>
                                             `).join('')}
@@ -856,6 +858,20 @@
             if (!dateStr) return '-';
             const date = new Date(dateStr);
             return date.toLocaleString();
+        }
+        
+        function shortenUrl(url) {
+            if (!url) return '-';
+            try {
+                const urlObj = new URL(url);
+                const path = urlObj.pathname + urlObj.search;
+                if (path.length > 30) {
+                    return urlObj.host + path.substring(0, 30) + '...';
+                }
+                return urlObj.host + path;
+            } catch (e) {
+                return url.length > 35 ? url.substring(0, 35) + '...' : url;
+            }
         }
     </script>
 </body>

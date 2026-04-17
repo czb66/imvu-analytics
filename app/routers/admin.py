@@ -223,6 +223,7 @@ async def get_promo_card_detail(
                         "product_index": c.product_index,
                         "ip": c.ip_address,
                         "referrer": c.referrer,
+                        "target_link": c.original_link,
                         "clicked_at": c.clicked_at.isoformat() if c.clicked_at else None
                     }
                     for c in clicks[:20]
