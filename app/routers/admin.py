@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi import Request
 from sqlalchemy.orm import Session
-from sqlalchemy import desc, or_
+from sqlalchemy import desc, func, or_
 from datetime import datetime, timedelta
 from typing import Optional
 import logging
@@ -18,6 +18,221 @@ import config
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/admin", tags=["后台管理"])
+
+
+@router.get("/promo-cards/stats")
+async def get_promo_card_stats(
+    days: int = Query(30, ge=1, le=365, description="统计天数"),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取推广卡片统计数据
+    """
+    try:
+        from app.models import PromoCardStat, PromoCardClick
+        
+        end_date = datetime.utcnow()
+        start_date = end_date - timedelta(days=days)
+        
+        # 总生成卡片数
+        total_cards = db.query(PromoCardStat).filter(
+            PromoCardStat.created_at >= start_date
+        ).count()
+        
+        # 总点击次数
+        total_clicks = db.query(PromoCardClick).filter(
+            PromoCardClick.clicked_at >= start_date
+        ).count()
+        
+        # 活跃卡片数（有点击的）
+        active_cards = db.query(PromoCardStat).filter(
+            PromoCardStat.created_at >= start_date,
+            PromoCardStat.total_clicks > 0
+        ).count()
+        
+        # 热门卡片 TOP 10
+        top_cards = db.query(PromoCardStat).filter(
+            PromoCardStat.created_at >= start_date
+        ).order_by(desc(PromoCardStat.total_clicks)).limit(10).all()
+        
+        # 每日生成趋势
+        daily_cards = db.query(
+            func.date(PromoCardStat.created_at).label("date"),
+            func.count(PromoCardStat.id).label("count")
+        ).filter(
+            PromoCardStat.created_at >= start_date
+        ).group_by(func.date(PromoCardStat.created_at)).order_by(
+            func.date(PromoCardStat.created_at)
+        ).all()
+        
+        # 每日点击趋势
+        daily_clicks = db.query(
+            func.date(PromoCardClick.clicked_at).label("date"),
+            func.count(PromoCardClick.id).label("count")
+        ).filter(
+            PromoCardClick.clicked_at >= start_date
+        ).group_by(func.date(PromoCardClick.clicked_at)).order_by(
+            func.date(PromoCardClick.clicked_at)
+        ).all()
+        
+        # 样式分布
+        style_dist = db.query(
+            PromoCardStat.style,
+            func.count(PromoCardStat.id).label("count")
+        ).filter(
+            PromoCardStat.created_at >= start_date
+        ).group_by(PromoCardStat.style).all()
+        
+        # 配色分布
+        color_dist = db.query(
+            PromoCardStat.color,
+            func.count(PromoCardStat.id).label("count")
+        ).filter(
+            PromoCardStat.created_at >= start_date
+        ).group_by(PromoCardStat.color).all()
+        
+        return {
+            "success": True,
+            "data": {
+                "total_cards": total_cards,
+                "total_clicks": total_clicks,
+                "active_cards": active_cards,
+                "click_rate": round(total_clicks / total_cards, 2) if total_cards > 0 else 0,
+                "top_cards": [
+                    {
+                        "id": c.id,
+                        "title": c.card_title,
+                        "style": c.style,
+                        "color": c.color,
+                        "clicks": c.total_clicks or 0,
+                        "products": c.product_count,
+                        "created_at": c.created_at.isoformat() if c.created_at else None
+                    }
+                    for c in top_cards
+                ],
+                "daily_cards": [{"date": str(d.date), "count": d.count} for d in daily_cards],
+                "daily_clicks": [{"date": str(d.date), "count": d.count} for d in daily_clicks],
+                "style_distribution": [{"style": s.style, "count": s.count} for s in style_dist],
+                "color_distribution": [{"color": c.color, "count": c.count} for c in color_dist]
+            }
+        }
+    except Exception as e:
+        logger.error(f"获取推广卡片统计失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+
+
+@router.get("/promo-cards/list")
+async def get_promo_cards_list(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取推广卡片列表
+    """
+    try:
+        from app.models import PromoCardStat
+        
+        total = db.query(PromoCardStat).count()
+        offset = (page - 1) * page_size
+        
+        cards = db.query(PromoCardStat).order_by(
+            desc(PromoCardStat.created_at)
+        ).offset(offset).limit(page_size).all()
+        
+        return {
+            "success": True,
+            "data": {
+                "cards": [
+                    {
+                        "id": c.id,
+                        "title": c.card_title,
+                        "style": c.style,
+                        "color": c.color,
+                        "products": c.product_count,
+                        "clicks": c.total_clicks or 0,
+                        "last_click": c.last_click_at.isoformat() if c.last_click_at else None,
+                        "created_at": c.created_at.isoformat() if c.created_at else None
+                    }
+                    for c in cards
+                ],
+                "total": total,
+                "page": page,
+                "page_size": page_size,
+                "total_pages": (total + page_size - 1) // page_size
+            }
+        }
+    except Exception as e:
+        logger.error(f"获取推广卡片列表失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取列表失败: {str(e)}")
+
+
+@router.get("/promo-cards/{card_id}")
+async def get_promo_card_detail(
+    card_id: int,
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取单个推广卡片详情
+    """
+    try:
+        from app.models import PromoCardStat, PromoCardClick
+        import json
+        
+        card = db.query(PromoCardStat).filter(PromoCardStat.id == card_id).first()
+        if not card:
+            raise HTTPException(status_code=404, detail="卡片不存在")
+        
+        # 获取点击记录
+        clicks = db.query(PromoCardClick).filter(
+            PromoCardClick.stat_id == card_id
+        ).order_by(desc(PromoCardClick.clicked_at)).limit(50).all()
+        
+        # 解析产品信息
+        products = json.loads(card.products_json) if card.products_json else []
+        
+        # 按产品统计点击
+        product_clicks = {}
+        for click in clicks:
+            idx = click.product_index
+            if idx not in product_clicks:
+                product_clicks[idx] = {"count": 0, "name": click.product_name}
+            product_clicks[idx]["count"] += 1
+        
+        return {
+            "success": True,
+            "data": {
+                "id": card.id,
+                "title": card.card_title,
+                "subtitle": card.card_subtitle,
+                "intro": card.card_intro,
+                "footer": card.card_footer,
+                "style": card.style,
+                "color": card.color,
+                "products": products,
+                "product_clicks": product_clicks,
+                "total_clicks": card.total_clicks or 0,
+                "created_at": card.created_at.isoformat() if card.created_at else None,
+                "last_click_at": card.last_click_at.isoformat() if card.last_click_at else None,
+                "recent_clicks": [
+                    {
+                        "product_name": c.product_name,
+                        "product_index": c.product_index,
+                        "ip": c.ip_address,
+                        "clicked_at": c.clicked_at.isoformat() if c.clicked_at else None
+                    }
+                    for c in clicks[:20]
+                ]
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取推广卡片详情失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取详情失败: {str(e)}")
 
 
 @router.get("/stats")

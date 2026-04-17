@@ -232,6 +232,12 @@ async def admin_page(request: Request):
     return templates.TemplateResponse("admin.html", {"request": request, "app_name": config.APP_NAME})
 
 
+@app.get("/admin/promo-cards", response_class=HTMLResponse)
+async def admin_promo_cards_page(request: Request):
+    """后台推广卡片统计页面"""
+    return templates.TemplateResponse("admin_promo_cards.html", {"request": request, "app_name": config.APP_NAME})
+
+
 @app.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request):
     """设置页面"""
