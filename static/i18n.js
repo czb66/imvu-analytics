@@ -944,6 +944,23 @@ const translations = {
             register: 'Register',
             tagline: 'Professional IMVU Creator Data Analysis Tool',
             copyright: '© 2024-2026 IMVU Analytics. All rights reserved.'
+        },
+
+        // Settings page
+        settings: {
+            nav: 'Settings',
+            pageTitle: 'Settings',
+            systemInfo: 'System Information',
+            apiNote: 'AI features (DeepSeek) are configured by the server administrator. API Key is not exposed to users for security reasons.',
+            aiFeatures: 'AI Features',
+            aiFeaturesDesc: 'With DeepSeek API configured, you can enjoy the following AI-powered insights:',
+            feature1Title: 'Dashboard Insights',
+            feature1Desc: 'Overall sales trend interpretation, top products analysis, and anomaly alerts',
+            feature2Title: 'Diagnosis Insights',
+            feature2Desc: 'Sales diagnosis, conversion funnel analysis, and anomaly product explanation',
+            feature3Title: 'Compare Insights',
+            feature3Desc: 'Multi-dataset comparison conclusions, ranking changes, and trend summaries',
+            offlineMode: 'Without API Key, the system will provide basic rule-based insights (offline mode).'
         }
     },
     
@@ -1864,6 +1881,23 @@ const translations = {
             register: '注册',
             tagline: '专业的 IMVU Creator 数据分析工具',
             copyright: '© 2024-2026 IMVU Analytics. All rights reserved.'
+        },
+
+        // Settings page
+        settings: {
+            nav: '设置',
+            pageTitle: '设置',
+            systemInfo: '系统信息',
+            apiNote: 'AI功能（DeepSeek）由服务器管理员统一配置。为了安全起见，API Key不会暴露给用户。',
+            aiFeatures: 'AI 功能',
+            aiFeaturesDesc: '配置 DeepSeek API 后，您可以享受以下 AI 驱动的洞察功能：',
+            feature1Title: '仪表盘洞察',
+            feature1Desc: '整体销售趋势解读、热门产品分析和异常预警',
+            feature2Title: '诊断洞察',
+            feature2Desc: '销售诊断、转化漏斗分析和异常产品解释',
+            feature3Title: '对比洞察',
+            feature3Desc: '多数据集对比结论、排名变化和趋势总结',
+            offlineMode: '如果没有配置 API Key，系统将提供基于规则的基础洞察（离线模式）。'
         }
     },
     
@@ -2740,6 +2774,23 @@ const translations = {
             register: 'Inscription',
             tagline: 'Outil d\'analyse de données professionnel pour créateurs IMVU',
             copyright: '© 2024-2026 IMVU Analytics. Tous droits réservés.'
+        },
+
+        // Settings page
+        settings: {
+            nav: 'Paramètres',
+            pageTitle: 'Paramètres',
+            systemInfo: 'Informations Système',
+            apiNote: 'Les fonctionnalités IA (DeepSeek) sont configurées par l\'administrateur du serveur. La clé API n\'est pas exposée aux utilisateurs pour des raisons de sécurité.',
+            aiFeatures: 'Fonctionnalités IA',
+            aiFeaturesDesc: 'Avec l\'API DeepSeek configurée, vous pouvez profiter des analyses suivantes alimentées par l\'IA :',
+            feature1Title: 'Analyses du Tableau de Bord',
+            feature1Desc: 'Interprétation globale des tendances de vente, analyse des meilleurs produits et alertes d\'anomalies',
+            feature2Title: 'Analyses de Diagnostic',
+            feature2Desc: 'Diagnostic des ventes, analyse de l\'entonnoir de conversion et explication des produits anormaux',
+            feature3Title: 'Analyses Comparatives',
+            feature3Desc: 'Conclusions de comparaison multi-datasets, changements de classement et résumés des tendances',
+            offlineMode: 'Sans clé API, le système fournira des analyses de base basées sur des règles (mode hors ligne).'
         }
     }
 };
