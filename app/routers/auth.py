@@ -3,13 +3,16 @@
 """
 
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.services.auth import AuthService, get_current_user
+from app.main import limiter
 
 router = APIRouter(prefix="/api/auth", tags=["认证"])
 
@@ -47,20 +50,21 @@ class AuthResponse(BaseModel):
 # ==================== API路由 ====================
 
 @router.post("/register", response_model=AuthResponse)
-async def register(request: RegisterRequest, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")  # 注册限制：3次/分钟
+async def register(request: Request, register_request: RegisterRequest, db: Session = Depends(get_db)):
     """
-    用户注册
+    用户注册（速率限制：3次/分钟）
     
     - **email**: 邮箱地址（唯一）
-    - **password**: 密码（至少8位）
+    - **password**: 密码（至少8位，包含字母和数字）
     - **username**: 用户名（可选）
     """
     try:
         auth_service = AuthService(db)
         success, message, data = auth_service.register(
-            email=request.email,
-            password=request.password,
-            username=request.username
+            email=register_request.email,
+            password=register_request.password,
+            username=register_request.username
         )
         
         if not success:
@@ -85,9 +89,10 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=AuthResponse)
-async def login(request: LoginRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")  # 登录限制：5次/分钟（防暴力破解）
+async def login(request: Request, login_request: LoginRequest, db: Session = Depends(get_db)):
     """
-    用户登录
+    用户登录（速率限制：5次/分钟）
     
     - **email**: 邮箱地址
     - **password**: 密码
@@ -95,9 +100,9 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
     """
     auth_service = AuthService(db)
     success, message, data = auth_service.login(
-        email=request.email,
-        password=request.password,
-        remember_me=request.remember_me
+        email=login_request.email,
+        password=login_request.password,
+        remember_me=login_request.remember_me
     )
     
     if not success:

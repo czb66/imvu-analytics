@@ -15,6 +15,7 @@ from app.services.analytics import AnalyticsService
 from app.services.insights import insights_service
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription, is_whitelisted
+from app.main import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["AI洞察"])
@@ -104,13 +105,14 @@ def _get_datasets_from_request(user_id: int = None) -> List[Dict]:
 
 
 @router.post("/dashboard")
+@limiter.limit("60/minute")  # AI洞察：60次/分钟
 async def generate_dashboard_insights(
     request: Request,
     req: DashboardInsightsRequest = None,
     current_user: dict = Depends(require_subscription)
 ):
     """
-    生成仪表盘AI洞察
+    生成仪表盘AI洞察（速率限制：60次/分钟）
     
     分析总体销售趋势、Top产品表现、核心指标异常
     
@@ -180,13 +182,14 @@ async def generate_dashboard_insights(
 
 
 @router.post("/diagnosis")
+@limiter.limit("60/minute")  # AI洞察：60次/分钟
 async def generate_diagnosis_insights(
     request: Request,
     req: DiagnosisInsightsRequest = None,
     current_user: dict = Depends(require_subscription)
 ):
     """
-    生成诊断AI洞察
+    生成诊断AI洞察（速率限制：60次/分钟）
     
     分析销售诊断、流量漏斗、异常检测
     
@@ -272,13 +275,14 @@ async def generate_diagnosis_insights(
 
 
 @router.post("/compare")
+@limiter.limit("60/minute")  # AI洞察：60次/分钟
 async def generate_compare_insights(
     request: Request,
     req: CompareInsightsRequest,
     current_user: dict = Depends(require_subscription)
 ):
     """
-    生成对比AI洞察
+    生成对比AI洞察（速率限制：60次/分钟）
     
     分析多数据集对比结论、排名变化、趋势总结
     
@@ -512,13 +516,14 @@ def _calculate_rank_changes(datasets: List[Dict]) -> Dict:
 
 
 @router.post("/seo-names")
+@limiter.limit("60/minute")  # SEO分析：60次/分钟
 async def generate_seo_name_insights(
     request: Request,
     current_user: dict = Depends(require_subscription),
     db: Session = Depends(get_db)
 ):
     """
-    生成产品名称 SEO 优化建议
+    生成产品名称 SEO 优化建议（速率限制：60次/分钟）
     
     分析上传数据中的产品名称，根据 SEO 最佳实践给出优化建议
     """

@@ -42,9 +42,33 @@ def validate_password_strength(password: str) -> tuple:
     """
     验证密码强度
     返回: (is_valid, message)
+    
+    要求:
+    - 至少8位
+    - 必须包含字母（不区分大小写）
+    - 必须包含数字
+    - 建议包含特殊字符
     """
     if len(password) < 8:
         return False, "密码长度至少8位"
+    
+    # 检查是否包含字母
+    has_letter = any(c.isalpha() for c in password)
+    if not has_letter:
+        return False, "密码必须包含至少一个字母"
+    
+    # 检查是否包含数字
+    has_digit = any(c.isdigit() for c in password)
+    if not has_digit:
+        return False, "密码必须包含至少一个数字"
+    
+    # 检查是否包含特殊字符（提供建议但不强制）
+    has_special = any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password)
+    if not has_special:
+        # 仅作为警告提示，不阻止注册
+        import warnings
+        warnings.warn("建议密码包含特殊字符以提高安全性")
+    
     return True, ""
 
 

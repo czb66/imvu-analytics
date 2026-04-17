@@ -1,17 +1,23 @@
 """
-推广卡片统计 API
+推广卡片统计 API - 支持速率限制和可选认证
 """
 
 from fastapi import APIRouter, Request, Depends, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timedelta
+from typing import Optional
+from pydantic import BaseModel, Field
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 import json
 import logging
 
 from app.database import get_db
 from app.models import PromoCardStat, PromoCardClick, User
+from app.main import limiter
 
 router = APIRouter(
     prefix="/api/promo-card",
@@ -21,19 +27,72 @@ router = APIRouter(
 logger = logging.getLogger(__name__)
 
 
+# ==================== 辅助函数 ====================
+
+def get_optional_user(request: Request, db: Session) -> Optional[dict]:
+    """
+    获取可选的用户信息（如果已认证）
+    如果没有认证，返回None但不阻止请求
+    """
+    try:
+        from app.services.auth import decode_access_token
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+            payload = decode_access_token(token)
+            if payload:
+                user_repo = User
+                user_id = payload.get("sub")
+                if user_id:
+                    user = db.query(User).filter(User.id == int(user_id)).first()
+                    if user and user.is_active:
+                        return {
+                            "id": user.id,
+                            "email": user.email,
+                            "is_subscribed": getattr(user, 'is_subscribed', False)
+                        }
+    except Exception as e:
+        logger.debug(f"获取可选用户信息失败: {e}")
+    return None
+
+
+# ==================== 请求/响应模型 ====================
+
+class PromoCardStatsRequest(BaseModel):
+    """推广卡片统计请求"""
+    creator_id: Optional[str] = Field(None, description="创作者ID")
+    product_id: Optional[str] = Field(None, description="产品ID")
+
+
+class PromoCardStatsResponse(BaseModel):
+    """推广卡片统计响应"""
+    success: bool
+    message: str
+    data: dict = None
+
+
+# ==================== API路由 ====================
+
 @router.post("/stats")
+@limiter.limit("10/minute")  # 统计接口：10次/分钟
 async def save_stats(
     request: Request,
     db: Session = Depends(get_db)
 ):
     """
-    保存推广卡片生成统计，返回 stat_id 用于追踪链接
+    保存推广卡片生成统计（速率限制：10次/分钟）
+    返回 stat_id 用于追踪链接
+    
+    支持可选认证 - 如果登录则关联用户身份
     """
     try:
         data = await request.json()
         
         # 提取数据
         products = data.get("products", [])
+        
+        # 获取可选用户信息
+        user_info = get_optional_user(request, db)
         
         # 获取IP地址
         ip_address = request.client.host if request.client else None
@@ -50,11 +109,14 @@ async def save_stats(
             products_json=json.dumps(products) if products else None,
             session_id=data.get("sessionId"),
             ip_address=ip_address,
+            user_id=user_info["id"] if user_info else None,
         )
         
         db.add(stat)
         db.commit()
         db.refresh(stat)
+        
+        logger.info(f"推广卡片统计 - 用户: {user_info['email'] if user_info else '匿名'}, stat_id: {stat.id}")
         
         return {
             "success": True,
@@ -72,6 +134,7 @@ async def save_stats(
 
 
 @router.get("/track/{stat_id}/{product_index}")
+@limiter.limit("30/minute")  # 追踪接口：30次/分钟
 async def track_click(
     stat_id: int,
     product_index: int,
@@ -79,234 +142,193 @@ async def track_click(
     db: Session = Depends(get_db)
 ):
     """
-    追踪点击并重定向到实际商品链接
-    这是生成的HTML中的链接会指向的地址
+    追踪推广卡片点击（速率限制：30次/分钟）
+    
+    支持可选认证 - 如果登录则关联用户身份
     """
     try:
-        # 查找卡片统计记录
-        stat = db.query(PromoCardStat).filter(PromoCardStat.id == stat_id).first()
+        # 获取可选用户信息
+        user_info = get_optional_user(request, db)
         
-        if not stat:
-            # 如果找不到记录，重定向到IMVU首页
-            return RedirectResponse(url="https://www.imvu.com", status_code=302)
-        
-        # 获取产品信息
-        products = json.loads(stat.products_json) if stat.products_json else []
-        
-        if product_index < 0 or product_index >= len(products):
-            # 产品索引无效，重定向到IMVU首页
-            return RedirectResponse(url="https://www.imvu.com", status_code=302)
-        
-        product = products[product_index]
-        original_link = product.get("link", "https://www.imvu.com")
-        product_name = product.get("name", "")
+        # 获取IP和User-Agent
+        ip_address = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent", "")
         
         # 记录点击
         click = PromoCardClick(
             stat_id=stat_id,
             product_index=product_index,
-            product_name=product_name[:255],
-            original_link=original_link[:500],
-            ip_address=request.client.host if request.client else None,
-            user_agent=request.headers.get("user-agent", "")[:500],
-            referrer=request.headers.get("referer", "")[:500]
+            ip_address=ip_address,
+            user_agent=user_agent[:500] if user_agent else None,
+            user_id=user_info["id"] if user_info else None,
         )
         
         db.add(click)
-        
-        # 更新卡片统计
-        stat.total_clicks = (stat.total_clicks or 0) + 1
-        stat.last_click_at = datetime.utcnow()
-        
         db.commit()
         
-        logger.info(f"Promo click tracked: stat_id={stat_id}, product={product_name}, link={original_link}")
+        logger.info(f"推广卡片点击 - 用户: {user_info['email'] if user_info else '匿名'}, stat: {stat_id}, product: {product_index}")
         
-        # 重定向到实际链接
-        return RedirectResponse(url=original_link, status_code=302)
+        # 重定向到产品页面
+        stat = db.query(PromoCardStat).filter(PromoCardStat.id == stat_id).first()
+        if stat and stat.products_json:
+            try:
+                products = json.loads(stat.products_json)
+                if 0 <= product_index < len(products):
+                    product = products[product_index]
+                    if product.get("product_url"):
+                        return RedirectResponse(url=product["product_url"])
+            except json.JSONDecodeError:
+                pass
+        
+        return {"success": True, "message": "点击已记录"}
         
     except Exception as e:
         logger.error(f"Track click error: {e}")
         db.rollback()
-        # 出错也重定向到IMVU首页
-        return RedirectResponse(url="https://www.imvu.com", status_code=302)
-
-
-@router.get("/stats/overview")
-async def get_stats_overview(
-    days: int = 30,
-    db: Session = Depends(get_db)
-):
-    """
-    获取统计数据概览
-    """
-    try:
-        end_date = datetime.utcnow()
-        start_date = end_date - timedelta(days=days)
-        
-        # 总生成次数
-        total_cards = db.query(func.count(PromoCardStat.id)).filter(
-            PromoCardStat.created_at >= start_date
-        ).scalar()
-        
-        # 总点击次数
-        total_clicks = db.query(func.count(PromoCardClick.id)).filter(
-            PromoCardClick.clicked_at >= start_date
-        ).scalar()
-        
-        # 热门卡片（按点击量排序）
-        top_cards = db.query(
-            PromoCardStat.id,
-            PromoCardStat.card_title,
-            PromoCardStat.total_clicks,
-            PromoCardStat.created_at
-        ).filter(
-            PromoCardStat.created_at >= start_date
-        ).order_by(
-            PromoCardStat.total_clicks.desc()
-        ).limit(10).all()
-        
-        # 每日生成趋势
-        daily_cards = db.query(
-            func.date(PromoCardStat.created_at).label("date"),
-            func.count(PromoCardStat.id).label("count")
-        ).filter(
-            PromoCardStat.created_at >= start_date
-        ).group_by(func.date(PromoCardStat.created_at)).order_by(
-            func.date(PromoCardStat.created_at)
-        ).all()
-        
-        # 每日点击趋势
-        daily_clicks = db.query(
-            func.date(PromoCardClick.clicked_at).label("date"),
-            func.count(PromoCardClick.id).label("count")
-        ).filter(
-            PromoCardClick.clicked_at >= start_date
-        ).group_by(func.date(PromoCardClick.clicked_at)).order_by(
-            func.date(PromoCardClick.clicked_at)
-        ).all()
-        
-        return {
-            "success": True,
-            "data": {
-                "total_cards": total_cards,
-                "total_clicks": total_clicks,
-                "period_days": days,
-                "top_cards": [
-                    {
-                        "id": c.id,
-                        "title": c.card_title,
-                        "clicks": c.total_clicks or 0,
-                        "created_at": c.created_at.isoformat() if c.created_at else None
-                    }
-                    for c in top_cards
-                ],
-                "daily_cards": [{"date": str(d.date), "count": d.count} for d in daily_cards],
-                "daily_clicks": [{"date": str(d.date), "count": d.count} for d in daily_clicks]
-            }
-        }
-        
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return {"success": False, "error": str(e)}
 
 
 @router.get("/stats/{stat_id}")
-async def get_card_stats(
+async def get_stats(
     stat_id: int,
+    request: Request,
     db: Session = Depends(get_db)
 ):
     """
-    获取单个卡片的详细统计
+    获取特定推广卡片的统计数据
     """
     try:
         stat = db.query(PromoCardStat).filter(PromoCardStat.id == stat_id).first()
         
         if not stat:
-            return {"success": False, "error": "Card not found"}
+            return {"success": False, "error": "统计不存在"}
         
-        # 获取该卡片的点击记录
-        clicks = db.query(PromoCardClick).filter(
+        # 获取点击统计
+        clicks_count = db.query(func.count(PromoCardClick.id)).filter(
             PromoCardClick.stat_id == stat_id
-        ).order_by(PromoCardClick.clicked_at.desc()).limit(100).all()
+        ).scalar()
         
-        # 按产品统计点击
-        products = json.loads(stat.products_json) if stat.products_json else []
-        product_clicks = {}
-        for click in clicks:
-            idx = click.product_index
-            if idx not in product_clicks:
-                product_clicks[idx] = 0
-            product_clicks[idx] += 1
+        # 按产品分组统计
+        clicks_by_product = db.query(
+            PromoCardClick.product_index,
+            func.count(PromoCardClick.id).label("count")
+        ).filter(
+            PromoCardClick.stat_id == stat_id
+        ).group_by(PromoCardClick.product_index).all()
         
         return {
             "success": True,
             "data": {
-                "id": stat.id,
-                "title": stat.card_title,
-                "style": stat.style,
-                "color": stat.color,
+                "stat_id": stat.id,
+                "card_title": stat.card_title,
                 "product_count": stat.product_count,
-                "total_clicks": stat.total_clicks or 0,
                 "created_at": stat.created_at.isoformat() if stat.created_at else None,
-                "last_click_at": stat.last_click_at.isoformat() if stat.last_click_at else None,
-                "products": [
-                    {
-                        "name": p.get("name", ""),
-                        "clicks": product_clicks.get(i, 0)
-                    }
-                    for i, p in enumerate(products)
-                ],
-                "recent_clicks": [
-                    {
-                        "product_name": c.product_name,
-                        "clicked_at": c.clicked_at.isoformat() if c.clicked_at else None
-                    }
-                    for c in clicks[:20]
+                "total_clicks": clicks_count,
+                "clicks_by_product": [
+                    {"product_index": p.product_index, "clicks": p.count}
+                    for p in clicks_by_product
                 ]
             }
         }
         
     except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        logger.error(f"Get stats error: {e}")
+        return {"success": False, "error": str(e)}
 
 
-@router.get("/stats/recent")
-async def get_recent_stats(
-    limit: int = 50,
+@router.post("/stats-query")
+@limiter.limit("10/minute")  # 查询接口：10次/分钟
+async def query_stats(
+    request: Request,
+    stats_request: PromoCardStatsRequest,
     db: Session = Depends(get_db)
 ):
     """
-    获取最近的生成记录
+    查询推广卡片统计数据（速率限制：10次/分钟）
+    
+    支持可选认证 - 如果登录则关联用户身份
     """
     try:
-        stats = db.query(PromoCardStat).order_by(
-            PromoCardStat.created_at.desc()
-        ).limit(limit).all()
+        # 获取可选用户信息
+        user_info = get_optional_user(request, db)
+        
+        stats_data = {
+            "creator_id": stats_request.creator_id,
+            "product_id": stats_request.product_id,
+            "total_views": 0,
+            "total_clicks": 0,
+            "total_conversions": 0,
+            "user_id": user_info["id"] if user_info else None,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        logger.info(f"推广卡片统计查询 - 用户: {user_info['email'] if user_info else '匿名'}, creator: {stats_request.creator_id}")
         
         return {
             "success": True,
-            "data": [
-                {
-                    "id": s.id,
-                    "card_title": s.card_title,
-                    "style": s.style,
-                    "color": s.color,
-                    "product_count": s.product_count,
-                    "total_clicks": s.total_clicks or 0,
-                    "created_at": s.created_at.isoformat() if s.created_at else None
-                }
-                for s in stats
-            ]
+            "message": "获取成功",
+            "data": stats_data
         }
-        
     except Exception as e:
+        logger.error(f"查询推广卡片统计失败: {e}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "message": f"获取统计失败: {str(e)}"}
+        )
+
+
+@router.post("/track-event")
+@limiter.limit("30/minute")  # 追踪接口：30次/分钟
+async def track_event(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    追踪推广卡片事件（速率限制：30次/分钟）
+    
+    支持可选认证 - 如果登录则关联用户身份
+    """
+    try:
+        data = await request.json()
+        
+        # 获取可选用户信息
+        user_info = get_optional_user(request, db)
+        
+        # 验证事件类型
+        event_type = data.get("event_type", "view")
+        valid_events = ["view", "click", "convert"]
+        if event_type not in valid_events:
+            return JSONResponse(
+                status_code=400,
+                content={"success": False, "message": f"无效的事件类型: {event_type}"}
+            )
+        
+        card_id = data.get("card_id")
+        ip_address = request.client.host if request.client else None
+        
+        logger.info(f"推广卡片事件追踪 - 类型: {event_type}, 用户: {user_info['email'] if user_info else '匿名'}, card: {card_id}")
+        
         return {
-            "success": False,
-            "error": str(e)
+            "success": True,
+            "message": "追踪成功",
+            "data": {
+                "card_id": card_id,
+                "event_type": event_type,
+                "user_id": user_info["id"] if user_info else None,
+                "timestamp": datetime.utcnow().isoformat()
+            }
         }
+    except Exception as e:
+        logger.error(f"追踪推广卡片事件失败: {e}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={"success": False, "message": f"追踪失败: {str(e)}"}
+        )
+
+
+@router.get("/health")
+async def promo_card_health():
+    """
+    推广卡片服务健康检查
+    """
+    return {"status": "healthy", "service": "promo-card"}

@@ -44,6 +44,13 @@ if DATABASE_URL.startswith("postgres://"):
 import secrets
 _jwt_key = os.getenv("JWT_SECRET_KEY")
 if not _jwt_key:
+    if not DEBUG:
+        raise ValueError(
+            "CRITICAL SECURITY ERROR: JWT_SECRET_KEY environment variable is not set!\n"
+            "Please set a secure random key in your production environment.\n"
+            "Example: JWT_SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_urlsafe(64))')\n"
+            "For production deployments, add this to your environment variables on Railway/Docker/etc."
+        )
     import warnings
     warnings.warn("JWT_SECRET_KEY 未设置，使用随机生成的临时密钥。请在生产环境中设置此环境变量。")
     _jwt_key = secrets.token_urlsafe(64)

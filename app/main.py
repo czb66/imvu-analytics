@@ -8,6 +8,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from datetime import datetime
 import logging
 import os
@@ -25,12 +28,19 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# 创建速率限制器 - 使用客户端IP作为限速key
+limiter = Limiter(key_func=get_remote_address)
+
 # 创建FastAPI应用
 app = FastAPI(
     title=config.APP_NAME,
     version=config.APP_VERSION,
     description="营销数据分析平台 - 支持XML数据上传、多维度分析和自动化报告"
 )
+
+# 添加速率限制状态到 app state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # 配置CORS
 app.add_middleware(
@@ -57,6 +67,7 @@ app.include_router(diagnosis.router)
 app.include_router(report.router)
 app.include_router(compare.router)
 app.include_router(insights.router)
+app.include_router(promo_card.router)  # 推广卡片路由
 app.include_router(admin.router)  # 后台管理路由
 app.include_router(contact.router)  # 联系我们路由
 app.include_router(promo_card.router)  # 推广卡片统计路由
