@@ -164,18 +164,44 @@ class PromoCardStat(Base):
     
     # 产品信息
     product_count = Column(Integer, default=0)  # 产品数量
-    product_links = Column(Text)  # 产品链接列表（JSON格式）
+    products_json = Column(Text)  # 产品完整信息（JSON格式）
+    
+    # 统计信息
+    total_clicks = Column(Integer, default=0)  # 总点击次数
+    last_click_at = Column(DateTime, nullable=True)  # 最后点击时间
     
     # 用户信息
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # 关联用户（可选）
     session_id = Column(String(100), nullable=True)  # 会话ID（匿名用户）
     ip_address = Column(String(50), nullable=True)  # IP地址
     
-    # 操作类型
-    action = Column(String(50), default='generate')  # generate/copy/download/export
-    
     # 时间戳
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
         return f"<PromoCardStat {self.card_title} - {self.style} at {self.created_at}>"
+
+
+class PromoCardClick(Base):
+    """推广卡片点击统计模型"""
+    __tablename__ = "promo_card_clicks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    
+    # 关联卡片
+    stat_id = Column(Integer, ForeignKey("promo_card_stats.id"), index=True)
+    product_index = Column(Integer, default=0)  # 产品序号（第几个产品）
+    product_name = Column(String(255))  # 产品名称
+    original_link = Column(String(500))  # 原始链接
+    
+    # 点击者信息
+    ip_address = Column(String(50), nullable=True)
+    user_agent = Column(String(500), nullable=True)
+    referrer = Column(String(500), nullable=True)  # 来源页面
+    
+    # 时间戳
+    clicked_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    def __repr__(self):
+        return f"<PromoCardClick stat_id={self.stat_id} product={self.product_name}>"

@@ -3,18 +3,22 @@
 """
 
 from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timedelta
 import json
+import logging
 
 from app.database import get_db
-from app.models import PromoCardStat, User
+from app.models import PromoCardStat, PromoCardClick, User
 
 router = APIRouter(
     prefix="/api/promo-card",
     tags=["promo-card"]
 )
+
+logger = logging.getLogger(__name__)
 
 
 @router.post("/stats")
@@ -23,52 +27,29 @@ async def save_stats(
     db: Session = Depends(get_db)
 ):
     """
-    保存推广卡片生成统计
+    保存推广卡片生成统计，返回 stat_id 用于追踪链接
     """
     try:
         data = await request.json()
         
         # 提取数据
-        card_title = data.get("cardTitle", "")
-        card_subtitle = data.get("cardSubtitle", "")
-        card_intro = data.get("cardIntro", "")
-        card_footer = data.get("cardFooter", "")
-        style = data.get("style", "grid")
-        color = data.get("color", "purple")
         products = data.get("products", [])
-        action = data.get("action", "generate")
-        session_id = data.get("sessionId")
-        
-        # 提取产品链接
-        product_links = [p.get("link", "") for p in products if p.get("link")]
-        
-        # 获取用户ID（如果已登录）
-        user_id = None
-        auth_header = request.headers.get("Authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            token = auth_header.replace("Bearer ", "")
-            # 这里简化处理，实际应该验证token
-            # user = verify_token(token)
-            # if user:
-            #     user_id = user.id
         
         # 获取IP地址
         ip_address = request.client.host if request.client else None
         
         # 创建统计记录
         stat = PromoCardStat(
-            card_title=card_title[:255] if card_title else None,
-            card_subtitle=card_subtitle[:255] if card_subtitle else None,
-            card_intro=card_intro,
-            card_footer=card_footer,
-            style=style,
-            color=color,
+            card_title=data.get("cardTitle", "")[:255],
+            card_subtitle=data.get("cardSubtitle", "")[:255],
+            card_intro=data.get("cardIntro", ""),
+            card_footer=data.get("cardFooter", ""),
+            style=data.get("style", "grid"),
+            color=data.get("color", "purple"),
             product_count=len(products),
-            product_links=json.dumps(product_links) if product_links else None,
-            user_id=user_id,
-            session_id=session_id,
+            products_json=json.dumps(products) if products else None,
+            session_id=data.get("sessionId"),
             ip_address=ip_address,
-            action=action
         )
         
         db.add(stat)
@@ -77,16 +58,78 @@ async def save_stats(
         
         return {
             "success": True,
-            "message": "统计已保存",
-            "stat_id": stat.id
+            "stat_id": stat.id,
+            "message": "统计已保存"
         }
         
     except Exception as e:
+        logger.error(f"Save stats error: {e}")
         db.rollback()
         return {
             "success": False,
             "error": str(e)
         }
+
+
+@router.get("/track/{stat_id}/{product_index}")
+async def track_click(
+    stat_id: int,
+    product_index: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    追踪点击并重定向到实际商品链接
+    这是生成的HTML中的链接会指向的地址
+    """
+    try:
+        # 查找卡片统计记录
+        stat = db.query(PromoCardStat).filter(PromoCardStat.id == stat_id).first()
+        
+        if not stat:
+            # 如果找不到记录，重定向到IMVU首页
+            return RedirectResponse(url="https://www.imvu.com", status_code=302)
+        
+        # 获取产品信息
+        products = json.loads(stat.products_json) if stat.products_json else []
+        
+        if product_index < 0 or product_index >= len(products):
+            # 产品索引无效，重定向到IMVU首页
+            return RedirectResponse(url="https://www.imvu.com", status_code=302)
+        
+        product = products[product_index]
+        original_link = product.get("link", "https://www.imvu.com")
+        product_name = product.get("name", "")
+        
+        # 记录点击
+        click = PromoCardClick(
+            stat_id=stat_id,
+            product_index=product_index,
+            product_name=product_name[:255],
+            original_link=original_link[:500],
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent", "")[:500],
+            referrer=request.headers.get("referer", "")[:500]
+        )
+        
+        db.add(click)
+        
+        # 更新卡片统计
+        stat.total_clicks = (stat.total_clicks or 0) + 1
+        stat.last_click_at = datetime.utcnow()
+        
+        db.commit()
+        
+        logger.info(f"Promo click tracked: stat_id={stat_id}, product={product_name}, link={original_link}")
+        
+        # 重定向到实际链接
+        return RedirectResponse(url=original_link, status_code=302)
+        
+    except Exception as e:
+        logger.error(f"Track click error: {e}")
+        db.rollback()
+        # 出错也重定向到IMVU首页
+        return RedirectResponse(url="https://www.imvu.com", status_code=302)
 
 
 @router.get("/stats/overview")
@@ -98,41 +141,33 @@ async def get_stats_overview(
     获取统计数据概览
     """
     try:
-        # 计算时间范围
         end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=days)
         
         # 总生成次数
-        total_count = db.query(func.count(PromoCardStat.id)).filter(
+        total_cards = db.query(func.count(PromoCardStat.id)).filter(
             PromoCardStat.created_at >= start_date
         ).scalar()
         
-        # 按样式分组统计
-        style_stats = db.query(
-            PromoCardStat.style,
-            func.count(PromoCardStat.id).label("count")
-        ).filter(
-            PromoCardStat.created_at >= start_date
-        ).group_by(PromoCardStat.style).all()
+        # 总点击次数
+        total_clicks = db.query(func.count(PromoCardClick.id)).filter(
+            PromoCardClick.clicked_at >= start_date
+        ).scalar()
         
-        # 按配色分组统计
-        color_stats = db.query(
-            PromoCardStat.color,
-            func.count(PromoCardStat.id).label("count")
+        # 热门卡片（按点击量排序）
+        top_cards = db.query(
+            PromoCardStat.id,
+            PromoCardStat.card_title,
+            PromoCardStat.total_clicks,
+            PromoCardStat.created_at
         ).filter(
             PromoCardStat.created_at >= start_date
-        ).group_by(PromoCardStat.color).all()
-        
-        # 按操作类型统计
-        action_stats = db.query(
-            PromoCardStat.action,
-            func.count(PromoCardStat.id).label("count")
-        ).filter(
-            PromoCardStat.created_at >= start_date
-        ).group_by(PromoCardStat.action).all()
+        ).order_by(
+            PromoCardStat.total_clicks.desc()
+        ).limit(10).all()
         
         # 每日生成趋势
-        daily_stats = db.query(
+        daily_cards = db.query(
             func.date(PromoCardStat.created_at).label("date"),
             func.count(PromoCardStat.id).label("count")
         ).filter(
@@ -141,15 +176,96 @@ async def get_stats_overview(
             func.date(PromoCardStat.created_at)
         ).all()
         
+        # 每日点击趋势
+        daily_clicks = db.query(
+            func.date(PromoCardClick.clicked_at).label("date"),
+            func.count(PromoCardClick.id).label("count")
+        ).filter(
+            PromoCardClick.clicked_at >= start_date
+        ).group_by(func.date(PromoCardClick.clicked_at)).order_by(
+            func.date(PromoCardClick.clicked_at)
+        ).all()
+        
         return {
             "success": True,
             "data": {
-                "total_count": total_count,
+                "total_cards": total_cards,
+                "total_clicks": total_clicks,
                 "period_days": days,
-                "style_distribution": [{"style": s.style, "count": s.count} for s in style_stats],
-                "color_distribution": [{"color": c.color, "count": c.count} for c in color_stats],
-                "action_distribution": [{"action": a.action, "count": a.count} for a in action_stats],
-                "daily_trend": [{"date": str(d.date), "count": d.count} for d in daily_stats]
+                "top_cards": [
+                    {
+                        "id": c.id,
+                        "title": c.card_title,
+                        "clicks": c.total_clicks or 0,
+                        "created_at": c.created_at.isoformat() if c.created_at else None
+                    }
+                    for c in top_cards
+                ],
+                "daily_cards": [{"date": str(d.date), "count": d.count} for d in daily_cards],
+                "daily_clicks": [{"date": str(d.date), "count": d.count} for d in daily_clicks]
+            }
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+@router.get("/stats/{stat_id}")
+async def get_card_stats(
+    stat_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    获取单个卡片的详细统计
+    """
+    try:
+        stat = db.query(PromoCardStat).filter(PromoCardStat.id == stat_id).first()
+        
+        if not stat:
+            return {"success": False, "error": "Card not found"}
+        
+        # 获取该卡片的点击记录
+        clicks = db.query(PromoCardClick).filter(
+            PromoCardClick.stat_id == stat_id
+        ).order_by(PromoCardClick.clicked_at.desc()).limit(100).all()
+        
+        # 按产品统计点击
+        products = json.loads(stat.products_json) if stat.products_json else []
+        product_clicks = {}
+        for click in clicks:
+            idx = click.product_index
+            if idx not in product_clicks:
+                product_clicks[idx] = 0
+            product_clicks[idx] += 1
+        
+        return {
+            "success": True,
+            "data": {
+                "id": stat.id,
+                "title": stat.card_title,
+                "style": stat.style,
+                "color": stat.color,
+                "product_count": stat.product_count,
+                "total_clicks": stat.total_clicks or 0,
+                "created_at": stat.created_at.isoformat() if stat.created_at else None,
+                "last_click_at": stat.last_click_at.isoformat() if stat.last_click_at else None,
+                "products": [
+                    {
+                        "name": p.get("name", ""),
+                        "clicks": product_clicks.get(i, 0)
+                    }
+                    for i, p in enumerate(products)
+                ],
+                "recent_clicks": [
+                    {
+                        "product_name": c.product_name,
+                        "clicked_at": c.clicked_at.isoformat() if c.clicked_at else None
+                    }
+                    for c in clicks[:20]
+                ]
             }
         }
         
@@ -182,7 +298,7 @@ async def get_recent_stats(
                     "style": s.style,
                     "color": s.color,
                     "product_count": s.product_count,
-                    "action": s.action,
+                    "total_clicks": s.total_clicks or 0,
                     "created_at": s.created_at.isoformat() if s.created_at else None
                 }
                 for s in stats

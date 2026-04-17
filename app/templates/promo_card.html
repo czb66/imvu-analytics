@@ -1234,11 +1234,18 @@
             }
         }
 
-        function getProductsHTML(style, color) {
+        function getProductsHTML(style, color, trackingId) {
             var html = '';
             for (var i = 0; i < products.length; i++) {
                 var p = products[i];
                 var tagClass = p.tagType === 'vip' ? ' vip' : '';
+                
+                // 如果有trackingId，使用追踪链接；否则使用原始链接
+                var link = p.link;
+                if (trackingId) {
+                    link = 'https://imvucreators.com/api/promo-card/track/' + trackingId + '/' + i;
+                }
+                
                 html += '            <div class="product">\n';
                 html += '                <div class="img"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '"></div>\n';
                 html += '                <div class="info">\n';
@@ -1248,12 +1255,12 @@
                     html += '                        <h3>' + escapeHtml(p.name) + '</h3>\n';
                     html += '                        <p>' + escapeHtml(p.description) + '</p>\n';
                     html += '                    </div>\n';
-                    html += '                    <a href="' + escapeHtml(p.link) + '" target="_blank">Shop Now</a>\n';
+                    html += '                    <a href="' + escapeHtml(link) + '" target="_blank">Shop Now</a>\n';
                 } else {
                     html += '                    <span class="tag' + tagClass + '">' + escapeHtml(p.tag) + '</span>\n';
                     html += '                    <h3>' + escapeHtml(p.name) + '</h3>\n';
                     if (style !== 'compact') html += '                    <p>' + escapeHtml(p.description) + '</p>\n';
-                    html += '                    <a href="' + escapeHtml(p.link) + '" target="_blank">' + (style === 'compact' ? 'Buy' : 'Shop Now') + '</a>\n';
+                    html += '                    <a href="' + escapeHtml(link) + '" target="_blank">' + (style === 'compact' ? 'Buy' : 'Shop Now') + '</a>\n';
                 }
                 html += '                </div>\n';
                 html += '            </div>\n';
@@ -1261,7 +1268,7 @@
             return html;
         }
 
-        function generateHTML() {
+        function generateHTML(trackingId) {
             var title = document.getElementById('cardTitle').value;
             var subtitle = document.getElementById('cardSubtitle').value;
             var intro = document.getElementById('cardIntro').value;
@@ -1270,7 +1277,7 @@
             var color = colorSelectEl.value;
             
             var css = getStyleCSS(style, color);
-            var productsHtml = getProductsHTML(style, color);
+            var productsHtml = getProductsHTML(style, color, trackingId);
             
             // 格式化输出的HTML代码，带缩进和换行
             var html = '';
@@ -1314,16 +1321,19 @@
         }
 
         function copyCode() {
-            var code = generateHTML();
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(code).then(function() {
-                    alert('✅ ' + t('nav.promoTool.codeCopied'));
-                }).catch(function() {
+            // 先保存统计获取 trackingId
+            saveAndGetTrackingId(function(trackingId) {
+                var code = generateHTML(trackingId);
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(code).then(function() {
+                        alert('✅ ' + t('nav.promoTool.codeCopied'));
+                    }).catch(function() {
+                        fallbackCopy(code);
+                    });
+                } else {
                     fallbackCopy(code);
-                });
-            } else {
-                fallbackCopy(code);
-            }
+                }
+            });
         }
 
         function fallbackCopy(text) {
@@ -1343,14 +1353,51 @@
         }
 
         function downloadHTML() {
-            var code = generateHTML();
-            var blob = new Blob([code], { type: 'text/html' });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = 'promo_card.html';
-            a.click();
-            URL.revokeObjectURL(url);
+            // 先保存统计获取 trackingId
+            saveAndGetTrackingId(function(trackingId) {
+                var code = generateHTML(trackingId);
+                var blob = new Blob([code], { type: 'text/html' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'promo_card.html';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        // 保存统计并获取 trackingId
+        function saveAndGetTrackingId(callback) {
+            var data = {
+                cardTitle: document.getElementById('cardTitle').value,
+                cardSubtitle: document.getElementById('cardSubtitle').value,
+                cardIntro: document.getElementById('cardIntro').value,
+                cardFooter: document.getElementById('cardFooter').value,
+                style: styleSelectEl.value,
+                color: colorSelectEl.value,
+                products: products,
+                sessionId: getSessionId()
+            };
+            
+            fetch('/api/promo-card/stats', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(function(response) {
+                return response.json();
+            }).then(function(result) {
+                if (result.success && result.stat_id) {
+                    callback(result.stat_id);
+                } else {
+                    // 如果获取失败，仍然生成代码但不追踪
+                    callback(null);
+                }
+            }).catch(function(e) {
+                console.log('Failed to get tracking ID:', e);
+                callback(null);
+            });
         }
 
         function resetForm() {
@@ -1462,47 +1509,12 @@
         }
 
         document.getElementById('addBtn').onclick = addProduct;
-        document.getElementById('getCodeBtn').onclick = function() { sendStats('copy'); copyCode(); };
-        document.getElementById('downloadBtn').onclick = function() { sendStats('download'); downloadHTML(); };
-        document.getElementById('exportImgBtn').onclick = function() { sendStats('export'); exportImage(); };
+        document.getElementById('getCodeBtn').onclick = copyCode;
+        document.getElementById('downloadBtn').onclick = downloadHTML;
+        document.getElementById('exportImgBtn').onclick = exportImage;
         document.getElementById('saveBtn').onclick = saveData;
         document.getElementById('clearSavedBtn').onclick = clearSavedData;
         document.getElementById('resetBtn').onclick = resetForm;
-
-        // 发送统计数据到后台
-        function sendStats(action) {
-            try {
-                var data = {
-                    cardTitle: document.getElementById('cardTitle').value,
-                    cardSubtitle: document.getElementById('cardSubtitle').value,
-                    cardIntro: document.getElementById('cardIntro').value,
-                    cardFooter: document.getElementById('cardFooter').value,
-                    style: styleSelectEl.value,
-                    color: colorSelectEl.value,
-                    products: products.map(function(p) {
-                        return {
-                            name: p.name,
-                            link: p.link
-                        };
-                    }),
-                    action: action,
-                    sessionId: getSessionId()
-                };
-                
-                // 异步发送，不阻塞用户操作
-                fetch('/api/promo-card/stats', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                }).catch(function(e) {
-                    console.log('Stats send failed:', e);
-                });
-            } catch (e) {
-                console.log('Stats error:', e);
-            }
-        }
         
         // 生成或获取会话ID
         function getSessionId() {
