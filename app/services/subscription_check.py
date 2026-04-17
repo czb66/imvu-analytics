@@ -34,11 +34,11 @@ def is_whitelisted(email: str, db: Session = None) -> bool:
 
 def has_active_subscription(db: Session, user_id: int) -> bool:
     """
-    检查用户是否有有效的订阅
+    检查用户是否有有效的订阅或试用期
     
     Returns:
-        True: 有订阅或在白名单中
-        False: 无订阅
+        True: 有订阅/试用期或在白名单中
+        False: 无订阅且试用期已过
     """
     from app.models import User
     from datetime import datetime
@@ -62,6 +62,10 @@ def has_active_subscription(db: Session, user_id: int) -> bool:
         else:
             # 没有过期时间，认为订阅有效
             return True
+    
+    # 检查试用期
+    if user.trial_end_date and user.trial_end_date > datetime.utcnow():
+        return True
     
     return False
 

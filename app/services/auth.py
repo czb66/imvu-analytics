@@ -185,6 +185,14 @@ def get_current_user(
     import config
     is_admin = user.is_admin or config.is_email_whitelisted(user.email)
     
+    # 计算试用期剩余天数
+    trial_days_left = 0
+    if user.trial_end_date:
+        from datetime import datetime
+        remaining = user.trial_end_date - datetime.utcnow()
+        if remaining.total_seconds() > 0:
+            trial_days_left = remaining.days + (1 if remaining.seconds > 0 else 0)
+    
     return {
         "id": user.id,
         "email": user.email,
@@ -193,7 +201,12 @@ def get_current_user(
         "is_subscribed": user.is_subscribed,
         "subscription_status": user.subscription_status,
         "subscription_end_date": user.subscription_end_date.isoformat() if user.subscription_end_date else None,
-        "is_whitelisted": user.is_whitelisted
+        "is_whitelisted": user.is_whitelisted,
+        # 试用期信息
+        "is_in_trial": user.is_in_trial,
+        "trial_end_date": user.trial_end_date.isoformat() if user.trial_end_date else None,
+        "trial_days_left": trial_days_left,
+        "has_premium_access": user.has_premium_access
     }
 
 

@@ -283,6 +283,10 @@
         <div class="pricing-header">
             <h1 data-i18n="pricing.title">Simple, Transparent Pricing</h1>
             <p class="text-muted" data-i18n="pricing.subtitle">One plan, all features, no hidden fees</p>
+            <div class="trial-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; border-radius: 50px; display: inline-block; margin-top: 20px; font-weight: 600;">
+                <i class="bi bi-gift me-2"></i>
+                <span data-i18n="pricing.trial_banner">🎁 New users get 7 days FREE Pro trial!</span>
+            </div>
         </div>
 
         <div class="row justify-content-center">
@@ -378,18 +382,37 @@
             const manageArea = document.getElementById('manageArea');
             console.log('subscriptionArea element:', area);
 
+            // 语言检测
+            const lang = localStorage.getItem('imvu_lang') || 'en';
+
             if (data.is_subscribed) {
                 area.innerHTML = `
                     <div class="current-plan-badge">${t('current_plan')}</div>
                     <p class="text-muted mt-3">${t('renews_at')}: ${data.end_date || 'N/A'}</p>
                 `;
                 manageArea.style.display = 'block';
+            } else if (data.is_in_trial) {
+                // 试用期用户
+                const trialText = lang === 'zh' 
+                    ? `🎉 您正在享受 <strong>${data.trial_days_left} 天</strong> Pro 试用期` 
+                    : `🎉 You have <strong>${data.trial_days_left} days</strong> of Pro trial remaining`;
+                const subscribeText = lang === 'zh' ? '立即订阅 - $12/月' : 'Subscribe Now - $12/month';
+                const trialEndText = lang === 'zh' ? `试用期结束于: ${data.trial_end_date ? new Date(data.trial_end_date).toLocaleDateString() : 'N/A'}` : `Trial ends: ${data.trial_end_date ? new Date(data.trial_end_date).toLocaleDateString() : 'N/A'}`;
+                
+                area.innerHTML = `
+                    <div class="trial-badge" style="background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 600; margin-bottom: 15px; display: inline-block;">
+                        ${trialText}
+                    </div>
+                    <p class="text-muted mb-3">${trialEndText}</p>
+                    <p class="text-muted mb-4" style="font-size: 14px;">${lang === 'zh' ? '订阅以在试用期结束后继续使用全部功能' : 'Subscribe to continue using all features after trial ends'}</p>
+                    <button class="btn-subscribe" id="subscribeBtn" onclick="startSubscription()">
+                        <i class="bi bi-lightning me-2"></i>${subscribeText}
+                    </button>
+                `;
+                manageArea.style.display = 'none';
             } else {
                 console.log('Setting up subscribe button...');
-                // 直接使用翻译文本，避免函数调用时机问题
-                const lang = localStorage.getItem('imvu_lang') || 'en';
                 const subscribeText = lang === 'zh' ? '立即订阅 - $12/月' : 'Subscribe Now - $12/month';
-                console.log('Language:', lang, 'Subscribe text:', subscribeText);
                 
                 area.innerHTML = `
                     <p class="text-muted mb-4">${lang === 'zh' ? '订阅以访问所有功能' : 'Subscribe to access all features'}</p>

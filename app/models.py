@@ -31,6 +31,9 @@ class User(Base):
     reset_token = Column(String(255), nullable=True)  # 重置令牌
     reset_token_expires = Column(DateTime, nullable=True)  # 重置令牌过期时间
     
+    # 免费试用期
+    trial_end_date = Column(DateTime, nullable=True)  # 试用期结束时间（注册后7天）
+    
     # Stripe订阅字段
     stripe_customer_id = Column(String(255), nullable=True, index=True)  # Stripe客户ID
     subscription_id = Column(String(255), nullable=True, index=True)  # 订阅ID
@@ -48,6 +51,27 @@ class User(Base):
         if self.subscription_end_date and self.subscription_end_date < datetime.utcnow():
             return False
         return True
+    
+    @property
+    def is_in_trial(self) -> bool:
+        """检查用户是否在试用期内"""
+        if not self.trial_end_date:
+            return False
+        return self.trial_end_date > datetime.utcnow()
+    
+    @property
+    def has_premium_access(self) -> bool:
+        """检查用户是否有高级功能访问权限（订阅或试用）"""
+        # 白名单用户
+        if self.is_whitelisted:
+            return True
+        # 有效订阅
+        if self.is_subscribed:
+            return True
+        # 试用期内
+        if self.is_in_trial:
+            return True
+        return False
     
     def __repr__(self):
         return f"<User {self.email}>"

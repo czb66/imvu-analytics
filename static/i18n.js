@@ -765,6 +765,7 @@ const translations = {
             pageTitle: 'Pricing - IMVU Analytics',
             title: 'Simple, Transparent Pricing',
             subtitle: 'One plan, all features, no hidden fees',
+            trial_banner: '🎁 New users get 7 days FREE Pro trial!',
             // 计划名称
             free: 'Free',
             pro: 'Pro',
@@ -1750,6 +1751,7 @@ const translations = {
             pageTitle: '定价 - IMVU Analytics',
             title: '简单、透明的定价',
             subtitle: '一个计划，所有功能，无隐藏费用',
+            trial_banner: '🎁 新用户注册即享 7 天 Pro 免费试用！',
             // 计划名称
             free: '免费版',
             pro: '专业版',
@@ -2671,6 +2673,7 @@ const translations = {
             pageTitle: 'Tarifs - IMVU Analytics',
             title: 'Tarification simple et transparente',
             subtitle: 'Un plan, toutes les fonctionnalités, sans frais cachés',
+            trial_banner: '🎁 Les nouveaux utilisateurs bénéficient de 7 jours d\'essai Pro GRATUIT !',
             // Noms des plans
             free: 'Gratuit',
             pro: 'Pro',

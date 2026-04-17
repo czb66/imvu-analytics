@@ -80,7 +80,14 @@ def _run_migrations(logger):
                 conn.commit()
                 logger.info("is_whitelisted 列添加成功")
             
-            # 迁移 2: 检查 promo_card_stats 表
+            # 迁移 2: 添加 trial_end_date 列（7天免费试用）
+            if 'trial_end_date' not in existing_columns:
+                logger.info("正在添加 trial_end_date 列到 users 表...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN trial_end_date TIMESTAMP"))
+                conn.commit()
+                logger.info("trial_end_date 列添加成功")
+            
+            # 迁移 3: 检查 promo_card_stats 表
             if 'promo_card_stats' in table_names:
                 promo_card_columns = [col['name'] for col in inspector.get_columns('promo_card_stats')]
                 
@@ -153,11 +160,17 @@ class UserRepository:
         self.db = db
     
     def create(self, email: str, password_hash: str, username: str = None) -> User:
-        """创建新用户"""
+        """创建新用户，自动赠送7天Pro试用"""
+        from datetime import timedelta
+        
+        # 设置试用期：注册后7天
+        trial_end = datetime.utcnow() + timedelta(days=7)
+        
         user = User(
             email=email,
             password_hash=password_hash,
-            username=username
+            username=username,
+            trial_end_date=trial_end  # 赠送7天Pro试用
         )
         self.db.add(user)
         self.db.commit()
