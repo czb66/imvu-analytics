@@ -157,11 +157,15 @@ def get_current_user(
             detail="账户已被禁用"
         )
     
+    # Check admin status: database field OR whitelist
+    import config
+    is_admin = user.is_admin or config.is_email_whitelisted(user.email)
+    
     return {
         "id": user.id,
         "email": user.email,
         "username": user.username,
-        "is_admin": user.is_admin,
+        "is_admin": is_admin,
         "is_subscribed": user.is_subscribed,
         "subscription_status": user.subscription_status,
         "subscription_end_date": user.subscription_end_date.isoformat() if user.subscription_end_date else None,

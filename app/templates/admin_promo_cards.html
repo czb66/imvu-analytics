@@ -335,7 +335,9 @@
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 const data = await res.json();
-                if (!data.success || !data.user || !data.user.is_admin) {
+                // API returns { success: true, data: { is_admin: ... } }
+                const user = data.data;
+                if (!data.success || !user || !user.is_admin) {
                     alert('Access denied. Admin only.');
                     window.location.href = '/dashboard';
                     return;
