@@ -247,6 +247,8 @@ async def get_admin_stats(
     - 总用户数
     - 已订阅用户数
     - 本周新增用户数
+    - DAU (日活跃用户数)
+    - MAU (月活跃用户数)
     """
     try:
         from app.models import User
@@ -265,12 +267,30 @@ async def get_admin_stats(
             User.created_at >= week_ago
         ).count()
         
+        # DAU - 日活跃用户数（今天登录过的用户）
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        dau = db.query(User).filter(
+            User.last_login >= today_start
+        ).count()
+        
+        # MAU - 月活跃用户数（最近30天登录过的用户）
+        month_ago = datetime.utcnow() - timedelta(days=30)
+        mau = db.query(User).filter(
+            User.last_login >= month_ago
+        ).count()
+        
+        # 用户粘性 (DAU/MAU)
+        stickiness = round(dau / mau * 100, 1) if mau > 0 else 0
+        
         return {
             "success": True,
             "data": {
                 "total_users": total_users,
                 "subscribed_users": subscribed_users,
-                "weekly_new_users": weekly_new_users
+                "weekly_new_users": weekly_new_users,
+                "dau": dau,
+                "mau": mau,
+                "stickiness": stickiness
             }
         }
     except Exception as e:

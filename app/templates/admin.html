@@ -456,6 +456,52 @@
             </div>
         </div>
 
+        <!-- Active Users Stats Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h5 class="mb-3"><i class="bi bi-activity me-2"></i><span data-i18n="active_users_stats">Active Users Statistics</span></h5>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #eb2f96 0%, #f759ab 100%); color: white;">
+                            <i class="bi bi-person-check"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-value" id="dau">-</div>
+                            <div class="stat-label" data-i18n="stat_dau">DAU (Daily Active Users)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #fa541c 0%, #ff7a45 100%); color: white;">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-value" id="mau">-</div>
+                            <div class="stat-label" data-i18n="stat_mau">MAU (Monthly Active Users)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #2f54eb 0%, #597ef7 100%); color: white;">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="stat-value" id="stickiness">-</div>
+                            <div class="stat-label" data-i18n="stat_stickiness">Stickiness (DAU/MAU %)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Page Views Stats Section -->
         <div class="row mb-4">
             <div class="col-12">
@@ -615,6 +661,10 @@
                 stat_total_users: 'Total Users',
                 stat_subscribed: 'Subscribed Users',
                 stat_weekly_new: 'New Users This Week',
+                active_users_stats: 'Active Users Statistics',
+                stat_dau: 'DAU (Daily Active Users)',
+                stat_mau: 'MAU (Monthly Active Users)',
+                stat_stickiness: 'Stickiness (DAU/MAU %)',
                 user_list: 'User List',
                 search_placeholder: 'Search email or username...',
                 filter_all: 'All',
@@ -659,6 +709,10 @@
                 stat_total_users: '总用户数',
                 stat_subscribed: '已订阅用户',
                 stat_weekly_new: '本周新增用户',
+                active_users_stats: '活跃用户统计',
+                stat_dau: 'DAU（日活跃用户）',
+                stat_mau: 'MAU（月活跃用户）',
+                stat_stickiness: '用户粘性 (DAU/MAU %)',
                 user_list: '用户列表',
                 search_placeholder: '搜索邮箱或用户名...',
                 filter_all: '全部',
@@ -816,6 +870,10 @@
                     document.getElementById('totalUsers').textContent = data.data.total_users;
                     document.getElementById('subscribedUsers').textContent = data.data.subscribed_users;
                     document.getElementById('weeklyNewUsers').textContent = data.data.weekly_new_users;
+                    // DAU/MAU
+                    document.getElementById('dau').textContent = data.data.dau || 0;
+                    document.getElementById('mau').textContent = data.data.mau || 0;
+                    document.getElementById('stickiness').textContent = (data.data.stickiness || 0) + '%';
                 }
                 
                 // 加载页面访问统计
