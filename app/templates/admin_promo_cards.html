@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Promo Card Stats - Admin Dashboard</title>
+    <title data-i18n="promo_card_stats.page_title">Promo Card Statistics - Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
     <script src="/static/auth.js"></script>
+    <script src="/static/i18n.js"></script>
     <style>
         :root {
             --primary: #667eea;
@@ -60,6 +61,69 @@
             margin-left: 250px;
             padding: 20px;
         }
+        /* Language Switcher */
+        .lang-select-wrapper {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .subscribe-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 15px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .subscribe-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .lang-select {
+            appearance: none;
+            background: white;
+            border: 1px solid #e0e0e0;
+            color: #333;
+            padding: 6px 32px 6px 14px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            min-width: 95px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 10px) center;
+        }
+        
+        .lang-select:hover {
+            background-color: #f5f5f5;
+            border-color: #ccc;
+        }
+        
+        .lang-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+            border-color: var(--primary);
+        }
+        
+        .lang-select option {
+            background: white;
+            color: #333;
+            padding: 8px;
+        }
+        /* Stat Cards */
         .stat-card {
             background: white;
             border-radius: 12px;
@@ -125,10 +189,80 @@
             font-weight: 600;
         }
         
+        /* Mobile Header */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 0 15px;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .mobile-header .brand {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+            }
             .sidebar {
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
+                width: 280px;
             }
             .sidebar.open {
                 transform: translateX(0);
@@ -137,27 +271,62 @@
                 margin-left: 0;
                 padding-top: 70px;
             }
+            .lang-select-wrapper {
+                top: auto;
+                bottom: 15px;
+                right: 15px;
+            }
+            .subscribe-btn {
+                display: none;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-header {
+                display: none !important;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+        <span class="brand">IMVU Analytics</span>
+        <div style="width: 40px;"></div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p style="margin-top: 15px; color: #666;" data-i18n="common.loading">Loading...</p>
+    </div>
+
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
-        <h4><i class="bi bi-speedometer2 me-2"></i>IMVU Analytics</h4>
+        <h4><i class="bi bi-speedometer2 me-2"></i><span data-i18n="app_name">IMVU Analytics</span></h4>
         
-        <div class="nav-section">Main</div>
-        <a href="/dashboard"><i class="bi bi-house me-2"></i>Dashboard</a>
-        <a href="/upload"><i class="bi bi-cloud-upload me-2"></i>Upload</a>
-        <a href="/report"><i class="bi bi-file-earmark-text me-2"></i>Report</a>
-        <a href="/insights"><i class="bi bi-lightbulb me-2"></i>AI Insights</a>
+        <div class="nav-section" data-i18n="nav_section.main">Main</div>
+        <a href="/dashboard"><i class="bi bi-house me-2"></i><span data-i18n="nav_dashboard">Dashboard</span></a>
+        <a href="/upload"><i class="bi bi-cloud-upload me-2"></i><span data-i18n="nav_upload">Upload</span></a>
+        <a href="/report"><i class="bi bi-file-earmark-text me-2"></i><span data-i18n="nav_report">Report</span></a>
+        <a href="/insights"><i class="bi bi-lightbulb me-2"></i><span data-i18n="nav_insights">AI Insights</span></a>
         
-        <div class="nav-section">Admin</div>
-        <a href="/admin"><i class="bi bi-speedometer me-2"></i>Overview</a>
-        <a href="/admin/users"><i class="bi bi-people me-2"></i>Users</a>
-        <a href="/admin/promo-cards" class="active"><i class="bi bi-card-image me-2"></i>Promo Cards</a>
+        <div class="nav-section" data-i18n="nav_section.admin">Admin</div>
+        <a href="/admin"><i class="bi bi-speedometer me-2"></i><span data-i18n="nav_admin_overview">Overview</span></a>
+        <a href="/admin/promo-cards" class="active"><i class="bi bi-card-image me-2"></i><span data-i18n="nav_admin_promo_cards">Promo Cards</span></a>
+        
+        <div class="nav-section" data-i18n="nav_section.account">Account</div>
+        <a href="/settings"><i class="bi bi-gear me-2"></i><span data-i18n="nav_settings">Settings</span></a>
+        <a href="/profile"><i class="bi bi-person me-2"></i><span data-i18n="nav_profile">Profile</span></a>
         
         <div style="position: absolute; bottom: 20px; width: 100%;">
-            <a href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+            <a href="#" id="logoutBtn"><i class="bi bi-box-arrow-right me-2"></i><span data-i18n="logout">Logout</span></a>
         </div>
     </nav>
 
@@ -166,13 +335,28 @@
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2><i class="bi bi-card-image me-2"></i>Promo Card Statistics</h2>
-                <p class="text-muted mb-0">Track promo card generation and click-through rates</p>
+                <h2><i class="bi bi-card-image me-2"></i><span data-i18n="promo_card_stats.title">Promo Card Statistics</span></h2>
+                <p class="text-muted mb-0" data-i18n="promo_card_stats.subtitle">Track promo card generation and click-through rates</p>
             </div>
+            <!-- Language Switcher -->
+            <div class="lang-select-wrapper">
+                <a href="/pricing" class="subscribe-btn" id="subscribeBtn">
+                    <i class="bi bi-star-fill me-1"></i><span data-i18n="nav.subscribe">Subscribe</span>
+                </a>
+                <select id="langSelect" class="lang-select" onchange="setLanguage(this.value)">
+                    <option value="en">EN</option>
+                    <option value="zh">中文</option>
+                    <option value="fr">FR</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Days Selector -->
+        <div class="d-flex justify-content-end mb-3">
             <select id="daysSelect" class="form-select" style="width: auto;" onchange="loadStats()">
-                <option value="7">Last 7 days</option>
-                <option value="30" selected>Last 30 days</option>
-                <option value="90">Last 90 days</option>
+                <option value="7" data-i18n="promo_card_stats.last_7_days">Last 7 days</option>
+                <option value="30" selected data-i18n="promo_card_stats.last_30_days">Last 30 days</option>
+                <option value="90" data-i18n="promo_card_stats.last_90_days">Last 90 days</option>
             </select>
         </div>
 
@@ -186,7 +370,7 @@
                         </div>
                         <div class="ms-3">
                             <div class="stat-value" id="totalCards">-</div>
-                            <div class="stat-label">Cards Generated</div>
+                            <div class="stat-label" data-i18n="promo_card_stats.cards_generated">Cards Generated</div>
                         </div>
                     </div>
                 </div>
@@ -199,7 +383,7 @@
                         </div>
                         <div class="ms-3">
                             <div class="stat-value" id="totalClicks">-</div>
-                            <div class="stat-label">Total Clicks</div>
+                            <div class="stat-label" data-i18n="promo_card_stats.total_clicks">Total Clicks</div>
                         </div>
                     </div>
                 </div>
@@ -212,7 +396,7 @@
                         </div>
                         <div class="ms-3">
                             <div class="stat-value" id="clickRate">-</div>
-                            <div class="stat-label">Click Rate</div>
+                            <div class="stat-label" data-i18n="promo_card_stats.click_rate">Click Rate</div>
                         </div>
                     </div>
                 </div>
@@ -225,7 +409,7 @@
                         </div>
                         <div class="ms-3">
                             <div class="stat-value" id="activeCards">-</div>
-                            <div class="stat-label">Active Cards</div>
+                            <div class="stat-label" data-i18n="promo_card_stats.active_cards">Active Cards</div>
                         </div>
                     </div>
                 </div>
@@ -236,13 +420,13 @@
         <div class="row mb-4">
             <div class="col-md-8 mb-3">
                 <div class="chart-container">
-                    <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>Trend Overview</h5>
+                    <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i><span data-i18n="promo_card_stats.trend_overview">Trend Overview</span></h5>
                     <canvas id="trendChart" height="100"></canvas>
                 </div>
             </div>
             <div class="col-md-4 mb-3">
                 <div class="chart-container">
-                    <h5 class="mb-3"><i class="bi bi-pie-chart me-2"></i>Style Distribution</h5>
+                    <h5 class="mb-3"><i class="bi bi-pie-chart me-2"></i><span data-i18n="promo_card_stats.style_distribution">Style Distribution</span></h5>
                     <canvas id="styleChart" height="200"></canvas>
                 </div>
             </div>
@@ -250,23 +434,23 @@
 
         <!-- Top Cards -->
         <div class="card-table mb-4">
-            <h5 class="mb-3"><i class="bi bi-trophy me-2"></i>Top Performing Cards</h5>
+            <h5 class="mb-3"><i class="bi bi-trophy me-2"></i><span data-i18n="promo_card_stats.top_performing_cards">Top Performing Cards</span></h5>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Style</th>
-                            <th>Color</th>
-                            <th>Products</th>
-                            <th>Clicks</th>
-                            <th>Created</th>
-                            <th>Action</th>
+                            <th data-i18n="promo_card_stats.table.id">ID</th>
+                            <th data-i18n="promo_card_stats.table.title">Title</th>
+                            <th data-i18n="promo_card_stats.table.style">Style</th>
+                            <th data-i18n="promo_card_stats.table.color">Color</th>
+                            <th data-i18n="promo_card_stats.table.products">Products</th>
+                            <th data-i18n="promo_card_stats.table.clicks">Clicks</th>
+                            <th data-i18n="promo_card_stats.table.created">Created</th>
+                            <th data-i18n="promo_card_stats.table.action">Action</th>
                         </tr>
                     </thead>
                     <tbody id="topCardsTable">
-                        <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                        <tr><td colspan="8" class="text-center" data-i18n="common.loading">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -275,25 +459,25 @@
         <!-- All Cards -->
         <div class="card-table">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>All Cards</h5>
+                <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i><span data-i18n="promo_card_stats.all_cards">All Cards</span></h5>
                 <nav id="pagination"></nav>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Style</th>
-                            <th>Color</th>
-                            <th>Products</th>
-                            <th>Clicks</th>
-                            <th>Last Click</th>
-                            <th>Created</th>
+                            <th data-i18n="promo_card_stats.table.id">ID</th>
+                            <th data-i18n="promo_card_stats.table.title">Title</th>
+                            <th data-i18n="promo_card_stats.table.style">Style</th>
+                            <th data-i18n="promo_card_stats.table.color">Color</th>
+                            <th data-i18n="promo_card_stats.table.products">Products</th>
+                            <th data-i18n="promo_card_stats.table.clicks">Clicks</th>
+                            <th data-i18n="promo_card_stats.table.last_click">Last Click</th>
+                            <th data-i18n="promo_card_stats.table.created">Created</th>
                         </tr>
                     </thead>
                     <tbody id="allCardsTable">
-                        <tr><td colspan="8" class="text-center">Loading...</td></tr>
+                        <tr><td colspan="8" class="text-center" data-i18n="common.loading">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -305,7 +489,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Card Details</h5>
+                    <h5 class="modal-title" data-i18n="promo_card_stats.card_details">Card Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="cardDetailContent">
@@ -321,6 +505,14 @@
         let currentPage = 1;
         const pageSize = 20;
 
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
         // Check auth
         document.addEventListener('DOMContentLoaded', async function() {
             const token = localStorage.getItem('access_token');
@@ -335,7 +527,6 @@
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 const data = await res.json();
-                // API returns { success: true, data: { is_admin: ... } }
                 const user = data.data;
                 if (!data.success || !user || !user.is_admin) {
                     alert('Access denied. Admin only.');
@@ -347,9 +538,39 @@
                 return;
             }
             
+            // Hide loading overlay
+            document.getElementById('loadingOverlay').style.display = 'none';
+            
+            // Apply i18n
+            applyTranslations();
+            
+            // Set language selector value
+            const langSelect = document.getElementById('langSelect');
+            if (langSelect) {
+                langSelect.value = currentLang;
+            }
+            
             loadStats();
             loadCards(1);
         });
+
+        // Apply translations
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const text = t(key);
+                if (text && text !== key) {
+                    el.textContent = text;
+                }
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                const text = t(key);
+                if (text && text !== key) {
+                    el.placeholder = text;
+                }
+            });
+        }
 
         // Logout
         document.getElementById('logoutBtn').onclick = async function(e) {
@@ -424,7 +645,7 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Cards Generated',
+                            label: t('promo_card_stats.cards_generated'),
                             data: cardsData,
                             borderColor: '#667eea',
                             backgroundColor: 'rgba(102,126,234,0.1)',
@@ -432,7 +653,7 @@
                             tension: 0.4
                         },
                         {
-                            label: 'Clicks',
+                            label: t('promo_card_stats.total_clicks'),
                             data: clicksData,
                             borderColor: '#52c41a',
                             backgroundColor: 'rgba(82,196,26,0.1)',
@@ -487,8 +708,8 @@
         function renderTopCards(cards) {
             const tbody = document.getElementById('topCardsTable');
             
-            if (!cards.length) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No data</td></tr>';
+            if (!cards || !cards.length) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">${t('promo_card_stats.no_data')}</td></tr>`;
                 return;
             }
             
@@ -501,7 +722,7 @@
                     <td>${c.products}</td>
                     <td><span class="click-badge">${c.clicks}</span></td>
                     <td>${formatDate(c.created_at)}</td>
-                    <td><button class="btn btn-sm btn-outline-primary" onclick="showDetail(${c.id})">View</button></td>
+                    <td><button class="btn btn-sm btn-outline-primary" onclick="showDetail(${c.id})">${t('promo_card_stats.view_details')}</button></td>
                 </tr>
             `).join('');
         }
@@ -509,8 +730,8 @@
         function renderAllCards(cards) {
             const tbody = document.getElementById('allCardsTable');
             
-            if (!cards.length) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No data</td></tr>';
+            if (!cards || !cards.length) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">${t('promo_card_stats.no_data')}</td></tr>`;
                 return;
             }
             
@@ -548,74 +769,44 @@
             nav.innerHTML = html;
         }
 
-        async function showDetail(cardId) {
-            const token = localStorage.getItem('access_token');
+        function showDetail(cardId) {
+            // Show modal with card details
             const modal = new bootstrap.Modal(document.getElementById('cardDetailModal'));
-            
-            document.getElementById('cardDetailContent').innerHTML = '<div class="text-center py-4"><div class="spinner-border" role="status"></div></div>';
+            document.getElementById('cardDetailContent').innerHTML = `<div class="text-center"><div class="spinner-border" role="status"></div></div>`;
             modal.show();
             
-            try {
-                const res = await fetch(`/api/admin/promo-cards/${cardId}`, {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-                const data = await res.json();
-                
+            // Load card detail
+            const token = localStorage.getItem('access_token');
+            fetch(`/api/admin/promo-cards/${cardId}`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(res => res.json())
+            .then(data => {
                 if (data.success) {
                     const card = data.data;
                     document.getElementById('cardDetailContent').innerHTML = `
                         <div class="row">
                             <div class="col-md-6">
-                                <h6 class="text-muted">Basic Info</h6>
-                                <table class="table table-sm">
-                                    <tr><td class="text-muted">Title</td><td>${escapeHtml(card.title) || '-'}</td></tr>
-                                    <tr><td class="text-muted">Style</td><td><span class="style-badge style-${card.style}">${card.style}</span></td></tr>
-                                    <tr><td class="text-muted">Color</td><td><span class="style-badge color-${card.color}">${card.color}</span></td></tr>
-                                    <tr><td class="text-muted">Products</td><td>${card.products.length}</td></tr>
-                                    <tr><td class="text-muted">Total Clicks</td><td><span class="click-badge">${card.total_clicks}</span></td></tr>
-                                    <tr><td class="text-muted">Created</td><td>${formatDate(card.created_at)}</td></tr>
-                                </table>
+                                <p><strong>ID:</strong> #${card.id}</p>
+                                <p><strong>Title:</strong> ${escapeHtml(card.title) || '-'}</p>
+                                <p><strong>Style:</strong> <span class="style-badge style-${card.style}">${card.style}</span></p>
+                                <p><strong>Color:</strong> <span class="style-badge color-${card.color}">${card.color}</span></p>
                             </div>
                             <div class="col-md-6">
-                                <h6 class="text-muted">Product Clicks</h6>
-                                ${Object.keys(card.product_clicks).length ? 
-                                    Object.values(card.product_clicks).map(p => `
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span>${escapeHtml(p.name) || 'Product ' + p.index}</span>
-                                            <span class="badge bg-primary">${p.count} clicks</span>
-                                        </div>
-                                    `).join('') : 
-                                    '<p class="text-muted">No clicks yet</p>'
-                                }
+                                <p><strong>Products:</strong> ${card.products}</p>
+                                <p><strong>Clicks:</strong> ${card.clicks}</p>
+                                <p><strong>Last Click:</strong> ${card.last_click ? formatDate(card.last_click) : '-'}</p>
+                                <p><strong>Created:</strong> ${formatDate(card.created_at)}</p>
                             </div>
                         </div>
-                        <hr>
-                        <h6 class="text-muted">Recent Clicks</h6>
-                        <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
-                            <table class="table table-sm">
-                                <thead><tr><th>Product</th><th>IP</th><th>Time</th></tr></thead>
-                                <tbody>
-                                    ${card.recent_clicks.map(c => `
-                                        <tr>
-                                            <td>${escapeHtml(c.product_name)}</td>
-                                            <td><code>${c.ip || '-'}</code></td>
-                                            <td>${formatDate(c.clicked_at)}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
                     `;
+                } else {
+                    document.getElementById('cardDetailContent').innerHTML = `<div class="alert alert-danger">${t('common.error')}</div>`;
                 }
-            } catch (e) {
-                document.getElementById('cardDetailContent').innerHTML = '<div class="alert alert-danger">Failed to load details</div>';
-            }
-        }
-
-        function formatDate(dateStr) {
-            if (!dateStr) return '-';
-            const d = new Date(dateStr);
-            return d.toLocaleDateString() + ' ' + d.toLocaleTimeString().slice(0, 5);
+            })
+            .catch(() => {
+                document.getElementById('cardDetailContent').innerHTML = `<div class="alert alert-danger">${t('common.error')}</div>`;
+            });
         }
 
         function escapeHtml(text) {
@@ -623,6 +814,12 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString();
         }
     </script>
 </body>

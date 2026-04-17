@@ -892,6 +892,46 @@ const translations = {
         },
 
         // Footer
+
+        // Promo Card Statistics (Admin Page)
+        promo_card_stats: {
+            page_title: 'Promo Card Statistics - Admin Dashboard',
+            title: 'Promo Card Statistics',
+            subtitle: 'Track promo card generation and click-through rates',
+            cards_generated: 'Cards Generated',
+            total_clicks: 'Total Clicks',
+            click_rate: 'Click Rate',
+            active_cards: 'Active Cards',
+            trend_overview: 'Trend Overview',
+            style_distribution: 'Style Distribution',
+            top_performing_cards: 'Top Performing Cards',
+            all_cards: 'All Cards',
+            last_7_days: 'Last 7 days',
+            last_30_days: 'Last 30 days',
+            last_90_days: 'Last 90 days',
+            view_details: 'View Details',
+            card_details: 'Card Details',
+            no_data: 'No data',
+            table: {
+                id: 'ID',
+                title: 'Title',
+                style: 'Style',
+                color: 'Color',
+                products: 'Products',
+                clicks: 'Clicks',
+                last_click: 'Last Click',
+                created: 'Created',
+                action: 'Action'
+            }
+        },
+
+        // Navigation sections
+        nav_section: {
+            main: 'Main',
+            admin: 'Admin',
+            account: 'Account'
+        },
+
         footer: {
             terms: 'Terms of Service',
             privacy: 'Privacy Policy',
@@ -1772,6 +1812,46 @@ const translations = {
         },
 
         // Footer
+
+        // Promo Card Statistics (Admin Page)
+        promo_card_stats: {
+            page_title: '推广卡片统计 - 管理后台',
+            title: '推广卡片统计',
+            subtitle: '追踪推广卡片生成和点击率',
+            cards_generated: '生成卡片数',
+            total_clicks: '总点击数',
+            click_rate: '点击率',
+            active_cards: '活跃卡片',
+            trend_overview: '趋势概览',
+            style_distribution: '样式分布',
+            top_performing_cards: '表现最佳卡片',
+            all_cards: '全部卡片',
+            last_7_days: '最近7天',
+            last_30_days: '最近30天',
+            last_90_days: '最近90天',
+            view_details: '查看详情',
+            card_details: '卡片详情',
+            no_data: '暂无数据',
+            table: {
+                id: 'ID',
+                title: '标题',
+                style: '样式',
+                color: '颜色',
+                products: '产品数',
+                clicks: '点击',
+                last_click: '最后点击',
+                created: '创建时间',
+                action: '操作'
+            }
+        },
+
+        // Navigation sections
+        nav_section: {
+            main: '主导航',
+            admin: '管理',
+            account: '账户'
+        },
+
         footer: {
             terms: '服务条款',
             privacy: '隐私政策',
@@ -2608,6 +2688,46 @@ const translations = {
         },
 
         // Footer
+
+        // Promo Card Statistics (Admin Page)
+        promo_card_stats: {
+            page_title: 'Statistiques des Cartes Promo - Tableau de Bord Admin',
+            title: 'Statistiques des Cartes Promo',
+            subtitle: 'Suivez la génération de cartes promo et les taux de clics',
+            cards_generated: 'Cartes Générées',
+            total_clicks: 'Total Clics',
+            click_rate: 'Taux de Clic',
+            active_cards: 'Cartes Actives',
+            trend_overview: 'Aperçu des Tendances',
+            style_distribution: 'Distribution des Styles',
+            top_performing_cards: 'Meilleures Cartes',
+            all_cards: 'Toutes les Cartes',
+            last_7_days: '7 derniers jours',
+            last_30_days: '30 derniers jours',
+            last_90_days: '90 derniers jours',
+            view_details: 'Voir Détails',
+            card_details: 'Détails de la Carte',
+            no_data: 'Aucune donnée',
+            table: {
+                id: 'ID',
+                title: 'Titre',
+                style: 'Style',
+                color: 'Couleur',
+                products: 'Produits',
+                clicks: 'Clics',
+                last_click: 'Dernier Clic',
+                created: 'Créé',
+                action: 'Action'
+            }
+        },
+
+        // Navigation sections
+        nav_section: {
+            main: 'Principal',
+            admin: 'Admin',
+            account: 'Compte'
+        },
+
         footer: {
             terms: 'Conditions d\'utilisation',
             privacy: 'Politique de confidentialité',
