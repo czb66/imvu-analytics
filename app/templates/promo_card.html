@@ -1255,19 +1255,24 @@
             for (var i = 0; i < products.length; i++) {
                 var p = products[i];
                 var tagClass = p.tagType === 'vip' ? ' vip' : '';
-                html += '<div class="product">';
-                html += '<div class="img"><img src="' + p.image + '" alt="' + p.name + '"></div>';
-                html += '<div class="info">';
+                html += '            <div class="product">\n';
+                html += '                <div class="img"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '"></div>\n';
+                html += '                <div class="info">\n';
                 if (style === 'list') {
-                    html += '<div class="info-left"><span class="tag' + tagClass + '">' + p.tag + '</span><h3>' + p.name + '</h3><p>' + p.description + '</p></div>';
-                    html += '<a href="' + p.link + '" target="_blank">Shop Now →</a>';
+                    html += '                    <div class="info-left">\n';
+                    html += '                        <span class="tag' + tagClass + '">' + escapeHtml(p.tag) + '</span>\n';
+                    html += '                        <h3>' + escapeHtml(p.name) + '</h3>\n';
+                    html += '                        <p>' + escapeHtml(p.description) + '</p>\n';
+                    html += '                    </div>\n';
+                    html += '                    <a href="' + escapeHtml(p.link) + '" target="_blank">Shop Now</a>\n';
                 } else {
-                    html += '<span class="tag' + tagClass + '">' + p.tag + '</span>';
-                    html += '<h3>' + p.name + '</h3>';
-                    if (style !== 'compact') html += '<p>' + p.description + '</p>';
-                    html += '<a href="' + p.link + '" target="_blank">' + (style === 'compact' ? 'Buy' : 'Shop Now →') + '</a>';
+                    html += '                    <span class="tag' + tagClass + '">' + escapeHtml(p.tag) + '</span>\n';
+                    html += '                    <h3>' + escapeHtml(p.name) + '</h3>\n';
+                    if (style !== 'compact') html += '                    <p>' + escapeHtml(p.description) + '</p>\n';
+                    html += '                    <a href="' + escapeHtml(p.link) + '" target="_blank">' + (style === 'compact' ? 'Buy' : 'Shop Now') + '</a>\n';
                 }
-                html += '</div></div>\n';
+                html += '                </div>\n';
+                html += '            </div>\n';
             }
             return html;
         }
@@ -1283,7 +1288,45 @@
             var css = getStyleCSS(style, color);
             var productsHtml = getProductsHTML(style, color);
             
-            return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n<title>' + title + ' - VIP Offer</title>\n<style>\n' + css + '\n</style>\n</head>\n<body>\n<div class="container">\n<div class="header">\n<div class="badge">&#11088; Exclusive VIP Offer</div>\n<h1>' + title + '</h1>\n<p>' + subtitle + '</p>\n</div>\n<div class="content">\n<p class="intro"><span>' + intro + '</span></p>\n<div class="products">\n' + productsHtml + '</div>\n</div>\n<div class="footer">' + footer + '</div>\n</div>\n</body>\n</html>';
+            // 格式化输出的HTML代码，带缩进和换行
+            var html = '';
+            html += '<!DOCTYPE html>\n';
+            html += '<html lang="en">\n';
+            html += '<head>\n';
+            html += '    <meta charset="UTF-8">\n';
+            html += '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n';
+            html += '    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n';
+            html += '    <title>' + escapeHtml(title) + ' - IMVU VIP Offer</title>\n';
+            html += '    <style>\n';
+            html += '        ' + css.replace(/\}/g, '}\n        ').replace(/\n        \n/g, '\n').trim() + '\n';
+            html += '    </style>\n';
+            html += '</head>\n';
+            html += '<body>\n';
+            html += '<div class="container">\n';
+            html += '    <div class="header">\n';
+            html += '        <div class="badge">&#11088; Exclusive VIP Offer</div>\n';
+            html += '        <h1>' + escapeHtml(title) + '</h1>\n';
+            html += '        <p>' + escapeHtml(subtitle) + '</p>\n';
+            html += '    </div>\n';
+            html += '    <div class="content">\n';
+            html += '        <p class="intro"><span>' + escapeHtml(intro) + '</span></p>\n';
+            html += '        <div class="products">\n';
+            html += productsHtml;
+            html += '        </div>\n';
+            html += '    </div>\n';
+            html += '    <div class="footer">' + escapeHtml(footer) + '</div>\n';
+            html += '</div>\n';
+            html += '</body>\n';
+            html += '</html>';
+            
+            return html;
+        }
+        
+        // HTML转义函数，防止XSS
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function copyCode() {
