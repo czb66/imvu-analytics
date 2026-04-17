@@ -966,6 +966,29 @@ const translations = {
             feature3Title: 'Compare Insights',
             feature3Desc: 'Multi-dataset comparison conclusions, ranking changes, and trend summaries',
             offlineMode: 'Without API Key, the system will provide basic rule-based insights (offline mode).'
+        },
+
+        // Admin Dashboard
+        admin: {
+            title: 'Admin Dashboard',
+            basic_user_stats: 'Basic User Statistics',
+            active_users_stats: 'Active Users Statistics',
+            page_views_stats: 'Page Views Statistics',
+            stat_total_users: 'Total Users',
+            stat_subscribed: 'Subscribed Users',
+            stat_weekly_new: 'New Users This Week',
+            stat_dau: 'DAU',
+            stat_mau: 'MAU',
+            stat_stickiness: 'Stickiness',
+            stat_today_pv: "Today's PV",
+            stat_total_pv: 'Total PV',
+            stat_today_uv: "Today's UV",
+            stat_avg_pv: 'Daily Avg PV',
+            trend_chart: 'Traffic Trend',
+            top_pages: 'Top Pages',
+            user_list: 'User List',
+            th_page: 'Page',
+            th_views: 'Views'
         }
     },
     
@@ -1908,6 +1931,29 @@ const translations = {
             feature3Title: '对比洞察',
             feature3Desc: '多数据集对比结论、排名变化和趋势总结',
             offlineMode: '如果没有配置 API Key，系统将提供基于规则的基础洞察（离线模式）。'
+        },
+
+        // Admin Dashboard
+        admin: {
+            title: '管理后台',
+            basic_user_stats: '基础用户统计',
+            active_users_stats: '活跃用户统计',
+            page_views_stats: '页面访问统计',
+            stat_total_users: '总用户数',
+            stat_subscribed: '已订阅用户',
+            stat_weekly_new: '本周新增用户',
+            stat_dau: 'DAU',
+            stat_mau: 'MAU',
+            stat_stickiness: '用户粘性',
+            stat_today_pv: '今日PV',
+            stat_total_pv: '总PV',
+            stat_today_uv: '今日UV',
+            stat_avg_pv: '日均PV',
+            trend_chart: '访问趋势',
+            top_pages: '热门页面',
+            user_list: '用户列表',
+            th_page: '页面',
+            th_views: '访问量'
         }
     },
     
@@ -2806,6 +2852,29 @@ const translations = {
             feature3Title: 'Analyses Comparatives',
             feature3Desc: 'Conclusions de comparaison multi-datasets, changements de classement et résumés des tendances',
             offlineMode: 'Sans clé API, le système fournira des analyses de base basées sur des règles (mode hors ligne).'
+        },
+
+        // Admin Dashboard
+        admin: {
+            title: 'Tableau de Bord Admin',
+            basic_user_stats: 'Statistiques Utilisateurs de Base',
+            active_users_stats: 'Statistiques Utilisateurs Actifs',
+            page_views_stats: 'Statistiques des Pages Vues',
+            stat_total_users: 'Total Utilisateurs',
+            stat_subscribed: 'Utilisateurs Abonnés',
+            stat_weekly_new: 'Nouveaux Utilisateurs cette Semaine',
+            stat_dau: 'DAU',
+            stat_mau: 'MAU',
+            stat_stickiness: 'Rétention',
+            stat_today_pv: 'PV Aujourd\'hui',
+            stat_total_pv: 'PV Total',
+            stat_today_uv: 'UV Aujourd\'hui',
+            stat_avg_pv: 'PV Moyen/Jour',
+            trend_chart: 'Tendance du Trafic',
+            top_pages: 'Pages Populaires',
+            user_list: 'Liste des Utilisateurs',
+            th_page: 'Page',
+            th_views: 'Vues'
         }
     }
 };
