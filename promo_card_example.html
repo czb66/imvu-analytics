@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Upgrade Your Experience - IMVU VIP Offer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #0f0f23);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: linear-gradient(145deg, #1e1e3f, #252550);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(218, 165, 32, 0.4);
+        }
+        .header {
+            background: linear-gradient(135deg, #b8860b 0%, #ffd700 25%, #daa520 50%, #ffd700 75%, #b8860b 100%);
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 60%);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        .badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #1a1a1a, #2d2d2d);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffd700;
+            margin-bottom: 15px;
+            border: 1px solid #ffd700;
+        }
+        .header h1 {
+            color: #1a1a1a;
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(255, 215, 0, 0.3);
+        }
+        .header p {
+            color: #2d2d2d;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .intro {
+            text-align: center;
+            color: #d4af37;
+            font-size: 16px;
+            line-height: 2;
+            height: 60px;
+            width: 100%;
+            margin-bottom: 30px;
+            overflow: hidden;
+            position: relative;
+            padding: 15px 50px;
+            background: linear-gradient(90deg, transparent 0%, rgba(218, 165, 32, 0.1) 50%, transparent 100%);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+        }
+        .intro::before {
+            content: '\2728';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            animation: sparkleLeft 1.5s ease-in-out infinite;
+            opacity: 0.9;
+            z-index: 2;
+        }
+        @keyframes sparkleLeft {
+            0%, 100% { opacity: 0.5; transform: translateY(-50%) scale(1) rotate(0deg); }
+            50% { opacity: 1; transform: translateY(-50%) scale(1.3) rotate(15deg); }
+        }
+        .intro::after {
+            content: '\2728';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            animation: sparkleRight 1.5s ease-in-out infinite 0.5s;
+            opacity: 0.9;
+            z-index: 2;
+        }
+        @keyframes sparkleRight {
+            0%, 100% { opacity: 0.5; transform: translateY(-50%) scale(1) rotate(0deg); }
+            50% { opacity: 1; transform: translateY(-50%) scale(1.3) rotate(-15deg); }
+        }
+        .intro span {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+            padding-left: 100%;
+            font-weight: 700;
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+            letter-spacing: 1px;
+        }
+        .intro:hover span {
+            animation-play-state: paused;
+            text-shadow: 0 0 15px currentColor, 0 0 30px currentColor, 0 0 45px currentColor;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+        .footer {
+            background: linear-gradient(90deg, rgba(26, 26, 26, 0.8), rgba(45, 45, 45, 0.8));
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 20px 30px;
+            text-align: center;
+            color: #d4af37;
+            font-size: 13px;
+        }
+        .products {
+            display: block;
+        }
+        .product {
+            background: linear-gradient(145deg, rgba(218, 165, 32, 0.15), rgba(184, 134, 11, 0.1));
+            border: 1px solid rgba(218, 165, 32, 0.4);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            display: flex;
+            transition: all 0.3s;
+        }
+        .product:hover {
+            transform: translateX(5px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.2);
+        }
+        .product .img {
+            width: 100px;
+            height: 80px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .product img {
+            width: 100px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .product .info {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        .product .info-left {
+            flex: 1;
+        }
+        .product .tag {
+            display: inline-block;
+            background: linear-gradient(90deg, #1a1a1a, #2d2d2d);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .product .tag.vip {
+            background: linear-gradient(90deg, #ffd700, #ffec8b);
+            color: #1a1a1a;
+        }
+        .product h3 {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            font-size: 18px;
+            margin-bottom: 3px;
+            font-weight: 700;
+        }
+        .product p {
+            color: #d4af37;
+            font-size: 13px;
+        }
+        .product a {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700 0%, #daa520 50%, #ffd700 100%);
+            color: #1a1a1a;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="badge">&#11088; Exclusive VIP Offer</div>
+        <h1>Upgrade Your Experience</h1>
+        <p>Premium IMVU Collections</p>
+    </div>
+    <div class="content">
+        <p class="intro"><span>Discover our premium multi-avatar collections. Crafted for the elite.</span></p>
+        <div class="products">
+            <div class="product">
+                <div class="img"><img src="https://example.com/image1.jpg" alt="Product Name"></div>
+                <div class="info">
+                    <div class="info-left">
+                        <span class="tag">TOP SELLER</span>
+                        <h3>Product Name</h3>
+                        <p>Product description goes here.</p>
+                    </div>
+                    <a href="https://imvu.com/product" target="_blank">Shop Now</a>
+                </div>
+            </div>
+            <div class="product">
+                <div class="img"><img src="https://example.com/image2.jpg" alt="VIP Product"></div>
+                <div class="info">
+                    <div class="info-left">
+                        <span class="tag vip">PREMIUM VIP</span>
+                        <h3>VIP Product Name</h3>
+                        <p>Exclusive item for VIP members.</p>
+                    </div>
+                    <a href="https://imvu.com/product2" target="_blank">Shop Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">Click to view High-Res previews and secure your copy before the price update.</div>
+</div>
+</body>
+</html>
