@@ -639,6 +639,9 @@ const translations = {
             registerBtn: 'Register',
             hasAccount: 'Already have an account?',
             loginLink: 'Login now',
+            // 试用期宣传
+            trial_title: '🎁 Get 7 Days FREE Pro Trial!',
+            trial_desc: 'All Pro features unlocked instantly',
             // 表单验证消息
             registerSuccess: 'Registration successful! Redirecting to login...',
             registerError: 'Registration failed. Please try again.',
@@ -667,6 +670,9 @@ const translations = {
             registerLink: 'Register now',
             guideTitle: 'User Guide',
             guideDesc: 'Learn how to use IMVU Analytics effectively with our comprehensive guide.',
+            // 试用期宣传
+            trial_banner: '🎁 New users get 7 days FREE Pro trial!',
+            trial_cta: 'Sign up now →',
             // Feature cards
             feature1Title: 'AI-Powered Sales Reports',
             feature1Desc: 'Automatically generate comprehensive sales reports with AI insights and trend analysis.',
@@ -1625,6 +1631,9 @@ const translations = {
             registerBtn: '注册',
             hasAccount: '已有账号？',
             loginLink: '立即登录',
+            // 试用期宣传
+            trial_title: '🎁 注册即享 7 天 Pro 免费试用！',
+            trial_desc: '所有 Pro 功能立即解锁',
             // 表单验证消息
             registerSuccess: '注册成功！正在跳转登录...',
             registerError: '注册失败，请重试。',
@@ -1653,6 +1662,9 @@ const translations = {
             registerLink: '立即注册',
             guideTitle: '用户指南',
             guideDesc: '查看完整的使用指南，快速掌握 IMVU Analytics 的各项功能。',
+            // 试用期宣传
+            trial_banner: '🎁 新用户注册即享 7 天 Pro 免费试用！',
+            trial_cta: '立即注册 →',
             // Feature cards
             feature1Title: 'AI智能销售报告',
             feature1Desc: '自动生成包含AI洞察和趋势分析的综合销售报告。',
@@ -2547,6 +2559,9 @@ const translations = {
             registerBtn: 'S\'inscrire',
             hasAccount: 'Vous avez déjà un compte ?',
             loginLink: 'Se connecter maintenant',
+            // Promotion essai gratuit
+            trial_title: '🎁 7 jours d\'essai Pro GRATUIT à l\'inscription !',
+            trial_desc: 'Toutes les fonctionnalités Pro débloquées instantanément',
             // Messages de validation du formulaire
             registerSuccess: 'Inscription réussie ! Redirection vers la connexion...',
             registerError: 'Échec de l\'inscription. Veuillez réessayer.',
@@ -2575,6 +2590,9 @@ const translations = {
             registerLink: 'S\'inscrire maintenant',
             guideTitle: 'Guide d\'utilisation',
             guideDesc: 'Consultez notre guide complet pour maîtriser rapidement IMVU Analytics.',
+            // Promotion essai gratuit
+            trial_banner: '🎁 Les nouveaux utilisateurs bénéficient de 7 jours d\'essai Pro GRATUIT !',
+            trial_cta: 'S\'inscrire maintenant →',
             // Feature cards
             feature1Title: 'Rapports de vente IA',
             feature1Desc: 'Générez automatiquement des rapports de vente complets avec des insights IA et une analyse de tendances.',
