@@ -15,7 +15,7 @@ from app.services.analytics import AnalyticsService
 from app.services.insights import insights_service
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription, is_whitelisted
-from app.main import limiter
+from app.core.limiter import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["AI洞察"])

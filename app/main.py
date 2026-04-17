@@ -8,8 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from datetime import datetime
 import logging
@@ -20,6 +19,7 @@ from app.database import init_db, engine
 from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription, admin, contact, promo_card
 from app.services.email_service import email_service
 from app.services.report_generator import scheduler, start_scheduler, stop_scheduler
+from app.core.limiter import limiter
 
 # 配置日志
 logging.basicConfig(
@@ -27,9 +27,6 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
-# 创建速率限制器 - 使用客户端IP作为限速key
-limiter = Limiter(key_func=get_remote_address)
 
 # 创建FastAPI应用
 app = FastAPI(
