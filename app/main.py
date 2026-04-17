@@ -14,7 +14,7 @@ import os
 
 import config
 from app.database import init_db, engine
-from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription, admin, contact
+from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription, admin, contact, promo_card
 from app.services.email_service import email_service
 from app.services.report_generator import scheduler, start_scheduler, stop_scheduler
 
@@ -59,6 +59,7 @@ app.include_router(compare.router)
 app.include_router(insights.router)
 app.include_router(admin.router)  # 后台管理路由
 app.include_router(contact.router)  # 联系我们路由
+app.include_router(promo_card.router)  # 推广卡片统计路由
 
 
 @app.on_event("startup")

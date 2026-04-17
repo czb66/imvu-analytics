@@ -1462,12 +1462,57 @@
         }
 
         document.getElementById('addBtn').onclick = addProduct;
-        document.getElementById('getCodeBtn').onclick = copyCode;
-        document.getElementById('downloadBtn').onclick = downloadHTML;
-        document.getElementById('exportImgBtn').onclick = exportImage;
+        document.getElementById('getCodeBtn').onclick = function() { sendStats('copy'); copyCode(); };
+        document.getElementById('downloadBtn').onclick = function() { sendStats('download'); downloadHTML(); };
+        document.getElementById('exportImgBtn').onclick = function() { sendStats('export'); exportImage(); };
         document.getElementById('saveBtn').onclick = saveData;
         document.getElementById('clearSavedBtn').onclick = clearSavedData;
         document.getElementById('resetBtn').onclick = resetForm;
+
+        // 发送统计数据到后台
+        function sendStats(action) {
+            try {
+                var data = {
+                    cardTitle: document.getElementById('cardTitle').value,
+                    cardSubtitle: document.getElementById('cardSubtitle').value,
+                    cardIntro: document.getElementById('cardIntro').value,
+                    cardFooter: document.getElementById('cardFooter').value,
+                    style: styleSelectEl.value,
+                    color: colorSelectEl.value,
+                    products: products.map(function(p) {
+                        return {
+                            name: p.name,
+                            link: p.link
+                        };
+                    }),
+                    action: action,
+                    sessionId: getSessionId()
+                };
+                
+                // 异步发送，不阻塞用户操作
+                fetch('/api/promo-card/stats', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                }).catch(function(e) {
+                    console.log('Stats send failed:', e);
+                });
+            } catch (e) {
+                console.log('Stats error:', e);
+            }
+        }
+        
+        // 生成或获取会话ID
+        function getSessionId() {
+            var sessionId = localStorage.getItem('promo_session_id');
+            if (!sessionId) {
+                sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('promo_session_id', sessionId);
+            }
+            return sessionId;
+        }
 
         // 初始化
         initLangBtns();

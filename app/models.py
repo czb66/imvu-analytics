@@ -144,3 +144,38 @@ class PageView(Base):
 
     def __repr__(self):
         return f"<PageView {self.path} at {self.created_at}>"
+
+
+class PromoCardStat(Base):
+    """推广卡片生成统计模型"""
+    __tablename__ = "promo_card_stats"
+
+    id = Column(Integer, primary_key=True, index=True)
+    
+    # 基本信息
+    card_title = Column(String(255))  # 卡片标题
+    card_subtitle = Column(String(255))  # 卡片副标题
+    card_intro = Column(Text)  # 介绍文字
+    card_footer = Column(Text)  # 底部文字
+    
+    # 样式设置
+    style = Column(String(50))  # grid/list/card/compact/featured
+    color = Column(String(50))  # purple/gold/blue/red/green
+    
+    # 产品信息
+    product_count = Column(Integer, default=0)  # 产品数量
+    product_links = Column(Text)  # 产品链接列表（JSON格式）
+    
+    # 用户信息
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # 关联用户（可选）
+    session_id = Column(String(100), nullable=True)  # 会话ID（匿名用户）
+    ip_address = Column(String(50), nullable=True)  # IP地址
+    
+    # 操作类型
+    action = Column(String(50), default='generate')  # generate/copy/download/export
+    
+    # 时间戳
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    def __repr__(self):
+        return f"<PromoCardStat {self.card_title} - {self.style} at {self.created_at}>"
