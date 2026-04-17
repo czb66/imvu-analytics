@@ -139,7 +139,12 @@ const translations = {
                 report1: 'Generate detailed data analysis reports',
                 report2: 'Support PDF export',
                 report3: 'View historical reports anytime',
-                report4: 'Email report subscription (optional)'
+                report4: 'Email report subscription (optional)',
+                promoCard: 'Promo Card Generator',
+                promoCard1: 'Create stunning product promotional cards',
+                promoCard2: 'Multiple styles and color themes available',
+                promoCard3: 'One-click copy HTML code or download',
+                promoCard4: 'Click tracking statistics'
             },
             dataFormat: 'Data Format',
             howToDownload: 'How to Get Data File',
@@ -1096,7 +1101,12 @@ const translations = {
                 report1: '生成详细的数据分析报告',
                 report2: '支持 PDF 导出',
                 report3: '历史报告随时查看',
-                report4: '邮件报告订阅（可选）'
+                report4: '邮件报告订阅（可选）',
+                promoCard: '推广卡片生成器',
+                promoCard1: '创建精美的产品推广卡片',
+                promoCard2: '多种样式和颜色主题可选',
+                promoCard3: '一键复制 HTML 代码或下载',
+                promoCard4: '点击追踪统计功能'
             },
             dataFormat: '数据格式说明',
             howToDownload: '如何获取数据文件',
@@ -1989,7 +1999,12 @@ const translations = {
                 report1: 'Génère des rapports d\'analyse de données détaillés',
                 report2: 'Prend en charge l\'exportation PDF',
                 report3: 'Consultez les rapports historiques à tout moment',
-                report4: 'Abonnement aux rapports par e-mail (optionnel)'
+                report4: 'Abonnement aux rapports par e-mail (optionnel)',
+                promoCard: 'Générateur de Cartes Promo',
+                promoCard1: 'Créez de superbes cartes promotionnelles de produits',
+                promoCard2: 'Plusieurs styles et thèmes de couleur disponibles',
+                promoCard3: 'Copiez le code HTML ou téléchargez en un clic',
+                promoCard4: 'Fonctionnalité de suivi des clics'
             },
             dataFormat: 'Format des données',
             howToDownload: 'Comment obtenir le fichier de données',
