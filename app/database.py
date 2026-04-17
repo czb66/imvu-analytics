@@ -10,7 +10,7 @@ from typing import Generator
 from datetime import datetime
 import config
 
-from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User, PageView
+from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User, PageView, PromoCardStat, PromoCardClick
 
 # 数据库引擎配置
 if "sqlite" in config.DATABASE_URL:
@@ -59,9 +59,11 @@ def _run_migrations(logger):
     
     try:
         with engine.connect() as conn:
-            # 检查 users 表是否存在
             inspector = inspect(engine)
-            if 'users' not in inspector.get_table_names():
+            table_names = inspector.get_table_names()
+            
+            # 检查 users 表是否存在
+            if 'users' not in table_names:
                 logger.info("users 表不存在，跳过迁移")
                 return
             
@@ -77,6 +79,44 @@ def _run_migrations(logger):
                     conn.execute(text("ALTER TABLE users ADD COLUMN is_whitelisted BOOLEAN DEFAULT FALSE"))
                 conn.commit()
                 logger.info("is_whitelisted 列添加成功")
+            
+            # 迁移 2: 检查 promo_card_stats 表
+            if 'promo_card_stats' in table_names:
+                promo_card_columns = [col['name'] for col in inspector.get_columns('promo_card_stats')]
+                
+                # 添加 products_json 列
+                if 'products_json' not in promo_card_columns:
+                    logger.info("正在添加 products_json 列到 promo_card_stats 表...")
+                    conn.execute(text("ALTER TABLE promo_card_stats ADD COLUMN products_json TEXT"))
+                    conn.commit()
+                    logger.info("products_json 列添加成功")
+                
+                # 添加其他可能缺失的列
+                columns_to_add = [
+                    ('card_title', 'VARCHAR(255)'),
+                    ('card_subtitle', 'VARCHAR(255)'),
+                    ('card_intro', 'TEXT'),
+                    ('card_footer', 'TEXT'),
+                    ('style', 'VARCHAR(50)'),
+                    ('color', 'VARCHAR(50)'),
+                    ('product_count', 'INTEGER DEFAULT 0'),
+                    ('total_clicks', 'INTEGER DEFAULT 0'),
+                    ('last_click_at', 'TIMESTAMP'),
+                    ('user_id', 'INTEGER'),
+                    ('session_id', 'VARCHAR(100)'),
+                    ('ip_address', 'VARCHAR(50)'),
+                ]
+                
+                for col_name, col_type in columns_to_add:
+                    if col_name not in promo_card_columns:
+                        logger.info(f"正在添加 {col_name} 列到 promo_card_stats 表...")
+                        conn.execute(text(f"ALTER TABLE promo_card_stats ADD COLUMN {col_name} {col_type}"))
+                        conn.commit()
+                        logger.info(f"{col_name} 列添加成功")
+            
+            # 迁移 3: 检查 promo_card_clicks 表
+            if 'promo_card_clicks' not in table_names:
+                logger.info("promo_card_clicks 表不存在，将由 create_all 创建")
             
             logger.info("数据库迁移完成")
             
