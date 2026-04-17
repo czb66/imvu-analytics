@@ -793,9 +793,9 @@
                                 <p><strong>Color:</strong> <span class="style-badge color-${card.color}">${card.color}</span></p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Products:</strong> ${card.products}</p>
-                                <p><strong>Clicks:</strong> ${card.clicks}</p>
-                                <p><strong>Last Click:</strong> ${card.last_click ? formatDate(card.last_click) : '-'}</p>
+                                <p><strong>Products:</strong> ${Array.isArray(card.products) ? card.products.length : 0} items</p>
+                                <p><strong>Clicks:</strong> ${card.total_clicks || 0}</p>
+                                <p><strong>Last Click:</strong> ${card.last_click_at ? formatDate(card.last_click_at) : '-'}</p>
                                 <p><strong>Created:</strong> ${formatDate(card.created_at)}</p>
                             </div>
                         </div>
