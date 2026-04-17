@@ -17,7 +17,7 @@ import logging
 
 from app.database import get_db
 from app.models import PromoCardStat, PromoCardClick, User
-from app.main import limiter
+from app.core.limiter import limiter
 
 router = APIRouter(
     prefix="/api/promo-card",

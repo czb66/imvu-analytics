@@ -7,12 +7,10 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
 from app.database import get_db
 from app.services.auth import AuthService, get_current_user
-from app.main import limiter
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/api/auth", tags=["认证"])
 
