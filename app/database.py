@@ -84,14 +84,7 @@ def _run_migrations(logger):
             if 'promo_card_stats' in table_names:
                 promo_card_columns = [col['name'] for col in inspector.get_columns('promo_card_stats')]
                 
-                # 添加 products_json 列
-                if 'products_json' not in promo_card_columns:
-                    logger.info("正在添加 products_json 列到 promo_card_stats 表...")
-                    conn.execute(text("ALTER TABLE promo_card_stats ADD COLUMN products_json TEXT"))
-                    conn.commit()
-                    logger.info("products_json 列添加成功")
-                
-                # 添加其他可能缺失的列
+                # 所有可能缺失的列
                 columns_to_add = [
                     ('card_title', 'VARCHAR(255)'),
                     ('card_subtitle', 'VARCHAR(255)'),
@@ -100,19 +93,25 @@ def _run_migrations(logger):
                     ('style', 'VARCHAR(50)'),
                     ('color', 'VARCHAR(50)'),
                     ('product_count', 'INTEGER DEFAULT 0'),
+                    ('products_json', 'TEXT'),
                     ('total_clicks', 'INTEGER DEFAULT 0'),
                     ('last_click_at', 'TIMESTAMP'),
                     ('user_id', 'INTEGER'),
                     ('session_id', 'VARCHAR(100)'),
                     ('ip_address', 'VARCHAR(50)'),
+                    ('created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP'),
+                    ('updated_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP'),
                 ]
                 
                 for col_name, col_type in columns_to_add:
                     if col_name not in promo_card_columns:
                         logger.info(f"正在添加 {col_name} 列到 promo_card_stats 表...")
-                        conn.execute(text(f"ALTER TABLE promo_card_stats ADD COLUMN {col_name} {col_type}"))
-                        conn.commit()
-                        logger.info(f"{col_name} 列添加成功")
+                        try:
+                            conn.execute(text(f"ALTER TABLE promo_card_stats ADD COLUMN {col_name} {col_type}"))
+                            conn.commit()
+                            logger.info(f"{col_name} 列添加成功")
+                        except Exception as col_err:
+                            logger.warning(f"添加 {col_name} 列失败（可能已存在）: {col_err}")
             
             # 迁移 3: 检查 promo_card_clicks 表
             if 'promo_card_clicks' not in table_names:
