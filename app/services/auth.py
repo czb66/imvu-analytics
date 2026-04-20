@@ -206,7 +206,9 @@ def get_current_user(
         "is_in_trial": user.is_in_trial,
         "trial_end_date": user.trial_end_date.isoformat() if user.trial_end_date else None,
         "trial_days_left": trial_days_left,
-        "has_premium_access": user.has_premium_access
+        "has_premium_access": user.has_premium_access,
+        # 推荐码
+        "referral_code": user.referral_code
     }
 
 
@@ -217,9 +219,15 @@ class AuthService:
         self.db = db
         self.user_repo = UserRepository(db)
     
-    def register(self, email: str, password: str, username: str = None) -> tuple:
+    def register(self, email: str, password: str, username: str = None, referral_code: str = None) -> tuple:
         """
         用户注册
+        
+        Args:
+            email: 邮箱地址
+            password: 密码
+            username: 用户名（可选）
+            referral_code: 推荐码（可选）
         
         Returns:
             (success, message, user_data)
@@ -237,18 +245,29 @@ class AuthService:
         if self.user_repo.email_exists(email):
             return False, "该邮箱已被注册", None
         
+        # 验证推荐码（如果提供）
+        referrer_user = None
+        if referral_code:
+            referral_code = referral_code.strip().upper()
+            referrer_user = self.user_repo.get_by_referral_code(referral_code)
+            if not referrer_user:
+                # 推荐码无效，但不阻止注册，只是忽略
+                referral_code = None
+        
         # 创建用户
         password_hash = hash_password(password)
         user = self.user_repo.create(
             email=email.lower(),
             password_hash=password_hash,
-            username=username
+            username=username,
+            referral_code=referral_code  # 传递推荐码
         )
         
         return True, "注册成功", {
             "id": user.id,
             "email": user.email,
-            "username": user.username
+            "username": user.username,
+            "referral_code": user.referral_code  # 返回用户的推荐码
         }
     
     def login(self, email: str, password: str, remember_me: bool = False) -> tuple:

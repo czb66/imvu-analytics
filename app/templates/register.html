@@ -274,6 +274,12 @@
                 <div class="invalid-feedback" id="confirmError"></div>
             </div>
 
+            <!-- 推荐码 -->
+            <div class="form-floating">
+                <input type="text" class="form-control" id="referralCode" placeholder="Referral Code" maxlength="20" style="text-transform: uppercase;">
+                <label for="referralCode" data-i18n="register.referralCode">Referral Code (optional)</label>
+            </div>
+
             <p class="password-requirements" data-i18n="register.passwordReq">Password must be at least 8 characters</p>
 
             <button type="submit" class="btn btn-primary btn-register" id="submitBtn">
@@ -405,6 +411,7 @@
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            const referralCode = document.getElementById('referralCode').value.trim().toUpperCase();
             const submitBtn = document.getElementById('submitBtn');
             const currentLang = getCurrentLanguage();
             
@@ -434,7 +441,8 @@
                     body: JSON.stringify({
                         email,
                         password,
-                        username: username || null
+                        username: username || null,
+                        referral_code: referralCode || null
                     })
                 });
                 
@@ -457,6 +465,13 @@
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
+            // 从URL参数获取推荐码
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref') || urlParams.get('referral');
+            if (refCode) {
+                document.getElementById('referralCode').value = refCode.toUpperCase();
+            }
+            
             // 检查是否已登录
             const token = localStorage.getItem('access_token');
             if (token) {

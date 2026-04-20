@@ -617,7 +617,13 @@ const translations = {
             passwordChangeSuccess: 'Password changed successfully!',
             passwordChangeFailed: 'Password change failed. Please try again.',
             passwordMinLength: 'Password must be at least 8 characters.',
-            passwordMismatch: 'New passwords do not match.'
+            passwordMismatch: 'New passwords do not match.',
+            // 推荐系统
+            referralProgram: 'Referral Program',
+            yourReferralCode: 'Your Referral Code',
+            referralCount: 'Referrals',
+            referralHint: 'Share your referral code with friends! When they register with your code, they\'ll get 7 days free trial.',
+            shareLink: 'Share Link'
         },
         
         // 语言切换
@@ -639,6 +645,7 @@ const translations = {
             registerBtn: 'Register',
             hasAccount: 'Already have an account?',
             loginLink: 'Login now',
+            referralCode: 'Referral Code (optional)',
             // 试用期宣传
             trial_title: '🎁 Get 7 Days FREE Pro Trial!',
             trial_desc: 'All Pro features unlocked instantly',
@@ -1609,7 +1616,13 @@ const translations = {
             passwordChangeSuccess: '密码修改成功！',
             passwordChangeFailed: '密码修改失败，请重试。',
             passwordMinLength: '密码长度至少8位',
-            passwordMismatch: '两次输入的密码不一致'
+            passwordMismatch: '两次输入的密码不一致',
+            // 推荐系统
+            referralProgram: '推荐计划',
+            yourReferralCode: '您的推荐码',
+            referralCount: '推荐人数',
+            referralHint: '分享您的推荐码给朋友！当他们使用您的推荐码注册时，将获得7天免费试用。',
+            shareLink: '分享链接'
         },
         
         // 语言切换
@@ -1631,6 +1644,7 @@ const translations = {
             registerBtn: '注册',
             hasAccount: '已有账号？',
             loginLink: '立即登录',
+            referralCode: '推荐码（可选）',
             // 试用期宣传
             trial_title: '🎁 注册即享 7 天 Pro 免费试用！',
             trial_desc: '所有 Pro 功能立即解锁',

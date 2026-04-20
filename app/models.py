@@ -34,6 +34,10 @@ class User(Base):
     # 免费试用期
     trial_end_date = Column(DateTime, nullable=True)  # 试用期结束时间（注册后7天）
     
+    # 推荐系统
+    referral_code = Column(String(20), unique=True, index=True, nullable=True)  # 用户的推荐码
+    referred_by = Column(String(20), nullable=True)  # 被谁推荐（推荐人的 referral_code）
+    
     # Stripe订阅字段
     stripe_customer_id = Column(String(255), nullable=True, index=True)  # Stripe客户ID
     subscription_id = Column(String(255), nullable=True, index=True)  # 订阅ID

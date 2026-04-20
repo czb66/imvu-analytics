@@ -451,6 +451,40 @@
                 </div>
             </div>
 
+            <!-- 推荐码卡片 -->
+            <div class="profile-card">
+                <h5><i class="bi bi-gift me-2"></i><span data-i18n="profile.referralProgram">Referral Program</span></h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="profile-info-item">
+                            <div class="profile-info-label" data-i18n="profile.yourReferralCode">Your Referral Code</div>
+                            <div class="profile-info-value d-flex align-items-center gap-2">
+                                <code id="referralCode" style="font-size: 18px; font-weight: bold; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: 8px 16px; border-radius: 8px;">-</code>
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyReferralCode()" title="Copy referral code">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="profile-info-item">
+                            <div class="profile-info-label" data-i18n="profile.referralCount">Referrals</div>
+                            <div class="profile-info-value" id="referralCount">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <p class="text-muted mb-2" data-i18n="profile.referralHint">Share your referral code with friends! When they register with your code, they'll get 7 days free trial.</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-outline-primary btn-sm" onclick="shareReferralLink()">
+                            <i class="bi bi-share me-1"></i><span data-i18n="profile.shareLink">Share Link</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- 修改用户名 -->
             <div class="profile-card">
                 <h5><i class="bi bi-pencil-square me-2"></i><span data-i18n="profile.updateUsername">Update Username</span></h5>
@@ -551,6 +585,9 @@
             
             // 加载订阅信息
             await loadSubscription();
+            
+            // 加载推荐统计
+            await loadReferralStats();
 
             // 隐藏加载状态
             document.getElementById('loadingOverlay').style.display = 'none';
@@ -558,6 +595,76 @@
             // 绑定表单提交事件
             bindFormEvents();
         });
+
+        // 加载推荐统计
+        async function loadReferralStats() {
+            try {
+                const response = await fetch('/api/auth/referral-stats', {
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        document.getElementById('referralCode').textContent = data.data.referral_code || '-';
+                        document.getElementById('referralCount').textContent = data.data.referral_count || 0;
+                    }
+                }
+            } catch (e) {
+                console.error('加载推荐统计失败:', e);
+            }
+        }
+
+        // 复制推荐码
+        function copyReferralCode() {
+            const code = document.getElementById('referralCode').textContent;
+            if (code && code !== '-') {
+                navigator.clipboard.writeText(code).then(() => {
+                    // 显示成功提示
+                    const btn = event.target.closest('button');
+                    const originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-check"></i>';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHtml;
+                    }, 1500);
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                });
+            }
+        }
+
+        // 分享推荐链接
+        function shareReferralLink() {
+            const code = document.getElementById('referralCode').textContent;
+            if (code && code !== '-') {
+                const link = `https://imvucreators.com/register?ref=${code}`;
+                
+                // 尝试使用 Web Share API
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'IMVU Analytics',
+                        text: 'Join IMVU Analytics with my referral code for 7 days free Pro trial!',
+                        url: link
+                    }).catch(err => {
+                        // 如果分享失败，复制链接
+                        copyToClipboard(link);
+                    });
+                } else {
+                    // 不支持分享 API，直接复制链接
+                    copyToClipboard(link);
+                }
+            }
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const isZh = currentLang === 'zh';
+                alert(isZh ? '链接已复制到剪贴板！' : 'Link copied to clipboard!');
+            }).catch(err => {
+                console.error('复制失败:', err);
+            });
+        }
 
         // 加载订阅信息
         async function loadSubscription() {

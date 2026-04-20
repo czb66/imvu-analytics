@@ -87,7 +87,39 @@ def _run_migrations(logger):
                 conn.commit()
                 logger.info("trial_end_date 列添加成功")
             
-            # 迁移 3: 检查 promo_card_stats 表
+            # 迁移 3: 添加推荐系统字段
+            if 'referral_code' not in existing_columns:
+                logger.info("正在添加 referral_code 列到 users 表...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN referral_code VARCHAR(20)"))
+                conn.commit()
+                logger.info("referral_code 列添加成功")
+            
+            if 'referred_by' not in existing_columns:
+                logger.info("正在添加 referred_by 列到 users 表...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN referred_by VARCHAR(20)"))
+                conn.commit()
+                logger.info("referred_by 列添加成功")
+            
+            # 为已有用户生成推荐码
+            logger.info("正在为已有用户生成推荐码...")
+            users = conn.execute(text("SELECT id, referral_code FROM users WHERE referral_code IS NULL")).fetchall()
+            if users:
+                import secrets
+                import string
+                chars = string.ascii_uppercase + string.digits
+                chars = chars.replace('O', '').replace('0', '').replace('I', '').replace('1', '').replace('L', '')
+                
+                for user_id, _ in users:
+                    # 生成唯一推荐码
+                    code = ''.join(secrets.choice(chars) for _ in range(8))
+                    # 检查是否已存在
+                    while conn.execute(text("SELECT id FROM users WHERE referral_code = :code"), {"code": code}).fetchone():
+                        code = ''.join(secrets.choice(chars) for _ in range(8))
+                    conn.execute(text("UPDATE users SET referral_code = :code WHERE id = :id"), {"code": code, "id": user_id})
+                conn.commit()
+                logger.info(f"已为 {len(users)} 个用户生成推荐码")
+            
+            # 迁移 4: 检查 promo_card_stats 表
             if 'promo_card_stats' in table_names:
                 promo_card_columns = [col['name'] for col in inspector.get_columns('promo_card_stats')]
                 
@@ -159,18 +191,34 @@ class UserRepository:
     def __init__(self, db: Session):
         self.db = db
     
-    def create(self, email: str, password_hash: str, username: str = None) -> User:
-        """创建新用户，自动赠送7天Pro试用"""
+    def create(self, email: str, password_hash: str, username: str = None, referral_code: str = None) -> User:
+        """创建新用户，自动赠送7天Pro试用并生成推荐码"""
         from datetime import timedelta
+        import secrets
+        import string
         
         # 设置试用期：注册后7天
         trial_end = datetime.utcnow() + timedelta(days=7)
+        
+        # 生成唯一的推荐码（8位字母数字）
+        def generate_referral_code():
+            chars = string.ascii_uppercase + string.digits
+            # 排除容易混淆的字符：O, 0, I, 1, L
+            chars = chars.replace('O', '').replace('0', '').replace('I', '').replace('1', '').replace('L', '')
+            return ''.join(secrets.choice(chars) for _ in range(8))
+        
+        # 生成唯一推荐码
+        my_referral_code = generate_referral_code()
+        while self.db.query(User).filter(User.referral_code == my_referral_code).first():
+            my_referral_code = generate_referral_code()
         
         user = User(
             email=email,
             password_hash=password_hash,
             username=username,
-            trial_end_date=trial_end  # 赠送7天Pro试用
+            trial_end_date=trial_end,  # 赠送7天Pro试用
+            referral_code=my_referral_code,  # 用户的推荐码
+            referred_by=referral_code  # 被谁推荐
         )
         self.db.add(user)
         self.db.commit()
@@ -248,6 +296,23 @@ class UserRepository:
         user.reset_token_expires = None
         self.db.commit()
         return True, "密码重置成功"
+    
+    def get_by_referral_code(self, referral_code: str) -> User:
+        """根据推荐码获取用户"""
+        return self.db.query(User).filter(User.referral_code == referral_code.upper()).first()
+    
+    def get_referral_stats(self, user_id: int) -> dict:
+        """获取用户的推荐统计"""
+        user = self.get_by_id(user_id)
+        if not user or not user.referral_code:
+            return {"referral_code": None, "referral_count": 0}
+        
+        # 统计被推荐的用户数量
+        count = self.db.query(User).filter(User.referred_by == user.referral_code).count()
+        return {
+            "referral_code": user.referral_code,
+            "referral_count": count
+        }
 
 
 class ProductDataRepository:

@@ -22,6 +22,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr = Field(..., description="邮箱地址")
     password: str = Field(..., min_length=8, description="密码（至少8位）")
     username: str = Field(None, max_length=100, description="用户名（可选）")
+    referral_code: str = Field(None, max_length=20, description="推荐码（可选）")
 
 
 class LoginRequest(BaseModel):
@@ -56,13 +57,15 @@ async def register(request: Request, register_request: RegisterRequest, db: Sess
     - **email**: 邮箱地址（唯一）
     - **password**: 密码（至少8位，包含字母和数字）
     - **username**: 用户名（可选）
+    - **referral_code**: 推荐码（可选）
     """
     try:
         auth_service = AuthService(db)
         success, message, data = auth_service.register(
             email=register_request.email,
             password=register_request.password,
-            username=register_request.username
+            username=register_request.username,
+            referral_code=register_request.referral_code
         )
         
         if not success:
@@ -163,6 +166,28 @@ async def check_email(request: dict, db: Session = Depends(get_db)):
     return {"exists": exists, "valid": True}
 
 # 白名单初始化API已禁用 - 请通过数据库直接管理
+
+@router.get("/referral-stats")
+async def get_referral_stats(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取用户推荐统计
+    
+    返回用户的推荐码和推荐人数
+    """
+    from app.database import UserRepository
+    user_repo = UserRepository(db)
+    
+    stats = user_repo.get_referral_stats(current_user["id"])
+    
+    return {
+        "success": True,
+        "message": "获取成功",
+        "data": stats
+    }
+
 
 @router.get("/profile")
 async def get_profile(
