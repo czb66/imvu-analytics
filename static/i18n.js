@@ -622,7 +622,8 @@ const translations = {
             referralProgram: 'Referral Program',
             yourReferralCode: 'Your Referral Code',
             referralCount: 'Referrals',
-            referralHint: 'Share your referral code with friends! When they register with your code, they\'ll get 7 days free trial.',
+            referralHint: 'Share your referral code with friends! When they register with your code, you\'ll both get 7 days free Pro trial!',
+            referralReward: '🎁 Reward: You get +7 days Pro for each successful referral!',
             shareLink: 'Share Link'
         },
         
@@ -1621,7 +1622,8 @@ const translations = {
             referralProgram: '推荐计划',
             yourReferralCode: '您的推荐码',
             referralCount: '推荐人数',
-            referralHint: '分享您的推荐码给朋友！当他们使用您的推荐码注册时，将获得7天免费试用。',
+            referralHint: '分享您的推荐码给朋友！当朋友使用您的推荐码注册时，您和对方都将获得7天免费Pro试用！',
+            referralReward: '🎁 奖励：每成功推荐一位用户，您将获得+7天Pro权限！',
             shareLink: '分享链接'
         },
         

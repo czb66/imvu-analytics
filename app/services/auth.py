@@ -263,12 +263,49 @@ class AuthService:
             referral_code=referral_code  # 传递推荐码
         )
         
+        # 给推荐人奖励7天Pro权限
+        if referrer_user:
+            self._reward_referrer(referrer_user)
+        
         return True, "注册成功", {
             "id": user.id,
             "email": user.email,
             "username": user.username,
             "referral_code": user.referral_code  # 返回用户的推荐码
         }
+    
+    def _reward_referrer(self, referrer_user):
+        """
+        奖励推荐人7天Pro权限
+        
+        Args:
+            referrer_user: 推荐人用户对象
+        """
+        from datetime import datetime, timedelta
+        
+        # 计算新的到期时间
+        # 如果当前已有试用期或订阅，在其基础上延长
+        # 否则从当前时间开始计算
+        now = datetime.utcnow()
+        
+        # 优先使用订阅到期时间，其次试用期
+        current_end = referrer_user.subscription_end_date or referrer_user.trial_end_date
+        
+        if current_end and current_end > now:
+            # 在现有到期时间基础上延长7天
+            new_end = current_end + timedelta(days=7)
+        else:
+            # 从现在开始计算7天
+            new_end = now + timedelta(days=7)
+        
+        # 更新试用期结束时间（如果用户没有订阅，延长试用期）
+        if not referrer_user.is_subscribed:
+            referrer_user.trial_end_date = new_end
+        else:
+            # 如果用户已有订阅，延长订阅到期时间
+            referrer_user.subscription_end_date = new_end
+        
+        self.db.commit()
     
     def login(self, email: str, password: str, remember_me: bool = False) -> tuple:
         """

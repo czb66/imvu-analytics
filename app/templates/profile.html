@@ -476,7 +476,8 @@
                 </div>
                 
                 <div class="mt-3">
-                    <p class="text-muted mb-2" data-i18n="profile.referralHint">Share your referral code with friends! When they register with your code, they'll get 7 days free trial.</p>
+                    <p class="text-muted mb-2" data-i18n="profile.referralHint">Share your referral code with friends! When they register with your code, you'll both get 7 days free Pro trial!</p>
+                    <p class="text-muted small mb-2" data-i18n="profile.referralReward">🎁 Reward: You get +7 days Pro for each successful referral!</p>
                     <div class="d-flex gap-2 flex-wrap">
                         <button class="btn btn-outline-primary btn-sm" onclick="shareReferralLink()">
                             <i class="bi bi-share me-1"></i><span data-i18n="profile.shareLink">Share Link</span>
@@ -636,14 +637,18 @@
         // 分享推荐链接
         function shareReferralLink() {
             const code = document.getElementById('referralCode').textContent;
+            const isZh = currentLang === 'zh';
             if (code && code !== '-') {
                 const link = `https://imvucreators.com/register?ref=${code}`;
+                const shareText = isZh 
+                    ? '加入 IMVU Analytics，使用我的推荐码注册，我们都将获得7天免费Pro试用！'
+                    : 'Join IMVU Analytics with my referral code! We both get 7 days free Pro trial!';
                 
                 // 尝试使用 Web Share API
                 if (navigator.share) {
                     navigator.share({
                         title: 'IMVU Analytics',
-                        text: 'Join IMVU Analytics with my referral code for 7 days free Pro trial!',
+                        text: shareText,
                         url: link
                     }).catch(err => {
                         // 如果分享失败，复制链接
