@@ -705,33 +705,38 @@
     </div>
     
     <!-- Trial Banner - 醒目的宣传横幅 -->
-    <div class="trial-banner" style="position: fixed; top: 90px; left: 50%; transform: translateX(-50%); z-index: 1000; background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); color: white; padding: 16px 40px; border-radius: 50px; font-weight: 700; font-size: 18px; box-shadow: 0 8px 30px rgba(255, 107, 107, 0.4); animation: pulse 2s infinite; text-align: center;">
-        <i class="bi bi-gift-fill me-2" style="font-size: 22px;"></i>
+    <div class="trial-banner" style="position: fixed; top: 200px; left: 50%; transform: translateX(-50%); z-index: 1000; background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%); color: white; padding: 32px 80px; border-radius: 100px; font-weight: 700; font-size: 36px; box-shadow: 0 16px 60px rgba(255, 107, 107, 0.5); animation: pulse 2s infinite; text-align: center; white-space: nowrap;">
+        <i class="bi bi-gift-fill me-3" style="font-size: 44px;"></i>
         <span data-i18n="login.trial_banner">🎁 New users get 7 days FREE Pro trial!</span>
-        <a href="/register" style="color: white; text-decoration: underline; margin-left: 15px; font-weight: 800;" data-i18n="login.trial_cta">Sign up now →</a>
+        <a href="/register" style="color: white; text-decoration: underline; margin-left: 30px; font-weight: 900; font-size: 36px;" data-i18n="login.trial_cta">Sign up now →</a>
     </div>
     
     <style>
         @keyframes pulse {
             0%, 100% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.02); }
+            50% { transform: translateX(-50%) scale(1.03); }
         }
         @media (max-width: 768px) {
             .trial-banner {
-                top: 80px !important;
-                padding: 12px 20px !important;
-                font-size: 14px !important;
-                border-radius: 30px !important;
-                max-width: 90%;
+                top: 120px !important;
+                padding: 20px 30px !important;
+                font-size: 18px !important;
+                border-radius: 50px !important;
+                max-width: 95%;
+                white-space: normal !important;
             }
             .trial-banner i {
-                font-size: 16px !important;
+                font-size: 24px !important;
+            }
+            .trial-banner a {
+                font-size: 18px !important;
+                margin-left: 15px !important;
             }
         }
     </style>
     
     <!-- Main Container -->
-    <div class="main-container" style="padding-top: 160px;">
+    <div class="main-container" style="padding-top: 320px;">
         <div class="content-wrapper">
             <!-- Left - Features -->
             <div class="features-section">
