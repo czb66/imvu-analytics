@@ -219,6 +219,10 @@ class EmailService:
         bottom_products = data.get('bottom_products', [])[:5]
         anomalies = data.get('anomalies', [])
         
+        # 辅助函数：计算总销量
+        def get_total_sales(p):
+            return (p.get('direct_sales') or 0) + (p.get('indirect_sales') or 0) + (p.get('promoted_sales') or 0)
+        
         # 下载链接按钮
         download_section = ""
         if download_url:
@@ -230,6 +234,18 @@ class EmailService:
                     <p style="font-size: 12px; color: #999; margin-top: 10px;">链接24小时内有效</p>
                 </div>
             """
+        
+        # 格式化异常数据
+        anomaly_html = ""
+        if anomalies:
+            anomaly_items = []
+            for a in anomalies[:5]:
+                product_id = a.get('product_id', 'N/A')
+                product_name = (a.get('product_name') or 'N/A')[:25]
+                anomaly_type = a.get('anomaly_type') or '异常'
+                z_score = abs(a.get('z_score') or 0)
+                anomaly_items.append(f'<div class="anomaly"><strong>{product_id}</strong> - {product_name}...<br><small>{anomaly_type} (Z-score: {z_score:.2f})</small></div>')
+            anomaly_html = f'<h2>⚠️ 异常检测 ({len(anomalies)} 个)</h2>' + "".join(anomaly_items)
         
         html = f"""
         <!DOCTYPE html>
@@ -263,7 +279,7 @@ class EmailService:
                         <div class="metric-label">总销量</div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-value">${summary.get('total_profit', 0):,.2f}</div>
+                        <div class="metric-value">${(summary.get('total_profit_usd') or summary.get('total_profit') or 0):,.2f}</div>
                         <div class="metric-label">总利润</div>
                     </div>
                     <div class="metric-card">
@@ -279,10 +295,10 @@ class EmailService:
                 <h2>🏆 Top 5 热销产品</h2>
                 <table>
                     <tr><th>产品ID</th><th>产品名称</th><th>销量</th><th>利润</th></tr>
-                    {"".join(f"<tr><td>{p.get('product_id', '')}</td><td>{p.get('product_name', '')[:30]}</td><td>{p.get('sales', 0)}</td><td>${p.get('profit', 0):.2f}</td></tr>" for p in top_products)}
+                    {"".join(f"<tr><td>{p.get('product_id', '')}</td><td>{(p.get('product_name') or '')[:30]}</td><td>{get_total_sales(p)} 个</td><td>${(p.get('profit') or 0):,.2f}</td></tr>" for p in top_products)}
                 </table>
                 
-                {f'<h2>⚠️ 异常检测 ({len(anomalies)} 个)</h2>' + "".join(f'<div class="anomaly">{a}</div>' for a in anomalies[:5]) if anomalies else ''}
+                {anomaly_html}
                 
                 {download_section}
                 
