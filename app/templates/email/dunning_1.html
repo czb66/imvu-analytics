@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Update Needed</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #4472C4; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+        .button { display: inline-block; background: #4472C4; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        .highlight { background: #e8f0fe; padding: 15px; border-radius: 5px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Payment Update Needed</h1>
+    </div>
+    <div class="content">
+        <p>Hi {{ username }},</p>
+        
+        <p>We noticed that your recent payment for <strong>{{ app_name }}</strong> wasn't successful. This could be due to:</p>
+        <ul>
+            <li>Expired credit card</li>
+            <li>Insufficient balance</li>
+            <li>Card spending limits</li>
+        </ul>
+        
+        <div class="highlight">
+            <strong>Don't worry!</strong> Your subscription is still active, and you have until <strong>{{ retry_date }}</strong> to update your payment method without any interruption to your service.
+        </div>
+        
+        <p>To update your payment information:</p>
+        <p style="text-align: center;">
+            <a href="{{ app_url }}/profile" class="button">Update Payment Method</a>
+        </p>
+        
+        <p>If you have any questions or need assistance, please don't hesitate to reach out to our support team.</p>
+        
+        <p>Best regards,<br>The {{ app_name }} Team</p>
+    </div>
+    <div class="footer">
+        <p>This is an automated message from {{ app_name }}.</p>
+        <p><a href="{{ app_url }}">{{ app_url }}</a></p>
+    </div>
+</body>
+</html>

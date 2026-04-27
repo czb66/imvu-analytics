@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Expiring Soon</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #E74C3C; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+        .button { display: inline-block; background: #E74C3C; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        .warning { background: #FDE8E8; border-left: 4px solid #E74C3C; padding: 15px; margin: 15px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚠️ Action Required</h1>
+        <p>Your Subscription Will Expire Soon</p>
+    </div>
+    <div class="content">
+        <p>Hi {{ username }},</p>
+        
+        <div class="warning">
+            <strong>Important:</strong> We were unable to process your payment for the <strong>second time</strong>. Your subscription is now at risk of expiring.
+        </div>
+        
+        {% if subscription_end_date %}
+        <p>Your subscription is scheduled to expire on <strong>{{ subscription_end_date }}</strong>.</p>
+        {% endif %}
+        
+        <p>To avoid any interruption to your service, please update your payment method as soon as possible:</p>
+        
+        <p style="text-align: center;">
+            <a href="{{ app_url }}/profile" class="button">Update Payment Now</a>
+        </p>
+        
+        <p>Common reasons for payment failures include:</p>
+        <ul>
+            <li>Credit card has expired</li>
+            <li>Insufficient funds</li>
+            <li>Bank declined the transaction</li>
+            <li>Updated card security codes</li>
+        </ul>
+        
+        <p>If you believe this is an error or need assistance, please contact our support team immediately.</p>
+        
+        <p>Best regards,<br>The {{ app_name }} Team</p>
+    </div>
+    <div class="footer">
+        <p>This is an automated message from {{ app_name }}.</p>
+        <p><a href="{{ app_url }}">{{ app_url }}</a></p>
+    </div>
+</body>
+</html>

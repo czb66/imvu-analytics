@@ -10,7 +10,7 @@ from typing import Generator
 from datetime import datetime
 import config
 
-from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User, PageView, PromoCardStat, PromoCardClick, UserActivity, IndustryBenchmark
+from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User, PageView, PromoCardStat, PromoCardClick, UserActivity, IndustryBenchmark, BlogPost
 
 # 数据库引擎配置
 if "sqlite" in config.DATABASE_URL:
@@ -310,6 +310,126 @@ def _run_migrations(logger):
                     conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
                     conn.commit()
                     logger.info(f"{col_name} 列添加成功")
+            
+            # 迁移 12: 添加推荐里程碑字段
+            milestone_fields = [
+                ('referral_milestone', 'INTEGER DEFAULT 0'),
+                ('referral_milestone_claimed', 'BOOLEAN DEFAULT 0'),
+                ('referral_anonymous', 'BOOLEAN DEFAULT 0'),
+            ]
+            
+            for col_name, col_type in milestone_fields:
+                if col_name not in existing_columns:
+                    logger.info(f"正在添加 {col_name} 列到 users 表...")
+                    if "sqlite" in config.DATABASE_URL:
+                        default_val = "0" if "DEFAULT" not in col_type else ""
+                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                    else:
+                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                    conn.commit()
+                    logger.info(f"{col_name} 列添加成功")
+            
+            # 迁移 13: 创建 user_feedback 表（NPS和反馈）
+            if 'user_feedback' not in table_names:
+                logger.info("正在创建 user_feedback 表...")
+                if "sqlite" in config.DATABASE_URL:
+                    conn.execute(text("""
+                        CREATE TABLE user_feedback (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            user_id INTEGER NOT NULL,
+                            nps_score INTEGER,
+                            feedback_type VARCHAR(20),
+                            content TEXT,
+                            page_url VARCHAR(500),
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """))
+                    conn.execute(text("CREATE INDEX ix_user_feedback_user_id ON user_feedback (user_id)"))
+                    conn.execute(text("CREATE INDEX ix_user_feedback_created_at ON user_feedback (created_at)"))
+                else:
+                    conn.execute(text("""
+                        CREATE TABLE user_feedback (
+                            id SERIAL PRIMARY KEY,
+                            user_id INTEGER NOT NULL REFERENCES users(id),
+                            nps_score INTEGER,
+                            feedback_type VARCHAR(20),
+                            content TEXT,
+                            page_url VARCHAR(500),
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """))
+                    conn.execute(text("CREATE INDEX ix_user_feedback_user_id ON user_feedback (user_id)"))
+                    conn.execute(text("CREATE INDEX ix_user_feedback_created_at ON user_feedback (created_at)"))
+                conn.commit()
+                logger.info("user_feedback 表创建成功")
+            
+            # 迁移 14: 创建 blog_posts 表（博客系统）
+            if 'blog_posts' not in table_names:
+                logger.info("正在创建 blog_posts 表...")
+                if "sqlite" in config.DATABASE_URL:
+                    conn.execute(text("""
+                        CREATE TABLE blog_posts (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            slug VARCHAR(200) UNIQUE NOT NULL,
+                            title_en VARCHAR(200) NOT NULL,
+                            title_zh VARCHAR(200),
+                            title_fr VARCHAR(200),
+                            content_en TEXT NOT NULL,
+                            content_zh TEXT,
+                            content_fr TEXT,
+                            excerpt_en VARCHAR(500),
+                            excerpt_zh VARCHAR(500),
+                            excerpt_fr VARCHAR(500),
+                            category VARCHAR(50),
+                            cover_image VARCHAR(500),
+                            meta_title VARCHAR(200),
+                            meta_description VARCHAR(500),
+                            is_published BOOLEAN DEFAULT 0,
+                            published_at TIMESTAMP,
+                            author VARCHAR(100) DEFAULT 'IMVU Analytics Team',
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            view_count INTEGER DEFAULT 0,
+                            is_featured BOOLEAN DEFAULT 0
+                        )
+                    """))
+                    conn.execute(text("CREATE INDEX ix_blog_posts_slug ON blog_posts (slug)"))
+                    conn.execute(text("CREATE INDEX ix_blog_posts_category ON blog_posts (category)"))
+                    conn.execute(text("CREATE INDEX ix_blog_posts_published ON blog_posts (is_published)"))
+                    conn.execute(text("CREATE INDEX ix_blog_posts_view_count ON blog_posts (view_count)"))
+                else:
+                    conn.execute(text("""
+                        CREATE TABLE blog_posts (
+                            id SERIAL PRIMARY KEY,
+                            slug VARCHAR(200) UNIQUE NOT NULL,
+                            title_en VARCHAR(200) NOT NULL,
+                            title_zh VARCHAR(200),
+                            title_fr VARCHAR(200),
+                            content_en TEXT NOT NULL,
+                            content_zh TEXT,
+                            content_fr TEXT,
+                            excerpt_en VARCHAR(500),
+                            excerpt_zh VARCHAR(500),
+                            excerpt_fr VARCHAR(500),
+                            category VARCHAR(50),
+                            cover_image VARCHAR(500),
+                            meta_title VARCHAR(200),
+                            meta_description VARCHAR(500),
+                            is_published BOOLEAN DEFAULT FALSE,
+                            published_at TIMESTAMP,
+                            author VARCHAR(100) DEFAULT 'IMVU Analytics Team',
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            view_count INTEGER DEFAULT 0,
+                            is_featured BOOLEAN DEFAULT FALSE
+                        )
+                    """))
+                    conn.execute(text("CREATE INDEX ix_blog_posts_slug ON blog_posts (slug)"))
+                    conn.execute(text("CREATE INDEX ix_blog_posts_category ON blog_posts (category)"))
+                    conn.execute(text("CREATE INDEX ix_blog_posts_published ON blog_posts (is_published)"))
+                    conn.execute(text("CREATE INDEX ix_blog_posts_view_count ON blog_posts (view_count)"))
+                conn.commit()
+                logger.info("blog_posts 表创建成功")
             
             logger.info("数据库迁移完成")
             

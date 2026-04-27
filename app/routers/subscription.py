@@ -505,30 +505,42 @@ async def handle_payment_succeeded(invoice):
             current_period_end = datetime.utcfromtimestamp(subscription.current_period_end)
             
             from app.database import User
+            from app.services.dunning import handle_payment_success, get_user_dunning_status
+            
             user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
             
             if user:
-                update_user_subscription(db, user.id, {
-                    "subscription_id": subscription_id,
-                    "status": "active",
-                    "end_date": current_period_end
-                })
-                logger.info(f"用户 {user.id} 续费成功，到期时间: {current_period_end}")
+                # 检查用户是否处于催款状态
+                dunning_status = get_user_dunning_status(user.id, db)
+                
+                if dunning_status.get("dunning_status") == "past_due":
+                    # 用户处于催款状态，支付成功后重置催款状态
+                    handle_payment_success(user.id, db)
+                    logger.info(f"用户 {user.id} 支付成功，催款状态已重置")
+                else:
+                    # 正常续费
+                    update_user_subscription(db, user.id, {
+                        "subscription_id": subscription_id,
+                        "status": "active",
+                        "end_date": current_period_end
+                    })
+                    logger.info(f"用户 {user.id} 续费成功，到期时间: {current_period_end}")
 
 
 async def handle_payment_failed(invoice):
-    """处理支付失败事件"""
+    """处理支付失败事件 - 触发催款流程"""
     with get_db_context() as db:
         customer_id = invoice.customer
         
         from app.database import User
+        from app.services.dunning import handle_payment_failed
+        
         user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
         
         if user:
-            update_user_subscription(db, user.id, {
-                "status": "past_due"
-            })
-            logger.warning(f"用户 {user.id} 支付失败，订阅状态更新为 past_due")
+            # 调用催款服务处理支付失败
+            result = handle_payment_failed(user.id, db)
+            logger.warning(f"用户 {user.id} 支付失败，催款流程已触发: {result}")
 
 
 @router.get("/status")
@@ -790,4 +802,31 @@ async def create_customer_portal(
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"success": False, "message": f"创建客户门户失败: {str(e)}"}
+        )
+@router.get("/dunning-status")
+async def get_dunning_status(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取用户的催款状态
+    
+    用于前端显示支付提醒横幅
+    """
+    try:
+        from app.services.dunning import get_user_dunning_status
+        
+        user_id = current_user["id"]
+        dunning_info = get_user_dunning_status(user_id, db)
+        
+        return {
+            "success": True,
+            "data": dunning_info
+        }
+        
+    except Exception as e:
+        logger.error(f"获取催款状态失败: {e}", exc_info=True)
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"success": False, "message": f"获取催款状态失败: {str(e)}"}
         )

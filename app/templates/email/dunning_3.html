@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Notice - Special Offer</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #8B0000; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }
+        .button { display: inline-block; background: #27AE60; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+        .urgent { background: #FFF3CD; border: 2px solid #FFC107; padding: 15px; margin: 15px 0; text-align: center; }
+        .offer { background: #D4EDDA; border: 2px solid #28A745; padding: 20px; margin: 20px 0; text-align: center; border-radius: 8px; }
+        .offer-code { font-size: 24px; font-weight: bold; color: #28A745; letter-spacing: 2px; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚨 Final Notice</h1>
+        <p>Your Subscription Will Be Cancelled</p>
+    </div>
+    <div class="content">
+        <p>Hi {{ username }},</p>
+        
+        <div class="urgent">
+            <strong>This is your final warning.</strong><br>
+            We've tried to process your payment <strong>3 times</strong> without success. Your subscription will be <strong>canceled</strong> if we don't receive payment within 7 days.
+        </div>
+        
+        {% if subscription_end_date %}
+        <p>Your subscription is scheduled to expire on <strong>{{ subscription_end_date }}</strong>.</p>
+        {% endif %}
+        
+        <div class="offer">
+            <p style="margin: 0 0 10px 0;"><strong>🎁 Special Offer for You!</strong></p>
+            <p style="margin: 0 0 10px 0;">Renew now and get <strong>{{ discount_percent }}% OFF</strong> your subscription!</p>
+            <p style="margin: 0;">Use code at checkout:</p>
+            <p class="offer-code">{{ discount_code }}</p>
+            <p style="font-size: 12px; color: #666;">(Limited time offer)</p>
+        </div>
+        
+        <p style="text-align: center;">
+            <a href="{{ app_url }}/profile" class="button">Renew Now with Discount</a>
+        </p>
+        
+        <p>Don't lose access to:</p>
+        <ul>
+            <li>All your analytics dashboards</li>
+            <li>Historical data and reports</li>
+            <li>Premium features and insights</li>
+        </ul>
+        
+        <p>If you're experiencing ongoing payment issues, please contact our support team and we'll find a solution together.</p>
+        
+        <p>Best regards,<br>The {{ app_name }} Team</p>
+    </div>
+    <div class="footer">
+        <p>This is the final reminder from {{ app_name }}.</p>
+        <p><a href="{{ app_url }}">{{ app_url }}</a></p>
+    </div>
+</body>
+</html>

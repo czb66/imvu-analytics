@@ -16,7 +16,7 @@ import os
 
 import config
 from app.database import init_db, engine
-from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription, admin, contact, promo_card, benchmark, user
+from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription, admin, contact, promo_card, benchmark, user, export, blog, feedback
 from app.services.email_service import email_service
 from app.services.report_generator import scheduler, start_scheduler, stop_scheduler
 from app.services.cache import init_cache, get_cache
@@ -29,12 +29,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# 环境配置
+ENVIRONMENT = os.getenv("ENVIRONMENT", "production")
+IS_DEVELOPMENT = ENVIRONMENT == "development"
+
 # 创建FastAPI应用
-app = FastAPI(
-    title=config.APP_NAME,
-    version=config.APP_VERSION,
-    description="营销数据分析平台 - 支持XML数据上传、多维度分析和自动化报告"
-)
+# 仅在开发环境启用 API 文档
+app_kwargs = {
+    "title": config.APP_NAME,
+    "version": config.APP_VERSION,
+    "description": "营销数据分析平台 - 支持XML数据上传、多维度分析和自动化报告"
+}
+
+if not IS_DEVELOPMENT:
+    # 生产环境关闭 Swagger/Docs
+    app_kwargs["docs_url"] = None
+    app_kwargs["redoc_url"] = None
+    app_kwargs["openapi_url"] = None
+    logger.info("生产环境：API文档已关闭")
+else:
+    logger.info("开发环境：API文档已启用")
+
+app = FastAPI(**app_kwargs)
 
 # 添加速率限制状态到 app state
 app.state.limiter = limiter
@@ -70,6 +86,13 @@ app.include_router(benchmark.router)  # 竞品分析路由
 app.include_router(promo_card.router)  # 推广卡片路由
 app.include_router(admin.router)  # 后台管理路由
 app.include_router(contact.router)  # 联系我们路由
+app.include_router(export.router)  # 数据导出路由
+app.include_router(blog.router)  # 博客路由
+app.include_router(feedback.router)  # 反馈和NPS路由
+app.include_router(feedback.admin_router)  # 反馈管理路由
+
+# 配置博客路由的 templates
+blog.templates = templates
 
 
 @app.on_event("startup")

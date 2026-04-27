@@ -21,6 +21,7 @@ const translations = {
             backToDashboard: 'Back to Dashboard',
             profile: 'Profile',
             onboarding: 'Tour Guide',
+            blog: 'Blog',
             
             // Promo Tool page
             promoTool: {
@@ -69,6 +70,32 @@ const translations = {
             login: 'Login',
             register: 'Register',
             logout: 'Logout'
+        },
+        
+        // 数据导出
+        export: {
+            title: 'Export Data',
+            csv: 'Export CSV',
+            excel: 'Export Excel',
+            proOnly: 'Excel export is a Pro feature',
+            limitReached: 'Daily export limit reached',
+            quota: 'Export Quota',
+            remaining: 'remaining',
+            used: 'used',
+            of: 'of',
+            perDay: '/day',
+            dropdown: {
+                dashboard: 'Export Dashboard',
+                products: 'Export Products'
+            }
+        },
+        
+        // 支付/催款提醒
+        paymentAlert: {
+            pastDueTitle: 'Payment Required',
+            pastDueMessage: 'Your last payment was unsuccessful. Please update your payment method to continue enjoying Pro features.',
+            updatePayment: 'Update Payment',
+            dismiss: 'Dismiss'
         },
         
         // 联系我们页面
@@ -727,6 +754,84 @@ const translations = {
             current: 'Current'
         },
 
+        // NPS 弹窗
+        nps: {
+            title: 'We\'d love your feedback!',
+            subtitle: 'Help us improve IMVU Analytics',
+            scoreQuestion: 'How likely are you to recommend IMVU Analytics to a friend?',
+            notLikely: 'Not likely at all',
+            veryLikely: 'Very likely',
+            typeQuestion: 'What type of feedback do you have?',
+            typeBug: 'Bug Report',
+            typeBugDesc: 'Something not working',
+            typeFeature: 'Feature',
+            typeFeatureDesc: 'New idea or suggestion',
+            typeGeneral: 'General',
+            typeGeneralDesc: 'Other thoughts',
+            feedbackQuestion: 'What could we do better?',
+            feedbackPlaceholder: 'Share your thoughts (minimum 10 characters)',
+            feedbackHint: 'Your feedback helps us improve the product for everyone',
+            feedbackOptional: 'This step is optional, you can skip',
+            thanksTitle: 'Thank you!',
+            thanksMessage: 'Your feedback is invaluable to us. We\'ll use it to make IMVU Analytics even better!',
+            back: 'Back',
+            next: 'Next',
+            skip: 'Skip',
+            submit: 'Submit'
+        },
+        
+        // 推荐系统增强
+        referral: {
+            // 里程碑
+            milestones: 'Milestones',
+            milestoneProgress: 'Milestone Progress',
+            nextMilestone: 'Next Milestone',
+            claimReward: 'Claim Reward',
+            claimed: 'Claimed',
+            locked: 'Locked',
+            referralToGo: 'referrals to go',
+            // 里程碑名称
+            milestone3: 'Promoter Pro',
+            milestone5: 'Elite Promoter',
+            milestone10: 'Star Promoter',
+            milestone20: 'Legendary Promoter',
+            // 排行榜
+            leaderboard: 'Leaderboard',
+            yourRank: 'Your Rank',
+            topPromoters: 'Top Promoters',
+            anonymous: 'Anonymous',
+            anonymousMode: 'Anonymous Mode',
+            anonymousModeDesc: 'Hide your name from the leaderboard',
+            // 统计
+            totalReferrals: 'Total Referrals',
+            successfulReferrals: 'Successful Referrals',
+            pendingRewards: 'Pending Rewards',
+            // 增强功能
+            enhancedReferral: 'Enhanced Referral',
+            shareProgress: 'Share your progress with friends!'
+        },
+        
+        // 管理后台 - 反馈
+        admin: {
+            feedback: 'Feedback',
+            npsDashboard: 'NPS Dashboard',
+            npsSummary: 'NPS Summary',
+            totalResponses: 'Total Responses',
+            avgScore: 'Average Score',
+            promoters: 'Promoters (9-10)',
+            passives: 'Passives (7-8)',
+            detractors: 'Detractors (0-6)',
+            npsScore: 'NPS Score',
+            trend: 'Trend',
+            feedbackList: 'Feedback List',
+            allTypes: 'All Types',
+            last7Days: 'Last 7 Days',
+            last30Days: 'Last 30 Days',
+            last90Days: 'Last 90 Days',
+            noFeedbackYet: 'No feedback yet',
+            scoreDistribution: 'Score Distribution'
+        },
+
         // 注册页面
         register: {
             pageTitle: 'Register - IMVU Analytics',
@@ -1271,6 +1376,7 @@ const translations = {
             backToDashboard: '返回首页',
             profile: '个人中心',
             onboarding: '新手引导',
+            blog: '博客',
             
             // 推广工具页面
             promoTool: {
@@ -1320,6 +1426,32 @@ const translations = {
             register: '注册',
             logout: '退出登录',
             onboarding: '新手引导'
+        },
+        
+        // 数据导出
+        export: {
+            title: '导出数据',
+            csv: '导出 CSV',
+            excel: '导出 Excel',
+            proOnly: 'Excel导出为Pro功能',
+            limitReached: '已达到每日导出上限',
+            quota: '导出配额',
+            remaining: '剩余',
+            used: '已使用',
+            of: '/',
+            perDay: '/天',
+            dropdown: {
+                dashboard: '导出仪表盘',
+                products: '导出产品'
+            }
+        },
+        
+        // 支付/催款提醒
+        paymentAlert: {
+            pastDueTitle: '需要更新支付方式',
+            pastDueMessage: '您的上次付款未能成功。请更新支付方式以继续享受Pro功能。',
+            updatePayment: '更新支付',
+            dismiss: '关闭'
         },
         
         // 联系我们页面
@@ -1978,6 +2110,162 @@ const translations = {
             current: '当前'
         },
 
+        // NPS 弹窗
+        nps: {
+            title: 'We\'d love your feedback!',
+            subtitle: 'Help us improve IMVU Analytics',
+            scoreQuestion: 'How likely are you to recommend IMVU Analytics to a friend?',
+            notLikely: 'Not likely at all',
+            veryLikely: 'Very likely',
+            typeQuestion: 'What type of feedback do you have?',
+            typeBug: 'Bug Report',
+            typeBugDesc: 'Something not working',
+            typeFeature: 'Feature',
+            typeFeatureDesc: 'New idea or suggestion',
+            typeGeneral: 'General',
+            typeGeneralDesc: 'Other thoughts',
+            feedbackQuestion: 'What could we do better?',
+            feedbackPlaceholder: 'Share your thoughts (minimum 10 characters)',
+            feedbackHint: 'Your feedback helps us improve the product for everyone',
+            feedbackOptional: 'This step is optional, you can skip',
+            thanksTitle: 'Thank you!',
+            thanksMessage: 'Your feedback is invaluable to us. We\'ll use it to make IMVU Analytics even better!',
+            back: 'Back',
+            next: 'Next',
+            skip: 'Skip',
+            submit: 'Submit'
+        },
+        
+        // 推荐系统增强
+        referral: {
+            // 里程碑
+            milestones: 'Milestones',
+            milestoneProgress: 'Milestone Progress',
+            nextMilestone: 'Next Milestone',
+            claimReward: 'Claim Reward',
+            claimed: 'Claimed',
+            locked: 'Locked',
+            referralToGo: 'referrals to go',
+            // 里程碑名称
+            milestone3: 'Promoter Pro',
+            milestone5: 'Elite Promoter',
+            milestone10: 'Star Promoter',
+            milestone20: 'Legendary Promoter',
+            // 排行榜
+            leaderboard: 'Leaderboard',
+            yourRank: 'Your Rank',
+            topPromoters: 'Top Promoters',
+            anonymous: 'Anonymous',
+            anonymousMode: 'Anonymous Mode',
+            anonymousModeDesc: 'Hide your name from the leaderboard',
+            // 统计
+            totalReferrals: 'Total Referrals',
+            successfulReferrals: 'Successful Referrals',
+            pendingRewards: 'Pending Rewards',
+            // 增强功能
+            enhancedReferral: 'Enhanced Referral',
+            shareProgress: 'Share your progress with friends!'
+        },
+        
+        // 管理后台 - 反馈
+        admin: {
+            feedback: 'Feedback',
+            npsDashboard: 'NPS Dashboard',
+            npsSummary: 'NPS Summary',
+            totalResponses: 'Total Responses',
+            avgScore: 'Average Score',
+            promoters: 'Promoters (9-10)',
+            passives: 'Passives (7-8)',
+            detractors: 'Detractors (0-6)',
+            npsScore: 'NPS Score',
+            trend: 'Trend',
+            feedbackList: 'Feedback List',
+            allTypes: 'All Types',
+            last7Days: 'Last 7 Days',
+            last30Days: 'Last 30 Days',
+            last90Days: 'Last 90 Days',
+            noFeedbackYet: 'No feedback yet',
+            scoreDistribution: 'Score Distribution'
+        },
+
+        // NPS 弹窗
+        nps: {
+            title: '我们很期待您的反馈！',
+            subtitle: '帮助我们改进 IMVU Analytics',
+            scoreQuestion: '您向朋友推荐 IMVU Analytics 的可能性有多大？',
+            notLikely: '完全不可能',
+            veryLikely: '非常可能',
+            typeQuestion: '您有什么类型的反馈？',
+            typeBug: 'Bug报告',
+            typeBugDesc: '功能不工作',
+            typeFeature: '功能建议',
+            typeFeatureDesc: '新想法或建议',
+            typeGeneral: '其他',
+            typeGeneralDesc: '其他想法',
+            feedbackQuestion: '我们还能做什么改进？',
+            feedbackPlaceholder: '分享您的想法（至少10个字）',
+            feedbackHint: '您的反馈帮助我们为每个人改进产品',
+            feedbackOptional: '此步骤可选，可以跳过',
+            thanksTitle: '谢谢您！',
+            thanksMessage: '您的反馈对我们非常宝贵。我们会用它来让 IMVU Analytics 变得更好！',
+            back: '上一步',
+            next: '下一步',
+            skip: '跳过',
+            submit: '提交'
+        },
+        
+        // 推荐系统增强
+        referral: {
+            // 里程碑
+            milestones: '里程碑',
+            milestoneProgress: '里程碑进度',
+            nextMilestone: '下一个里程碑',
+            claimReward: '领取奖励',
+            claimed: '已领取',
+            locked: '未解锁',
+            referralToGo: '人推荐可达成',
+            // 里程碑名称
+            milestone3: '推广达人',
+            milestone5: '精英推广',
+            milestone10: '明星推广',
+            milestone20: '传奇推广',
+            // 排行榜
+            leaderboard: '排行榜',
+            yourRank: '您的排名',
+            topPromoters: '推荐达人榜',
+            anonymous: '匿名用户',
+            anonymousMode: '匿名模式',
+            anonymousModeDesc: '在排行榜中隐藏您的名字',
+            // 统计
+            totalReferrals: '总推荐数',
+            successfulReferrals: '成功推荐',
+            pendingRewards: '待发放奖励',
+            // 增强功能
+            enhancedReferral: '推荐计划升级',
+            shareProgress: '与朋友分享您的进度！'
+        },
+        
+        // 管理后台 - 反馈
+        admin: {
+            feedback: '用户反馈',
+            npsDashboard: 'NPS 仪表盘',
+            npsSummary: 'NPS 汇总',
+            totalResponses: '总反馈数',
+            avgScore: '平均分',
+            promoters: '推荐者 (9-10)',
+            passives: '中立者 (7-8)',
+            detractors: '批评者 (0-6)',
+            npsScore: 'NPS 分数',
+            trend: '趋势',
+            feedbackList: '反馈列表',
+            allTypes: '全部类型',
+            last7Days: '最近7天',
+            last30Days: '最近30天',
+            last90Days: '最近90天',
+            noFeedbackYet: '暂无反馈',
+            scoreDistribution: '评分分布'
+        },
+
         // 注册页面
         register: {
             pageTitle: '注册 - IMVU Analytics',
@@ -2477,11 +2765,38 @@ const translations = {
             profile: 'Profil',
             onboarding: 'Guide de démarrage',
             guide: 'Guide utilisateur',
+            blog: 'Blog',
             contact: 'Contactez-nous',
             subscribe: 'Abonnement',
             login: 'Connexion',
             register: 'Inscription',
             logout: 'Déconnexion'
+        },
+        
+        // Export de données
+        export: {
+            title: 'Exporter les Données',
+            csv: 'Exporter CSV',
+            excel: 'Exporter Excel',
+            proOnly: 'L\'export Excel est une fonctionnalité Pro',
+            limitReached: 'Limite d\'export quotidienne atteinte',
+            quota: 'Quota d\'export',
+            remaining: 'restant',
+            used: 'utilisé',
+            of: 'sur',
+            perDay: '/jour',
+            dropdown: {
+                dashboard: 'Exporter le tableau de bord',
+                products: 'Exporter les produits'
+            }
+        },
+        
+        // Alerte de paiement
+        paymentAlert: {
+            pastDueTitle: 'Paiement requis',
+            pastDueMessage: 'Votre dernier paiement n\'a pas abouti. Veuillez mettre à jour votre méthode de paiement pour continuer à profiter des fonctionnalités Pro.',
+            updatePayment: 'Mettre à jour le paiement',
+            dismiss: 'Fermer'
         },
         
         // Page Contactez-nous
