@@ -314,7 +314,9 @@ def get_current_user(
         "trial_days_left": trial_days_left,
         "has_premium_access": user.has_premium_access,
         # 推荐码
-        "referral_code": user.referral_code
+        "referral_code": user.referral_code,
+        # 竞品分析隐私设置
+        "opt_out_benchmark": user.opt_out_benchmark or False
     }
 
 

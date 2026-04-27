@@ -7,11 +7,14 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
+import logging
 
 from app.database import get_db
 from app.services.auth import AuthService, get_current_user
 from app.services.activity_tracker import activity_tracker
 from app.core.limiter import limiter
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/auth", tags=["认证"])
 
@@ -639,5 +642,49 @@ async def set_report_preference(
         "message": "报告订阅偏好已更新",
         "data": {
             "report_preference": user.report_preference
+        }
+    }
+
+
+# ==================== 竞品分析隐私设置 ====================
+
+class BenchmarkPreferenceRequest(BaseModel):
+    """竞品分析隐私设置请求"""
+    opt_out_benchmark: bool = Field(..., description="是否不参与行业基准计算")
+
+
+@router.post("/benchmark-preference")
+async def set_benchmark_preference(
+    request: BenchmarkPreferenceRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    设置竞品分析隐私偏好
+    
+    - **opt_out_benchmark**: 是否不参与行业基准计算
+    """
+    from app.database import UserRepository
+    
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    # 更新隐私偏好
+    user.opt_out_benchmark = request.opt_out_benchmark
+    db.commit()
+    
+    logger.info(f"用户 {user.email} 更新竞品分析隐私设置为: opt_out_benchmark={request.opt_out_benchmark}")
+    
+    return {
+        "success": True,
+        "message": "竞品分析隐私设置已更新" if not request.opt_out_benchmark else "您已退出行业基准计算",
+        "data": {
+            "opt_out_benchmark": user.opt_out_benchmark
         }
     }

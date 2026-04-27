@@ -389,6 +389,8 @@
         <a href="/diagnosis"><i class="bi bi-search me-2"></i><span data-i18n="nav.diagnosis">Deep Analysis</span></a>
         <a href="/compare"><i class="bi bi-bar-chart-steps me-2"></i><span data-i18n="nav.compare">Data Compare</span></a>
         <a href="/report"><i class="bi bi-file-earmark-text me-2"></i><span data-i18n="nav.report">Reports</span></a>
+        <a href="/insights"><i class="bi bi-lightbulb me-2"></i><span data-i18n="nav.insights">AI Insights</span></a>
+        <a href="/benchmark"><i class="bi bi-people me-2"></i><span data-i18n="nav.benchmark">竞品分析</span></a>
         <a href="/profile" class="active"><i class="bi bi-person me-2"></i><span data-i18n="nav.profile">Profile</span></a>
     </nav>
 
@@ -451,6 +453,36 @@
                 </div>
             </div>
 
+            <!-- 功能配额卡片 -->
+            <div class="profile-card" id="quotaCard">
+                <h5><i class="bi bi-speedometer2 me-2"></i><span data-i18n="profile.quotas">API Quotas</span></h5>
+                
+                <div id="quotaLoading" class="text-center py-3">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    <span data-i18n="profile.loadingQuotas">Loading quotas...</span>
+                </div>
+                
+                <div id="quotaContent" class="d-none">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge me-2" id="tierBadge" style="font-size: 14px; padding: 8px 16px;">-</span>
+                        <small class="text-muted" id="tierDescription"></small>
+                    </div>
+                    
+                    <div id="quotaList" class="list-group list-group-flush">
+                        <!-- 动态生成配额列表 -->
+                    </div>
+                    
+                    <div id="upgradeQuotaSection" class="mt-3 d-none">
+                        <a href="/pricing" class="btn btn-primary btn-sm">
+                            <i class="bi bi-arrow-up-circle me-1"></i>
+                            <span data-i18n="profile.upgradeToPro">Upgrade to Pro</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div id="quotaError" class="alert alert-danger d-none" role="alert"></div>
+            </div>
+
             <!-- 报告订阅设置卡片 -->
             <div class="profile-card">
                 <h5><i class="bi bi-bell me-2"></i><span data-i18n="profile.reportSubscription">Report Subscription</span></h5>
@@ -492,6 +524,31 @@
                     </div>
                     <button type="button" class="btn btn-primary btn-sm" id="saveReportPrefBtn" onclick="saveReportPreference()">
                         <i class="bi bi-check-lg me-2"></i><span data-i18n="profile.savePreference">Save Preference</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 竞品分析隐私设置卡片 -->
+            <div class="profile-card">
+                <h5><i class="bi bi-shield-lock me-2"></i><span data-i18n="benchmark.privacy">竞品分析隐私设置</span></h5>
+                
+                <div id="benchmarkAlert" class="alert d-none" role="alert"></div>
+                
+                <p class="text-muted mb-3" style="font-size:14px;" data-i18n="benchmark.privacyHint">
+                    您的产品数据将用于生成行业基准，帮助您了解在行业中的位置。关闭此选项后，您的数据将不会参与聚合计算。
+                </p>
+                
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="optOutBenchmark">
+                    <label class="form-check-label" for="optOutBenchmark">
+                        <span data-i18n="benchmark.optOutLabel">不参与行业基准计算</span>
+                        <small class="text-muted d-block" data-i18n="benchmark.optOutHint">开启后您的产品数据不会被用于生成行业统计</small>
+                    </label>
+                </div>
+                
+                <div class="mt-3">
+                    <button type="button" class="btn btn-primary btn-sm" id="saveBenchmarkPrefBtn" onclick="saveBenchmarkPreference()">
+                        <i class="bi bi-check-lg me-2"></i><span data-i18n="benchmark.savePreference">保存设置</span>
                     </button>
                 </div>
             </div>
@@ -635,8 +692,14 @@
             // 加载推荐统计
             await loadReferralStats();
             
+            // 加载配额信息
+            await loadQuotas();
+            
             // 加载报告订阅偏好
             await loadReportPreference();
+            
+            // 加载竞品分析隐私设置
+            await loadBenchmarkPreference();
 
             // 隐藏加载状态
             document.getElementById('loadingOverlay').style.display = 'none';
@@ -661,6 +724,131 @@
                 }
             } catch (e) {
                 console.error('加载推荐统计失败:', e);
+            }
+        }
+
+        // 加载配额信息
+        async function loadQuotas() {
+            const loadingEl = document.getElementById('quotaLoading');
+            const contentEl = document.getElementById('quotaContent');
+            const errorEl = document.getElementById('quotaError');
+            const tierBadge = document.getElementById('tierBadge');
+            const tierDesc = document.getElementById('tierDescription');
+            const quotaList = document.getElementById('quotaList');
+            const upgradeSection = document.getElementById('upgradeQuotaSection');
+            
+            try {
+                const response = await fetch('/api/user/rate-limits', {
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        // 更新等级徽章
+                        const tier = data.tier;
+                        const tierDisplay = data.tier_display;
+                        const isPremium = data.is_premium;
+                        
+                        const tierBadgeClass = tier === 'admin' ? 'bg-danger' : 
+                                              tier === 'pro' ? 'bg-success' : 'bg-secondary';
+                        tierBadge.className = `badge me-2 ${tierBadgeClass}`;
+                        tierBadge.textContent = tierDisplay;
+                        
+                        const isZh = currentLang === 'zh';
+                        tierDesc.textContent = isZh 
+                            ? (isPremium ? '您正在享受高级会员权益' : '您是免费用户')
+                            : (isPremium ? 'You are enjoying premium benefits' : 'You are on free tier');
+                        
+                        // 显示升级按钮（仅免费用户）
+                        if (!isPremium) {
+                            upgradeSection.classList.remove('d-none');
+                        } else {
+                            upgradeSection.classList.add('d-none');
+                        }
+                        
+                        // 生成配额列表
+                        const quotas = data.quotas || {};
+                        const featureNames = {
+                            upload: { en: 'Data Upload', zh: '数据上传' },
+                            dashboard: { en: 'Dashboard', zh: '仪表盘' },
+                            diagnosis: { en: 'Deep Diagnosis', zh: '深度诊断' },
+                            compare: { en: 'Data Compare', zh: '数据对比' },
+                            insights: { en: 'AI Insights', zh: 'AI洞察' },
+                            report: { en: 'Report Generation', zh: '报告生成' },
+                            promo_card: { en: 'Promo Card', zh: '推广卡片' },
+                            export: { en: 'Data Export', zh: '数据导出' }
+                        };
+                        
+                        let quotaHtml = '';
+                        for (const [feature, info] of Object.entries(quotas)) {
+                            const name = featureNames[feature] || { en: feature, zh: feature };
+                            const displayName = isZh ? name.zh : name.en;
+                            
+                            const usedPercent = info.limit > 0 ? Math.min((info.used / info.limit) * 100, 100) : 0;
+                            const remaining = info.remaining;
+                            const resetIn = info.reset_in_seconds;
+                            const resetText = formatResetTime(resetIn);
+                            
+                            const progressClass = usedPercent > 80 ? 'bg-danger' : usedPercent > 50 ? 'bg-warning' : 'bg-success';
+                            
+                            quotaHtml += `
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span>${displayName}</span>
+                                        <small class="text-muted">${remaining} / ${info.limit} ${isZh ? '剩余' : 'remaining'}</small>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar ${progressClass}" role="progressbar" 
+                                             style="width: ${usedPercent}%" 
+                                             aria-valuenow="${info.used}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="${info.limit}"></div>
+                                    </div>
+                                    ${resetText ? `<small class="text-muted">${resetText}</small>` : ''}
+                                </div>
+                            `;
+                        }
+                        
+                        quotaList.innerHTML = quotaHtml || `
+                            <div class="text-muted text-center py-3">
+                                ${isZh ? '暂无配额信息' : 'No quota information available'}
+                            </div>
+                        `;
+                        
+                        // 显示内容
+                        loadingEl.classList.add('d-none');
+                        contentEl.classList.remove('d-none');
+                    }
+                } else {
+                    throw new Error('Failed to load quotas');
+                }
+            } catch (e) {
+                console.error('加载配额失败:', e);
+                loadingEl.classList.add('d-none');
+                errorEl.textContent = currentLang === 'zh' 
+                    ? '无法加载配额信息' 
+                    : 'Failed to load quota information';
+                errorEl.classList.remove('d-none');
+            }
+        }
+        
+        // 格式化重置时间
+        function formatResetTime(seconds) {
+            if (!seconds || seconds <= 0) return '';
+            const isZh = currentLang === 'zh';
+            
+            if (seconds >= 86400) {
+                const days = Math.ceil(seconds / 86400);
+                return isZh ? `${days}天后重置` : `Resets in ${days} day${days > 1 ? 's' : ''}`;
+            } else if (seconds >= 3600) {
+                const hours = Math.ceil(seconds / 3600);
+                return isZh ? `${hours}小时后重置` : `Resets in ${hours} hour${hours > 1 ? 's' : ''}`;
+            } else if (seconds >= 60) {
+                const mins = Math.ceil(seconds / 60);
+                return isZh ? `${mins}分钟后重置` : `Resets in ${mins} minute${mins > 1 ? 's' : ''}`;
+            } else {
+                return isZh ? `${seconds}秒后重置` : `Resets in ${seconds} second${seconds > 1 ? 's' : ''}`;
             }
         }
 
@@ -753,6 +941,56 @@
             setTimeout(() => {
                 el.classList.add('d-none');
             }, 5000);
+        }
+        
+        // 加载竞品分析隐私设置
+        async function loadBenchmarkPreference() {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                if (data.opt_out_benchmark !== undefined) {
+                    document.getElementById('optOutBenchmark').checked = data.opt_out_benchmark;
+                }
+            } catch (e) {
+                console.error('Failed to load benchmark preference:', e);
+            }
+        }
+        
+        // 保存竞品分析隐私设置
+        async function saveBenchmarkPreference() {
+            const optOut = document.getElementById('optOutBenchmark').checked;
+            const btn = document.getElementById('saveBenchmarkPrefBtn');
+            const alertEl = document.getElementById('benchmarkAlert');
+            
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+            }
+            
+            try {
+                const response = await fetch('/api/auth/benchmark-preference', {
+                    method: 'POST',
+                    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ opt_out_benchmark: optOut })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('benchmarkAlert', 'success', currentLang === 'zh' ? '✅ 隐私设置已保存！' : '✅ Privacy setting saved!');
+                } else {
+                    showAlert('benchmarkAlert', 'danger', data.message || (currentLang === 'zh' ? '❌ 保存失败' : '❌ Save failed'));
+                }
+            } catch (e) {
+                showAlert('benchmarkAlert', 'danger', currentLang === 'zh' ? '❌ 保存失败: ' + e.message : '❌ Save failed: ' + e.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-check-lg me-2"></i><span data-i18n="benchmark.savePreference">保存设置</span>';
+                }
+            }
         }
         
         // 复制推荐码

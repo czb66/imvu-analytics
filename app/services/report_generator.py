@@ -956,6 +956,81 @@ def _send_antifraud_admin_alert(suspicious_codes: list, suspended_codes: list):
         logger.error(f"发送防欺诈警报失败: {e}")
 
 
+def calculate_industry_benchmarks():
+    """
+    定时计算行业基准数据
+    每天凌晨执行，聚合所有用户的产品数据生成行业基准
+    """
+    logger.info("开始执行行业基准计算任务...")
+    
+    try:
+        from app.services.benchmark import benchmark_service
+        
+        with get_db_context() as db:
+            result = benchmark_service.calculate_benchmarks(db)
+            
+            if result.get('status') == 'success':
+                logger.info(f"行业基准计算成功: 处理了 {result.get('categories_processed', 0)} 个类别, "
+                          f"共 {result.get('total_products', 0)} 个产品, "
+                          f"参与用户 {result.get('total_users', 0)} 人")
+                
+                # 通知订阅用户基准数据已更新
+                _notify_subscribers_benchmark_updated()
+            else:
+                logger.warning(f"行业基准计算未完成: {result.get('status')}")
+                
+    except Exception as e:
+        logger.error(f"行业基准计算任务失败: {e}", exc_info=True)
+
+
+def _notify_subscribers_benchmark_updated():
+    """
+    通知订阅用户行业基准已更新
+    """
+    try:
+        # 获取所有活跃订阅用户
+        with get_db_context() as db:
+            from app.models import User
+            
+            subscribers = db.query(User).filter(
+                User.subscription_status == 'active',
+                User.is_active == True,
+                User.opt_out_benchmark == False
+            ).all()
+            
+            if not subscribers:
+                return
+            
+            admin_emails = config.ADMIN_EMAIL.split(',') if config.ADMIN_EMAIL else []
+            
+            # 构建邮件内容
+            subject = f"📊 {config.APP_NAME} - 行业基准数据已更新"
+            
+            body = f"""
+            <h2>行业基准数据更新通知</h2>
+            <p>您好，</p>
+            <p>IMVU Analytics 的行业基准数据已更新。您的产品现在可以与最新的行业数据进行对比。</p>
+            <p><a href="{config.SITE_URL}/benchmark" style="background-color: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">查看竞品分析</a></p>
+            <hr>
+            <p><small>此邮件由 {config.APP_NAME} 自动发送</small></p>
+            """
+            
+            # 发送邮件给管理员（让他们知道更新了）
+            from app.services.email_service import email_service
+            for admin_email in admin_emails:
+                try:
+                    email_service.send_email(
+                        to_email=admin_email,
+                        subject=f"[基准更新] {subject}",
+                        html_content=f"<p>行业基准数据已更新，共有 {len(subscribers)} 位订阅用户。</p>{body}"
+                    )
+                except Exception as email_err:
+                    logger.warning(f"发送基准更新通知邮件失败: {email_err}")
+                    
+    except Exception as e:
+        logger.error(f"发送基准更新通知失败: {e}")
+
+
 def start_scheduler():
     """启动定时任务调度器"""
     try:
@@ -1018,6 +1093,20 @@ def start_scheduler():
             replace_existing=True,
             max_instances=1,
             misfire_grace_time=1800,
+        )
+        
+        # 添加行业基准计算任务 - 每天凌晨 UTC 2:00 (北京时间 10:00)
+        scheduler.add_job(
+            func=calculate_industry_benchmarks,
+            trigger=CronTrigger(
+                hour=2,  # UTC 2:00 = 北京时间 10:00
+                minute=0,
+            ),
+            id='industry_benchmark_calculation',
+            name='行业基准计算',
+            replace_existing=True,
+            max_instances=1,
+            misfire_grace_time=3600,
         )
         
         scheduler.start()

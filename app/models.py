@@ -63,6 +63,9 @@ class User(Base):
     trial_reminder_1day_sent = Column(Boolean, default=False)  # 试用期1天提醒已发
     trial_reminder_recall_sent = Column(Boolean, default=False)  # 试用期召回邮件已发
     
+    # 隐私设置 - 不参与行业基准计算
+    opt_out_benchmark = Column(Boolean, default=False)  # 不参与行业基准计算
+    
     # 关联数据
     datasets = relationship("Dataset", back_populates="owner", cascade="all, delete-orphan")
     
@@ -287,3 +290,23 @@ class UserActivity(Base):
 
     def __repr__(self):
         return f"<UserActivity user_id={self.user_id} action={self.action}>"
+
+
+class IndustryBenchmark(Base):
+    """行业基准数据模型 - 存储聚合后的行业统计数据"""
+    __tablename__ = "industry_benchmarks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    category = Column(String(100), nullable=False, index=True)  # 产品类别
+    metric = Column(String(50), nullable=False)  # 指标名：avg_sales, median_sales, avg_profit_margin 等
+    value = Column(Float, nullable=False)  # 指标值
+    percentile_25 = Column(Float, nullable=True)  # 25分位
+    percentile_50 = Column(Float, nullable=True)  # 50分位（中位数）
+    percentile_75 = Column(Float, nullable=True)  # 75分位
+    percentile_90 = Column(Float, nullable=True)  # 90分位
+    sample_size = Column(Integer, default=0)  # 样本数
+    is_sufficient = Column(Boolean, default=False)  # 样本是否足够（>=5）
+    updated_at = Column(DateTime, default=datetime.utcnow)  # 更新时间
+
+    def __repr__(self):
+        return f"<IndustryBenchmark category={self.category} metric={self.metric}>"

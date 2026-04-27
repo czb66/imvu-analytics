@@ -17,7 +17,7 @@ from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription, is_whitelisted
 from app.services.activity_tracker import activity_tracker
 from app.services.cache import get_cache
-from app.core.limiter import limiter
+from app.core.rate_limiter import check_tiered_rate_limit
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["AI洞察"])
@@ -110,7 +110,6 @@ def _get_datasets_from_request(user_id: int = None) -> List[Dict]:
 
 
 @router.post("/dashboard")
-@limiter.limit("60/minute")  # AI洞察：60次/分钟
 async def generate_dashboard_insights(
     request: Request,
     response: Response,
@@ -118,13 +117,17 @@ async def generate_dashboard_insights(
     current_user: dict = Depends(require_subscription)
 ):
     """
-    生成仪表盘AI洞察（速率限制：60次/分钟）
+    生成仪表盘AI洞察（分层限流：free=5/hour, pro=30/hour）
     
     分析总体销售趋势、Top产品表现、核心指标异常
     缓存：30分钟（TTL=1800秒）
     
     注意：此功能需要订阅才能使用
     """
+    # 检查分层限流
+    check_result = await check_tiered_rate_limit("insights", request, current_user)
+    if hasattr(check_result, 'status_code'):
+        return check_result  # 返回限流响应
     start_time = time.time()
     user_id = current_user.get('id')
     user_email = current_user.get('email')
@@ -214,7 +217,6 @@ async def generate_dashboard_insights(
 
 
 @router.post("/diagnosis")
-@limiter.limit("60/minute")  # AI洞察：60次/分钟
 async def generate_diagnosis_insights(
     request: Request,
     response: Response,
@@ -222,13 +224,17 @@ async def generate_diagnosis_insights(
     current_user: dict = Depends(require_subscription)
 ):
     """
-    生成诊断AI洞察（速率限制：60次/分钟）
+    生成诊断AI洞察（分层限流：free=10/hour, pro=60/hour）
     
     分析销售诊断、流量漏斗、异常检测
     缓存：30分钟（TTL=1800秒）
     
     注意：此功能需要订阅才能使用
     """
+    # 检查分层限流
+    check_result = await check_tiered_rate_limit("diagnosis", request, current_user)
+    if hasattr(check_result, 'status_code'):
+        return check_result  # 返回限流响应
     start_time = time.time()
     user_id = current_user.get('id')
     user_email = current_user.get('email')
@@ -331,7 +337,6 @@ async def generate_diagnosis_insights(
 
 
 @router.post("/compare")
-@limiter.limit("60/minute")  # AI洞察：60次/分钟
 async def generate_compare_insights(
     request: Request,
     response: Response,
@@ -339,13 +344,17 @@ async def generate_compare_insights(
     current_user: dict = Depends(require_subscription)
 ):
     """
-    生成对比AI洞察（速率限制：60次/分钟）
+    生成对比AI洞察（分层限流：free=10/hour, pro=60/hour）
     
     分析多数据集对比结论、排名变化、趋势总结
     缓存：30分钟（TTL=1800秒）
     
     注意：此功能需要订阅才能使用
     """
+    # 检查分层限流
+    check_result = await check_tiered_rate_limit("compare", request, current_user)
+    if hasattr(check_result, 'status_code'):
+        return check_result  # 返回限流响应
     start_time = time.time()
     user_id = current_user.get('id')
     user_email = current_user.get('email')

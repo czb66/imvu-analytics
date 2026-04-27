@@ -9,15 +9,12 @@ from sqlalchemy import func
 from datetime import datetime, timedelta
 from typing import Optional
 from pydantic import BaseModel, Field
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
 import json
 import logging
 
 from app.database import get_db
 from app.models import PromoCardStat, PromoCardClick, User
-from app.core.limiter import limiter
+from app.core.rate_limiter import check_tiered_rate_limit, tiered_limiter, get_user_tier
 from app.services.activity_tracker import activity_tracker
 
 router = APIRouter(
@@ -75,25 +72,30 @@ class PromoCardStatsResponse(BaseModel):
 # ==================== API路由 ====================
 
 @router.post("/stats")
-@limiter.limit("10/minute")  # 统计接口：10次/分钟
 async def save_stats(
     request: Request,
     db: Session = Depends(get_db)
 ):
     """
-    保存推广卡片生成统计（速率限制：10次/分钟）
+    保存推广卡片生成统计（分层限流：free=10/day, pro=50/day）
     返回 stat_id 用于追踪链接
     
     支持可选认证 - 如果登录则关联用户身份
     """
+    # 获取可选用户信息
+    user_info = get_optional_user(request, db)
+    
+    # 如果用户已登录，检查分层限流
+    if user_info:
+        check_result = await check_tiered_rate_limit("promo_card", request, user_info)
+        if hasattr(check_result, 'status_code'):
+            return check_result  # 返回限流响应
+    
     try:
         data = await request.json()
         
         # 提取数据
         products = data.get("products", [])
-        
-        # 获取可选用户信息
-        user_info = get_optional_user(request, db)
         
         # 获取IP地址
         ip_address = request.client.host if request.client else None
@@ -247,21 +249,26 @@ async def get_stats(
 
 
 @router.post("/stats-query")
-@limiter.limit("10/minute")  # 查询接口：10次/分钟
 async def query_stats(
     request: Request,
     stats_request: PromoCardStatsRequest,
     db: Session = Depends(get_db)
 ):
     """
-    查询推广卡片统计数据（速率限制：10次/分钟）
+    查询推广卡片统计数据（分层限流：free=10/day, pro=50/day）
     
     支持可选认证 - 如果登录则关联用户身份
     """
+    # 获取可选用户信息
+    user_info = get_optional_user(request, db)
+    
+    # 如果用户已登录，检查分层限流
+    if user_info:
+        check_result = await check_tiered_rate_limit("promo_card", request, user_info)
+        if hasattr(check_result, 'status_code'):
+            return check_result  # 返回限流响应
+    
     try:
-        # 获取可选用户信息
-        user_info = get_optional_user(request, db)
-        
         stats_data = {
             "creator_id": stats_request.creator_id,
             "product_id": stats_request.product_id,
@@ -288,16 +295,23 @@ async def query_stats(
 
 
 @router.post("/track-event")
-@limiter.limit("30/minute")  # 追踪接口：30次/分钟
 async def track_event(
     request: Request,
     db: Session = Depends(get_db)
 ):
     """
-    追踪推广卡片事件（速率限制：30次/分钟）
+    追踪推广卡片事件（分层限流：free=10/day, pro=50/day）
     
     支持可选认证 - 如果登录则关联用户身份
     """
+    # 获取可选用户信息
+    user_info = get_optional_user(request, db)
+    
+    # 如果用户已登录，检查分层限流
+    if user_info:
+        check_result = await check_tiered_rate_limit("promo_card", request, user_info)
+        if hasattr(check_result, 'status_code'):
+            return check_result  # 返回限流响应
     try:
         data = await request.json()
         

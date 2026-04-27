@@ -16,7 +16,7 @@ import os
 
 import config
 from app.database import init_db, engine
-from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription, admin, contact, promo_card
+from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription, admin, contact, promo_card, benchmark, user
 from app.services.email_service import email_service
 from app.services.report_generator import scheduler, start_scheduler, stop_scheduler
 from app.services.cache import init_cache, get_cache
@@ -59,16 +59,17 @@ templates = Jinja2Templates(directory="app/templates")
 # 注册路由
 app.include_router(auth.router)  # 认证路由
 app.include_router(subscription.router)  # 订阅路由
+app.include_router(user.router)  # 用户配额路由
 app.include_router(upload.router)
 app.include_router(dashboard.router)
 app.include_router(diagnosis.router)
 app.include_router(report.router)
 app.include_router(compare.router)
 app.include_router(insights.router)
+app.include_router(benchmark.router)  # 竞品分析路由
 app.include_router(promo_card.router)  # 推广卡片路由
 app.include_router(admin.router)  # 后台管理路由
 app.include_router(contact.router)  # 联系我们路由
-app.include_router(promo_card.router)  # 推广卡片统计路由
 
 
 @app.on_event("startup")
@@ -143,6 +144,12 @@ async def promo_card_generator(request: Request):
     return templates.TemplateResponse("promo_card.html", {"request": request})
 
 
+@app.get("/benchmark", response_class=HTMLResponse)
+async def benchmark_page(request: Request):
+    """竞品分析页面"""
+    return templates.TemplateResponse("benchmark.html", {"request": request})
+
+
 @app.get("/api/status")
 async def api_status():
     """API状态端点"""
@@ -158,6 +165,7 @@ async def api_status():
             "report": "/api/report/",
             "compare": "/api/compare/",
             "insights": "/api/insights/",
+            "benchmark": "/api/benchmark/",
             "docs": "/docs"
         }
     }

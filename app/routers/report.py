@@ -2,7 +2,7 @@
 报告路由 - 报告生成和管理
 """
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends, Request
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from typing import Optional, List
@@ -19,6 +19,7 @@ from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
 from app.services.download_token import generate_download_token, verify_download_token
 from app.services.activity_tracker import activity_tracker
+from app.core.rate_limiter import check_tiered_rate_limit
 import html as html_module
 
 logger = logging.getLogger(__name__)
@@ -53,8 +54,18 @@ def _product_to_dict(p) -> dict:
 
 
 @router.get("/generate")
-async def generate_report_html(current_user: dict = Depends(require_subscription)):
-    """生成HTML报告"""
+async def generate_report_html(
+    request: Request,
+    current_user: dict = Depends(require_subscription)
+):
+    """
+    生成HTML报告（分层限流：free=3/day, pro=20/day）
+    """
+    # 检查分层限流
+    check_result = await check_tiered_rate_limit("report", request, current_user)
+    if hasattr(check_result, 'status_code'):
+        return check_result  # 返回限流响应
+    
     user_id = current_user.get('id')
     
     # 记录生成报告行为

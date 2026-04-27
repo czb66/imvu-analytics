@@ -2,7 +2,7 @@
 数据对比路由 - 多数据集对比分析
 """
 
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends, Request
 from typing import List, Optional
 import logging
 from datetime import datetime
@@ -11,6 +11,7 @@ from app.database import get_db_context, ProductDataRepository, DatasetRepositor
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
 from app.services.activity_tracker import activity_tracker
+from app.core.rate_limiter import check_tiered_rate_limit
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/compare", tags=["数据对比"])
@@ -203,14 +204,20 @@ async def get_datasets(current_user: dict = Depends(require_subscription)):
 
 @router.get("/")
 async def compare_datasets(
+    request: Request,
     dataset_ids: List[int] = Query(..., min_length=2, max_length=10),
     current_user: dict = Depends(require_subscription)
 ):
     """
-    对比多个数据集
+    对比多个数据集（分层限流：free=10/hour, pro=60/hour）
     
     - **dataset_ids**: 数据集ID列表（2-10个）
     """
+    # 检查分层限流
+    check_result = await check_tiered_rate_limit("compare", request, current_user)
+    if hasattr(check_result, 'status_code'):
+        return check_result  # 返回限流响应
+    
     user_id = current_user.get('id')
     
     # 记录查看对比行为

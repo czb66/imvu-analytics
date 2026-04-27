@@ -2,7 +2,7 @@
 诊断路由 - 提供深度诊断数据
 """
 
-from fastapi import APIRouter, Query, HTTPException, Depends
+from fastapi import APIRouter, Query, HTTPException, Depends, Request
 from typing import Optional
 import logging
 
@@ -11,6 +11,7 @@ from app.services.analytics import AnalyticsService
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
 from app.services.activity_tracker import activity_tracker
+from app.core.rate_limiter import check_tiered_rate_limit
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/diagnosis", tags=["诊断"])
@@ -35,8 +36,18 @@ def _product_to_dict(p) -> dict:
 
 
 @router.get("/price-range")
-async def get_price_range_analysis(current_user: dict = Depends(require_subscription)):
-    """价格区间分析"""
+async def get_price_range_analysis(
+    request: Request,
+    current_user: dict = Depends(require_subscription)
+):
+    """
+    价格区间分析（分层限流：free=10/hour, pro=60/hour）
+    """
+    # 检查分层限流
+    check_result = await check_tiered_rate_limit("diagnosis", request, current_user)
+    if hasattr(check_result, 'status_code'):
+        return check_result  # 返回限流响应
+    
     user_id = current_user.get('id')
     
     # 记录查看诊断行为

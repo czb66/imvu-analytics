@@ -10,7 +10,7 @@ from typing import Generator
 from datetime import datetime
 import config
 
-from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User, PageView, PromoCardStat, PromoCardClick, UserActivity
+from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User, PageView, PromoCardStat, PromoCardClick, UserActivity, IndustryBenchmark
 
 # 数据库引擎配置
 if "sqlite" in config.DATABASE_URL:
@@ -247,6 +247,56 @@ def _run_migrations(logger):
                         conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
                     conn.commit()
                     logger.info(f"{col_name} 列添加成功")
+            
+            # 迁移 9: 添加 opt_out_benchmark 字段
+            if 'opt_out_benchmark' not in existing_columns:
+                logger.info("正在添加 opt_out_benchmark 列到 users 表...")
+                if "sqlite" in config.DATABASE_URL:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN opt_out_benchmark BOOLEAN DEFAULT 0"))
+                else:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN opt_out_benchmark BOOLEAN DEFAULT FALSE"))
+                conn.commit()
+                logger.info("opt_out_benchmark 列添加成功")
+            
+            # 迁移 10: 创建 industry_benchmarks 表
+            if 'industry_benchmarks' not in table_names:
+                logger.info("正在创建 industry_benchmarks 表...")
+                if "sqlite" in config.DATABASE_URL:
+                    conn.execute(text("""
+                        CREATE TABLE industry_benchmarks (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            category VARCHAR(100) NOT NULL,
+                            metric VARCHAR(50) NOT NULL,
+                            value FLOAT NOT NULL,
+                            percentile_25 FLOAT,
+                            percentile_50 FLOAT,
+                            percentile_75 FLOAT,
+                            percentile_90 FLOAT,
+                            sample_size INTEGER DEFAULT 0,
+                            is_sufficient BOOLEAN DEFAULT 0,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """))
+                    conn.execute(text("CREATE INDEX ix_industry_benchmarks_category ON industry_benchmarks (category)"))
+                else:
+                    conn.execute(text("""
+                        CREATE TABLE industry_benchmarks (
+                            id SERIAL PRIMARY KEY,
+                            category VARCHAR(100) NOT NULL,
+                            metric VARCHAR(50) NOT NULL,
+                            value FLOAT NOT NULL,
+                            percentile_25 FLOAT,
+                            percentile_50 FLOAT,
+                            percentile_75 FLOAT,
+                            percentile_90 FLOAT,
+                            sample_size INTEGER DEFAULT 0,
+                            is_sufficient BOOLEAN DEFAULT FALSE,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """))
+                    conn.execute(text("CREATE INDEX ix_industry_benchmarks_category ON industry_benchmarks (category)"))
+                conn.commit()
+                logger.info("industry_benchmarks 表创建成功")
             
             logger.info("数据库迁移完成")
             

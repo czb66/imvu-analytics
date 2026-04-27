@@ -3,7 +3,7 @@
 使用统一的内存缓存服务提升性能
 """
 
-from fastapi import APIRouter, Query, HTTPException, Depends, Response
+from fastapi import APIRouter, Query, HTTPException, Depends, Response, Request
 from typing import Optional
 import logging
 import time
@@ -15,6 +15,7 @@ from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
 from app.services.activity_tracker import activity_tracker
 from app.services.cache import get_cache
+from app.core.rate_limiter import check_tiered_rate_limit
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/dashboard", tags=["仪表盘"])
@@ -103,8 +104,19 @@ def _clear_user_cache(user_id: int = None):
 
 
 @router.get("/summary")
-async def get_summary(response: Response, current_user: dict = Depends(require_subscription)):
-    """获取核心指标汇总"""
+async def get_summary(
+    request: Request,
+    response: Response,
+    current_user: dict = Depends(require_subscription)
+):
+    """
+    获取核心指标汇总（分层限流：free=30/hour, pro=120/hour）
+    """
+    # 检查分层限流
+    check_result = await check_tiered_rate_limit("dashboard", request, current_user)
+    if hasattr(check_result, 'status_code'):
+        return check_result  # 返回限流响应
+    
     start_time = time.time()
     user_id = current_user.get('id')
     logger.info(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 开始")

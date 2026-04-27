@@ -2,7 +2,7 @@
 文件上传路由 - 处理XML文件上传
 """
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, Form, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form, Depends, Request
 from fastapi.responses import JSONResponse
 from typing import List, Optional
 import tempfile
@@ -17,6 +17,7 @@ from app.services.subscription_check import require_subscription
 from app.routers.dashboard import _clear_user_cache  # 导入缓存清除函数
 from app.services.cache import get_cache
 from app.services.activity_tracker import activity_tracker
+from app.core.rate_limiter import check_tiered_rate_limit
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/upload", tags=["上传"])
@@ -24,16 +25,22 @@ router = APIRouter(prefix="/api/upload", tags=["上传"])
 
 @router.post("/")
 async def upload_xml_file(
+    request: Request,
     file: UploadFile = File(...),
     dataset_name: Optional[str] = Form(None),
     current_user: dict = Depends(require_subscription)
 ):
     """
-    上传XML文件并解析
+    上传XML文件并解析（分层限流：free=5/day, pro=50/day）
     
     - **file**: XML格式的产品数据文件
     - **dataset_name**: 数据集名称（可选），如 "2024年1月"
     """
+    # 检查分层限流
+    check_result = await check_tiered_rate_limit("upload", request, current_user)
+    if hasattr(check_result, 'status_code'):
+        return check_result  # 返回限流响应
+    
     # 检查文件类型
     if not file.filename.endswith('.xml'):
         raise HTTPException(
