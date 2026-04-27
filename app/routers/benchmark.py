@@ -58,10 +58,9 @@ async def get_category_overview(
     """
     try:
         # 记录活动
-        activity_tracker.track(
-            user_id=current_user.get('id'),
-            action='view_benchmark_overview',
-            extra_data={'category': category}
+        activity_tracker.log_activity(
+            db, current_user.get('id'), 'view_benchmark_overview',
+            metadata={'category': category}
         )
         
         result = benchmark_service.get_category_overview(db, category)
@@ -85,12 +84,10 @@ async def get_product_ranking(
     """
     try:
         # 记录活动
-        activity_tracker.track(
-            user_id=current_user.get('id'),
-            action='view_product_ranking',
+        activity_tracker.log_activity(
+            db, current_user.get('id'), 'view_product_ranking',
             resource_type='product',
-            resource_id=request.product_id,
-            extra_data={'category': request.product_id[:3] if request.product_id else None}
+            metadata={'product_id': request.product_id}
         )
         
         product_data = request.dict()
@@ -195,10 +192,9 @@ async def get_competitive_insights(
         )
         
         # 记录活动
-        activity_tracker.track(
-            user_id=user_id,
-            action='view_competitive_insights',
-            extra_data={'insights_count': len(insights)}
+        activity_tracker.log_activity(
+            db, user_id, 'view_competitive_insights',
+            metadata={'insights_count': len(insights)}
         )
         
         return {

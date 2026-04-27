@@ -159,8 +159,12 @@ async def generate_dashboard_insights(
     
     logger.info(f"[API] 用户 {user_email} 生成仪表盘洞察 - 开始")
     
-    # 记录查看洞察行为
-    activity_tracker.log_activity(None, user_id, 'view_insights', metadata={'insight_type': 'dashboard', 'language': language})
+    # 记录查看洞察行为（异步模式，不阻塞主流程）
+    activity_tracker.log_activity(
+        None, user_id, 'view_insights', 
+        metadata={'insight_type': 'dashboard', 'language': language},
+        async_mode=True
+    )
     
     try:
         # 获取产品数据

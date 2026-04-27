@@ -50,10 +50,10 @@ async def get_price_range_analysis(
     
     user_id = current_user.get('id')
     
-    # 记录查看诊断行为
-    activity_tracker.log_activity(None, user_id, 'view_diagnosis', metadata={'analysis_type': 'price_range'})
-    
     with get_db_context() as db:
+        # 记录查看诊断行为
+        activity_tracker.log_activity(db, user_id, 'view_diagnosis', metadata={'analysis_type': 'price_range'})
+        
         repo = ProductDataRepository(db)
         products = repo.get_all(user_id=user_id)
         
@@ -74,10 +74,10 @@ async def get_conversion_funnel(current_user: dict = Depends(require_subscriptio
     """转化漏斗分析"""
     user_id = current_user.get('id')
     
-    # 记录查看诊断行为
-    activity_tracker.log_activity(None, user_id, 'view_diagnosis', metadata={'analysis_type': 'conversion_funnel'})
-    
     with get_db_context() as db:
+        # 记录查看诊断行为
+        activity_tracker.log_activity(db, user_id, 'view_diagnosis', metadata={'analysis_type': 'conversion_funnel'})
+        
         repo = ProductDataRepository(db)
         products = repo.get_all(user_id=user_id)
         
@@ -105,10 +105,10 @@ async def get_high_profit_products(
     """
     user_id = current_user.get('id')
     
-    # 记录查看诊断行为
-    activity_tracker.log_activity(None, user_id, 'view_diagnosis', metadata={'analysis_type': 'high_profit'})
-    
     with get_db_context() as db:
+        # 记录查看诊断行为
+        activity_tracker.log_activity(db, user_id, 'view_diagnosis', metadata={'analysis_type': 'high_profit'})
+        
         repo = ProductDataRepository(db)
         products = repo.get_all(user_id=user_id)
         

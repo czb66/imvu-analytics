@@ -54,7 +54,7 @@ class BenchmarkService:
                 return 'premium'  # 高价产品
         
         # 基于销量分类（高销量通常是热门/刚需产品）
-        total_sales = (product.direct_sales or 0) + (product.indirect_sales or 0)
+        total_sales = (product.direct_sales or 0) + (product.indirect_sales or 0) + (product.promoted_sales or 0)
         if total_sales > 100:
             return 'popular'  # 热门产品
         
@@ -63,7 +63,7 @@ class BenchmarkService:
     
     def _calculate_product_metrics(self, product: ProductData) -> Dict[str, float]:
         """计算单个产品的各项指标"""
-        total_sales = (product.direct_sales or 0) + (product.indirect_sales or 0)
+        total_sales = (product.direct_sales or 0) + (product.indirect_sales or 0) + (product.promoted_sales or 0)
         price = product.price or 0
         profit = product.profit or 0
         
@@ -347,7 +347,7 @@ class BenchmarkService:
             benchmark_dict = {b.metric: b for b in benchmarks}
             
             # 计算用户产品的各项指标
-            total_sales = (product_data.get('direct_sales', 0) or 0) + (product_data.get('indirect_sales', 0) or 0)
+            total_sales = (product_data.get('direct_sales', 0) or 0) + (product_data.get('indirect_sales', 0) or 0) + (product_data.get('promoted_sales', 0) or 0)
             price = product_data.get('price', 0) or 0
             profit = product_data.get('profit', 0) or 0
             profit_margin = (profit / price * 100) if price > 0 else 0
@@ -390,7 +390,8 @@ class BenchmarkService:
         price = product_data.get('price') or 0
         direct_sales = product_data.get('direct_sales') or 0
         indirect_sales = product_data.get('indirect_sales') or 0
-        total_sales = direct_sales + indirect_sales
+        promoted_sales = product_data.get('promoted_sales') or 0
+        total_sales = direct_sales + indirect_sales + promoted_sales
         
         if price < 100:
             return 'budget'
@@ -481,7 +482,7 @@ class BenchmarkService:
             user_margins = []
             
             for product in products:
-                total_sales = (product.get('direct_sales', 0) or 0) + (product.get('indirect_sales', 0) or 0)
+                total_sales = (product.get('direct_sales', 0) or 0) + (product.get('indirect_sales', 0) or 0) + (product.get('promoted_sales', 0) or 0)
                 price = product.get('price', 0) or 0
                 profit = product.get('profit', 0) or 0
                 margin = (profit / price * 100) if price > 0 else 0

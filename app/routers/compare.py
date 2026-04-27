@@ -220,9 +220,6 @@ async def compare_datasets(
     
     user_id = current_user.get('id')
     
-    # 记录查看对比行为
-    activity_tracker.log_activity(None, user_id, 'view_compare', metadata={'dataset_count': len(dataset_ids)})
-    
     if len(dataset_ids) < 2 or len(dataset_ids) > 10:
         raise HTTPException(
             status_code=400,
@@ -231,6 +228,9 @@ async def compare_datasets(
     
     try:
         with get_db_context() as db:
+            # 记录查看对比行为
+            activity_tracker.log_activity(db, user_id, 'view_compare', metadata={'dataset_count': len(dataset_ids)})
+            
             dataset_repo = DatasetRepository(db)
             product_repo = ProductDataRepository(db)
             

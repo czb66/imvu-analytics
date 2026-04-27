@@ -68,11 +68,11 @@ async def generate_report_html(
     
     user_id = current_user.get('id')
     
-    # 记录生成报告行为
-    activity_tracker.log_activity(None, user_id, 'generate_report')
-    
     try:
         with get_db_context() as db:
+            # 记录生成报告行为
+            activity_tracker.log_activity(db, user_id, 'generate_report')
+            
             repo = ProductDataRepository(db)
             products = repo.get_all(user_id=user_id)
             
