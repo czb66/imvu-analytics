@@ -127,6 +127,14 @@ async def startup_event():
         start_scheduler()
     except Exception as e:
         logger.warning(f"启动定时任务失败: {e}")
+    
+    try:
+        # 创建博客种子数据
+        from scripts.seed_blog import create_seed_posts
+        create_seed_posts()
+        logger.info("博客种子数据初始化完成")
+    except Exception as e:
+        logger.warning(f"博客种子数据初始化失败: {e}")
 
 
 @app.on_event("shutdown")

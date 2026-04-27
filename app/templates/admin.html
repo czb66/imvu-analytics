@@ -571,6 +571,11 @@
                     <i class="bi bi-bar-chart-line me-2"></i><span data-i18n="tab_analytics">Data Analytics</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-tab="feedback" onclick="switchTab('feedback'); loadFeedbackTab(); return false;">
+                    <i class="bi bi-chat-left-text me-2"></i><span data-i18n="tab_feedback">Feedback & NPS</span>
+                </a>
+            </li>
         </ul>
 
         <!-- Overview Tab Content -->
@@ -1349,6 +1354,287 @@
                     }
                 }
             });
+        }
+
+
+        <!-- Feedback Tab Content -->
+        <div id="tab-feedback" class="tab-content-custom" data-loaded="false">
+            <h4 class="mb-4"><i class="bi bi-chat-left-text me-2"></i><span data-i18n="admin.npsDashboard">NPS Dashboard</span></h4>
+            
+            <!-- NPS Summary Cards -->
+            <div id="npsSummaryContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Loading NPS data...</p>
+                </div>
+            </div>
+            
+            <!-- Feedback List -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <strong><i class="bi bi-list-ul me-2"></i><span data-i18n="admin.feedbackList">Feedback List</span></strong>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary active" onclick="filterFeedback('all')" data-i18n="admin.allTypes">All Types</button>
+                        <button class="btn btn-outline-secondary" onclick="filterFeedback('bug')">Bug</button>
+                        <button class="btn btn-outline-secondary" onclick="filterFeedback('feature')">Feature</button>
+                        <button class="btn btn-outline-secondary" onclick="filterFeedback('general')">General</button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th data-i18n="user">User</th>
+                                    <th>NPS</th>
+                                    <th data-i18n="type">Type</th>
+                                    <th data-i18n="content">Content</th>
+                                    <th data-i18n="date">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feedbackListBody">
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                                        Loading...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0 justify-content-center" id="feedbackPagination"></ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+
+        // ==================== Feedback & NPS Tab ====================
+        
+        // Feedback tab state
+        let feedbackPage = 1;
+        let feedbackPageSize = 20;
+        let feedbackTypeFilter = null;
+        
+        async function loadFeedbackTab() {
+            const content = document.getElementById('tab-feedback');
+            if (!content || content.dataset.loaded === 'true') return;
+            content.dataset.loaded = 'true';
+            
+            await Promise.all([
+                loadNPSSummary(),
+                loadFeedbackList()
+            ]);
+        }
+        
+        async function loadNPSSummary() {
+            try {
+                const response = await fetch('/api/admin/nps-summary?days=30');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        renderNPSSummary(data.data);
+                    }
+                }
+            } catch (e) {
+                console.error('加载NPS汇总失败:', e);
+            }
+        }
+        
+        function renderNPSSummary(summary) {
+            const isZh = currentLang === 'zh';
+            
+            const npsSummary = document.getElementById('npsSummaryContent');
+            if (!npsSummary) return;
+            
+            npsSummary.innerHTML = `
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <h3 class="mb-1" style="color: #667eea;">${summary.total_responses || 0}</h3>
+                                <small class="text-muted">${isZh ? '总反馈数' : 'Total Responses'}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <h3 class="mb-1" style="color: #52c41a;">${summary.average_score || 0}</h3>
+                                <small class="text-muted">${isZh ? '平均分' : 'Avg Score'}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <h3 class="mb-1" style="color: #faad14;">${summary.nps_score || 0}</h3>
+                                <small class="text-muted">${isZh ? 'NPS分数' : 'NPS Score'}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-center gap-2 mb-1">
+                                    <span class="badge bg-success">${summary.promoter_percent || 0}% P</span>
+                                    <span class="badge bg-warning text-dark">${summary.passive_percent || 0}% N</span>
+                                    <span class="badge bg-danger">${summary.detractor_percent || 0}% D</span>
+                                </div>
+                                <small class="text-muted">P/N/D</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Score Distribution -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white">
+                                <strong>${isZh ? '评分分布' : 'Score Distribution'}</strong>
+                            </div>
+                            <div class="card-body">
+                                <div id="npsDistributionChart" style="height: 200px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white">
+                                <strong>${isZh ? '反馈类型分布' : 'Feedback Type Distribution'}</strong>
+                            </div>
+                            <div class="card-body">
+                                <div id="npsTypeChart" style="height: 200px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 渲染分布图
+            renderNPSCharts(summary);
+        }
+        
+        function renderNPSCharts(summary) {
+            // Score distribution
+            const distChart = document.getElementById('npsDistributionChart');
+            if (distChart && typeof echarts !== 'undefined') {
+                const scores = [0,0,0,0,0,0,0,0,0,0,0];
+                if (summary.by_page) {
+                    Object.values(summary.by_page).forEach(item => {
+                        // 从反馈数据计算
+                    });
+                }
+                
+                const chart = echarts.init(distChart);
+                chart.setOption({
+                    tooltip: { trigger: 'axis' },
+                    xAxis: { type: 'category', data: ['0','1','2','3','4','5','6','7','8','9','10'] },
+                    yAxis: { type: 'value' },
+                    series: [{
+                        type: 'bar',
+                        data: scores.map((v, i) => ({
+                            value: v,
+                            itemStyle: {
+                                color: i <= 6 ? '#ff6b6b' : i <= 8 ? '#ffd93d' : '#51cf66'
+                            }
+                        }))
+                    }]
+                });
+            }
+        }
+        
+        async function loadFeedbackList(page = 1) {
+            try {
+                let url = `/api/admin/feedbacks?page=${page}&page_size=${feedbackPageSize}`;
+                if (feedbackTypeFilter) {
+                    url += `&feedback_type=${feedbackTypeFilter}`;
+                }
+                
+                const response = await fetch(url);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        renderFeedbackList(data.data);
+                    }
+                }
+            } catch (e) {
+                console.error('加载反馈列表失败:', e);
+            }
+        }
+        
+        function renderFeedbackList(result) {
+            const isZh = currentLang === 'zh';
+            const tbody = document.getElementById('feedbackListBody');
+            if (!tbody) return;
+            
+            if (!result.items || result.items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">${isZh ? '暂无反馈数据' : 'No feedback data yet'}</td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = result.items.map(item => {
+                const npsBadge = item.nps_score !== null ? 
+                    `<span class="badge ${item.nps_score >= 9 ? 'bg-success' : item.nps_score >= 7 ? 'bg-warning text-dark' : 'bg-danger'}">${item.nps_score}</span>` : 
+                    '-';
+                
+                const typeBadge = item.feedback_type ? 
+                    `<span class="badge bg-secondary">${item.feedback_type}</span>` : '-';
+                
+                return `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.username || item.email || '-'}</td>
+                        <td>${npsBadge}</td>
+                        <td>${typeBadge}</td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.content || '-'}</td>
+                        <td>${item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // 渲染分页
+            renderFeedbackPagination(result);
+        }
+        
+        function renderFeedbackPagination(result) {
+            const pagination = document.getElementById('feedbackPagination');
+            if (!pagination) return;
+            
+            const { page, total_pages } = result;
+            let html = '';
+            
+            if (total_pages > 1) {
+                html += `<li class="page-item ${page <= 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="loadFeedbackList(${page - 1}); return false;">«</a>
+                </li>`;
+                
+                for (let i = 1; i <= total_pages; i++) {
+                    if (i === 1 || i === total_pages || (i >= page - 2 && i <= page + 2)) {
+                        html += `<li class="page-item ${i === page ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="loadFeedbackList(${i}); return false;">${i}</a>
+                        </li>`;
+                    } else if (i === page - 3 || i === page + 3) {
+                        html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                    }
+                }
+                
+                html += `<li class="page-item ${page >= total_pages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="loadFeedbackList(${page + 1}); return false;">»</a>
+                </li>`;
+            }
+            
+            pagination.innerHTML = html;
+        }
+        
+        function filterFeedback(type) {
+            feedbackTypeFilter = type === 'all' ? null : type;
+            loadFeedbackList(1);
         }
 
         // ==================== Tab Switching ====================

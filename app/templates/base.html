@@ -96,6 +96,9 @@
         {% block extra_styles %}{% endblock %}
     </style>
     
+    {# ========== NPS 弹窗样式 ========== #}
+    <link rel="stylesheet" href="/static/nps-widget.css">
+    
     {# ========== 公共 JS ========== #}
     <script src="/static/auth.js"></script>
     <script src="/static/i18n.js?v=20260414o"></script>
@@ -108,5 +111,8 @@
     {# ========== 公共 JS ========== #}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     {% block scripts %}{% endblock %}
+    
+    {# ========== NPS 弹窗组件 ========== #}
+    <script src="/static/nps-widget.js"></script>
 </body>
 </html>

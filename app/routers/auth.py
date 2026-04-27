@@ -786,3 +786,161 @@ async def set_benchmark_preference(
             "opt_out_benchmark": user.opt_out_benchmark
         }
     }
+
+
+# ==================== 推荐系统增强路由 ====================
+
+class ReferralMilestoneClaimRequest(BaseModel):
+    """领取里程碑奖励请求"""
+    pass  # 无需参数，自动领取最新可领取的里程碑
+
+
+class ReferralAnonymousRequest(BaseModel):
+    """设置排行榜匿名状态"""
+    anonymous: bool = Field(..., description="是否在排行榜匿名显示")
+
+
+@router.get("/referral/milestones")
+async def get_referral_milestones(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取里程碑列表和当前进度
+    """
+    from app.database import UserRepository
+    from app.services.referral import get_milestone_progress, MILESTONES
+    
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    progress = get_milestone_progress(user)
+    
+    return {
+        "success": True,
+        "message": "获取成功",
+        "data": progress
+    }
+
+
+@router.post("/referral/claim-milestone")
+async def claim_referral_milestone(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    领取里程碑奖励
+    """
+    from app.database import UserRepository
+    from app.services.referral import claim_milestone_reward
+    
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    result = claim_milestone_reward(db, user)
+    
+    if result["success"]:
+        return {
+            "success": True,
+            "message": result["message"],
+            "data": result["reward"]
+        }
+    else:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"success": False, "message": result["message"]}
+        )
+
+
+@router.get("/referral/leaderboard")
+async def get_referral_leaderboard(
+    limit: int = 20,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取推荐排行榜（Top 20）
+    """
+    from app.services.referral import get_referral_leaderboard
+    
+    # 限制返回数量
+    limit = min(max(1, limit), 100)
+    
+    leaderboard = get_referral_leaderboard(db, limit)
+    
+    return {
+        "success": True,
+        "message": "获取成功",
+        "data": leaderboard
+    }
+
+
+@router.get("/referral/stats")
+async def get_enhanced_referral_stats(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取详细推荐统计
+    """
+    from app.services.referral import get_enhanced_referral_stats
+    
+    stats = get_enhanced_referral_stats(db, current_user["id"])
+    
+    if "error" in stats:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": stats["error"]}
+        )
+    
+    return {
+        "success": True,
+        "message": "获取成功",
+        "data": stats
+    }
+
+
+@router.post("/referral/anonymous")
+async def set_referral_anonymous(
+    request: ReferralAnonymousRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    设置是否在排行榜匿名显示
+    """
+    from app.database import UserRepository
+    
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    user.referral_anonymous = request.anonymous
+    db.commit()
+    
+    logger.info(f"用户 {user.email} 设置推荐排行榜匿名为: {request.anonymous}")
+    
+    return {
+        "success": True,
+        "message": "设置成功" if not request.anonymous else "您已切换到匿名模式",
+        "data": {
+            "referral_anonymous": user.referral_anonymous
+        }
+    }

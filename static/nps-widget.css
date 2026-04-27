@@ -1,0 +1,390 @@
+/**
+ * NPS 弹窗样式
+ */
+
+.nps-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.nps-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.nps-modal {
+    background: white;
+    border-radius: 16px;
+    max-width: 520px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.nps-modal-overlay.active .nps-modal {
+    transform: scale(1) translateY(0);
+}
+
+.nps-modal-header {
+    padding: 24px 24px 0;
+    text-align: center;
+}
+
+.nps-modal-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.nps-modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 8px;
+}
+
+.nps-modal-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+.nps-modal-body {
+    padding: 24px;
+}
+
+.nps-step {
+    display: none;
+}
+
+.nps-step.active {
+    display: block;
+}
+
+/* 第1步：评分选择器 */
+.nps-score-container {
+    text-align: center;
+}
+
+.nps-score-question {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.nps-score-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #999;
+}
+
+.nps-score-selector {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.nps-score-btn {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.nps-score-btn:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+}
+
+.nps-score-btn.selected {
+    border-color: transparent;
+    color: white;
+    transform: scale(1.1);
+}
+
+.nps-score-btn.selected.score-0,
+.nps-score-btn.selected.score-1,
+.nps-score-btn.selected.score-2,
+.nps-score-btn.selected.score-3,
+.nps-score-btn.selected.score-4,
+.nps-score-btn.selected.score-5,
+.nps-score-btn.selected.score-6 {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+}
+
+.nps-score-btn.selected.score-7,
+.nps-score-btn.selected.score-8 {
+    background: linear-gradient(135deg, #ffd93d, #ffb800);
+}
+
+.nps-score-btn.selected.score-9,
+.nps-score-btn.selected.score-10 {
+    background: linear-gradient(135deg, #51cf66, #40c057);
+}
+
+/* 第2步：反馈类型 */
+.nps-type-container {
+    text-align: center;
+}
+
+.nps-type-question {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.nps-type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.nps-type-btn {
+    padding: 16px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.nps-type-btn:hover {
+    border-color: #007bff;
+    background: #f8f9fa;
+}
+
+.nps-type-btn.selected {
+    border-color: #007bff;
+    background: #e7f1ff;
+}
+
+.nps-type-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.nps-type-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.nps-type-desc {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* 第3步：文字反馈 */
+.nps-feedback-container {
+    text-align: center;
+}
+
+.nps-feedback-question {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+.nps-feedback-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.nps-feedback-textarea:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.nps-feedback-hint {
+    font-size: 12px;
+    color: #999;
+    margin-top: 8px;
+    text-align: left;
+}
+
+.nps-feedback-optional {
+    font-size: 12px;
+    color: #888;
+    margin-top: 12px;
+}
+
+/* 感谢页 */
+.nps-thanks-container {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.nps-thanks-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+}
+
+.nps-thanks-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.nps-thanks-message {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+}
+
+/* 底部按钮 */
+.nps-modal-footer {
+    padding: 16px 24px 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.nps-btn {
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.nps-btn-secondary {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.nps-btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+.nps-btn-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+}
+
+.nps-btn-primary:hover {
+    background: linear-gradient(135deg, #0056b3, #004494);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.nps-btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.nps-btn-skip {
+    background: transparent;
+    color: #999;
+    padding: 12px 16px;
+}
+
+.nps-btn-skip:hover {
+    color: #666;
+}
+
+/* 进度指示器 */
+.nps-progress {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 24px 0;
+}
+
+.nps-progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.nps-progress-dot.active {
+    background: #007bff;
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* 关闭按钮 */
+.nps-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.nps-close-btn:hover {
+    background: #f0f0f0;
+    color: #666;
+}
+
+/* 响应式 */
+@media (max-width: 480px) {
+    .nps-modal {
+        width: 95%;
+    }
+    
+    .nps-score-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+    
+    .nps-type-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .nps-type-btn {
+        padding: 12px 8px;
+    }
+    
+    .nps-type-icon {
+        font-size: 24px;
+    }
+}

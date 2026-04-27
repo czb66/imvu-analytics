@@ -43,6 +43,11 @@ class User(Base):
     referral_rewarded_at = Column(DateTime, nullable=True)  # 推荐奖励发放时间
     referral_suspended = Column(Boolean, default=False)  # 推荐码是否被暂停（异常检测触发）
     
+    # 推荐里程碑字段
+    referral_milestone = Column(Integer, default=0)  # 当前里程碑等级（0=无, 3=达人, 5=高级, 10=明星, 20=传奇）
+    referral_milestone_claimed = Column(Boolean, default=False)  # 里程碑奖励是否已领取
+    referral_anonymous = Column(Boolean, default=False)  # 是否在排行榜匿名显示
+    
     # Stripe订阅字段
     stripe_customer_id = Column(String(255), nullable=True, index=True)  # Stripe客户ID
     subscription_id = Column(String(255), nullable=True, index=True)  # 订阅ID
@@ -314,3 +319,86 @@ class IndustryBenchmark(Base):
 
     def __repr__(self):
         return f"<IndustryBenchmark category={self.category} metric={self.metric}>"
+
+
+class UserFeedback(Base):
+    """用户反馈和NPS评分模型"""
+    __tablename__ = "user_feedback"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    nps_score = Column(Integer, nullable=True)  # 0-10 NPS评分
+    feedback_type = Column(String(20), nullable=True)  # bug/feature/general
+    content = Column(Text, nullable=True)  # 反馈内容
+    page_url = Column(String(500), nullable=True)  # 反馈来源页面
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    # 关联
+    user = relationship("User", backref="feedbacks")
+
+    def __repr__(self):
+        return f"<UserFeedback user_id={self.user_id} nps={self.nps_score}>"
+
+
+class BlogPost(Base):
+    """博客文章模型 - 用于内容营销和SEO优化"""
+    __tablename__ = "blog_posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    slug = Column(String(200), unique=True, index=True, nullable=False)  # URL友好slug
+    title_en = Column(String(200), nullable=False)
+    title_zh = Column(String(200), nullable=True)
+    title_fr = Column(String(200), nullable=True)
+    content_en = Column(Text, nullable=False)
+    content_zh = Column(Text, nullable=True)
+    content_fr = Column(Text, nullable=True)
+    excerpt_en = Column(String(500), nullable=True)  # 摘要
+    excerpt_zh = Column(String(500), nullable=True)
+    excerpt_fr = Column(String(500), nullable=True)
+    category = Column(String(50), nullable=True, index=True)  # tutorials/tips/updates/industry
+    cover_image = Column(String(500), nullable=True)
+    meta_title = Column(String(200), nullable=True)  # SEO
+    meta_description = Column(String(500), nullable=True)
+    is_published = Column(Boolean, default=False, index=True)
+    published_at = Column(DateTime, nullable=True)
+    author = Column(String(100), default='IMVU Analytics Team')
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    view_count = Column(Integer, default=0, index=True)
+    is_featured = Column(Boolean, default=False)  # 是否为特色文章
+
+    def __repr__(self):
+        return f"<BlogPost id={self.id} slug={self.slug}>"
+    
+    def get_title(self, lang='en'):
+        """获取指定语言的标题"""
+        if lang == 'zh' and self.title_zh:
+            return self.title_zh
+        elif lang == 'fr' and self.title_fr:
+            return self.title_fr
+        return self.title_en
+    
+    def get_content(self, lang='en'):
+        """获取指定语言的内容"""
+        if lang == 'zh' and self.content_zh:
+            return self.content_zh
+        elif lang == 'fr' and self.content_fr:
+            return self.content_fr
+        return self.content_en
+    
+    def get_excerpt(self, lang='en', max_length=200):
+        """获取指定语言的摘要"""
+        excerpt = ''
+        if lang == 'zh' and self.excerpt_zh:
+            excerpt = self.excerpt_zh
+        elif lang == 'fr' and self.excerpt_fr:
+            excerpt = self.excerpt_fr
+        else:
+            excerpt = self.excerpt_en or ''
+        
+        # 移除Markdown语法
+        import re
+        excerpt = re.sub(r'[#*_`\[\]()>-]', '', excerpt)
+        if len(excerpt) > max_length:
+            excerpt = excerpt[:max_length].rsplit(' ', 1)[0] + '...'
+        return excerpt
