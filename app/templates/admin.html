@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+    <script src="/static/echarts.min.js"></script>
     <script src="/static/auth.js"></script>
     <style>
         :root {
@@ -336,6 +337,150 @@
                 display: none !important;
             }
         }
+        
+        /* Tab Navigation */
+        .nav-tabs-custom {
+            border-bottom: 2px solid #e8e8e8;
+            margin-bottom: 20px;
+        }
+        .nav-tabs-custom .nav-link {
+            border: none;
+            color: #666;
+            font-weight: 500;
+            padding: 12px 20px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .nav-tabs-custom .nav-link:hover {
+            color: var(--primary);
+            border-color: transparent;
+        }
+        .nav-tabs-custom .nav-link.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: transparent;
+        }
+        .tab-content-custom {
+            display: none;
+        }
+        .tab-content-custom.active {
+            display: block;
+        }
+        
+        /* Analytics Cards */
+        .analytics-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        .analytics-card h5 {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .chart-container {
+            width: 100%;
+            min-height: 300px;
+        }
+        .chart-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            color: #999;
+        }
+        
+        /* Time Range Selector */
+        .time-range-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .time-range-btn {
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            color: #666;
+        }
+        .time-range-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .time-range-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        /* Funnel specific */
+        .funnel-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .funnel-bar {
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: 600;
+            min-width: 60px;
+            transition: width 0.5s ease;
+        }
+        .funnel-label {
+            flex: 1;
+            padding-left: 15px;
+            color: #333;
+        }
+        .funnel-rate {
+            width: 80px;
+            text-align: right;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        /* Overview Cards */
+        .overview-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .overview-card:hover {
+            transform: translateY(-3px);
+        }
+        .overview-card .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 28px;
+        }
+        .overview-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .overview-card .label {
+            color: #888;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -382,7 +527,8 @@
         <a href="/insights"><i class="bi bi-lightbulb me-2"></i><span data-i18n="nav_insights">AI Insights</span></a>
         
         <div style="padding: 10px 20px 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); margin-top: 15px;">Admin</div>
-        <a href="/admin" class="active"><i class="bi bi-speedometer me-2"></i>Overview</a>
+        <a href="/admin" class="active" data-tab="overview"><i class="bi bi-speedometer me-2"></i>Overview</a>
+        <a href="#" onclick="switchTab('analytics'); return false;" data-tab="analytics"><i class="bi bi-bar-chart-line me-2"></i>Data Analytics</a>
         <a href="/admin/promo-cards"><i class="bi bi-card-image me-2"></i>Promo Cards</a>
         
         <div style="padding: 10px 20px 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); margin-top: 15px;">Account</div>
@@ -413,8 +559,24 @@
     </div>
         </div>
 
-        <!-- User Statistics Cards -->
-        <div class="row mb-4">
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs-custom mb-4" id="adminTab">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-tab="overview" onclick="switchTab('overview'); return false;">
+                    <i class="bi bi-speedometer2 me-2"></i><span data-i18n="tab_overview">Overview</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-tab="analytics" onclick="switchTab('analytics'); return false;">
+                    <i class="bi bi-bar-chart-line me-2"></i><span data-i18n="tab_analytics">Data Analytics</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Overview Tab Content -->
+        <div id="tab-overview" class="tab-content-custom active">
+            <!-- User Statistics Cards -->
+            <div class="row mb-4">
             <!-- Basic User Stats Card -->
             <div class="col-lg-6 mb-3">
                 <div class="stat-card h-100" style="border-left: 4px solid #667eea; background: linear-gradient(135deg, #f0f4ff 0%, #f5f7ff 100%);">
@@ -630,6 +792,81 @@
                 </ul>
             </nav>
         </div>
+
+        <!-- Analytics Tab Content -->
+        <div id="tab-analytics" class="tab-content-custom">
+            <!-- Time Range Selector -->
+            <div class="time-range-selector">
+                <button class="time-range-btn active" data-days="7" onclick="setAnalyticsRange(7)">7 Days</button>
+                <button class="time-range-btn" data-days="30" onclick="setAnalyticsRange(30)">30 Days</button>
+                <button class="time-range-btn" data-days="90" onclick="setAnalyticsRange(90)">90 Days</button>
+            </div>
+
+            <!-- Overview Cards Row -->
+            <div class="row mb-4" id="analyticsOverviewCards">
+                <div class="col-md-4">
+                    <div class="overview-card">
+                        <div class="icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="value" id="analytics-dau">-</div>
+                        <div class="label" data-i18n="analytics_dau">Daily Active Users (DAU)</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="overview-card">
+                        <div class="icon" style="background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%); color: white;">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                        <div class="value" id="analytics-mau">-</div>
+                        <div class="label" data-i18n="analytics_mau">Monthly Active Users (MAU)</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="overview-card">
+                        <div class="icon" style="background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%); color: white;">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <div class="value" id="analytics-ratio">-</div>
+                        <div class="label" data-i18n="analytics_ratio">Active User Ratio</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row mb-4">
+                <!-- Feature Usage Chart -->
+                <div class="col-lg-6">
+                    <div class="analytics-card">
+                        <h5><i class="bi bi-bar-chart me-2"></i><span data-i18n="analytics_features">Feature Usage</span></h5>
+                        <div id="featureChart" class="chart-container">
+                            <div class="chart-loading"><i class="bi bi-hourglass-split me-2"></i>Loading...</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Retention Trend Chart -->
+                <div class="col-lg-6">
+                    <div class="analytics-card">
+                        <h5><i class="bi bi-graph-up me-2"></i><span data-i18n="analytics_retention">Retention Trend</span></h5>
+                        <div id="retentionChart" class="chart-container">
+                            <div class="chart-loading"><i class="bi bi-hourglass-split me-2"></i>Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversion Funnel -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="analytics-card">
+                        <h5><i class="bi bi-funnel me-2"></i><span data-i18n="analytics_funnel">Conversion Funnel</span></h5>
+                        <div id="funnelChart" class="chart-container">
+                            <div class="chart-loading"><i class="bi bi-hourglass-split me-2"></i>Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
     </div><!-- End mainApp -->
 
@@ -695,7 +932,18 @@
                 no_access: 'You do not have admin access.',
                 admin_only: 'This page is for administrators only.',
                 page: 'Page',
-                of: 'of'
+                of: 'of',
+                tab_overview: 'Overview',
+                tab_analytics: 'Data Analytics',
+                analytics_dau: 'Daily Active Users (DAU)',
+                analytics_mau: 'Monthly Active Users (MAU)',
+                analytics_ratio: 'Active User Ratio',
+                analytics_features: 'Feature Usage',
+                analytics_retention: 'Retention Trend',
+                analytics_funnel: 'Conversion Funnel',
+                days_7: '7 Days',
+                days_30: '30 Days',
+                days_90: '90 Days'
             },
             zh: {
                 admin_title: '管理后台',
@@ -753,7 +1001,18 @@
                 no_access: '您没有管理员权限。',
                 admin_only: '此页面仅限管理员访问。',
                 page: '第',
-                of: '页，共'
+                of: '页，共',
+                tab_overview: '概览',
+                tab_analytics: '数据分析',
+                analytics_dau: '日活跃用户 (DAU)',
+                analytics_mau: '月活跃用户 (MAU)',
+                analytics_ratio: '活跃用户比例',
+                analytics_features: '功能使用统计',
+                analytics_retention: '留存率趋势',
+                analytics_funnel: '转化漏斗',
+                days_7: '7天',
+                days_30: '30天',
+                days_90: '90天'
             },
             fr: {
                 admin_title: 'Tableau de Bord Admin',
@@ -811,7 +1070,18 @@
                 no_access: 'Vous n\'avez pas accès à l\'administration.',
                 admin_only: 'Cette page est réservée aux administrateurs.',
                 page: 'Page',
-                of: 'sur'
+                of: 'sur',
+                tab_overview: 'Aperçu',
+                tab_analytics: 'Analyse de Données',
+                analytics_dau: 'Utilisateurs Quotidiens (DAU)',
+                analytics_mau: 'Utilisateurs Mensuels (MAU)',
+                analytics_ratio: 'Ratio Utilisateurs Actifs',
+                analytics_features: 'Utilisation des Fonctionnalités',
+                analytics_retention: 'Tendance de Rétention',
+                analytics_funnel: 'Entonnoir de Conversion',
+                days_7: '7 Jours',
+                days_30: '30 Jours',
+                days_90: '90 Jours'
             }
         };
 
@@ -819,6 +1089,10 @@
         let currentLang = localStorage.getItem('lang') || 'en';
         let currentPage = 1;
         let totalPages = 1;
+        let currentAnalyticsDays = 30; // 默认30天
+        let featureChartInstance = null;
+        let retentionChartInstance = null;
+        let funnelChartInstance = null;
 
         // DOM Elements
         const loadingOverlay = document.getElementById('loadingOverlay');
@@ -1075,6 +1349,364 @@
                     }
                 }
             });
+        }
+
+        // ==================== Tab Switching ====================
+        function switchTab(tabName) {
+            // Update tab links
+            document.querySelectorAll('#adminTab .nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.tab === tabName) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Update sidebar links
+            document.querySelectorAll('.sidebar a[data-tab]').forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.tab === tabName) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Update content
+            document.querySelectorAll('.tab-content-custom').forEach(content => {
+                content.classList.remove('active');
+            });
+            const targetContent = document.getElementById('tab-' + tabName);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+
+            // Load analytics data if switching to analytics tab
+            if (tabName === 'analytics') {
+                loadAnalyticsData();
+            }
+        }
+
+        // ==================== Analytics Functions ====================
+        function setAnalyticsRange(days) {
+            currentAnalyticsDays = days;
+            
+            // Update button states
+            document.querySelectorAll('.time-range-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.dataset.days) === days) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Reload analytics data
+            loadAnalyticsData();
+        }
+
+        async function loadAnalyticsData() {
+            try {
+                // Load all analytics data in parallel
+                await Promise.all([
+                    loadUserActivityStats(),
+                    loadFeatureUsageChart(),
+                    loadRetentionChart(),
+                    loadFunnelChart()
+                ]);
+            } catch (e) {
+                console.error('加载分析数据失败:', e);
+                showToast('加载分析数据失败: ' + e.message, 'error');
+            }
+        }
+
+        async function loadUserActivityStats() {
+            try {
+                const data = await apiCall(`/api/admin/analytics/users?days=${currentAnalyticsDays}`);
+                if (data.success) {
+                    const stats = data.data;
+                    document.getElementById('analytics-dau').textContent = stats.dau || 0;
+                    document.getElementById('analytics-mau').textContent = stats.mau || 0;
+                    document.getElementById('analytics-ratio').textContent = (stats.active_user_ratio || 0) + '%';
+                }
+            } catch (e) {
+                console.error('加载用户活跃度统计失败:', e);
+                document.getElementById('analytics-dau').textContent = '-';
+                document.getElementById('analytics-mau').textContent = '-';
+                document.getElementById('analytics-ratio').textContent = '-';
+            }
+        }
+
+        async function loadFeatureUsageChart() {
+            const chartDom = document.getElementById('featureChart');
+            if (!chartDom) return;
+
+            try {
+                const data = await apiCall(`/api/admin/analytics/features?days=${currentAnalyticsDays}`);
+                if (data.success && data.data.features) {
+                    const features = data.data.features.slice(0, 10); // Top 10
+
+                    if (featureChartInstance) {
+                        featureChartInstance.dispose();
+                    }
+
+                    featureChartInstance = echarts.init(chartDom);
+                    
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'shadow' }
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            top: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'value',
+                            axisLabel: { color: '#666' }
+                        },
+                        yAxis: {
+                            type: 'category',
+                            data: features.map(f => f.action),
+                            axisLabel: { color: '#666' },
+                            inverse: true
+                        },
+                        series: [{
+                            name: 'Usage Count',
+                            type: 'bar',
+                            data: features.map(f => f.usage_count),
+                            itemStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                    { offset: 0, color: '#667eea' },
+                                    { offset: 1, color: '#764ba2' }
+                                ]),
+                                borderRadius: [0, 4, 4, 0]
+                            },
+                            label: {
+                                show: true,
+                                position: 'right',
+                                color: '#666'
+                            }
+                        }],
+                        animationDuration: 1000,
+                        animationEasing: 'cubicOut'
+                    };
+
+                    featureChartInstance.setOption(option);
+                    
+                    // Handle resize
+                    window.addEventListener('resize', () => {
+                        if (featureChartInstance) {
+                            featureChartInstance.resize();
+                        }
+                    });
+                } else {
+                    chartDom.innerHTML = '<div class="chart-loading"><i class="bi bi-exclamation-circle me-2"></i>No data available</div>';
+                }
+            } catch (e) {
+                console.error('加载功能使用图表失败:', e);
+                chartDom.innerHTML = '<div class="chart-loading"><i class="bi bi-exclamation-circle me-2"></i>Failed to load data</div>';
+            }
+        }
+
+        async function loadRetentionChart() {
+            const chartDom = document.getElementById('retentionChart');
+            if (!chartDom) return;
+
+            try {
+                // Use days parameter (max 90 for retention API)
+                const days = Math.min(currentAnalyticsDays, 90);
+                const data = await apiCall(`/api/admin/analytics/retention?days=${days}`);
+                
+                if (data.success && data.data.retention_data) {
+                    const retention = data.data.retention_data.slice(0, 30); // Max 30 days
+
+                    if (retentionChartInstance) {
+                        retentionChartInstance.dispose();
+                    }
+
+                    retentionChartInstance = echarts.init(chartDom);
+                    
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            formatter: function(params) {
+                                let result = params[0].name + '<br/>';
+                                params.forEach(p => {
+                                    result += p.marker + p.seriesName + ': ' + p.value + '%<br/>';
+                                });
+                                return result;
+                            }
+                        },
+                        legend: {
+                            data: ['Day 1 Retention', 'Day 7 Retention'],
+                            top: 0
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            top: '40px',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: retention.map(r => r.cohort_date.slice(5)),
+                            axisLabel: { color: '#666' }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            axisLabel: { 
+                                color: '#666',
+                                formatter: '{value}%'
+                            },
+                            max: 100
+                        },
+                        series: [
+                            {
+                                name: 'Day 1 Retention',
+                                type: 'line',
+                                data: retention.map(r => r.day1_retention),
+                                smooth: true,
+                                lineStyle: { width: 2 },
+                                itemStyle: { color: '#667eea' },
+                                areaStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        { offset: 0, color: 'rgba(102, 126, 234, 0.3)' },
+                                        { offset: 1, color: 'rgba(102, 126, 234, 0.05)' }
+                                    ])
+                                }
+                            },
+                            {
+                                name: 'Day 7 Retention',
+                                type: 'line',
+                                data: retention.map(r => r.day7_retention),
+                                smooth: true,
+                                lineStyle: { width: 2 },
+                                itemStyle: { color: '#52c41a' },
+                                areaStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        { offset: 0, color: 'rgba(82, 196, 26, 0.3)' },
+                                        { offset: 1, color: 'rgba(82, 196, 26, 0.05)' }
+                                    ])
+                                }
+                            }
+                        ],
+                        animationDuration: 1000,
+                        animationEasing: 'cubicOut'
+                    };
+
+                    retentionChartInstance.setOption(option);
+                    
+                    window.addEventListener('resize', () => {
+                        if (retentionChartInstance) {
+                            retentionChartInstance.resize();
+                        }
+                    });
+                } else {
+                    chartDom.innerHTML = '<div class="chart-loading"><i class="bi bi-exclamation-circle me-2"></i>No data available</div>';
+                }
+            } catch (e) {
+                console.error('加载留存率图表失败:', e);
+                chartDom.innerHTML = '<div class="chart-loading"><i class="bi bi-exclamation-circle me-2"></i>Failed to load data</div>';
+            }
+        }
+
+        async function loadFunnelChart() {
+            const chartDom = document.getElementById('funnelChart');
+            if (!chartDom) return;
+
+            try {
+                const data = await apiCall(`/api/admin/analytics/funnel?days=${currentAnalyticsDays}`);
+                
+                if (data.success && data.data.funnel) {
+                    const funnel = data.data.funnel;
+
+                    if (funnelChartInstance) {
+                        funnelChartInstance.dispose();
+                    }
+
+                    funnelChartInstance = echarts.init(chartDom);
+                    
+                    const option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: '{b}: {c} users ({d}%)'
+                        },
+                        legend: {
+                            data: ['Users'],
+                            top: 0
+                        },
+                        series: [{
+                            name: 'Conversion Funnel',
+                            type: 'funnel',
+                            left: '10%',
+                            top: 60,
+                            bottom: 20,
+                            width: '80%',
+                            min: 0,
+                            max: 100,
+                            minSize: '0%',
+                            maxSize: '100%',
+                            sort: 'descending',
+                            gap: 2,
+                            label: {
+                                show: true,
+                                position: 'inside',
+                                formatter: '{b}\n{c} ({d}%)',
+                                color: '#fff',
+                                fontSize: 12
+                            },
+                            labelLine: {
+                                show: false
+                            },
+                            itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 1
+                            },
+                            emphasis: {
+                                label: {
+                                    fontSize: 14
+                                }
+                            },
+                            data: funnel.map((step, index) => ({
+                                value: step.users,
+                                name: step.step_name,
+                                itemStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                        { offset: 0, color: getFunnelColor(index, funnel.length, 'start') },
+                                        { offset: 1, color: getFunnelColor(index, funnel.length, 'end') }
+                                    ])
+                                }
+                            }))
+                        }],
+                        animationDuration: 1000,
+                        animationEasing: 'cubicOut'
+                    };
+
+                    funnelChartInstance.setOption(option);
+                    
+                    window.addEventListener('resize', () => {
+                        if (funnelChartInstance) {
+                            funnelChartInstance.resize();
+                        }
+                    });
+                } else {
+                    chartDom.innerHTML = '<div class="chart-loading"><i class="bi bi-exclamation-circle me-2"></i>No data available</div>';
+                }
+            } catch (e) {
+                console.error('加载漏斗图表失败:', e);
+                chartDom.innerHTML = '<div class="chart-loading"><i class="bi bi-exclamation-circle me-2"></i>Failed to load data</div>';
+            }
+        }
+
+        function getFunnelColor(index, total, position) {
+            const colors = [
+                { start: '#667eea', end: '#764ba2' },  // Purple
+                { start: '#eb2f96', end: '#f759ab' },  // Pink
+                { start: '#1890ff', end: '#69c0ff' },  // Blue
+                { start: '#52c41a', end: '#73d13d' },  // Green
+                { start: '#faad14', end: '#ffc53d' }   // Orange
+            ];
+            return colors[index % colors.length][position];
         }
 
         async function loadUsers() {
