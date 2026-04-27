@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 
 import config
 from app.database import get_db, UserRepository
+from app.services.activity_tracker import activity_tracker
 
 # 密码加密上下文
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -267,6 +268,12 @@ class AuthService:
         if referrer_user:
             self._reward_referrer(referrer_user)
         
+        # 记录用户注册行为
+        activity_tracker.log_activity(
+            self.db, user.id, 'register',
+            metadata={'email_domain': email.split('@')[1] if '@' in email else None}
+        )
+        
         return True, "注册成功", {
             "id": user.id,
             "email": user.email,
@@ -331,6 +338,12 @@ class AuthService:
         
         # 更新最后登录时间
         self.user_repo.update_last_login(user.id)
+        
+        # 记录用户登录行为
+        activity_tracker.log_activity(
+            self.db, user.id, 'login',
+            metadata={'subscription_status': user.subscription_status}
+        )
         
         # 生成Token
         token = create_access_token(

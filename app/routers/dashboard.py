@@ -13,6 +13,7 @@ from app.database import get_db_context, ProductDataRepository
 from app.services.analytics import AnalyticsService
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
+from app.services.activity_tracker import activity_tracker
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/dashboard", tags=["仪表盘"])
@@ -133,6 +134,12 @@ async def get_summary(current_user: dict = Depends(require_subscription)):
         
         analytics = AnalyticsService(product_dicts)
         summary = analytics.get_summary_metrics()
+        
+        # 记录查看仪表盘行为
+        activity_tracker.log_activity(
+            None, user_id, 'view_dashboard',
+            metadata={'product_count': len(product_dicts)}
+        )
         
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 成功 耗时: {elapsed:.3f}s")

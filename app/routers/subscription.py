@@ -14,6 +14,7 @@ from pydantic import BaseModel
 import config
 from app.database import get_db, UserRepository
 from app.services.auth import get_current_user
+from app.services.activity_tracker import activity_tracker
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -403,6 +404,12 @@ async def handle_checkout_completed(session):
                 "customer_id": session.customer
             })
             
+            # 记录用户订阅成功行为
+            activity_tracker.log_activity(
+                db, int(user_id), 'subscribe',
+                metadata={'subscription_id': subscription_id, 'plan': 'pro'}
+            )
+            
             logger.info(f"用户 {user_id} 订阅激活成功，订阅ID: {subscription_id}")
         else:
             logger.warning(f"Checkout会话 {session.id} 没有subscription_id")
@@ -450,6 +457,13 @@ async def handle_subscription_deleted(subscription):
                 "status": "canceled",
                 "end_date": datetime.utcfromtimestamp(subscription.current_period_end)
             })
+            
+            # 记录用户取消订阅行为
+            activity_tracker.log_activity(
+                db, user.id, 'cancel_subscription',
+                metadata={'reason': 'user_initiated'}
+            )
+            
             logger.info(f"用户 {user.id} 订阅已取消")
 
 

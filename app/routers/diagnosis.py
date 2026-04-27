@@ -10,6 +10,7 @@ from app.database import get_db_context, ProductDataRepository
 from app.services.analytics import AnalyticsService
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
+from app.services.activity_tracker import activity_tracker
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/diagnosis", tags=["诊断"])
@@ -37,6 +38,10 @@ def _product_to_dict(p) -> dict:
 async def get_price_range_analysis(current_user: dict = Depends(require_subscription)):
     """价格区间分析"""
     user_id = current_user.get('id')
+    
+    # 记录查看诊断行为
+    activity_tracker.log_activity(None, user_id, 'view_diagnosis', metadata={'analysis_type': 'price_range'})
+    
     with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all(user_id=user_id)
@@ -57,6 +62,10 @@ async def get_price_range_analysis(current_user: dict = Depends(require_subscrip
 async def get_conversion_funnel(current_user: dict = Depends(require_subscription)):
     """转化漏斗分析"""
     user_id = current_user.get('id')
+    
+    # 记录查看诊断行为
+    activity_tracker.log_activity(None, user_id, 'view_diagnosis', metadata={'analysis_type': 'conversion_funnel'})
+    
     with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all(user_id=user_id)
@@ -84,6 +93,10 @@ async def get_high_profit_products(
     - **margin_threshold**: 利润率阈值（默认0.3，即30%）
     """
     user_id = current_user.get('id')
+    
+    # 记录查看诊断行为
+    activity_tracker.log_activity(None, user_id, 'view_diagnosis', metadata={'analysis_type': 'high_profit'})
+    
     with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all(user_id=user_id)

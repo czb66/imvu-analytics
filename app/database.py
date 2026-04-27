@@ -10,7 +10,7 @@ from typing import Generator
 from datetime import datetime
 import config
 
-from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User, PageView, PromoCardStat, PromoCardClick
+from app.models import Base, ProductData, ReportHistory, SystemConfig, Dataset, User, PageView, PromoCardStat, PromoCardClick, UserActivity
 
 # 数据库引擎配置
 if "sqlite" in config.DATABASE_URL:
@@ -155,6 +155,54 @@ def _run_migrations(logger):
             # 迁移 3: 检查 promo_card_clicks 表
             if 'promo_card_clicks' not in table_names:
                 logger.info("promo_card_clicks 表不存在，将由 create_all 创建")
+            
+            # 迁移 4: 创建 user_activities 表（用户行为追踪）
+            if 'user_activities' not in table_names:
+                logger.info("正在创建 user_activities 表...")
+                if "sqlite" in config.DATABASE_URL:
+                    conn.execute(text("""
+                        CREATE TABLE user_activities (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            user_id INTEGER,
+                            action VARCHAR(50) NOT NULL,
+                            resource_type VARCHAR(50),
+                            resource_id INTEGER,
+                            extra_data TEXT,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            FOREIGN KEY (user_id) REFERENCES users (id)
+                        )
+                    """))
+                    # SQLite 需要单独创建索引
+                    conn.execute(text("CREATE INDEX ix_user_activities_user_id ON user_activities (user_id)"))
+                    conn.execute(text("CREATE INDEX ix_user_activities_action ON user_activities (action)"))
+                    conn.execute(text("CREATE INDEX ix_user_activities_created_at ON user_activities (created_at)"))
+                else:
+                    conn.execute(text("""
+                        CREATE TABLE user_activities (
+                            id SERIAL PRIMARY KEY,
+                            user_id INTEGER REFERENCES users(id),
+                            action VARCHAR(50) NOT NULL,
+                            resource_type VARCHAR(50),
+                            resource_id INTEGER,
+                            extra_data JSONB,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )
+                    """))
+                    conn.execute(text("CREATE INDEX ix_user_activities_user_id ON user_activities (user_id)"))
+                    conn.execute(text("CREATE INDEX ix_user_activities_action ON user_activities (action)"))
+                    conn.execute(text("CREATE INDEX ix_user_activities_created_at ON user_activities (created_at)"))
+                conn.commit()
+                logger.info("user_activities 表创建成功")
+            
+            # 迁移 5: 添加 report_preference 字段
+            if 'report_preference' not in existing_columns:
+                logger.info("正在添加 report_preference 列到 users 表...")
+                if "sqlite" in config.DATABASE_URL:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN report_preference VARCHAR(20) DEFAULT 'weekly'"))
+                else:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN report_preference VARCHAR(20) DEFAULT 'weekly'"))
+                conn.commit()
+                logger.info("report_preference 列添加成功")
             
             logger.info("数据库迁移完成")
             

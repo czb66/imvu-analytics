@@ -18,6 +18,7 @@ from app.services.email_service import email_service
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
 from app.services.download_token import generate_download_token, verify_download_token
+from app.services.activity_tracker import activity_tracker
 import html as html_module
 
 logger = logging.getLogger(__name__)
@@ -55,6 +56,10 @@ def _product_to_dict(p) -> dict:
 async def generate_report_html(current_user: dict = Depends(require_subscription)):
     """生成HTML报告"""
     user_id = current_user.get('id')
+    
+    # 记录生成报告行为
+    activity_tracker.log_activity(None, user_id, 'generate_report')
+    
     try:
         with get_db_context() as db:
             repo = ProductDataRepository(db)

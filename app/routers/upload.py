@@ -15,6 +15,7 @@ from app.database import get_db_context, ProductDataRepository, DatasetRepositor
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
 from app.routers.dashboard import _clear_cache  # 导入缓存清除函数
+from app.services.activity_tracker import activity_tracker
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/upload", tags=["上传"])
@@ -93,6 +94,14 @@ async def upload_xml_file(
             count = repo.bulk_insert_with_dataset(products, dataset.id)
             dataset_id = dataset.id
             dataset_name_display = dataset.name
+            
+            # 记录用户上传行为（在数据库事务内）
+            activity_tracker.log_activity(
+                db, current_user.get('id'), 'upload',
+                resource_type='dataset',
+                resource_id=dataset_id,
+                metadata={'record_count': count, 'dataset_name': dataset_name_display}
+            )
         
         # 清除仪表盘缓存，确保新数据立即可见
         _clear_cache()

@@ -18,6 +18,7 @@ import logging
 from app.database import get_db
 from app.models import PromoCardStat, PromoCardClick, User
 from app.core.limiter import limiter
+from app.services.activity_tracker import activity_tracker
 
 router = APIRouter(
     prefix="/api/promo-card",
@@ -115,6 +116,15 @@ async def save_stats(
         db.add(stat)
         db.commit()
         db.refresh(stat)
+        
+        # 记录创建推广卡片行为
+        if user_info:
+            activity_tracker.log_activity(
+                db, user_info["id"], 'create_promo_card',
+                resource_type='promo_card',
+                resource_id=stat.id,
+                metadata={'product_count': len(products), 'style': data.get("style", "grid")}
+            )
         
         logger.info(f"推广卡片统计 - 用户: {user_info['email'] if user_info else '匿名'}, stat_id: {stat.id}")
         

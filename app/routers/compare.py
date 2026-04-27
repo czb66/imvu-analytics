@@ -10,6 +10,7 @@ from datetime import datetime
 from app.database import get_db_context, ProductDataRepository, DatasetRepository
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
+from app.services.activity_tracker import activity_tracker
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/compare", tags=["数据对比"])
@@ -211,6 +212,9 @@ async def compare_datasets(
     - **dataset_ids**: 数据集ID列表（2-10个）
     """
     user_id = current_user.get('id')
+    
+    # 记录查看对比行为
+    activity_tracker.log_activity(None, user_id, 'view_compare', metadata={'dataset_count': len(dataset_ids)})
     
     if len(dataset_ids) < 2 or len(dataset_ids) > 10:
         raise HTTPException(

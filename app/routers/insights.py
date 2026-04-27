@@ -15,6 +15,7 @@ from app.services.analytics import AnalyticsService
 from app.services.insights import insights_service
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription, is_whitelisted
+from app.services.activity_tracker import activity_tracker
 from app.core.limiter import limiter
 
 logger = logging.getLogger(__name__)
@@ -134,6 +135,9 @@ async def generate_dashboard_insights(
     
     # 获取语言参数
     language = req.language if req and hasattr(req, 'language') else 'zh'
+    
+    # 记录查看洞察行为
+    activity_tracker.log_activity(None, user_id, 'view_insights', metadata={'insight_type': 'dashboard', 'language': language})
     
     try:
         # 获取产品数据

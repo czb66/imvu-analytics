@@ -1987,6 +1987,21 @@ const translations = {
         }
     },
     
+    // 个人中心 - 报告订阅
+    profile: {
+        reportSubscription: '报告订阅',
+        reportSubscriptionHint: '订阅以接收自动化的营销数据报告，发送到您的邮箱。',
+        prefDaily: '📅 每日报告',
+        prefDailyHint: '每天早上9:00接收',
+        prefWeekly: '📊 每周报告',
+        prefWeeklyHint: '每周一接收（推荐）',
+        prefNone: '🚫 不接收报告',
+        prefNoneHint: '取消所有报告订阅',
+        currentPreference: '当前:',
+        savePreference: '保存偏好',
+        prefSaved: '报告偏好已保存！'
+    },
+    
     fr: {
         // Nom de l'application
         appName: 'Plateforme IMVU Analytics',
@@ -2912,6 +2927,21 @@ const translations = {
             user_list: 'Liste des Utilisateurs',
             th_page: 'Page',
             th_views: 'Vues'
+        },
+        
+        // 个人中心 - 报告订阅
+        profile: {
+            reportSubscription: 'Abonnement aux Rapports',
+            reportSubscriptionHint: 'Abonnez-vous pour recevoir des rapports marketing automatisés par email.',
+            prefDaily: '📅 Rapport Quotidien',
+            prefDailyHint: 'Reçu chaque jour à 9h00',
+            prefWeekly: '📊 Rapport Hebdomadaire',
+            prefWeeklyHint: 'Reçu chaque lundi (Recommandé)',
+            prefNone: '🚫 Aucun Rapport',
+            prefNoneHint: 'Se désabonner de tous les rapports',
+            currentPreference: 'Actuel:',
+            savePreference: 'Enregistrer',
+            prefSaved: 'Préférence enregistrée!'
         }
     }
 };

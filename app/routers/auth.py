@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.services.auth import AuthService, get_current_user
+from app.services.activity_tracker import activity_tracker
 from app.core.limiter import limiter
 
 router = APIRouter(prefix="/api/auth", tags=["认证"])
@@ -120,13 +121,16 @@ async def login(request: Request, login_request: LoginRequest, db: Session = Dep
 
 
 @router.post("/logout")
-async def logout(current_user: dict = Depends(get_current_user)):
+async def logout(current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     用户登出
     
     注意：由于使用JWT无状态认证，后端不需要做任何处理
     客户端只需要删除本地存储的Token即可
     """
+    # 记录用户登出行为
+    activity_tracker.log_activity(db, current_user.get('id'), 'logout')
+    
     return {
         "success": True,
         "message": "已安全退出"
@@ -514,4 +518,91 @@ async def reset_password(request: ResetPasswordRequest, db: Session = Depends(ge
     return {
         "success": True,
         "message": "密码重置成功，请使用新密码登录"
+    }
+
+
+# ==================== 报告订阅偏好 ====================
+
+class ReportPreferenceRequest(BaseModel):
+    """报告订阅偏好设置请求"""
+    report_preference: str = Field(
+        ...,
+        description="报告订阅偏好: daily(每日)/weekly(每周)/none(取消订阅)"
+    )
+
+
+@router.get("/report-preference")
+async def get_report_preference(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取当前用户的报告订阅偏好
+    
+    返回: daily, weekly, none
+    """
+    from app.database import UserRepository
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    return {
+        "success": True,
+        "message": "获取成功",
+        "data": {
+            "report_preference": user.report_preference or "weekly"
+        }
+    }
+
+
+@router.post("/report-preference")
+async def set_report_preference(
+    request: ReportPreferenceRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    设置报告订阅偏好
+    
+    - **report_preference**: daily(每日报告) / weekly(每周报告) / none(取消订阅)
+    """
+    from app.database import UserRepository
+    
+    # 验证参数
+    valid_prefs = ['daily', 'weekly', 'none']
+    if request.report_preference not in valid_prefs:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "success": False,
+                "message": f"无效的订阅选项，仅支持: {', '.join(valid_prefs)}"
+            }
+        )
+    
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    # 更新订阅偏好
+    user.report_preference = request.report_preference
+    db.commit()
+    
+    logger.info(f"用户 {user.email} 更新报告偏好为: {request.report_preference}")
+    
+    return {
+        "success": True,
+        "message": "报告订阅偏好已更新",
+        "data": {
+            "report_preference": user.report_preference
+        }
     }

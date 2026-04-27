@@ -14,6 +14,7 @@ import logging
 from app.database import get_db, UserRepository
 from app.services.admin import require_admin
 from app.services.auth import get_current_user
+from app.services.activity_tracker import activity_tracker
 import config
 
 logger = logging.getLogger(__name__)
@@ -296,6 +297,281 @@ async def get_admin_stats(
     except Exception as e:
         logger.error(f"获取统计数据失败: {e}")
         raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+
+
+# ==================== 用户行为分析API ====================
+
+@router.get("/analytics/users")
+async def get_user_activity_stats(
+    days: int = Query(30, ge=7, le=365, description="统计天数"),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取用户活跃度统计
+    
+    - DAU趋势（最近N天）
+    - MAU（月活跃用户数）
+    - 用户参与度分布
+    """
+    try:
+        # DAU趋势
+        dau_trend = activity_tracker.get_dau_trend(db, days=days)
+        
+        # 当前MAU
+        now = datetime.utcnow()
+        mau = activity_tracker.get_monthly_active_users(db, now.year, now.month)
+        
+        # 当前DAU
+        dau = activity_tracker.get_daily_active_users(db)
+        
+        # 获取总注册用户数
+        from app.models import User
+        total_users = db.query(User).count()
+        
+        # 计算活跃用户占比
+        active_users = db.query(func.count(func.distinct(UserActivity.user_id))).filter(
+            UserActivity.created_at >= datetime.utcnow() - timedelta(days=days)
+        ).scalar() or 0
+        
+        # 计算次日留存率（最近7天）
+        retention_rates = []
+        for i in range(7):
+            cohort_date = (datetime.utcnow() - timedelta(days=i+1)).date()
+            retention = activity_tracker.get_retention_rate(db, cohort_date)
+            retention_rates.append({
+                'date': cohort_date.isoformat(),
+                'retention_rate': retention
+            })
+        
+        return {
+            "success": True,
+            "data": {
+                "dau": dau,
+                "mau": mau,
+                "total_users": total_users,
+                "active_users_in_period": active_users,
+                "active_user_ratio": round(active_users / total_users * 100, 2) if total_users > 0 else 0,
+                "dau_trend": dau_trend,
+                "retention_rates": retention_rates
+            }
+        }
+    except Exception as e:
+        logger.error(f"获取用户活跃度统计失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+
+
+@router.get("/analytics/features")
+async def get_feature_usage_stats(
+    days: int = Query(30, ge=7, le=365, description="统计天数"),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取功能使用统计
+    
+    返回各功能的总使用次数和独立用户数
+    """
+    try:
+        from app.models import UserActivity
+        
+        # 功能使用次数统计
+        feature_usage = activity_tracker.get_feature_usage(db, days=days)
+        
+        # 按功能分组统计独立用户数
+        feature_users = {}
+        start_date = datetime.utcnow() - timedelta(days=days)
+        
+        results = db.query(
+            UserActivity.action,
+            func.count(func.distinct(UserActivity.user_id)).label('user_count')
+        ).filter(
+            UserActivity.created_at >= start_date
+        ).group_by(
+            UserActivity.action
+        ).all()
+        
+        for r in results:
+            feature_users[r.action] = r.user_count
+        
+        # 构建完整数据
+        features_data = []
+        for action, count in feature_usage.items():
+            features_data.append({
+                'action': action,
+                'usage_count': count,
+                'unique_users': feature_users.get(action, 0)
+            })
+        
+        # 按使用次数排序
+        features_data.sort(key=lambda x: x['usage_count'], reverse=True)
+        
+        return {
+            "success": True,
+            "data": {
+                "period_days": days,
+                "total_events": sum(feature_usage.values()),
+                "features": features_data
+            }
+        }
+    except Exception as e:
+        logger.error(f"获取功能使用统计失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+
+
+@router.get("/analytics/retention")
+async def get_retention_stats(
+    days: int = Query(30, ge=7, le=90, description="分析天数"),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取留存率统计
+    
+    返回每日 cohort 的次日、7日、30日留存率
+    """
+    try:
+        retention_data = []
+        
+        for i in range(days):
+            cohort_date = (datetime.utcnow() - timedelta(days=i+1)).date()
+            
+            # 获取该日注册用户数
+            from app.models import User
+            cohort_start = datetime.combine(cohort_date, datetime.min.time())
+            cohort_end = datetime.combine(cohort_date, datetime.max.time())
+            
+            new_users_count = db.query(func.count(User.id)).filter(
+                and_(
+                    User.created_at >= cohort_start,
+                    User.created_at <= cohort_end
+                )
+            ).scalar() or 0
+            
+            if new_users_count == 0:
+                continue
+            
+            # 次日留存
+            day1_retention = activity_tracker.get_retention_rate(db, cohort_date)
+            
+            # 7日留存
+            day7_cohort = cohort_date - timedelta(days=7)
+            day7_users = db.query(func.count(func.distinct(UserActivity.user_id))).filter(
+                and_(
+                    UserActivity.user_id.in_(
+                        db.query(User.id).filter(
+                            and_(
+                                User.created_at >= cohort_start,
+                                User.created_at <= cohort_end
+                            )
+                        )
+                    ),
+                    func.date(UserActivity.created_at) == day7_cohort
+                )
+            ).scalar() or 0
+            day7_rate = round(day7_users / new_users_count, 4) if new_users_count > 0 else 0
+            
+            retention_data.append({
+                'cohort_date': cohort_date.isoformat(),
+                'new_users': new_users_count,
+                'day1_retention': round(day1_retention * 100, 2),
+                'day7_retention': round(day7_rate * 100, 2)
+            })
+        
+        # 按日期倒序
+        retention_data.sort(key=lambda x: x['cohort_date'], reverse=True)
+        
+        return {
+            "success": True,
+            "data": {
+                "retention_data": retention_data[:30],  # 最多返回30天
+                "average_day1_retention": round(
+                    sum(r['day1_retention'] for r in retention_data) / len(retention_data), 2
+                ) if retention_data else 0,
+                "average_day7_retention": round(
+                    sum(r['day7_retention'] for r in retention_data) / len(retention_data), 2
+                ) if retention_data else 0
+            }
+        }
+    except Exception as e:
+        logger.error(f"获取留存率统计失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+
+
+@router.get("/analytics/funnel")
+async def get_conversion_funnel_stats(
+    days: int = Query(30, ge=7, le=365, description="统计天数"),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取转化漏斗统计
+    
+    从注册到付费的转化路径分析
+    """
+    try:
+        from app.models import User, UserActivity
+        
+        # 获取转化漏斗数据
+        funnel_data = activity_tracker.get_conversion_funnel(db, days=days)
+        
+        # 计算转化率
+        steps = ['register', 'login', 'upload', 'view_dashboard', 'generate_report']
+        funnel_with_conversion = []
+        
+        prev_count = None
+        for step in steps:
+            count = funnel_data.get(step, 0)
+            conversion_rate = 100.0
+            
+            if prev_count is not None and prev_count > 0:
+                conversion_rate = round(count / prev_count * 100, 2)
+            elif step == 'register':
+                # 注册作为漏斗入口，使用注册用户总数
+                from app.models import User
+                start_date = datetime.utcnow() - timedelta(days=days)
+                total_registered = db.query(func.count(User.id)).filter(
+                    User.created_at >= start_date
+                ).scalar() or 0
+                prev_count = total_registered
+                count = total_registered
+            
+            funnel_with_conversion.append({
+                'step': step,
+                'step_name': _get_step_name(step),
+                'users': count,
+                'conversion_from_previous': conversion_rate
+            })
+            
+            if step != 'register':
+                prev_count = count
+        
+        return {
+            "success": True,
+            "data": {
+                "period_days": days,
+                "funnel": funnel_with_conversion,
+                "overall_conversion": round(
+                    funnel_data.get('generate_report', 0) / prev_count * 100, 2
+                ) if prev_count and prev_count > 0 else 0
+            }
+        }
+    except Exception as e:
+        logger.error(f"获取转化漏斗统计失败: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+
+
+def _get_step_name(step: str) -> str:
+    """获取步骤显示名称"""
+    names = {
+        'register': '注册',
+        'login': '登录',
+        'upload': '上传数据',
+        'view_dashboard': '查看仪表盘',
+        'generate_report': '生成报告',
+        'subscribe': '订阅付费'
+    }
+    return names.get(step, step)
 
 
 @router.get("/users")

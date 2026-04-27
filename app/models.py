@@ -2,7 +2,7 @@
 数据模型 - 定义数据结构
 """
 
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
@@ -43,6 +43,9 @@ class User(Base):
     subscription_id = Column(String(255), nullable=True, index=True)  # 订阅ID
     subscription_status = Column(String(50), default='none')  # none/active/canceled/expired/past_due
     subscription_end_date = Column(DateTime, nullable=True)  # 订阅到期时间
+    
+    # 报告订阅设置
+    report_preference = Column(String(20), default='weekly')  # daily/weekly/none, 新用户默认每周报告
     
     # 关联数据
     datasets = relationship("Dataset", back_populates="owner", cascade="all, delete-orphan")
@@ -233,3 +236,33 @@ class PromoCardClick(Base):
 
     def __repr__(self):
         return f"<PromoCardClick stat_id={self.stat_id} product={self.product_name}>"
+
+
+class UserActivity(Base):
+    """用户行为追踪模型 - 记录用户在平台上的关键操作"""
+    __tablename__ = "user_activities"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    
+    # 行为类型
+    action = Column(String(50), nullable=False, index=True)
+    # 可选值: login, logout, register, upload, view_dashboard, view_diagnosis, 
+    #         view_compare, view_insights, generate_report, export_pdf, 
+    #         create_promo_card, subscribe, cancel_subscription
+    
+    # 资源信息
+    resource_type = Column(String(50), nullable=True)  # dataset, report, promo_card
+    resource_id = Column(Integer, nullable=True)
+    
+    # 额外元数据（不记录敏感信息如密码、完整IP等）
+    extra_data = Column(JSON, nullable=True)  # 如设备信息、浏览器类型等
+    
+    # 时间戳
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    
+    # 关联
+    user = relationship("User", backref="activities")
+
+    def __repr__(self):
+        return f"<UserActivity user_id={self.user_id} action={self.action}>"
