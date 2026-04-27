@@ -114,9 +114,15 @@ async def shutdown_event():
 
 
 @app.get("/")
-async def root():
-    """首页 - 重定向到登录页"""
-    return RedirectResponse(url="/login")
+async def root(request: Request):
+    """首页 - 显示落地页（未登录用户）或跳转仪表盘（已登录用户）"""
+    # 检查用户是否已登录
+    token = request.cookies.get("access_token")
+    if token:
+        # 已登录用户跳转到仪表盘
+        return RedirectResponse(url="/dashboard")
+    # 未登录用户显示落地页
+    return templates.TemplateResponse("landing.html", {"request": request})
 
 
 @app.get("/health/db")

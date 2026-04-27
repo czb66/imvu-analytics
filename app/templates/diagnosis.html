@@ -242,6 +242,96 @@
             border-color: #ccc;
         }
         
+        /* 软付费墙样式 */
+        .blurred-content {
+            filter: blur(5px);
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .paywall-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-top: 15px;
+            border: 2px solid var(--primary);
+        }
+        .paywall-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .paywall-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .paywall-desc {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .paywall-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .paywall-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .diagnosis-locked-section {
+            position: relative;
+        }
+        .diagnosis-locked-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, transparent, white);
+            pointer-events: none;
+        }
+        .diagnosis-paywall-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: white;
+            text-align: center;
+            border-top: 1px dashed #ddd;
+            z-index: 10;
+        }
+        .diagnosis-basic-badge {
+            background: #e6f7ff;
+            color: #1890ff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        .diagnosis-pro-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
         .lang-select:focus {
             outline: none;
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
@@ -782,10 +872,17 @@
             const user = await protectPage();
             if (!user) return;
             
-            // 如果用户已订阅或在白名单中，隐藏订阅按钮
-            if (user.is_subscribed || user.subscription_status === 'active' || user.is_whitelisted) {
+            // 检查是否有高级访问权限
+            const hasPremium = user.is_subscribed || user.subscription_status === 'active' || 
+                               user.is_whitelisted || user.has_premium_access || user.is_in_trial;
+            
+            // 隐藏订阅按钮（如果已订阅）
+            if (hasPremium) {
                 const subscribeBtn = document.getElementById('subscribeBtn');
                 if (subscribeBtn) subscribeBtn.style.display = 'none';
+            } else {
+                // 免费用户：应用软付费墙
+                applyDiagnosisPaywall();
             }
             
             // 初始化用户菜单
@@ -796,6 +893,87 @@
             // AI洞察改为手动生成，初始状态显示按钮
             initInsightCard();
         });
+        
+        // 应用深度诊断软付费墙
+        function applyDiagnosisPaywall() {
+            const lang = localStorage.getItem('imvu_lang') || 'en';
+            
+            // 为高利润识别区域添加付费墙
+            const highProfitSection = document.querySelector('.row.g-4.mb-4');
+            if (highProfitSection) {
+                // 在高利润产品区域前添加付费墙提示
+                const paywallHint = document.createElement('div');
+                paywallHint.className = 'alert alert-warning mb-4';
+                paywallHint.style.cssText = 'background: linear-gradient(135deg, #fff7e6, #ffd591); border-color: #ffc53d; border-radius: 12px;';
+                paywallHint.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div>
+                            <span class="diagnosis-basic-badge"><i class="bi bi-info-circle me-1"></i>${lang === 'zh' ? '基础功能' : 'Basic'}</span>
+                            <strong>${lang === 'zh' ? '高利润产品识别' : 'High Profit Products'}</strong>
+                            <span class="text-muted ms-2">${lang === 'zh' ? '（部分展示）' : '(Partial)'}</span>
+                        </div>
+                        <a href="/pricing" class="paywall-btn" style="padding: 8px 20px; font-size: 13px;">
+                            <i class="bi bi-lock me-1"></i>${lang === 'zh' ? '升级Pro解锁' : 'Unlock with Pro'}
+                        </a>
+                    </div>
+                `;
+                highProfitSection.parentNode.insertBefore(paywallHint, highProfitSection);
+            }
+            
+            // 为转化漏斗区域添加付费墙
+            const funnelSection = document.getElementById('funnelSection');
+            if (funnelSection) {
+                const paywallOverlay = document.createElement('div');
+                paywallOverlay.className = 'diagnosis-paywall-overlay';
+                paywallOverlay.innerHTML = `
+                    <div class="mb-3">
+                        <span class="diagnosis-pro-badge"><i class="bi bi-star me-1"></i>${lang === 'zh' ? 'Pro功能' : 'Pro Feature'}</span>
+                    </div>
+                    <p class="mb-3" style="color: #666;">
+                        ${lang === 'zh' 
+                            ? '升级Pro解锁完整转化漏斗分析，了解每一步的流失率' 
+                            : 'Upgrade to Pro for complete conversion funnel analysis'}
+                    </p>
+                    <a href="/pricing" class="paywall-btn">
+                        ${lang === 'zh' ? '升级Pro解锁全部功能 →' : 'Upgrade to Pro →'}
+                    </a>
+                `;
+                funnelSection.style.position = 'relative';
+                funnelSection.appendChild(paywallOverlay);
+            }
+            
+            // 为ROI分析添加模糊效果
+            const roiSection = document.querySelector('.row.g-4.mb-4:last-of-type');
+            if (roiSection) {
+                const roiCards = roiSection.querySelectorAll('.col-md-4');
+                roiCards.forEach((card, index) => {
+                    if (index > 0) { // 只模糊化ROI卡片以外的内容
+                        const content = card.querySelector('.metric-card');
+                        if (content) {
+                            content.classList.add('blurred-content');
+                        }
+                    }
+                });
+            }
+            
+            // 添加升级提示卡片
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                const paywallCard = document.createElement('div');
+                paywallCard.className = 'paywall-card';
+                paywallCard.innerHTML = `
+                    <div class="paywall-icon">🔍</div>
+                    <div class="paywall-title">${lang === 'zh' ? '解锁完整深度诊断' : 'Unlock Full Deep Diagnosis'}</div>
+                    <div class="paywall-desc">${lang === 'zh' 
+                        ? '免费用户可查看价格区间分析和基础数据，升级Pro获取高利润识别、转化漏斗、ROI分析等深度功能' 
+                        : 'Free users see price range analysis. Upgrade to Pro for high profit identification, conversion funnel, ROI analysis and more'}</div>
+                    <a href="/pricing" class="paywall-btn">
+                        ${lang === 'zh' ? '升级Pro - $12/月' : 'Upgrade Pro - $12/month'}
+                    </a>
+                `;
+                mainContent.appendChild(paywallCard);
+            }
+        }
 
         async function loadAllData() {
             try {

@@ -304,6 +304,81 @@
             color: #333;
             padding: 8px;
         }
+        
+        /* 软付费墙样式 */
+        .blurred-content {
+            filter: blur(5px);
+            user-select: none;
+            pointer-events: none;
+            position: relative;
+        }
+        .blurred-content::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: transparent;
+        }
+        .blur-overlay {
+            position: relative;
+        }
+        .blur-overlay .blur-content {
+            filter: blur(5px);
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .paywall-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-top: 15px;
+            border: 2px solid var(--primary);
+        }
+        .paywall-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .paywall-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .paywall-desc {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .paywall-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .paywall-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .insight-locked-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 77, 79, 0.9);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -413,13 +488,66 @@
             if (user) {
                 document.getElementById('userEmail').textContent = user.email;
                 
-                // 如果用户已订阅或在白名单中，隐藏订阅按钮
-                if (user.is_subscribed || user.subscription_status === 'active' || user.is_whitelisted) {
+                // 检查是否有高级访问权限
+                const hasPremium = user.is_subscribed || user.subscription_status === 'active' || 
+                                   user.is_whitelisted || user.has_premium_access || user.is_in_trial;
+                
+                // 隐藏订阅按钮（如果已订阅）
+                if (hasPremium) {
                     const subscribeBtn = document.getElementById('subscribeBtn');
                     if (subscribeBtn) subscribeBtn.style.display = 'none';
+                } else {
+                    // 免费用户：应用软付费墙
+                    applyPaywall();
                 }
             }
         });
+        
+        // 应用软付费墙
+        function applyPaywall() {
+            const lang = localStorage.getItem('imvu_lang') || 'en';
+            
+            // 为左侧功能区添加模糊效果
+            const leftCol = document.querySelector('.col-md-4');
+            if (leftCol) {
+                leftCol.classList.add('blur-overlay');
+                const blurDiv = document.createElement('div');
+                blurDiv.className = 'blur-content';
+                blurDiv.innerHTML = leftCol.innerHTML;
+                leftCol.innerHTML = '';
+                leftCol.appendChild(blurDiv);
+                
+                // 添加付费墙卡片
+                const paywallCard = document.createElement('div');
+                paywallCard.className = 'paywall-card';
+                paywallCard.innerHTML = `
+                    <div class="paywall-icon">🔒</div>
+                    <div class="paywall-title">${lang === 'zh' ? '解锁全部AI洞察' : 'Unlock All AI Insights'}</div>
+                    <div class="paywall-desc">${lang === 'zh' 
+                        ? '免费用户可查看前2条洞察，升级Pro查看全部深度分析' 
+                        : 'Free users see first 2 insights. Upgrade to Pro for all analysis'}</div>
+                    <a href="/pricing" class="paywall-btn">
+                        ${lang === 'zh' ? '升级Pro - $12/月' : 'Upgrade Pro - $12/month'}
+                    </a>
+                `;
+                leftCol.appendChild(paywallCard);
+            }
+            
+            // 为聊天区域添加提示
+            const chatContainer = document.querySelector('.chat-container');
+            if (chatContainer) {
+                const paywallHint = document.createElement('div');
+                paywallHint.className = 'alert alert-info mt-3';
+                paywallHint.style.cssText = 'background: #e6f7ff; border-color: #91d5ff; color: #1890ff; border-radius: 8px;';
+                paywallHint.innerHTML = `
+                    <i class="bi bi-info-circle me-2"></i>
+                    ${lang === 'zh' 
+                        ? '升级Pro解锁AI智能问答功能，获取个性化销售建议' 
+                        : 'Upgrade to Pro for AI Q&A and personalized sales advice'}
+                `;
+                chatContainer.appendChild(paywallHint);
+            }
+        }
 
         // Question handling
         async function sendQuestion() {

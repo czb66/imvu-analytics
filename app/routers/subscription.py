@@ -187,11 +187,18 @@ async def get_stripe_config():
     """
     获取Stripe公开配置（前端使用）
     """
+    import os
     return {
         "publishable_key": config.get_stripe_publishable_key(),
         "price_id": config.get_stripe_price_id(),
         "price_amount": int(config.SUBSCRIPTION_PRICE * 100),  # 转换为分
-        "currency": "usd"
+        "currency": "usd",
+        # 年付选项
+        "yearly_price_id": os.getenv("STRIPE_YEARLY_PRICE_ID", ""),
+        "yearly_price": 99.00,
+        "yearly_price_monthly": 8.25,
+        "yearly_savings": 45.00,
+        "yearly_savings_percent": 31
     }
 
 
@@ -543,13 +550,37 @@ async def get_subscription_status(
             )
         
         # 构建订阅状态数据（只使用数据库数据，不调用 Stripe API）
+        from datetime import datetime
+        trial_days_left = 0
+        is_in_trial = False
+        
+        if user.trial_end_date:
+            now = datetime.utcnow()
+            if user.trial_end_date > now:
+                delta = user.trial_end_date - now
+                trial_days_left = delta.days
+                if delta.seconds > 0:
+                    trial_days_left += 1  # 不足一天算一天
+                is_in_trial = True
+        
         subscription_data = {
             "is_subscribed": user.is_subscribed,
             "status": user.subscription_status or "none",
             "subscription_id": user.subscription_id,
             "end_date": user.subscription_end_date.strftime("%Y-%m-%d %H:%M:%S") if user.subscription_end_date else None,
             "price": config.SUBSCRIPTION_PRICE,
-            "currency": "usd"
+            "currency": "usd",
+            # 试用期信息
+            "trial_end_date": user.trial_end_date.strftime("%Y-%m-%d %H:%M:%S") if user.trial_end_date else None,
+            "trial_days_left": trial_days_left,
+            "is_in_trial": is_in_trial,
+            "has_premium_access": user.has_premium_access,
+            # 年付选项
+            "yearly_price_id": os.getenv("STRIPE_YEARLY_PRICE_ID", ""),
+            "yearly_price": 99.00,
+            "yearly_price_monthly": 8.25,
+            "yearly_savings": 45.00,
+            "yearly_savings_percent": 31
         }
         
         return {

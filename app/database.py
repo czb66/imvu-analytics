@@ -298,6 +298,19 @@ def _run_migrations(logger):
                 conn.commit()
                 logger.info("industry_benchmarks 表创建成功")
             
+            # 迁移 11: 添加 onboarding 引导流程字段
+            onboarding_fields = [
+                ('onboarding_step', 'INTEGER DEFAULT 0'),
+                ('onboarding_completed_at', 'TIMESTAMP'),
+            ]
+            
+            for col_name, col_type in onboarding_fields:
+                if col_name not in existing_columns:
+                    logger.info(f"正在添加 {col_name} 列到 users 表...")
+                    conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                    conn.commit()
+                    logger.info(f"{col_name} 列添加成功")
+            
             logger.info("数据库迁移完成")
             
     except Exception as e:

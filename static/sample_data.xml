@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    示例数据文件 - 用于测试营销数据分析平台
+    字段说明：
+    - product_id: 产品ID
+    - product_name: 产品名称
+    - price: 批发价格
+    - profit: 利润
+    - visible: 是否可见 (Y/N)
+    - direct_sales: 直接销售额
+    - indirect_sales: 间接销售额
+    - promoted_sales: 推广期销售额
+    - cart_adds: 加购数
+    - wishlist_adds: 收藏数
+    - organic_impressions: 自然展示
+    - paid_impressions: 付费展示
+-->
+<product_list>
+    <!-- 高利润产品 -->
+    <product_list_entry 
+        product_id="PROD001" 
+        product_name="高端蓝牙耳机 Pro" 
+        price="899" 
+        profit="450" 
+        visible="Y" 
+        direct_sales="12500" 
+        indirect_sales="8300" 
+        promoted_sales="15800" 
+        cart_adds="520" 
+        wishlist_adds="380" 
+        organic_impressions="85000" 
+        paid_impressions="62000" />
+    
+    <product_list_entry 
+        product_id="PROD002" 
+        product_name="无线充电底座" 
+        price="299" 
+        profit="150" 
+        visible="Y" 
+        direct_sales="6800" 
+        indirect_sales="4200" 
+        promoted_sales="8900" 
+        cart_adds="280" 
+        wishlist_adds="195" 
+        organic_impressions="45000" 
+        paid_impressions="35000" />
+    
+    <product_list_entry 
+        product_id="PROD003" 
+        product_name="智能手环运动版" 
+        price="399" 
+        profit="180" 
+        visible="Y" 
+        direct_sales="9200" 
+        indirect_sales="5600" 
+        promoted_sales="11200" 
+        cart_adds="340" 
+        wishlist_adds="245" 
+        organic_impressions="68000" 
+        paid_impressions="48000" />
+    
+    <!-- 中等利润产品 -->
+    <product_list_entry 
+        product_id="PROD004" 
+        product_name="USB-C扩展坞" 
+        price="259" 
+        profit="85" 
+        visible="Y" 
+        direct_sales="4500" 
+        indirect_sales="3100" 
+        promoted_sales="5800" 
+        cart_adds="165" 
+        wishlist_adds="98" 
+        organic_impressions="32000" 
+        paid_impressions="28000" />
+    
+    <product_list_entry 
+        product_id="PROD005" 
+        product_name="便携式音箱 Mini" 
+        price="199" 
+        profit="72" 
+        visible="Y" 
+        direct_sales="3800" 
+        indirect_sales="2400" 
+        promoted_sales="4200" 
+        cart_adds="145" 
+        wishlist_adds="88" 
+        organic_impressions="28000" 
+        paid_impressions="22000" />
+    
+    <product_list_entry 
+        product_id="PROD006" 
+        product_name="机械键盘 RGB" 
+        price="459" 
+        profit="135" 
+        visible="Y" 
+        direct_sales="5600" 
+        indirect_sales="3900" 
+        promoted_sales="7200" 
+        cart_adds="198" 
+        wishlist_adds="142" 
+        organic_impressions="52000" 
+        paid_impressions="41000" />
+    
+    <!-- 低利润产品 -->
+    <product_list_entry 
+        product_id="PROD007" 
+        product_name="手机贴膜套装" 
+        price="29" 
+        profit="8" 
+        visible="Y" 
+        direct_sales="1200" 
+        indirect_sales="800" 
+        promoted_sales="1500" 
+        cart_adds="85" 
+        wishlist_adds="32" 
+        organic_impressions="18000" 
+        paid_impressions="15000" />
+    
+    <product_list_entry 
+        product_id="PROD008" 
+        product_name="数据线三件套" 
+        price="39" 
+        profit="12" 
+        visible="Y" 
+        direct_sales="1500" 
+        indirect_sales="950" 
+        promoted_sales="1800" 
+        cart_adds="92" 
+        wishlist_adds="38" 
+        organic_impressions="22000" 
+        paid_impressions="18000" />
+    
+    <!-- 隐藏产品 -->
+    <product_list_entry 
+        product_id="PROD009" 
+        product_name="清仓特惠耳机" 
+        price="99" 
+        profit="25" 
+        visible="N" 
+        direct_sales="800" 
+        indirect_sales="450" 
+        promoted_sales="0" 
+        cart_adds="42" 
+        wishlist_adds="18" 
+        organic_impressions="5000" 
+        paid_impressions="0" />
+    
+    <product_list_entry 
+        product_id="PROD010" 
+        product_name="限时折扣充电宝" 
+        price="79" 
+        profit="18" 
+        visible="N" 
+        direct_sales="650" 
+        indirect_sales="380" 
+        promoted_sales="0" 
+        cart_adds="35" 
+        wishlist_adds="12" 
+        organic_impressions="4000" 
+        paid_impressions="0" />
+    
+    <!-- 异常数据产品（用于测试异常检测） -->
+    <product_list_entry 
+        product_id="PROD011" 
+        product_name="爆款限定商品" 
+        price="599" 
+        profit="280" 
+        visible="Y" 
+        direct_sales="45000" 
+        indirect_sales="32000" 
+        promoted_sales="58000" 
+        cart_adds="1200" 
+        wishlist_adds="890" 
+        organic_impressions="180000" 
+        paid_impressions="150000" />
+    
+    <product_list_entry 
+        product_id="PROD012" 
+        product_name="测试商品A" 
+        price="199" 
+        profit="60" 
+        visible="Y" 
+        direct_sales="50" 
+        indirect_sales="30" 
+        promoted_sales="80" 
+        cart_adds="8" 
+        wishlist_adds="3" 
+        organic_impressions="2000" 
+        paid_impressions="1500" />
+    
+    <!-- 更多产品数据 -->
+    <product_list_entry 
+        product_id="PROD013" 
+        product_name="智能台灯护眼版" 
+        price="329" 
+        profit="120" 
+        visible="Y" 
+        direct_sales="4200" 
+        indirect_sales="2800" 
+        promoted_sales="5500" 
+        cart_adds="155" 
+        wishlist_adds="108" 
+        organic_impressions="38000" 
+        paid_impressions="30000" />
+    
+    <product_list_entry 
+        product_id="PROD014" 
+        product_name="无线鼠标静音版" 
+        price="149" 
+        profit="55" 
+        visible="Y" 
+        direct_sales="2800" 
+        indirect_sales="1800" 
+        promoted_sales="3500" 
+        cart_adds="110" 
+        wishlist_adds="65" 
+        organic_impressions="25000" 
+        paid_impressions="19000" />
+    
+    <product_list_entry 
+        product_id="PROD015" 
+        product_name="高清网络摄像头" 
+        price="359" 
+        profit="140" 
+        visible="Y" 
+        direct_sales="5100" 
+        indirect_sales="3400" 
+        promoted_sales="6800" 
+        cart_adds="180" 
+        wishlist_adds="125" 
+        organic_impressions="48000" 
+        paid_impressions="38000" />
+    
+    <product_list_entry 
+        product_id="PROD016" 
+        product_name="移动硬盘 1TB" 
+        price="459" 
+        profit="95" 
+        visible="Y" 
+        direct_sales="3200" 
+        indirect_sales="2100" 
+        promoted_sales="4100" 
+        cart_adds="95" 
+        wishlist_adds="58" 
+        organic_impressions="28000" 
+        paid_impressions="22000" />
+    
+    <product_list_entry 
+        product_id="PROD017" 
+        product_name="桌面收纳套装" 
+        price="89" 
+        profit="35" 
+        visible="Y" 
+        direct_sales="1800" 
+        indirect_sales="1100" 
+        promoted_sales="2200" 
+        cart_adds="68" 
+        wishlist_adds="42" 
+        organic_impressions="15000" 
+        paid_impressions="12000" />
+    
+    <product_list_entry 
+        product_id="PROD018" 
+        product_name="笔记本电脑支架" 
+        price="159" 
+        profit="65" 
+        visible="Y" 
+        direct_sales="2400" 
+        indirect_sales="1500" 
+        promoted_sales="3000" 
+        cart_adds="88" 
+        wishlist_adds="52" 
+        organic_impressions="22000" 
+        paid_impressions="17000" />
+    
+    <product_list_entry 
+        product_id="PROD019" 
+        product_name="高清HDMI线 2米" 
+        price="49" 
+        profit="18" 
+        visible="Y" 
+        direct_sales="1100" 
+        indirect_sales="700" 
+        promoted_sales="1400" 
+        cart_adds="48" 
+        wishlist_adds="25" 
+        organic_impressions="12000" 
+        paid_impressions="9000" />
+    
+    <product_list_entry 
+        product_id="PROD020" 
+        product_name="type-C转接头" 
+        price="69" 
+        profit="22" 
+        visible="N" 
+        direct_sales="400" 
+        indirect_sales="250" 
+        promoted_sales="0" 
+        cart_adds="22" 
+        wishlist_adds="8" 
+        organic_impressions="3000" 
+        paid_impressions="0" />
+</product_list>

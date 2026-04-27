@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon.svg">
+    
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <!-- SEO Meta -->
+    <title>IMVU Analytics - Sales Data Analytics Platform for Creators</title>
+    <meta name="description" content="IMVU Analytics - Free AI-powered sales analytics platform for IMVU Creators. Track sales, optimize pricing, and discover growth opportunities. 7-day free trial.">
+    <meta name="keywords" content="IMVU Analytics, IMVU Creator, IMVU sales tracking, IMVU data analysis, IMVU AI insights, IMVU marketing tools, free IMVU analytics, creator dashboard, IMVU product optimization">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="IMVU Analytics">
+    
+    <!-- Canonical -->
+    <link rel="canonical" href="https://imvucreators.com/">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="IMVU Analytics - Sales Data Analytics Platform">
+    <meta property="og:description" content="Track your IMVU sales, optimize pricing, and grow your business with AI-powered insights. Start free today!">
+    <meta property="og:url" content="https://imvucreators.com/">
+    <meta property="og:site_name" content="IMVU Analytics">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image" content="https://imvucreators.com/static/favicon.svg">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="IMVU Analytics - Sales Data Analytics Platform">
+    <meta name="twitter:description" content="Track your IMVU sales, optimize pricing, and grow your business with AI-powered insights.">
+    <meta name="twitter:image" content="https://imvucreators.com/static/favicon.svg">
+    
+    <!-- Hreflang -->
+    <link rel="alternate" hreflang="en" href="https://imvucreators.com/">
+    <link rel="alternate" hreflang="zh" href="https://imvucreators.com/?lang=zh">
+    <link rel="alternate" hreflang="fr" href="https://imvucreators.com/?lang=fr">
+    <link rel="alternate" hreflang="x-default" href="https://imvucreators.com/">
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "IMVU Analytics",
+        "description": "AI-powered sales analytics platform for IMVU Creators. Track sales, optimize pricing, and discover growth opportunities.",
+        "url": "https://imvucreators.com/",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "AggregateOffer",
+            "offerCount": 2,
+            "lowPrice": "0",
+            "highPrice": "12",
+            "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "256"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "IMVU Analytics",
+            "url": "https://imvucreators.com/"
+        }
+    }
+    </script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="/static/auth.js"></script>
+    <script src="/static/i18n.js?v=20260414o"></script>
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #52c41a;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.75);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #0f3460 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Background Effects */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Navigation */
+        .navbar-landing {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 16px 0;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-landing.scrolled {
+            padding: 10px 0;
+            background: rgba(26, 26, 46, 0.95);
+        }
+        
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .brand-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+        
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .btn-nav-login {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-nav-login:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+        }
+        
+        .btn-nav-register {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-nav-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            color: white;
+        }
+        
+        .lang-switch {
+            display: flex;
+            gap: 4px;
+            margin-left: 8px;
+            padding-left: 8px;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .lang-btn:hover,
+        .lang-btn.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 160px 24px 100px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        .hero-content {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 24px;
+        }
+        
+        .hero-badge i {
+            color: #ffd700;
+        }
+        
+        .hero-title {
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+        
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 32px;
+            max-width: 500px;
+        }
+        
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+            color: white;
+        }
+        
+        .btn-secondary-outline {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+        }
+        
+        .hero-trust {
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .trust-avatars {
+            display: flex;
+        }
+        
+        .trust-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: 2px solid var(--dark);
+            margin-left: -10px;
+        }
+        
+        .trust-avatar:first-child {
+            margin-left: 0;
+        }
+        
+        .trust-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .trust-text strong {
+            color: white;
+        }
+        
+        /* Dashboard Preview */
+        .hero-preview {
+            opacity: 0;
+            transform: translateX(30px);
+            animation: fadeInRight 0.8s ease 0.3s forwards;
+        }
+        
+        .dashboard-mockup {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .mockup-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .mockup-dot.red { background: #ff5f56; }
+        .mockup-dot.yellow { background: #ffbd2e; }
+        .mockup-dot.green { background: #27ca40; }
+        
+        .mockup-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .mockup-stat {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .mockup-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .mockup-stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .mockup-chart {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            justify-content: space-around;
+        }
+        
+        .mockup-bar {
+            width: 100%;
+            background: linear-gradient(180deg, var(--primary), rgba(102, 126, 234, 0.3));
+            border-radius: 4px 4px 0 0;
+            animation: growUp 1s ease forwards;
+        }
+        
+        /* Features Section */
+        .section {
+            position: relative;
+            padding: 100px 24px;
+        }
+        
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-label {
+            display: inline-block;
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-size: clamp(32px, 4vw, 42px);
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+        
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .feature-desc {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Stats Section */
+        .stats-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            text-align: center;
+        }
+        
+        .stat-item {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .stat-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.5s ease;
+        }
+        
+        .stat-value {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+        
+        /* Testimonials */
+        .testimonials-section {
+            background: transparent;
+        }
+        
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .testimonial-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .testimonial-stars {
+            color: #ffd700;
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+        
+        .testimonial-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .author-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .author-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        /* Pricing Section */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px 32px;
+            text-align: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .pricing-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .pricing-card.featured {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            border-color: var(--primary);
+            position: relative;
+        }
+        
+        .pricing-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 6px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .pricing-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .pricing-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .pricing-price {
+            margin-bottom: 24px;
+        }
+        
+        .price-value {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        
+        .price-currency {
+            font-size: 24px;
+            vertical-align: super;
+        }
+        
+        .price-period {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+        
+        .pricing-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 32px;
+            text-align: left;
+        }
+        
+        .pricing-features li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+        }
+        
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .pricing-features li i {
+            color: var(--success);
+        }
+        
+        .btn-pricing {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-pricing-outline {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+        
+        .btn-pricing-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .btn-pricing-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-pricing-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+            color: white;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+        }
+        
+        .cta-title {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .cta-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+        
+        .cta-hint {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* Footer */
+        .footer {
+            position: relative;
+            padding: 60px 24px 30px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-top {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-brand p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.7;
+            margin-top: 16px;
+            max-width: 300px;
+        }
+        
+        .footer-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .footer-social {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .footer-bottom {
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .footer-copyright {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .footer-legal {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .footer-legal a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        
+        .footer-legal a:hover {
+            color: white;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes growUp {
+            from {
+                height: 0;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero-content {
+                order: 1;
+            }
+            
+            .hero-preview {
+                order: 2;
+                animation-name: fadeInUp;
+            }
+            
+            .hero-subtitle {
+                margin: 0 auto 32px;
+            }
+            
+            .hero-actions {
+                justify-content: center;
+            }
+            
+            .hero-trust {
+                justify-content: center;
+            }
+            
+            .footer-top {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-actions .btn-nav-text {
+                display: none;
+            }
+            
+            .hero {
+                padding: 140px 20px 80px;
+            }
+            
+            .section {
+                padding: 80px 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 30px;
+            }
+            
+            .stat-value {
+                font-size: 36px;
+            }
+            
+            .footer-top {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .footer-brand p {
+                margin: 16px auto 0;
+            }
+            
+            .footer-social {
+                justify-content: center;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-primary-gradient,
+            .btn-secondary-outline {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .mockup-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar-landing">
+        <div class="navbar-container">
+            <a href="/" class="brand">
+                <div class="brand-logo">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <span class="brand-name">IMVU Analytics</span>
+            </a>
+            
+            <div class="nav-actions">
+                <a href="/login" class="btn-nav-login" data-i18n="landing.nav.login">Login</a>
+                <a href="/register" class="btn-nav-register" data-i18n="landing.nav.register">Get Started Free</a>
+                <div class="lang-switch">
+                    <button class="lang-btn" data-lang="en" onclick="switchLang('en')">EN</button>
+                    <button class="lang-btn" data-lang="zh" onclick="switchLang('zh')">中文</button>
+                    <button class="lang-btn" data-lang="fr" onclick="switchLang('fr')">FR</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="bi bi-star-fill"></i>
+                    <span data-i18n="landing.hero.badge">Trusted by 500+ IMVU Creators</span>
+                </div>
+                
+                <h1 class="hero-title">
+                    <span data-i18n="landing.hero.title">IMVU Sales Analytics</span><br>
+                    <span class="gradient-text" data-i18n="landing.hero.titleHighlight">at a Glance</span>
+                </h1>
+                
+                <p class="hero-subtitle" data-i18n="landing.hero.subtitle">
+                    Track sales, optimize pricing, and discover growth opportunities — built specifically for IMVU Creators.
+                </p>
+                
+                <div class="hero-actions">
+                    <a href="/register" class="btn-primary-gradient">
+                        <i class="bi bi-rocket-takeoff"></i>
+                        <span data-i18n="landing.hero.cta1">Start Free 7-Day Trial</span>
+                    </a>
+                    <a href="#features" class="btn-secondary-outline">
+                        <i class="bi bi-play-circle"></i>
+                        <span data-i18n="landing.hero.cta2">View Features</span>
+                    </a>
+                </div>
+                
+                <div class="hero-trust">
+                    <div class="trust-avatars">
+                        <div class="trust-avatar">A</div>
+                        <div class="trust-avatar">B</div>
+                        <div class="trust-avatar">C</div>
+                        <div class="trust-avatar">D</div>
+                    </div>
+                    <p class="trust-text">
+                        <strong data-i18n="landing.hero.trustNum">500+</strong>
+                        <span data-i18n="landing.hero.trustText">active creators</span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="hero-preview">
+                <div class="dashboard-mockup">
+                    <div class="mockup-header">
+                        <div class="mockup-dot red"></div>
+                        <div class="mockup-dot yellow"></div>
+                        <div class="mockup-dot green"></div>
+                    </div>
+                    <div class="mockup-stats">
+                        <div class="mockup-stat">
+                            <div class="mockup-stat-value" style="color: #667eea;">$2.4K</div>
+                            <div class="mockup-stat-label" data-i18n="landing.mockup.sales">Sales</div>
+                        </div>
+                        <div class="mockup-stat">
+                            <div class="mockup-stat-value" style="color: #52c41a;">847</div>
+                            <div class="mockup-stat-label" data-i18n="landing.mockup.products">Products</div>
+                        </div>
+                        <div class="mockup-stat">
+                            <div class="mockup-stat-value" style="color: #a855f7;">+23%</div>
+                            <div class="mockup-stat-label" data-i18n="landing.mockup.growth">Growth</div>
+                        </div>
+                    </div>
+                    <div class="mockup-chart">
+                        <div class="mockup-bar" style="height: 45%;"></div>
+                        <div class="mockup-bar" style="height: 60%;"></div>
+                        <div class="mockup-bar" style="height: 35%;"></div>
+                        <div class="mockup-bar" style="height: 80%;"></div>
+                        <div class="mockup-bar" style="height: 65%;"></div>
+                        <div class="mockup-bar" style="height: 90%;"></div>
+                        <div class="mockup-bar" style="height: 75%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-label" data-i18n="landing.features.label">Core Features</span>
+                <h2 class="section-title" data-i18n="landing.features.title">Everything You Need to Grow</h2>
+                <p class="section-subtitle" data-i18n="landing.features.subtitle">Powerful tools designed to help you understand your data and make smarter decisions.</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card" data-delay="0">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title" data-i18n="landing.features.dashboard.title">Data Dashboard</h3>
+                    <p class="feature-desc" data-i18n="landing.features.dashboard.desc">Multi-dimensional sales analysis with real-time updates. See your total sales, profits, and product performance at a glance.</p>
+                </div>
+                
+                <div class="feature-card" data-delay="100">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title" data-i18n="landing.features.ai.title">AI Insights</h3>
+                    <p class="feature-desc" data-i18n="landing.features.ai.desc">Get intelligent optimization suggestions powered by DeepSeek AI. Automatically generated trend analysis and recommendations.</p>
+                </div>
+                
+                <div class="feature-card" data-delay="200">
+                    <div class="feature-icon">🏆</div>
+                    <h3 class="feature-title" data-i18n="landing.features.benchmark.title">Benchmark Analysis</h3>
+                    <p class="feature-desc" data-i18n="landing.features.benchmark.desc">Understand your position in the industry. Compare your performance with anonymous averages and discover growth opportunities.</p>
+                </div>
+                
+                <div class="feature-card" data-delay="300">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title" data-i18n="landing.features.promo.title">Promo Cards</h3>
+                    <p class="feature-desc" data-i18n="landing.features.promo.desc">Generate stunning product promotional cards with one click. Multiple styles and color themes to match your brand.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="section stats-section">
+        <div class="section-container">
+            <div class="stats-grid">
+                <div class="stat-item" data-delay="0">
+                    <div class="stat-value">500+</div>
+                    <div class="stat-label" data-i18n="landing.stats.creators">Active Creators</div>
+                </div>
+                <div class="stat-item" data-delay="100">
+                    <div class="stat-value">50K+</div>
+                    <div class="stat-label" data-i18n="landing.stats.products">Products Analyzed</div>
+                </div>
+                <div class="stat-item" data-delay="200">
+                    <div class="stat-value">+27%</div>
+                    <div class="stat-label" data-i18n="landing.stats.growth">Avg. Sales Growth</div>
+                </div>
+                <div class="stat-item" data-delay="300">
+                    <div class="stat-value">4.9★</div>
+                    <div class="stat-label" data-i18n="landing.stats.rating">User Rating</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials Section -->
+    <section class="section testimonials-section">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-label" data-i18n="landing.testimonials.label">Testimonials</span>
+                <h2 class="section-title" data-i18n="landing.testimonials.title">Loved by IMVU Creators</h2>
+                <p class="section-subtitle" data-i18n="landing.testimonials.subtitle">See what our users have to say about their experience.</p>
+            </div>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card" data-delay="0">
+                    <div class="testimonial-stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="testimonial-text" data-i18n="landing.testimonials.quote1">"This tool completely changed how I analyze my IMVU sales. The AI insights helped me identify underperforming products and optimize my pricing strategy. Sales increased by 35% in just two months!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">S</div>
+                        <div class="author-info">
+                            <h4 data-i18n="landing.testimonials.author1">Sarah M.</h4>
+                            <p data-i18n="landing.testimonials.role1">Top 100 IMVU Creator</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card" data-delay="100">
+                    <div class="testimonial-stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="testimonial-text" data-i18n="landing.testimonials.quote2">"Finally, a analytics tool built specifically for IMVU! The benchmark feature is amazing — I can finally see how I stack up against other creators. Highly recommended!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">M</div>
+                        <div class="author-info">
+                            <h4 data-i18n="landing.testimonials.author2">Mike T.</h4>
+                            <p data-i18n="landing.testimonials.role2">Pro Creator</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card" data-delay="200">
+                    <div class="testimonial-stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="testimonial-text" data-i18n="landing.testimonials.quote3">"The promo card generator alone is worth the subscription. Beautiful designs that help me promote my products on social media. Customer support is also excellent!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">A</div>
+                        <div class="author-info">
+                            <h4 data-i18n="landing.testimonials.author3">Alex K.</h4>
+                            <p data-i18n="landing.testimonials.role3">Content Creator</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing Section -->
+    <section id="pricing" class="section">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-label" data-i18n="landing.pricing.label">Pricing</span>
+                <h2 class="section-title" data-i18n="landing.pricing.title">Simple, Transparent Pricing</h2>
+                <p class="section-subtitle" data-i18n="landing.pricing.subtitle">Start free, upgrade when you're ready. No hidden fees.</p>
+            </div>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card" data-delay="0">
+                    <h3 class="pricing-name" data-i18n="landing.pricing.free.name">Free</h3>
+                    <p class="pricing-desc" data-i18n="landing.pricing.free.desc">Perfect for getting started</p>
+                    <div class="pricing-price">
+                        <span class="price-value">$0</span>
+                        <span class="price-period" data-i18n="landing.pricing.period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="bi bi-check"></i> <span data-i18n="landing.pricing.free.f1">5 uploads/month</span></li>
+                        <li><i class="bi bi-check"></i> <span data-i18n="landing.pricing.free.f2">100 products/upload</span></li>
+                        <li><i class="bi bi-check"></i> <span data-i18n="landing.pricing.free.f3">Basic dashboard</span></li>
+                        <li><i class="bi bi-check"></i> <span data-i18n="landing.pricing.free.f4">7-day data history</span></li>
+                    </ul>
+                    <a href="/register" class="btn-pricing btn-pricing-outline" data-i18n="landing.pricing.free.cta">Get Started</a>
+                </div>
+                
+                <div class="pricing-card featured" data-delay="100">
+                    <div class="pricing-badge" data-i18n="landing.pricing.badge">7-Day Free Trial</div>
+                    <h3 class="pricing-name" data-i18n="landing.pricing.pro.name">Pro</h3>
+                    <p class="pricing-desc" data-i18n="landing.pricing.pro.desc">For serious creators</p>
+                    <div class="pricing-price">
+                        <span class="price-value">$12</span>
+                        <span class="price-period" data-i18n="landing.pricing.period">/month</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="bi bi-check"></i> <span data-i18n="landing.pricing.pro.f1">Unlimited uploads</span></li>
+                        <li><i class="bi bi-check"></i> <span data-i18n="landing.pricing.pro.f2">Unlimited products</span></li>
+                        <li><i class="bi bi-check"></i> <span data-i18n="landing.pricing.pro.f3">AI insights & recommendations</span></li>
+                        <li><i class="bi bi-check"></i> <span data-i18n="landing.pricing.pro.f4">Benchmark analysis</span></li>
+                        <li><i class="bi bi-check"></i> <span data-i18n="landing.pricing.pro.f5">Promo card generator</span></li>
+                        <li><i class="bi bi-check"></i> <span data-i18n="landing.pricing.pro.f6">Email reports</span></li>
+                    </ul>
+                    <a href="/register?plan=pro" class="btn-pricing btn-pricing-primary" data-i18n="landing.pricing.pro.cta">Start Free Trial</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="section cta-section">
+        <div class="section-container">
+            <h2 class="cta-title" data-i18n="landing.cta.title">Ready to Grow Your IMVU Business?</h2>
+            <p class="cta-subtitle" data-i18n="landing.cta.subtitle">Join 500+ creators who are already using data to drive their success.</p>
+            <a href="/register" class="btn-primary-gradient" style="display: inline-flex;">
+                <i class="bi bi-rocket-takeoff"></i>
+                <span data-i18n="landing.cta.button">Start Your Free 7-Day Trial</span>
+            </a>
+            <p class="cta-hint">
+                <i class="bi bi-shield-check"></i>
+                <span data-i18n="landing.cta.hint">No credit card required</span>
+            </p>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <a href="/" class="brand">
+                        <div class="brand-logo">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <span class="brand-name">IMVU Analytics</span>
+                    </a>
+                    <p data-i18n="landing.footer.tagline">The most comprehensive analytics platform for IMVU Creators. Make data-driven decisions and grow your business.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link" title="Twitter"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-link" title="Discord"><i class="bi bi-discord"></i></a>
+                        <a href="#" class="social-link" title="YouTube"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title" data-i18n="landing.footer.product">Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features" data-i18n="landing.footer.features">Features</a></li>
+                        <li><a href="#pricing" data-i18n="landing.footer.pricing">Pricing</a></li>
+                        <li><a href="/guide" data-i18n="landing.footer.guide">Guide</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title" data-i18n="landing.footer.company">Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="/contact" data-i18n="landing.footer.contact">Contact</a></li>
+                        <li><a href="/privacy" data-i18n="landing.footer.privacy">Privacy Policy</a></li>
+                        <li><a href="/terms" data-i18n="landing.footer.terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title" data-i18n="landing.footer.resources">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="/docs" data-i18n="landing.footer.docs">Documentation</a></li>
+                        <li><a href="/api/status" data-i18n="landing.footer.api">API Status</a></li>
+                        <li><a href="/support" data-i18n="landing.footer.support">Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="footer-copyright">© 2026 IMVU Analytics. <span data-i18n="landing.footer.rights">All rights reserved.</span></p>
+                <div class="footer-legal">
+                    <a href="/privacy" data-i18n="landing.footer.privacy">Privacy</a>
+                    <a href="/terms" data-i18n="landing.footer.terms">Terms</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Language Switching
+        function switchLang(lang) {
+            localStorage.setItem('imvu_lang', lang);
+            location.reload();
+        }
+        
+        // Apply translations
+        function applyLandingTranslations() {
+            const lang = localStorage.getItem('imvu_lang') || 'en';
+            
+            // Update active language button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Apply text translations
+            if (typeof t === 'function') {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    const translation = t(key);
+                    if (translation && translation !== key) {
+                        el.textContent = translation;
+                    }
+                });
+            }
+        }
+        
+        // Scroll animations
+        function initScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const delay = entry.target.getAttribute('data-delay') || 0;
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, parseInt(delay));
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            document.querySelectorAll('.feature-card, .stat-item, .testimonial-card, .pricing-card').forEach(el => {
+                observer.observe(el);
+            });
+        }
+        
+        // Navbar scroll effect
+        function initNavbarScroll() {
+            const navbar = document.querySelector('.navbar-landing');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            applyLandingTranslations();
+            initScrollAnimations();
+            initNavbarScroll();
+        });
+    </script>
+</body>
+</html>

@@ -180,6 +180,24 @@ async def get_me(current_user: dict = Depends(get_current_user)):
     """
     获取当前登录用户信息
     """
+    # 添加试用期相关信息
+    from datetime import datetime
+    if "trial_end_date" in current_user and current_user["trial_end_date"]:
+        trial_end = current_user["trial_end_date"]
+        if isinstance(trial_end, str):
+            trial_end = datetime.fromisoformat(trial_end.replace("Z", "+00:00"))
+        if trial_end:
+            now = datetime.utcnow()
+            current_user["is_in_trial"] = trial_end > now
+            if trial_end > now:
+                delta = trial_end - now
+                current_user["trial_days_left"] = delta.days + 1
+            else:
+                current_user["trial_days_left"] = 0
+    else:
+        current_user["is_in_trial"] = False
+        current_user["trial_days_left"] = 0
+    
     return {
         "success": True,
         "message": "获取成功",
@@ -296,6 +314,86 @@ async def update_profile(
         "message": "用户名更新成功",
         "data": {
             "username": user.username
+        }
+    }
+
+
+class OnboardingStepRequest(BaseModel):
+    """更新引导步骤请求"""
+    step: int = Field(..., ge=0, le=3, description="引导步骤 0=未开始, 1-3=各步骤完成, 3=全部完成")
+
+
+@router.get("/onboarding")
+async def get_onboarding_status(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    获取用户引导状态
+    
+    返回用户当前所在的引导步骤
+    """
+    from app.database import UserRepository
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    return {
+        "success": True,
+        "message": "获取成功",
+        "data": {
+            "onboarding_step": user.onboarding_step or 0,
+            "onboarding_completed_at": user.onboarding_completed_at.isoformat() if user.onboarding_completed_at else None
+        }
+    }
+
+
+@router.post("/onboarding/step")
+async def update_onboarding_step(
+    request: OnboardingStepRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    更新用户引导步骤
+    
+    - **step**: 引导步骤 (0=未开始, 1=步骤1完成, 2=步骤2完成, 3=全部完成)
+    """
+    from app.database import UserRepository
+    from datetime import datetime
+    
+    user_repo = UserRepository(db)
+    user = user_repo.get_by_id(current_user["id"])
+    
+    if not user:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"success": False, "message": "用户不存在"}
+        )
+    
+    # 更新引导步骤
+    user.onboarding_step = request.step
+    
+    # 如果完成所有步骤，记录完成时间
+    if request.step == 3 and not user.onboarding_completed_at:
+        user.onboarding_completed_at = datetime.utcnow()
+    
+    db.commit()
+    
+    # 记录用户行为
+    activity_tracker.log_activity(db, user.id, f'onboarding_step_{request.step}')
+    
+    return {
+        "success": True,
+        "message": "引导步骤已更新",
+        "data": {
+            "onboarding_step": user.onboarding_step,
+            "onboarding_completed_at": user.onboarding_completed_at.isoformat() if user.onboarding_completed_at else None
         }
     }
 

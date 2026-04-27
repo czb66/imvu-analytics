@@ -198,6 +198,83 @@
             gap: 10px;
         }
         
+        /* 软付费墙样式 */
+        .blurred-content {
+            filter: blur(5px);
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .paywall-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-top: 15px;
+            border: 2px solid var(--primary);
+        }
+        .paywall-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .paywall-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .paywall-desc {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .paywall-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .paywall-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        .benchmark-locked-row {
+            position: relative;
+        }
+        .benchmark-locked-row td {
+            filter: blur(4px);
+            user-select: none;
+            pointer-events: none;
+        }
+        .benchmark-locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .benchmark-paywall-badge {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
         @media (max-width: 768px) {
             .mobile-header {
                 display: flex;
@@ -493,8 +570,74 @@
                     return;
                 }
                 document.getElementById('userEmail').textContent = user.email;
+                
+                // 检查是否有高级访问权限
+                const hasPremium = user.is_subscribed || user.subscription_status === 'active' || 
+                                   user.is_whitelisted || user.has_premium_access || user.is_in_trial;
+                
+                // 隐藏订阅按钮（如果已订阅）
+                if (hasPremium) {
+                    const subscribeBtn = document.getElementById('subscribeBtn');
+                    if (subscribeBtn) subscribeBtn.style.display = 'none';
+                } else {
+                    // 免费用户：应用软付费墙
+                    applyBenchmarkPaywall();
+                }
             } catch (error) {
                 window.location.href = '/login';
+            }
+        }
+        
+        // 应用竞品分析软付费墙
+        function applyBenchmarkPaywall() {
+            const lang = localStorage.getItem('imvu_lang') || 'en';
+            
+            // 为产品排名表格添加锁定效果（只显示前3名）
+            const rankingTable = document.getElementById('productRankingTable');
+            if (rankingTable) {
+                const rows = rankingTable.querySelectorAll('tbody tr');
+                rows.forEach((row, index) => {
+                    if (index >= 3) {
+                        row.classList.add('benchmark-locked-row');
+                        // 添加锁定覆盖层
+                        const overlay = document.createElement('td');
+                        overlay.colSpan = row.children.length;
+                        overlay.className = 'benchmark-locked-overlay';
+                        overlay.innerHTML = `
+                            <div class="benchmark-paywall-badge">
+                                <i class="bi bi-lock me-2"></i>
+                                ${lang === 'zh' ? '升级Pro查看完整排名' : 'Upgrade to Pro for full ranking'}
+                            </div>
+                        `;
+                        row.appendChild(overlay);
+                    }
+                });
+            }
+            
+            // 为行业基准数据添加模糊效果
+            const benchmarkMetrics = document.querySelectorAll('.metric-value');
+            benchmarkMetrics.forEach((metric, index) => {
+                if (index >= 2) { // 只模糊化后两个指标
+                    metric.classList.add('blurred-content');
+                }
+            });
+            
+            // 添加升级提示
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                const paywallCard = document.createElement('div');
+                paywallCard.className = 'paywall-card';
+                paywallCard.innerHTML = `
+                    <div class="paywall-icon">📊</div>
+                    <div class="paywall-title">${lang === 'zh' ? '解锁完整竞品分析' : 'Unlock Full Competitor Analysis'}</div>
+                    <div class="paywall-desc">${lang === 'zh' 
+                        ? '免费用户可查看概览数据，升级Pro查看完整排名和行业基准' 
+                        : 'Free users see overview only. Upgrade to Pro for full rankings and benchmarks'}</div>
+                    <a href="/pricing" class="paywall-btn">
+                        ${lang === 'zh' ? '升级Pro - $12/月' : 'Upgrade Pro - $12/month'}
+                    </a>
+                `;
+                mainContent.appendChild(paywallCard);
             }
         }
         

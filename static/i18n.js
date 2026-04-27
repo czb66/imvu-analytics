@@ -20,6 +20,7 @@ const translations = {
             promo: 'Promo Tool',
             backToDashboard: 'Back to Dashboard',
             profile: 'Profile',
+            onboarding: 'Tour Guide',
             
             // Promo Tool page
             promoTool: {
@@ -357,7 +358,45 @@ const translations = {
             // 数据集命名
             datasetNamePlaceholder: 'Dataset name (optional, e.g. 2024-01)',
             datasetNameHint: 'Leave empty for default dataset'
+        
+        
+        // Onboarding
+        onboarding: {
+            title: 'Welcome to IMVU Analytics!',
+            subtitle: 'Let's get started with 3 simple steps',
+            step1: {
+                title: 'Step 1: Upload Data',
+                desc: 'Start by uploading your IMVU product data. Download our sample data to explore, or upload your own XML file.',
+                downloadSample: 'Download Sample Data',
+                uploadOwn: 'Upload My Own Data',
+                skip: 'Skip'
+            },
+            step2: {
+                title: 'Step 2: View Dashboard',
+                desc: 'Explore your analytics dashboard. View key metrics, top products, and sales trends at a glance.',
+                viewDashboard: 'Go to Dashboard',
+                done: 'I've Seen It'
+            },
+            step3: {
+                title: 'Step 3: Unlock Pro Features',
+                desc: 'Create stunning promo cards or get AI-powered insights to optimize your IMVU shop.',
+                tryAI: 'Try AI Insights',
+                createPromo: 'Create Promo Card',
+                complete: 'Complete Setup'
+            },
+            progress: 'Progress',
+            next: 'Next',
+            prev: 'Back',
+            skipAll: 'Skip All',
+            close: 'Close',
+            completion: 'Setup Complete!',
+            completionDesc: 'You're all set. Enjoy exploring your IMVU analytics!'
         },
+        
+        // Onboarding prompt banner
+        onboardingPrompt: 'Complete 3 steps to unlock all features →',
+        onboardingCompleted: 'All features unlocked!' 
+},
         
         // 深度诊断
         diagnosis: {
@@ -754,6 +793,19 @@ const translations = {
             yes: 'Yes',
             no: 'No'
         },
+        
+        // 试用期/订阅相关
+        trial: {
+            upgrade: '升级Pro →',
+            trial_ended: '试用期已结束',
+            trial_active: '免费Pro体验',
+            days_left: '天剩余',
+            pro_user: '您是 Pro 用户 ✨',
+            enjoy_features: '享受全部高级功能',
+            limited_features: '体验结束后功能将受限',
+            upgrade_now: '立即升级',
+            discount_first_month: '首月半价优惠'
+        },
 
         // 取消页面
         cancel: {
@@ -794,7 +846,13 @@ const translations = {
             compare3: 'Data Diagnosis',
             compare4: 'AI Insights',
             compare5: 'Email Reports',
-            subscribe_btn: 'Subscribe Now - $12/month',
+            // 年付专属功能
+            yearly1: 'Priority Support',
+            yearly2: 'Advanced Data Export',
+            yearly3: 'API Access',
+            subscribe_monthly: 'Subscribe Now - $12/month',
+            subscribe_yearly: 'Subscribe Now - $99/year',
+            subscribe_btn: 'Subscribe Now',
             manage: 'Manage Subscription',
             current_plan: 'Current Plan',
             renews_at: 'Renews at',
@@ -802,6 +860,17 @@ const translations = {
             subscribe_error: 'Failed to create checkout session',
             not_logged_in: 'Please login first',
             network_error: 'Network error, please try again',
+            guarantee: '7-day money-back guarantee',
+            // FAQ
+            faq_title: 'Frequently Asked Questions',
+            faq1_q: 'Will I be charged after trial ends?',
+            faq1_a: 'No. Your trial will expire without any charge if you don\'t subscribe.',
+            faq2_q: 'Can I cancel anytime?',
+            faq2_a: 'Yes. You can cancel anytime and continue using until the end of your billing period.',
+            faq3_q: 'Can I switch from yearly to monthly?',
+            faq3_a: 'Yes. You can change your billing cycle in the customer portal.',
+            faq4_q: 'How to get invoices?',
+            faq4_a: 'You can download PDF invoices in the customer portal.',
             // 功能
             features: {
                 uploads: 'Monthly Uploads',
@@ -841,6 +910,19 @@ const translations = {
             previous: 'Previous',
             yes: 'Yes',
             no: 'No'
+        },
+        
+        // 试用期/订阅相关
+        trial: {
+            upgrade: '升级Pro →',
+            trial_ended: '试用期已结束',
+            trial_active: '免费Pro体验',
+            days_left: '天剩余',
+            pro_user: '您是 Pro 用户 ✨',
+            enjoy_features: '享受全部高级功能',
+            limited_features: '体验结束后功能将受限',
+            upgrade_now: '立即升级',
+            discount_first_month: '首月半价优惠'
         },
 
         // Terms of Service page
@@ -1004,6 +1086,119 @@ const translations = {
             user_list: 'User List',
             th_page: 'Page',
             th_views: 'Views'
+        },
+        
+        // Landing Page
+        landing: {
+            nav: {
+                login: 'Login',
+                register: 'Get Started Free'
+            },
+            hero: {
+                badge: 'Trusted by 500+ IMVU Creators',
+                title: 'IMVU Sales Analytics',
+                titleHighlight: 'at a Glance',
+                subtitle: 'Track sales, optimize pricing, and discover growth opportunities — built specifically for IMVU Creators.',
+                cta1: 'Start Free 7-Day Trial',
+                cta2: 'View Features',
+                trustNum: '500+',
+                trustText: 'active creators'
+            },
+            mockup: {
+                sales: 'Sales',
+                products: 'Products',
+                growth: 'Growth'
+            },
+            features: {
+                label: 'Core Features',
+                title: 'Everything You Need to Grow',
+                subtitle: 'Powerful tools designed to help you understand your data and make smarter decisions.',
+                dashboard: {
+                    title: 'Data Dashboard',
+                    desc: 'Multi-dimensional sales analysis with real-time updates. See your total sales, profits, and product performance at a glance.'
+                },
+                ai: {
+                    title: 'AI Insights',
+                    desc: 'Get intelligent optimization suggestions powered by DeepSeek AI. Automatically generated trend analysis and recommendations.'
+                },
+                benchmark: {
+                    title: 'Benchmark Analysis',
+                    desc: 'Understand your position in the industry. Compare your performance with anonymous averages and discover growth opportunities.'
+                },
+                promo: {
+                    title: 'Promo Cards',
+                    desc: 'Generate stunning product promotional cards with one click. Multiple styles and color themes to match your brand.'
+                }
+            },
+            stats: {
+                creators: 'Active Creators',
+                products: 'Products Analyzed',
+                growth: 'Avg. Sales Growth',
+                rating: 'User Rating'
+            },
+            testimonials: {
+                label: 'Testimonials',
+                title: 'Loved by IMVU Creators',
+                subtitle: 'See what our users have to say about their experience.',
+                quote1: '"This tool completely changed how I analyze my IMVU sales. The AI insights helped me identify underperforming products and optimize my pricing strategy. Sales increased by 35% in just two months!"',
+                author1: 'Sarah M.',
+                role1: 'Top 100 IMVU Creator',
+                quote2: '"Finally, a analytics tool built specifically for IMVU! The benchmark feature is amazing — I can finally see how I stack up against other creators. Highly recommended!"',
+                author2: 'Mike T.',
+                role2: 'Pro Creator',
+                quote3: '"The promo card generator alone is worth the subscription. Beautiful designs that help me promote my products on social media. Customer support is also excellent!"',
+                author3: 'Alex K.',
+                role3: 'Content Creator'
+            },
+            pricing: {
+                label: 'Pricing',
+                title: 'Simple, Transparent Pricing',
+                subtitle: 'Start free, upgrade when you\'re ready. No hidden fees.',
+                badge: '7-Day Free Trial',
+                period: '/month',
+                free: {
+                    name: 'Free',
+                    desc: 'Perfect for getting started',
+                    f1: '5 uploads/month',
+                    f2: '100 products/upload',
+                    f3: 'Basic dashboard',
+                    f4: '7-day data history',
+                    cta: 'Get Started'
+                },
+                pro: {
+                    name: 'Pro',
+                    desc: 'For serious creators',
+                    f1: 'Unlimited uploads',
+                    f2: 'Unlimited products',
+                    f3: 'AI insights & recommendations',
+                    f4: 'Benchmark analysis',
+                    f5: 'Promo card generator',
+                    f6: 'Email reports',
+                    cta: 'Start Free Trial'
+                }
+            },
+            cta: {
+                title: 'Ready to Grow Your IMVU Business?',
+                subtitle: 'Join 500+ creators who are already using data to drive their success.',
+                button: 'Start Your Free 7-Day Trial',
+                hint: 'No credit card required'
+            },
+            footer: {
+                tagline: 'The most comprehensive analytics platform for IMVU Creators. Make data-driven decisions and grow your business.',
+                product: 'Product',
+                features: 'Features',
+                pricing: 'Pricing',
+                guide: 'Guide',
+                company: 'Company',
+                contact: 'Contact',
+                privacy: 'Privacy Policy',
+                terms: 'Terms of Service',
+                resources: 'Resources',
+                docs: 'Documentation',
+                api: 'API Status',
+                support: 'Support',
+                rights: 'All rights reserved.'
+            }
         }
     },
     
@@ -1020,6 +1215,7 @@ const translations = {
             promo: '推广工具',
             backToDashboard: '返回首页',
             profile: '个人中心',
+            onboarding: '新手引导',
             
             // 推广工具页面
             promoTool: {
@@ -1067,7 +1263,8 @@ const translations = {
             subscribe: '订阅',
             login: '登录',
             register: '注册',
-            logout: '退出登录'
+            logout: '退出登录',
+            onboarding: '新手引导'
         },
         
         // 联系我们页面
@@ -1357,7 +1554,45 @@ const translations = {
             // 数据集命名
             datasetNamePlaceholder: '数据集名称（可选，如 2024年1月）',
             datasetNameHint: '留空则使用默认数据集'
+        
+        
+        // Onboarding
+        onboarding: {
+            title: '欢迎使用 IMVU Analytics！',
+            subtitle: '只需3步即可开始使用',
+            step1: {
+                title: '步骤1：上传数据',
+                desc: '开始上传您的IMVU产品数据。下载示例数据体验，或上传您自己的XML文件。',
+                downloadSample: '下载示例数据',
+                uploadOwn: '上传我的数据',
+                skip: '跳过'
+            },
+            step2: {
+                title: '步骤2：查看仪表盘',
+                desc: '探索您的分析仪表盘。一目了然查看关键指标、热门产品和销售趋势。',
+                viewDashboard: '查看仪表盘',
+                done: '我已查看'
+            },
+            step3: {
+                title: '步骤3：解锁Pro功能',
+                desc: '创建精美的推广卡片或获取AI驱动的洞察，优化您的IMVU店铺。',
+                tryAI: '试试AI洞察',
+                createPromo: '创建推广卡片',
+                complete: '完成设置'
+            },
+            progress: '进度',
+            next: '下一步',
+            prev: '上一步',
+            skipAll: '全部跳过',
+            close: '关闭',
+            completion: '设置完成！',
+            completionDesc: '您已完成设置。开始探索您的IMVU分析数据吧！'
         },
+        
+        // Onboarding prompt banner
+        onboardingPrompt: '完成3步设置，解锁全部功能 →',
+        onboardingCompleted: '全部功能已解锁！' 
+},
         
         // 深度诊断
         diagnosis: {
@@ -1794,7 +2029,13 @@ const translations = {
             compare3: '数据诊断',
             compare4: 'AI洞察',
             compare5: '邮件报告',
-            subscribe_btn: '立即订阅 - $12/月',
+            // 年付专属功能
+            yearly1: '优先客户支持',
+            yearly2: '高级数据导出',
+            yearly3: 'API高级接口',
+            subscribe_monthly: '立即订阅 - $12/月',
+            subscribe_yearly: '立即订阅 - $99/年',
+            subscribe_btn: '立即订阅',
             manage: '管理订阅',
             current_plan: '当前计划',
             renews_at: '续费日期',
@@ -1802,6 +2043,17 @@ const translations = {
             subscribe_error: '创建支付会话失败',
             not_logged_in: '请先登录',
             network_error: '网络错误，请重试',
+            guarantee: '7天无理由退款保证',
+            // FAQ
+            faq_title: '常见问题',
+            faq1_q: '试用期结束后会自动扣费吗？',
+            faq1_a: '不会。试用期结束后如不订阅，不会产生任何费用。',
+            faq2_q: '可以随时取消订阅吗？',
+            faq2_a: '可以。取消后您仍可使用已付费期间的服务。',
+            faq3_q: '年付可以切换到月付吗？',
+            faq3_a: '可以。在客户门户中可随时切换计费周期。',
+            faq4_q: '如何获取发票？',
+            faq4_a: '在客户门户中可下载PDF格式的发票。',
             // 功能
             features: {
                 uploads: '每月上传次数',
@@ -1984,6 +2236,119 @@ const translations = {
             user_list: '用户列表',
             th_page: '页面',
             th_views: '访问量'
+        },
+        
+        // 落地页
+        landing: {
+            nav: {
+                login: '登录',
+                register: '免费开始'
+            },
+            hero: {
+                badge: '500+ IMVU 创作者信赖',
+                title: 'IMVU销量数据分析',
+                titleHighlight: '一目了然',
+                subtitle: '追踪销量、优化定价、发现增长机会——专为IMVU Creator打造。',
+                cta1: '免费试用7天',
+                cta2: '查看功能',
+                trustNum: '500+',
+                trustText: '活跃创作者'
+            },
+            mockup: {
+                sales: '销量',
+                products: '产品',
+                growth: '增长'
+            },
+            features: {
+                label: '核心功能',
+                title: '助你成长的全方位工具',
+                subtitle: '强大的工具帮你理解数据，做出更明智的决策。',
+                dashboard: {
+                    title: '数据仪表盘',
+                    desc: '多维度销量分析，实时更新。一目了然查看总销量、利润和产品表现。'
+                },
+                ai: {
+                    title: 'AI洞察',
+                    desc: '获得DeepSeek AI驱动的智能优化建议。自动生成趋势分析和推荐。'
+                },
+                benchmark: {
+                    title: '竞品分析',
+                    desc: '了解你在行业中的位置。与匿名平均值对比，发现增长机会。'
+                },
+                promo: {
+                    title: '推广卡片',
+                    desc: '一键生成精美产品推广图。多种样式和配色主题匹配你的品牌。'
+                }
+            },
+            stats: {
+                creators: '活跃创作者',
+                products: '已分析产品',
+                growth: '平均销量增长',
+                rating: '用户评分'
+            },
+            testimonials: {
+                label: '用户评价',
+                title: 'IMVU创作者的最爱',
+                subtitle: '看看用户怎么说。',
+                quote1: '"这个工具彻底改变了我分析IMVU销售的方式。AI洞察帮助我识别表现不佳的产品并优化定价策略。两个月内销量增长了35%！"',
+                author1: 'Sarah M.',
+                role1: 'Top 100 IMVU创作者',
+                quote2: '"终于有一个专门为IMVU打造的 analytics 工具了！竞品分析功能太棒了——我终于能看到自己与其他创作者的差距了。强烈推荐！"',
+                author2: 'Mike T.',
+                role2: '专业创作者',
+                quote3: '"推广卡片生成器本身就值回订阅价。精美的设计帮助我在社交媒体上推广产品。客服也很棒！"',
+                author3: 'Alex K.',
+                role3: '内容创作者'
+            },
+            pricing: {
+                label: '定价',
+                title: '简单、透明的定价',
+                subtitle: '免费开始，需要时升级。无隐藏费用。',
+                badge: '7天免费试用',
+                period: '/月',
+                free: {
+                    name: '免费版',
+                    desc: '非常适合入门',
+                    f1: '每月5次上传',
+                    f2: '每次100个产品',
+                    f3: '基础仪表盘',
+                    f4: '7天数据历史',
+                    cta: '开始使用'
+                },
+                pro: {
+                    name: '专业版',
+                    desc: '适合认真做事的创作者',
+                    f1: '无限上传',
+                    f2: '无限产品',
+                    f3: 'AI洞察和建议',
+                    f4: '竞品分析',
+                    f5: '推广卡片生成器',
+                    f6: '邮件报告',
+                    cta: '开始免费试用'
+                }
+            },
+            cta: {
+                title: '准备好发展你的IMVU事业了吗？',
+                subtitle: '加入500+创作者，用数据驱动成功。',
+                button: '开始7天免费试用',
+                hint: '无需信用卡'
+            },
+            footer: {
+                tagline: '为IMVU Creator打造的最全面的分析平台。用数据驱动决策，发展你的事业。',
+                product: '产品',
+                features: '功能',
+                pricing: '定价',
+                guide: '指南',
+                company: '公司',
+                contact: '联系我们',
+                privacy: '隐私政策',
+                terms: '服务条款',
+                resources: '资源',
+                docs: '文档',
+                api: 'API状态',
+                support: '支持',
+                rights: '保留所有权利。'
+            }
         }
     },
     
@@ -2013,6 +2378,7 @@ const translations = {
             compare: 'Comparaison de données',
             report: 'Rapports',
             profile: 'Profil',
+            onboarding: 'Guide de démarrage',
             guide: 'Guide utilisateur',
             contact: 'Contactez-nous',
             subscribe: 'Abonnement',
@@ -2364,7 +2730,45 @@ const translations = {
             noLowConversionAlert: 'Aucune alerte de faible conversion',
             cartAdds: 'Ajouts au panier',
             conversionRate: 'Taux de conversion'
+        
+        
+        // Onboarding
+        onboarding: {
+            title: 'Bienvenue sur IMVU Analytics !',
+            subtitle: 'Commencez en 3 étapes simples',
+            step1: {
+                title: 'Étape 1 : Importer des données',
+                desc: 'Commencez par importer vos données de produits IMVU. Téléchargez nos données d'exemple pour explorer, ou importez votre propre fichier XML.',
+                downloadSample: 'Télécharger les données d'exemple',
+                uploadOwn: 'Importer mes propres données',
+                skip: 'Passer'
+            },
+            step2: {
+                title: 'Étape 2 : Voir le tableau de bord',
+                desc: 'Explorez votre tableau de bord analytique. Visualisez les indicateurs clés, les produits vedettes et les tendances de ventes en un coup d'œil.',
+                viewDashboard: 'Aller au tableau de bord',
+                done: 'Je l'ai vu'
+            },
+            step3: {
+                title: 'Étape 3 : Débloquer les fonctionnalités Pro',
+                desc: 'Créez de superbes cartes promotionnelles ou obtenez des informations pilotées par l'IA pour optimiser votre boutique IMVU.',
+                tryAI: 'Essayer les insights IA',
+                createPromo: 'Créer une carte promo',
+                complete: 'Terminer la configuration'
+            },
+            progress: 'Progression',
+            next: 'Suivant',
+            prev: 'Retour',
+            skipAll: 'Tout passer',
+            close: 'Fermer',
+            completion: 'Configuration terminée !',
+            completionDesc: 'Tout est prêt. Profitez de l'exploration de vos analyses IMVU !'
         },
+        
+        // Onboarding prompt banner
+        onboardingPrompt: 'Complétez les 3 étapes pour débloquer toutes les fonctionnalités →',
+        onboardingCompleted: 'Toutes les fonctionnalités débloquées !' 
+},
         
         // Centre de rapports
         report: {
@@ -2927,6 +3331,119 @@ const translations = {
             user_list: 'Liste des Utilisateurs',
             th_page: 'Page',
             th_views: 'Vues'
+        },
+        
+        // Page d'atterrissage
+        landing: {
+            nav: {
+                login: 'Connexion',
+                register: 'Commencer Gratuitement'
+            },
+            hero: {
+                badge: 'Approuvé par 500+ Créateurs IMVU',
+                title: 'Analyses de Ventes IMVU',
+                titleHighlight: 'En un Coup d\'Œil',
+                subtitle: 'Suivez vos ventes, optimisez vos prix et découvrez les opportunités de croissance — conçu spécifiquement pour les Créateurs IMVU.',
+                cta1: 'Essai Gratuit de 7 Jours',
+                cta2: 'Voir les Fonctionnalités',
+                trustNum: '500+',
+                trustText: 'créateurs actifs'
+            },
+            mockup: {
+                sales: 'Ventes',
+                products: 'Produits',
+                growth: 'Croissance'
+            },
+            features: {
+                label: 'Fonctionnalités Principales',
+                title: 'Tout Ce Dont Vous Avez Besoin pour Grandir',
+                subtitle: 'Des outils puissants conçus pour vous aider à comprendre vos données et prendre de meilleures décisions.',
+                dashboard: {
+                    title: 'Tableau de Bord',
+                    desc: 'Analyse des ventes multidimensionnelle avec mises à jour en temps réel. Voyez vos ventes totales, bénéfices et performances de produits en un coup d\'œil.'
+                },
+                ai: {
+                    title: 'Insights IA',
+                    desc: 'Obtenez des suggestions d\'optimisation intelligentes alimentées par DeepSeek AI. Analyses de tendances et recommandations générées automatiquement.'
+                },
+                benchmark: {
+                    title: 'Analyse Comparative',
+                    desc: 'Comprenez votre position dans l\'industrie. Comparez vos performances avec des moyennes anonymes et découvrez les opportunités de croissance.'
+                },
+                promo: {
+                    title: 'Cartes Promotionnelles',
+                    desc: 'Générez de superbes cartes promotionnelles de produits en un clic. Plusieurs styles et thèmes de couleurs pour correspondre à votre marque.'
+                }
+            },
+            stats: {
+                creators: 'Créateurs Actifs',
+                products: 'Produits Analysés',
+                growth: 'Croissance Moy. des Ventes',
+                rating: 'Note Utilisateurs'
+            },
+            testimonials: {
+                label: 'Témoignages',
+                title: 'Adoré par les Créateurs IMVU',
+                subtitle: 'Découvrez ce que nos utilisateurs disent de leur expérience.',
+                quote1: '"Cet outil a complètement changé ma façon d\'analyser mes ventes IMVU. Les insights IA m\'ont aidé à identifier les produits sous-performants et à optimiser ma stratégie de prix. Les ventes ont augmenté de 35% en seulement deux mois !"',
+                author1: 'Sarah M.',
+                role1: 'Top 100 Créateur IMVU',
+                quote2: '"Enfin, un outil d\'analyse conçu spécifiquement pour IMVU ! La fonctionnalité d\'analyse comparative est incroyable — je peux enfin voir comment je me classe par rapport aux autres créateurs. Fortement recommandé !"',
+                author2: 'Mike T.',
+                role2: 'Créateur Pro',
+                quote3: '"Le générateur de cartes promotionnelles seul vaut l\'abonnement. De magnifiques designs qui m\'aident à promouvoir mes produits sur les réseaux sociaux. Le support client est également excellent !"',
+                author3: 'Alex K.',
+                role3: 'Créateur de Contenu'
+            },
+            pricing: {
+                label: 'Tarifs',
+                title: 'Tarification Simple et Transparente',
+                subtitle: 'Commencez gratuitement, améliorez quand vous êtes prêt. Sans frais cachés.',
+                badge: 'Essai Gratuit de 7 Jours',
+                period: '/mois',
+                free: {
+                    name: 'Gratuit',
+                    desc: 'Parfait pour démarrer',
+                    f1: '5 téléversements/mois',
+                    f2: '100 produits/téléversement',
+                    f3: 'Tableau de bord basique',
+                    f4: 'Historique de 7 jours',
+                    cta: 'Commencer'
+                },
+                pro: {
+                    name: 'Pro',
+                    desc: 'Pour les créateurs sérieux',
+                    f1: 'Téléversements illimités',
+                    f2: 'Produits illimités',
+                    f3: 'Insights et recommandations IA',
+                    f4: 'Analyse comparative',
+                    f5: 'Générateur de cartes promotionnelles',
+                    f6: 'Rapports par email',
+                    cta: 'Essai Gratuit'
+                }
+            },
+            cta: {
+                title: 'Prêt à Développer Votre Activité IMVU ?',
+                subtitle: 'Rejoignez 500+ créateurs qui utilisent déjà les données pour réussir.',
+                button: 'Commencez Votre Essai Gratuit de 7 Jours',
+                hint: 'Pas de carte de crédit requise'
+            },
+            footer: {
+                tagline: 'La plateforme d\'analyse la plus complète pour les Créateurs IMVU. Prenez des décisions basées sur les données et développez votre activité.',
+                product: 'Produit',
+                features: 'Fonctionnalités',
+                pricing: 'Tarifs',
+                guide: 'Guide',
+                company: 'Entreprise',
+                contact: 'Contact',
+                privacy: 'Politique de Confidentialité',
+                terms: 'Conditions d\'Utilisation',
+                resources: 'Ressources',
+                docs: 'Documentation',
+                api: 'Statut API',
+                support: 'Support',
+                rights: 'Tous droits réservés.'
+            }
         },
         
         // 个人中心 - 报告订阅

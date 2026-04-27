@@ -66,6 +66,10 @@ class User(Base):
     # 隐私设置 - 不参与行业基准计算
     opt_out_benchmark = Column(Boolean, default=False)  # 不参与行业基准计算
     
+    # Onboarding 引导流程
+    onboarding_step = Column(Integer, default=0)  # 0=未开始, 1=步骤1完成, 2=步骤2完成, 3=全部完成
+    onboarding_completed_at = Column(DateTime, nullable=True)  # 引导完成时间
+    
     # 关联数据
     datasets = relationship("Dataset", back_populates="owner", cascade="all, delete-orphan")
     

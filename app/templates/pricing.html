@@ -174,6 +174,95 @@
             background: #d4edda;
             color: #155724;
         }
+        
+        /* 月付/年付切换样式 */
+        .billing-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        .billing-toggle-label {
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        .billing-toggle-label.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .billing-toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #ddd;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .billing-toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .billing-toggle-switch.yearly {
+            background: var(--primary);
+        }
+        .billing-toggle-switch.yearly::after {
+            transform: translateX(24px);
+        }
+        .savings-badge {
+            background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .price-display {
+            transition: all 0.3s ease;
+        }
+        .price-original {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 1.2rem;
+        }
+        .yearly-features {
+            display: none;
+        }
+        .yearly-features.show {
+            display: block;
+        }
+        .yearly-highlight {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 2px solid var(--primary);
+            position: relative;
+        }
+        .recommended-tag {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 4px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
     
     <style>
         /* Language Switcher - Dropdown */
@@ -290,8 +379,18 @@
         </div>
 
         <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div class="pricing-card">
+            <div class="col-lg-8">
+                <div class="pricing-card" id="pricingCard">
+                    <!-- 月付/年付切换 -->
+                    <div class="billing-toggle">
+                        <span class="billing-toggle-label active" id="monthlyLabel" onclick="switchBilling('monthly')">月付</span>
+                        <div class="billing-toggle-switch" id="billingSwitch" onclick="switchBilling('yearly')"></div>
+                        <span class="billing-toggle-label" id="yearlyLabel" onclick="switchBilling('yearly')">
+                            年付
+                            <span class="savings-badge" id="savingsBadge">省31%</span>
+                        </span>
+                    </div>
+                    
                     <!-- 错误提示 -->
                     <div id="alertBox" class="alert-box"></div>
 
@@ -301,8 +400,19 @@
                     </div>
 
                     <!-- 价格信息 -->
-                    <div class="mt-4">
-                        <div class="price-tag">$12<small>/month</small></div>
+                    <div class="mt-4 price-display" id="priceDisplay">
+                        <div id="monthlyPrice">
+                            <div class="price-tag">$12<small>/month</small></div>
+                        </div>
+                        <div id="yearlyPrice" style="display: none;">
+                            <div class="price-tag">$99<small>/year</small></div>
+                            <div style="font-size: 14px; color: #666; margin-top: 5px;">
+                                <span class="price-original">$144</span> 
+                                <span style="color: var(--success); font-weight: 600;">省$45</span>
+                                <br>
+                                <span style="font-size: 13px;">相当于 $8.25/月</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 功能列表 -->
@@ -312,6 +422,10 @@
                         <li><i class="bi bi-check-circle-fill text-success me-2"></i><span data-i18n="pricing.compare3">Data Diagnosis</span></li>
                         <li><i class="bi bi-check-circle-fill text-success me-2"></i><span data-i18n="pricing.compare4">AI Insights</span></li>
                         <li><i class="bi bi-check-circle-fill text-success me-2"></i><span data-i18n="pricing.compare5">Email Reports</span></li>
+                        <!-- 年付专属功能 -->
+                        <li class="yearly-features"><i class="bi bi-check-circle-fill text-success me-2"></i><span data-i18n="pricing.yearly1">优先客户支持</span></li>
+                        <li class="yearly-features"><i class="bi bi-check-circle-fill text-success me-2"></i><span data-i18n="pricing.yearly2">高级数据导出</span></li>
+                        <li class="yearly-features"><i class="bi bi-check-circle-fill text-success me-2"></i><span data-i18n="pricing.yearly3">API高级接口</span></li>
                     </ul>
 
                     <!-- 操作区域 -->
@@ -320,6 +434,49 @@
                             <i class="bi bi-gear me-1"></i>
                             <span data-i18n="pricing.manage">Manage Subscription</span>
                         </button>
+                    </div>
+                    
+                    <!-- 订阅按钮（用于显示） -->
+                    <div id="subscribeArea">
+                        <button class="btn-subscribe" id="subscribeBtn" onclick="startSubscription()">
+                            <i class="bi bi-lightning me-2"></i><span data-i18n="pricing.subscribe_monthly">立即订阅 - $12/月</span>
+                        </button>
+                        <p style="font-size: 12px; color: #999; margin-top: 10px;">
+                            <span data-i18n="pricing.guarantee">7天无理由退款保证</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 常见问题 -->
+                <div class="mt-4 text-center">
+                    <h5 style="color: #666; margin-bottom: 15px;">
+                        <span data-i18n="pricing.faq_title">常见问题</span>
+                    </h5>
+                    <div class="row g-3" style="text-align: left;">
+                        <div class="col-md-6">
+                            <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                                <h6 style="color: var(--primary);"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq1_q">试用期结束后会自动扣费吗？</span></h6>
+                                <p style="font-size: 13px; color: #666; margin: 0;" data-i18n="pricing.faq1_a">不会。试用期结束后如不订阅，不会产生任何费用。</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                                <h6 style="color: var(--primary);"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq2_q">可以随时取消订阅吗？</span></h6>
+                                <p style="font-size: 13px; color: #666; margin: 0;" data-i18n="pricing.faq2_a">可以。取消后您仍可使用已付费期间的服务。</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                                <h6 style="color: var(--primary);"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq3_q">年付可以切换到月付吗？</span></h6>
+                                <p style="font-size: 13px; color: #666; margin: 0;" data-i18n="pricing.faq3_a">可以。在客户门户中可随时切换计费周期。</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                                <h6 style="color: var(--primary);"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq4_q">如何获取发票？</span></h6>
+                                <p style="font-size: 13px; color: #666; margin: 0;" data-i18n="pricing.faq4_a">在客户门户中可下载PDF格式的发票。</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -375,15 +532,83 @@
             }
         }
 
+        // 全局变量存储年付配置
+        let yearlyPriceId = '';
+        let currentBillingCycle = 'monthly';
+        
+        // 切换月付/年付
+        function switchBilling(cycle) {
+            const monthlyLabel = document.getElementById('monthlyLabel');
+            const yearlyLabel = document.getElementById('yearlyLabel');
+            const billingSwitch = document.getElementById('billingSwitch');
+            const monthlyPrice = document.getElementById('monthlyPrice');
+            const yearlyPrice = document.getElementById('yearlyPrice');
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            const yearlyFeatures = document.querySelectorAll('.yearly-features');
+            const subscribeArea = document.getElementById('subscribeArea');
+            const lang = localStorage.getItem('imvu_lang') || 'en';
+            
+            currentBillingCycle = cycle;
+            
+            if (cycle === 'yearly') {
+                billingSwitch.classList.add('yearly');
+                monthlyLabel.classList.remove('active');
+                yearlyLabel.classList.add('active');
+                monthlyPrice.style.display = 'none';
+                yearlyPrice.style.display = 'block';
+                
+                // 更新订阅按钮文案
+                const btnText = subscribeBtn.querySelector('span');
+                if (btnText) {
+                    btnText.textContent = lang === 'zh' ? '立即订阅 - $99/年' : 'Subscribe Now - $99/year';
+                } else {
+                    subscribeBtn.innerHTML = '<i class="bi bi-lightning me-2"></i>' + (lang === 'zh' ? '立即订阅 - $99/年' : 'Subscribe Now - $99/year');
+                }
+                
+                // 显示年付专属功能
+                yearlyFeatures.forEach(el => el.classList.add('show'));
+            } else {
+                billingSwitch.classList.remove('yearly');
+                monthlyLabel.classList.add('active');
+                yearlyLabel.classList.remove('active');
+                monthlyPrice.style.display = 'block';
+                yearlyPrice.style.display = 'none';
+                
+                // 更新订阅按钮文案
+                const btnText = subscribeBtn.querySelector('span');
+                if (btnText) {
+                    btnText.textContent = lang === 'zh' ? '立即订阅 - $12/月' : 'Subscribe Now - $12/month';
+                } else {
+                    subscribeBtn.innerHTML = '<i class="bi bi-lightning me-2"></i>' + (lang === 'zh' ? '立即订阅 - $12/月' : 'Subscribe Now - $12/month');
+                }
+                
+                // 隐藏年付专属功能
+                yearlyFeatures.forEach(el => el.classList.remove('show'));
+            }
+            
+            // 保存用户选择
+            localStorage.setItem('preferred_billing', cycle);
+        }
+
         // 更新UI
         function updateUI(data) {
             console.log('=== updateUI called with data:', data);
             const area = document.getElementById('subscriptionArea');
             const manageArea = document.getElementById('manageArea');
+            const subscribeArea = document.getElementById('subscribeArea');
             console.log('subscriptionArea element:', area);
 
             // 语言检测
             const lang = localStorage.getItem('imvu_lang') || 'en';
+            
+            // 保存年付配置
+            if (data.yearly_price_id) {
+                yearlyPriceId = data.yearly_price_id;
+            }
+            
+            // 恢复用户之前的月付/年付选择
+            const savedBilling = localStorage.getItem('preferred_billing') || 'monthly';
+            switchBilling(savedBilling);
 
             if (data.is_subscribed) {
                 area.innerHTML = `
@@ -391,12 +616,12 @@
                     <p class="text-muted mt-3">${t('renews_at')}: ${data.end_date || 'N/A'}</p>
                 `;
                 manageArea.style.display = 'block';
+                subscribeArea.style.display = 'none';
             } else if (data.is_in_trial) {
                 // 试用期用户
                 const trialText = lang === 'zh' 
                     ? `🎉 您正在享受 <strong>${data.trial_days_left} 天</strong> Pro 试用期` 
                     : `🎉 You have <strong>${data.trial_days_left} days</strong> of Pro trial remaining`;
-                const subscribeText = lang === 'zh' ? '立即订阅 - $12/月' : 'Subscribe Now - $12/month';
                 const trialEndText = lang === 'zh' ? `试用期结束于: ${data.trial_end_date ? new Date(data.trial_end_date).toLocaleDateString() : 'N/A'}` : `Trial ends: ${data.trial_end_date ? new Date(data.trial_end_date).toLocaleDateString() : 'N/A'}`;
                 
                 area.innerHTML = `
@@ -405,22 +630,17 @@
                     </div>
                     <p class="text-muted mb-3">${trialEndText}</p>
                     <p class="text-muted mb-4" style="font-size: 14px;">${lang === 'zh' ? '订阅以在试用期结束后继续使用全部功能' : 'Subscribe to continue using all features after trial ends'}</p>
-                    <button class="btn-subscribe" id="subscribeBtn" onclick="startSubscription()">
-                        <i class="bi bi-lightning me-2"></i>${subscribeText}
-                    </button>
                 `;
                 manageArea.style.display = 'none';
+                subscribeArea.style.display = 'block';
             } else {
                 console.log('Setting up subscribe button...');
-                const subscribeText = lang === 'zh' ? '立即订阅 - $12/月' : 'Subscribe Now - $12/month';
                 
                 area.innerHTML = `
                     <p class="text-muted mb-4">${lang === 'zh' ? '订阅以访问所有功能' : 'Subscribe to access all features'}</p>
-                    <button class="btn-subscribe" id="subscribeBtn" onclick="startSubscription()">
-                        <i class="bi bi-lightning me-2"></i>${subscribeText}
-                    </button>
                 `;
                 manageArea.style.display = 'none';
+                subscribeArea.style.display = 'block';
             }
             console.log('=== updateUI done, area.innerHTML set ===');
         }
@@ -438,16 +658,24 @@
             if (!btn) return;
 
             btn.disabled = true;
+            const originalText = btn.innerHTML;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
 
             try {
+                // 根据当前选择的计费周期决定使用的 price_id
+                let requestBody = {};
+                
+                if (currentBillingCycle === 'yearly' && yearlyPriceId) {
+                    requestBody = { price_id: yearlyPriceId };
+                }
+                
                 const response = await fetch('/api/subscription/create-checkout-session', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({})
+                    body: JSON.stringify(requestBody)
                 });
 
                 const result = await response.json();
@@ -458,13 +686,13 @@
                 } else {
                     showAlert(result.message || t('subscribe_error'));
                     btn.disabled = false;
-                    btn.innerHTML = `<i class="bi bi-lightning me-2"></i>${t('subscribe_btn')}`;
+                    btn.innerHTML = originalText;
                 }
             } catch (error) {
                 console.error('Subscription error:', error);
                 showAlert(t('network_error'));
                 btn.disabled = false;
-                btn.innerHTML = `<i class="bi bi-lightning me-2"></i>${t('subscribe_btn')}`;
+                btn.innerHTML = originalText;
             }
         }
 

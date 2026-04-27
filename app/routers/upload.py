@@ -267,3 +267,44 @@ async def clear_all_data(current_user: dict = Depends(require_subscription)):
     except Exception as e:
         logger.error(f"[API] 清空数据失败: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to clear data: {str(e)}")
+
+
+@router.get("/sample")
+async def download_sample_data():
+    """
+    下载示例数据文件
+    提供IMVU Creator的真实示例数据，用于体验平台功能
+    """
+    import os
+    
+    # 尝试从static目录读取示例数据
+    sample_file_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "static", "sample_data.xml"
+    )
+    
+    if os.path.exists(sample_file_path):
+        with open(sample_file_path, 'r', encoding='utf-8') as f:
+            sample_xml = f.read()
+    else:
+        # 如果文件不存在，返回内置的示例数据
+        sample_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<product_list>
+    <product_list_entry product_id="SMP001" product_name="Elegant Evening Gown - Purple" price="899" profit="450" visible="Y" direct_sales="12500" indirect_sales="8900" promoted_sales="18500" cart_adds="520" wishlist_adds="380" organic_impressions="98000" paid_impressions="72000" />
+    <product_list_entry product_id="SMP002" product_name="Crystal Pendant Necklace" price="299" profit="155" visible="Y" direct_sales="8200" indirect_sales="5600" promoted_sales="11200" cart_adds="360" wishlist_adds="275" organic_impressions="68000" paid_impressions="48000" />
+    <product_list_entry product_id="SMP003" product_name="Long Wavy Red Hair" price="349" profit="175" visible="Y" direct_sales="15200" indirect_sales="11800" promoted_sales="20600" cart_adds="620" wishlist_adds="480" organic_impressions="145000" paid_impressions="98000" />
+    <product_list_entry product_id="SMP004" product_name="Golden Butterfly Wings" price="459" profit="235" visible="Y" direct_sales="6500" indirect_sales="4200" promoted_sales="8900" cart_adds="265" wishlist_adds="198" organic_impressions="58000" paid_impressions="42000" />
+    <product_list_entry product_id="SMP005" product_name="Luxury King Size Bed" price="1599" profit="820" visible="Y" direct_sales="3200" indirect_sales="2100" promoted_sales="4800" cart_adds="145" wishlist_adds="98" organic_impressions="35000" paid_impressions="28000" />
+    <product_list_entry product_id="SMP006" product_name="Cute Fluffy Cat Companion" price="599" profit="310" visible="Y" direct_sales="4200" indirect_sales="2800" promoted_sales="5800" cart_adds="185" wishlist_adds="135" organic_impressions="48000" paid_impressions="36000" />
+    <product_list_entry product_id="SMP007" product_name="Casual Summer Dress - Floral" price="399" profit="195" visible="Y" direct_sales="9800" indirect_sales="7200" promoted_sales="14200" cart_adds="420" wishlist_adds="315" organic_impressions="88000" paid_impressions="65000" />
+    <product_list_entry product_id="SMP008" product_name="Diamond Tiara Crown" price="599" profit="320" visible="Y" direct_sales="12500" indirect_sales="8900" promoted_sales="16800" cart_adds="540" wishlist_adds="410" organic_impressions="95000" paid_impressions="72000" />
+</product_list>
+"""
+    
+    return JSONResponse(
+        content=sample_xml,
+        media_type="application/xml",
+        headers={
+            "Content-Disposition": "attachment; filename=imvu_sample_data.xml"
+        }
+    )
