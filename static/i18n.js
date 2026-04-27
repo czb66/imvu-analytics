@@ -3922,20 +3922,7 @@ const translations = {
             }
         },
         
-        // 个人中心 - 报告订阅
-        profile: {
-            reportSubscription: 'Abonnement aux Rapports',
-            reportSubscriptionHint: 'Abonnez-vous pour recevoir des rapports marketing automatisés par email.',
-            prefDaily: '📅 Rapport Quotidien',
-            prefDailyHint: 'Reçu chaque jour à 9h00',
-            prefWeekly: '📊 Rapport Hebdomadaire',
-            prefWeeklyHint: 'Reçu chaque lundi (Recommandé)',
-            prefNone: '🚫 Aucun Rapport',
-            prefNoneHint: 'Se désabonner de tous les rapports',
-            currentPreference: 'Actuel:',
-            savePreference: 'Enregistrer',
-            prefSaved: 'Préférence enregistrée!'
-        }
+        
     }
 };
 
