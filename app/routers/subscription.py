@@ -715,17 +715,3 @@ async def create_customer_portal(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"success": False, "message": f"创建客户门户失败: {str(e)}"}
         )
-
-
-@router.get("/debug/env")
-async def debug_env():
-    """调试端点 - 检查环境变量（生产环境应删除）"""
-    import os
-    return {
-        "STRIPE_SECRET_KEY_set": bool(os.getenv("STRIPE_SECRET_KEY")),
-        "STRIPE_SECRET_KEY_prefix": os.getenv("STRIPE_SECRET_KEY", "")[:20] if os.getenv("STRIPE_SECRET_KEY") else "EMPTY",
-        "STRIPE_PUBLISHABLE_KEY_set": bool(os.getenv("STRIPE_PUBLISHABLE_KEY")),
-        "STRIPE_PRICE_ID": os.getenv("STRIPE_PRICE_ID", "NOT_SET"),
-        "STRIPE_PRODUCT_ID": os.getenv("STRIPE_PRODUCT_ID", "NOT_SET"),
-        "APP_BASE_URL": os.getenv("APP_BASE_URL", "NOT_SET")
-    }
