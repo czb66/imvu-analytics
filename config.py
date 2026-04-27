@@ -140,8 +140,15 @@ def get_stripe_price_id():
 def get_stripe_product_id():
     return os.getenv("STRIPE_PRODUCT_ID", "")
 
+def get_stripe_yearly_price_id():
+    """获取年付价格ID"""
+    return os.getenv("STRIPE_YEARLY_PRICE_ID", "")
+
 # 订阅价格（美元/月）
 SUBSCRIPTION_PRICE = 12.00
+
+# 年付价格（美元/年）
+SUBSCRIPTION_YEARLY_PRICE = 99.00
 
 # 应用基础URL（用于Stripe回调）
 APP_BASE_URL = os.getenv("APP_BASE_URL", "https://imvucreators.com")

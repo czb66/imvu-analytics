@@ -194,11 +194,11 @@ async def get_stripe_config():
         "price_amount": int(config.SUBSCRIPTION_PRICE * 100),  # 转换为分
         "currency": "usd",
         # 年付选项
-        "yearly_price_id": os.getenv("STRIPE_YEARLY_PRICE_ID", ""),
-        "yearly_price": 99.00,
-        "yearly_price_monthly": 8.25,
-        "yearly_savings": 45.00,
-        "yearly_savings_percent": 31
+        "yearly_price_id": config.get_stripe_yearly_price_id(),
+        "yearly_price": config.SUBSCRIPTION_YEARLY_PRICE,
+        "yearly_price_monthly": round(config.SUBSCRIPTION_YEARLY_PRICE / 12, 2),
+        "yearly_savings": round(config.SUBSCRIPTION_PRICE * 12 - config.SUBSCRIPTION_YEARLY_PRICE, 2),
+        "yearly_savings_percent": round((1 - config.SUBSCRIPTION_YEARLY_PRICE / (config.SUBSCRIPTION_PRICE * 12)) * 100)
     }
 
 
@@ -576,11 +576,11 @@ async def get_subscription_status(
             "is_in_trial": is_in_trial,
             "has_premium_access": user.has_premium_access,
             # 年付选项
-            "yearly_price_id": os.getenv("STRIPE_YEARLY_PRICE_ID", ""),
-            "yearly_price": 99.00,
-            "yearly_price_monthly": 8.25,
-            "yearly_savings": 45.00,
-            "yearly_savings_percent": 31
+            "yearly_price_id": config.get_stripe_yearly_price_id(),
+            "yearly_price": config.SUBSCRIPTION_YEARLY_PRICE,
+            "yearly_price_monthly": round(config.SUBSCRIPTION_YEARLY_PRICE / 12, 2),
+            "yearly_savings": round(config.SUBSCRIPTION_PRICE * 12 - config.SUBSCRIPTION_YEARLY_PRICE, 2),
+            "yearly_savings_percent": round((1 - config.SUBSCRIPTION_YEARLY_PRICE / (config.SUBSCRIPTION_PRICE * 12)) * 100)
         }
         
         return {
