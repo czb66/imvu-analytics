@@ -204,6 +204,50 @@ def _run_migrations(logger):
                 conn.commit()
                 logger.info("report_preference 列添加成功")
             
+            # 迁移 6: 添加订阅到期提醒字段
+            reminder_fields = [
+                ('reminder_3day_sent', 'BOOLEAN DEFAULT 0'),
+                ('reminder_1day_sent', 'BOOLEAN DEFAULT 0'),
+                ('reminder_recall_sent', 'BOOLEAN DEFAULT 0'),
+                ('trial_reminder_3day_sent', 'BOOLEAN DEFAULT 0'),
+                ('trial_reminder_1day_sent', 'BOOLEAN DEFAULT 0'),
+                ('trial_reminder_recall_sent', 'BOOLEAN DEFAULT 0'),
+            ]
+            
+            for col_name, col_type in reminder_fields:
+                if col_name not in existing_columns:
+                    logger.info(f"正在添加 {col_name} 列到 users 表...")
+                    if "sqlite" in config.DATABASE_URL:
+                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} BOOLEAN DEFAULT 0"))
+                    else:
+                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} BOOLEAN DEFAULT FALSE"))
+                    conn.commit()
+                    logger.info(f"{col_name} 列添加成功")
+            
+            # 迁移 7: 添加 last_reminder_sent 字段
+            if 'last_reminder_sent' not in existing_columns:
+                logger.info("正在添加 last_reminder_sent 列到 users 表...")
+                conn.execute(text("ALTER TABLE users ADD COLUMN last_reminder_sent TIMESTAMP"))
+                conn.commit()
+                logger.info("last_reminder_sent 列添加成功")
+            
+            # 迁移 8: 添加防刷机制字段
+            antifraud_fields = [
+                ('referral_reward_pending', 'BOOLEAN DEFAULT 0'),
+                ('referral_rewarded_at', 'TIMESTAMP'),
+                ('referral_suspended', 'BOOLEAN DEFAULT 0'),
+            ]
+            
+            for col_name, col_type in antifraud_fields:
+                if col_name not in existing_columns:
+                    logger.info(f"正在添加 {col_name} 列到 users 表...")
+                    if "sqlite" in config.DATABASE_URL:
+                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                    else:
+                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                    conn.commit()
+                    logger.info(f"{col_name} 列添加成功")
+            
             logger.info("数据库迁移完成")
             
     except Exception as e:
@@ -357,10 +401,97 @@ class UserRepository:
         
         # 统计被推荐的用户数量
         count = self.db.query(User).filter(User.referred_by == user.referral_code).count()
+        
+        # 获取本月已发放的推荐奖励数量
+        monthly_rewards = self.get_monthly_referral_rewards(user_id)
+        
         return {
             "referral_code": user.referral_code,
-            "referral_count": count
+            "referral_count": count,
+            "monthly_rewards": monthly_rewards,
+            "monthly_limit": 5,
+            "referral_suspended": user.referral_suspended
         }
+    
+    def get_monthly_referral_rewards(self, user_id: int) -> int:
+        """获取用户本月已发放的推荐奖励数量"""
+        user = self.get_by_id(user_id)
+        if not user or not user.referral_code:
+            return 0
+        
+        # 计算本月的开始时间
+        now = datetime.utcnow()
+        month_start = datetime(now.year, now.month, 1)
+        
+        # 统计本月内，该用户推荐码注册的用户中，已获得奖励的数量
+        count = self.db.query(User).filter(
+            User.referred_by == user.referral_code,
+            User.referral_rewarded_at >= month_start
+        ).count()
+        
+        return count
+    
+    def count_referral_usage(self, referral_code: str, days: int = 7) -> int:
+        """统计某推荐码在最近N天的使用次数"""
+        from datetime import timedelta
+        start_date = datetime.utcnow() - timedelta(days=days)
+        return self.db.query(User).filter(
+            User.referred_by == referral_code,
+            User.created_at >= start_date
+        ).count()
+    
+    def get_total_referral_usage(self, referral_code: str) -> int:
+        """统计某推荐码的总使用次数"""
+        return self.db.query(User).filter(User.referred_by == referral_code).count()
+    
+    def suspend_referral_code(self, user_id: int, suspended: bool = True):
+        """暂停或恢复用户的推荐码"""
+        user = self.get_by_id(user_id)
+        if user:
+            user.referral_suspended = suspended
+            self.db.commit()
+    
+    def mark_referral_reward_pending(self, user_id: int):
+        """标记用户为推荐奖励待发放状态"""
+        user = self.get_by_id(user_id)
+        if user:
+            user.referral_reward_pending = True
+            self.db.commit()
+    
+    def grant_referral_reward(self, user_id: int, days: int = 7) -> bool:
+        """
+        发放推荐奖励（延长用户Pro权限）
+        返回: 是否成功发放
+        """
+        from datetime import timedelta
+        
+        user = self.get_by_id(user_id)
+        if not user:
+            return False
+        
+        now = datetime.utcnow()
+        
+        # 计算新的到期时间
+        current_end = user.subscription_end_date or user.trial_end_date
+        
+        if current_end and current_end > now:
+            # 在现有到期时间基础上延长
+            new_end = current_end + timedelta(days=days)
+        else:
+            # 从现在开始计算
+            new_end = now + timedelta(days=days)
+        
+        # 更新到期时间
+        if not user.is_subscribed:
+            user.trial_end_date = new_end
+        else:
+            user.subscription_end_date = new_end
+        
+        # 标记奖励已发放
+        user.referral_rewarded_at = now
+        
+        self.db.commit()
+        return True
 
 
 class ProductDataRepository:

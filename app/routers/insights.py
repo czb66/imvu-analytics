@@ -1,9 +1,9 @@
 """
 AI洞察路由 - 提供AI洞察相关API
-需要订阅才能使用
+使用内存缓存层提升性能，AI洞察结果缓存30分钟
 """
 
-from fastapi import APIRouter, HTTPException, Request, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends, Response
 from pydantic import BaseModel
 from typing import Dict, List, Optional
 from sqlalchemy.orm import Session
@@ -16,10 +16,14 @@ from app.services.insights import insights_service
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription, is_whitelisted
 from app.services.activity_tracker import activity_tracker
+from app.services.cache import get_cache
 from app.core.limiter import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["AI洞察"])
+
+# AI洞察缓存 TTL（秒）- 30分钟，AI计算较耗时应缓存
+INSIGHT_CACHE_TTL = 1800
 
 
 def check_subscription_required(user_id: int, user_email: str = None) -> bool:
@@ -109,6 +113,7 @@ def _get_datasets_from_request(user_id: int = None) -> List[Dict]:
 @limiter.limit("60/minute")  # AI洞察：60次/分钟
 async def generate_dashboard_insights(
     request: Request,
+    response: Response,
     req: DashboardInsightsRequest = None,
     current_user: dict = Depends(require_subscription)
 ):
@@ -116,16 +121,24 @@ async def generate_dashboard_insights(
     生成仪表盘AI洞察（速率限制：60次/分钟）
     
     分析总体销售趋势、Top产品表现、核心指标异常
+    缓存：30分钟（TTL=1800秒）
     
     注意：此功能需要订阅才能使用
     """
     start_time = time.time()
     user_id = current_user.get('id')
     user_email = current_user.get('email')
-    logger.info(f"[API] 用户 {user_email} 生成仪表盘洞察 - 开始")
+    
+    # 获取语言参数
+    language = req.language if req and hasattr(req, 'language') else 'zh'
+    
+    # 构建缓存键（包含语言参数）
+    cache = get_cache()
+    cache_key = f"insights:dashboard:user_{user_id}:lang_{language}"
     
     # 检查订阅状态（白名单用户自动通过）
     if not check_subscription_required(user_id, user_email):
+        response.headers["X-Cache"] = "MISS"
         return {
             "success": False,
             "error": "subscription_required",
@@ -133,8 +146,15 @@ async def generate_dashboard_insights(
             "insight": "⚠️ AI洞察功能需要订阅才能使用，请前往 /pricing 订阅"
         }
     
-    # 获取语言参数
-    language = req.language if req and hasattr(req, 'language') else 'zh'
+    # 尝试获取缓存
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        elapsed = time.time() - start_time
+        logger.info(f"[API] 用户 {user_email} 生成仪表盘洞察 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "HIT"
+        return cached_result
+    
+    logger.info(f"[API] 用户 {user_email} 生成仪表盘洞察 - 开始")
     
     # 记录查看洞察行为
     activity_tracker.log_activity(None, user_id, 'view_insights', metadata={'insight_type': 'dashboard', 'language': language})
@@ -145,11 +165,13 @@ async def generate_dashboard_insights(
         
         if not product_dicts:
             no_data_msg = "暂无数据可分析，请先上传产品数据" if language == 'zh' else "No data to analyze, please upload product data first"
-            return {
+            result = {
                 "success": True,
                 "insight": no_data_msg,
                 "is_offline": True
             }
+            response.headers["X-Cache"] = "MISS"
+            return result
         
         # 计算汇总指标
         analytics = AnalyticsService(product_dicts)
@@ -164,7 +186,7 @@ async def generate_dashboard_insights(
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} 生成仪表盘洞察 - 完成 耗时: {elapsed:.3f}s")
         
-        return {
+        result = {
             "success": True,
             "insight": insight,
             "is_offline": not insights_service.is_configured(),
@@ -173,6 +195,12 @@ async def generate_dashboard_insights(
                 "top_products_count": len(top_products)
             }
         }
+        
+        # 缓存结果
+        cache.set(cache_key, result, ttl=INSIGHT_CACHE_TTL)
+        response.headers["X-Cache"] = "MISS"
+        
+        return result
         
     except Exception as e:
         elapsed = time.time() - start_time
@@ -189,6 +217,7 @@ async def generate_dashboard_insights(
 @limiter.limit("60/minute")  # AI洞察：60次/分钟
 async def generate_diagnosis_insights(
     request: Request,
+    response: Response,
     req: DiagnosisInsightsRequest = None,
     current_user: dict = Depends(require_subscription)
 ):
@@ -196,16 +225,24 @@ async def generate_diagnosis_insights(
     生成诊断AI洞察（速率限制：60次/分钟）
     
     分析销售诊断、流量漏斗、异常检测
+    缓存：30分钟（TTL=1800秒）
     
     注意：此功能需要订阅才能使用
     """
     start_time = time.time()
     user_id = current_user.get('id')
     user_email = current_user.get('email')
-    logger.info(f"[API] 用户 {user_email} 生成诊断洞察 - 开始")
+    
+    # 获取语言参数
+    language = req.language if req and hasattr(req, 'language') else 'zh'
+    
+    # 构建缓存键
+    cache = get_cache()
+    cache_key = f"insights:diagnosis:user_{user_id}:lang_{language}"
     
     # 检查订阅状态（白名单用户自动通过）
     if not check_subscription_required(user_id, user_email):
+        response.headers["X-Cache"] = "MISS"
         return {
             "success": False,
             "error": "subscription_required",
@@ -213,8 +250,15 @@ async def generate_diagnosis_insights(
             "insight": "⚠️ AI洞察功能需要订阅才能使用，请前往 /pricing 订阅"
         }
     
-    # 获取语言参数
-    language = req.language if req and hasattr(req, 'language') else 'zh'
+    # 尝试获取缓存
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        elapsed = time.time() - start_time
+        logger.info(f"[API] 用户 {user_email} 生成诊断洞察 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "HIT"
+        return cached_result
+    
+    logger.info(f"[API] 用户 {user_email} 生成诊断洞察 - 开始")
     
     try:
         # 获取产品数据
@@ -222,11 +266,13 @@ async def generate_diagnosis_insights(
         
         if not product_dicts:
             no_data_msg = "暂无数据可诊断，请先上传产品数据" if language == 'zh' else "No data to diagnose, please upload product data first"
-            return {
+            result = {
                 "success": True,
                 "insight": no_data_msg,
                 "is_offline": True
             }
+            response.headers["X-Cache"] = "MISS"
+            return result
         
         # 计算分析数据
         analytics = AnalyticsService(product_dicts)
@@ -255,7 +301,7 @@ async def generate_diagnosis_insights(
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} 生成诊断洞察 - 完成 耗时: {elapsed:.3f}s")
         
-        return {
+        result = {
             "success": True,
             "insight": insight,
             "is_offline": not insights_service.is_configured(),
@@ -265,6 +311,12 @@ async def generate_diagnosis_insights(
                 "anomalies_count": len(anomalies)
             }
         }
+        
+        # 缓存结果
+        cache.set(cache_key, result, ttl=INSIGHT_CACHE_TTL)
+        response.headers["X-Cache"] = "MISS"
+        
+        return result
         
     except Exception as e:
         elapsed = time.time() - start_time
@@ -282,6 +334,7 @@ async def generate_diagnosis_insights(
 @limiter.limit("60/minute")  # AI洞察：60次/分钟
 async def generate_compare_insights(
     request: Request,
+    response: Response,
     req: CompareInsightsRequest,
     current_user: dict = Depends(require_subscription)
 ):
@@ -289,16 +342,25 @@ async def generate_compare_insights(
     生成对比AI洞察（速率限制：60次/分钟）
     
     分析多数据集对比结论、排名变化、趋势总结
+    缓存：30分钟（TTL=1800秒）
     
     注意：此功能需要订阅才能使用
     """
     start_time = time.time()
     user_id = current_user.get('id')
     user_email = current_user.get('email')
-    logger.info(f"[API] 用户 {user_email} 生成对比洞察 - 开始 数据集: {req.dataset_ids}")
+    
+    # 获取语言参数
+    language = req.language if hasattr(req, 'language') else 'zh'
+    
+    # 构建缓存键（基于数据集ID列表）
+    dataset_ids_str = "_".join(sorted(map(str, req.dataset_ids)))
+    cache = get_cache()
+    cache_key = f"insights:compare:user_{user_id}:datasets_{dataset_ids_str}:lang_{language}"
     
     # 检查订阅状态（白名单用户自动通过）
     if not check_subscription_required(user_id, user_email):
+        response.headers["X-Cache"] = "MISS"
         return {
             "success": False,
             "error": "subscription_required",
@@ -306,17 +368,26 @@ async def generate_compare_insights(
             "insight": "⚠️ AI洞察功能需要订阅才能使用，请前往 /pricing 订阅"
         }
     
-    # 获取语言参数
-    language = req.language if hasattr(req, 'language') else 'zh'
+    # 尝试获取缓存
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        elapsed = time.time() - start_time
+        logger.info(f"[API] 用户 {user_email} 生成对比洞察 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "HIT"
+        return cached_result
+    
+    logger.info(f"[API] 用户 {user_email} 生成对比洞察 - 开始 数据集: {req.dataset_ids}")
     
     try:
         if len(req.dataset_ids) < 2:
             no_data_msg = "请至少选择2个数据集进行对比" if language == 'zh' else "Please select at least 2 datasets to compare"
-            return {
+            result = {
                 "success": True,
                 "insight": no_data_msg,
                 "is_offline": True
             }
+            response.headers["X-Cache"] = "MISS"
+            return result
         
         # 获取各数据集信息
         datasets = []
@@ -363,11 +434,13 @@ async def generate_compare_insights(
         
         if len(datasets) < 2:
             no_data_msg = "有效数据集不足，无法进行对比" if language == 'zh' else "Insufficient valid datasets for comparison"
-            return {
+            result = {
                 "success": True,
                 "insight": no_data_msg,
                 "is_offline": True
             }
+            response.headers["X-Cache"] = "MISS"
+            return result
         
         # 计算指标对比
         metrics_comparison = _calculate_metrics_comparison(datasets)
@@ -383,7 +456,7 @@ async def generate_compare_insights(
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} 生成对比洞察 - 完成 耗时: {elapsed:.3f}s")
         
-        return {
+        result = {
             "success": True,
             "insight": insight,
             "is_offline": not insights_service.is_configured(),
@@ -398,6 +471,12 @@ async def generate_compare_insights(
             }
         }
         
+        # 缓存结果
+        cache.set(cache_key, result, ttl=INSIGHT_CACHE_TTL)
+        response.headers["X-Cache"] = "MISS"
+        
+        return result
+        
     except Exception as e:
         elapsed = time.time() - start_time
         logger.error(f"[API] 用户 {current_user.get('email')} 生成对比洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
@@ -407,6 +486,27 @@ async def generate_compare_insights(
             "insight": "⚠️ 生成洞察时发生错误，请稍后重试",
             "is_offline": True
         }
+
+
+@router.post("/clear-cache")
+async def clear_insights_cache(
+    response: Response,
+    current_user: dict = Depends(require_subscription)
+):
+    """清除当前用户的AI洞察缓存"""
+    user_id = current_user.get('id')
+    cache = get_cache()
+    
+    # 清除该用户的所有洞察缓存
+    count = cache.delete_pattern(f"insights:*:user_{user_id}*")
+    
+    logger.info(f"[API] 用户 {current_user.get('email')} 清除洞察缓存 - 删除了 {count} 条")
+    response.headers["X-Cache"] = "MISS"
+    
+    return {
+        "success": True,
+        "message": f"已清除 {count} 条洞察缓存"
+    }
 
 
 def _calculate_metrics_comparison(datasets: List[Dict]) -> Dict:
@@ -523,6 +623,7 @@ def _calculate_rank_changes(datasets: List[Dict]) -> Dict:
 @limiter.limit("60/minute")  # SEO分析：60次/分钟
 async def generate_seo_name_insights(
     request: Request,
+    response: Response,
     current_user: dict = Depends(require_subscription),
     db: Session = Depends(get_db)
 ):
@@ -530,17 +631,29 @@ async def generate_seo_name_insights(
     生成产品名称 SEO 优化建议（速率限制：60次/分钟）
     
     分析上传数据中的产品名称，根据 SEO 最佳实践给出优化建议
+    缓存：30分钟（TTL=1800秒）
     """
-    import time
     start_time = time.time()
+    
+    # 获取语言设置
+    body = await request.json() if request.headers.get("content-length") else {}
+    language = body.get('language', 'zh')
+    
+    # 构建缓存键
+    cache = get_cache()
+    cache_key = f"insights:seo:user_{current_user.get('id')}:lang_{language}"
     
     logger.info(f"[API] 用户 {current_user.get('email')} 请求 SEO 名称分析")
     
+    # 尝试获取缓存
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        elapsed = time.time() - start_time
+        logger.info(f"[API] 用户 {current_user.get('email')} SEO 名称分析 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "HIT"
+        return cached_result
+    
     try:
-        # 获取语言设置
-        body = await request.json() if request.headers.get("content-length") else {}
-        language = body.get('language', 'zh')
-        
         # 获取用户数据集
         from app.database import Dataset, ProductData
         datasets = db.query(Dataset).filter(
@@ -549,11 +662,13 @@ async def generate_seo_name_insights(
         
         if not datasets:
             no_data_msg = "📝 请先上传 XML 数据以获取 SEO 分析" if language == 'zh' else "📝 Please upload XML data first for SEO analysis"
-            return {
+            result = {
                 "success": True,
                 "insight": no_data_msg,
                 "is_offline": True
             }
+            response.headers["X-Cache"] = "MISS"
+            return result
         
         # 获取最新数据集的产品数据
         latest_dataset = datasets[0]
@@ -563,11 +678,13 @@ async def generate_seo_name_insights(
         
         if not products:
             no_data_msg = "📝 数据集中暂无产品数据" if language == 'zh' else "📝 No product data in dataset"
-            return {
+            result = {
                 "success": True,
                 "insight": no_data_msg,
                 "is_offline": True
             }
+            response.headers["X-Cache"] = "MISS"
+            return result
         
         # 转换为字典列表
         products_data = []
@@ -585,7 +702,7 @@ async def generate_seo_name_insights(
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} SEO 名称分析完成 耗时: {elapsed:.3f}s")
         
-        return {
+        result = {
             "success": True,
             "insight": insight,
             "is_offline": not insights_service.is_configured(),
@@ -595,6 +712,12 @@ async def generate_seo_name_insights(
                 "language": language
             }
         }
+        
+        # 缓存结果
+        cache.set(cache_key, result, ttl=INSIGHT_CACHE_TTL)
+        response.headers["X-Cache"] = "MISS"
+        
+        return result
         
     except Exception as e:
         elapsed = time.time() - start_time

@@ -344,3 +344,79 @@ def send_contact_email(
         html_content=html_content,
         attachments=attachments
     )
+
+
+
+def send_referral_reward_notification(
+    to_email: str,
+    username: str,
+    days: int = 7
+) -> tuple:
+    """
+    发送推荐奖励通知邮件
+    
+    Args:
+        to_email: 收件人邮箱
+        username: 用户名
+        days: 奖励天数
+    
+    Returns:
+        (success, message)
+    """
+    try:
+        subject = f"🎉 您的推荐奖励已到账！+{days}天 Pro 权限"
+        
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
+                .content {{ background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }}
+                .reward-box {{ background: white; border-radius: 10px; padding: 30px; text-align: center; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+                .reward-amount {{ font-size: 48px; font-weight: bold; color: #667eea; }}
+                .btn {{ display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; border-radius: 25px; text-decoration: none; font-weight: bold; margin-top: 20px; }}
+                .footer {{ text-align: center; margin-top: 30px; color: #666; font-size: 12px; }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🎉 推荐奖励到账！</h1>
+            </div>
+            <div class="content">
+                <p>亲爱的 <strong>{username}</strong>：</p>
+                <p>感谢您推荐新用户加入 IMVU Analytics！</p>
+                
+                <div class="reward-box">
+                    <p style="font-size: 18px; color: #666;">您已获得</p>
+                    <div class="reward-amount">+{days}天</div>
+                    <p style="font-size: 18px; color: #666;">Pro 权限</p>
+                </div>
+                
+                <p>您推荐的用户已完成首次数据上传，按照我们的推荐计划，您获得了 <strong>+{days}天 Pro 权限</strong>奖励！</p>
+                
+                <p style="text-align: center;">
+                    <a href="{config.SITE_URL}/profile" class="btn">查看我的账户</a>
+                </p>
+                
+                <div class="footer">
+                    <p>继续推荐更多好友，获得更多奖励！</p>
+                    <p style="margin-top: 20px;">此邮件由 {config.APP_NAME} 自动发送</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return email_service.send_email(
+            to_email=to_email,
+            subject=subject,
+            html_content=html_content
+        )
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"发送推荐奖励通知邮件失败: {e}")
+        return False, str(e)

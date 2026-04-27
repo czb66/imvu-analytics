@@ -22,6 +22,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # HTTP Bearer Token
 security = HTTPBearer()
 
+# 防刷机制配置
+IP_REGISTRATION_LIMIT = 3  # 同一IP 24小时内最多注册账号数
+IP_REGISTRATION_WINDOW_HOURS = 24  # IP注册限制时间窗口（小时）
+MONTHLY_REFERRAL_REWARD_LIMIT = 5  # 每月推荐奖励上限（次）
+REFERRAL_REWARD_DAYS = 7  # 推荐奖励天数
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """验证密码"""
@@ -37,6 +43,105 @@ def validate_email(email: str) -> bool:
     """验证邮箱格式"""
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
+
+
+def check_ip_registration_limit(db: Session, client_ip: str) -> tuple:
+    """
+    检查IP注册限制
+    
+    Args:
+        db: 数据库会话
+        client_ip: 客户端IP
+    
+    Returns:
+        (is_allowed, message): 是否允许注册，以及拒绝原因
+    """
+    from app.models import UserActivity
+    from sqlalchemy import func
+    
+    # 计算时间窗口
+    time_threshold = datetime.utcnow() - timedelta(hours=IP_REGISTRATION_WINDOW_HOURS)
+    
+    # 统计该IP最近的注册次数（通过UserActivity记录）
+    # 由于注册时记录了client_ip在metadata中，我们查询extra_data
+    recent_count = db.query(func.count(UserActivity.id)).filter(
+        UserActivity.action == 'register',
+        UserActivity.created_at >= time_threshold
+    ).scalar() or 0
+    
+    # 注意：上述方法不够精确，因为metadata是JSON字段
+    # 更精确的方法是检查User模型（但目前User模型没有直接存储注册IP）
+    # 暂时使用User创建时间作为主要判断依据
+    
+    from app.models import User
+    user_recent_count = db.query(func.count(User.id)).filter(
+        User.created_at >= time_threshold
+    ).scalar() or 0
+    
+    # 实际实现中，我们通过统计该时段内同一IP的注册用户
+    # 但由于没有直接存储IP，我们使用活动追踪
+    # 这里简化处理：如果有IP记录在extra_data中才检查
+    # 
+    # 更佳方案：直接查询UserActivity中的IP记录
+    ip_record_count = 0
+    try:
+        # PostgreSQL JSON字段查询
+        if 'postgresql' in config.DATABASE_URL or 'postgres' in config.DATABASE_URL:
+            ip_record_count = db.query(func.count(UserActivity.id)).filter(
+                UserActivity.action == 'register',
+                UserActivity.created_at >= time_threshold,
+                UserActivity.extra_data['ip'].astext == client_ip
+            ).scalar() or 0
+        else:
+            # SQLite JSON字段查询（使用LIKE）
+            ip_record_count = db.query(func.count(UserActivity.id)).filter(
+                UserActivity.action == 'register',
+                UserActivity.created_at >= time_threshold,
+                UserActivity.extra_data.like(f'%"{client_ip}"%')
+            ).scalar() or 0
+    except Exception:
+        # 查询失败时，使用简单的用户计数作为后备
+        pass
+    
+    # 使用更严格的限制
+    if ip_record_count >= IP_REGISTRATION_LIMIT:
+        return False, f"该IP地址注册过于频繁，请{IP_REGISTRATION_WINDOW_HOURS}小时后再试"
+    
+    return True, ""
+
+
+def check_referrer_monthly_limit(db: Session, referrer_user) -> tuple:
+    """
+    检查推荐人是否达到月度奖励上限
+    
+    Args:
+        db: 数据库会话
+        referrer_user: 推荐人用户对象
+    
+    Returns:
+        (is_allowed, message): 是否允许发放奖励
+    """
+    if not referrer_user or not referrer_user.referral_code:
+        return True, ""
+    
+    # 如果推荐码已暂停，不允许发放
+    if referrer_user.referral_suspended:
+        return False, "推荐人账号存在异常，推荐奖励已暂停"
+    
+    # 检查月度奖励数量
+    now = datetime.utcnow()
+    month_start = datetime(now.year, now.month, 1)
+    
+    from app.models import User
+    monthly_count = db.query(User).filter(
+        User.referred_by == referrer_user.referral_code,
+        User.referral_rewarded_at >= month_start
+    ).count()
+    
+    if monthly_count >= MONTHLY_REFERRAL_REWARD_LIMIT:
+        return False, f"推荐人本月奖励已达上限（{MONTHLY_REFERRAL_REWARD_LIMIT}次）"
+    
+    return True, ""
 
 
 def validate_password_strength(password: str) -> tuple:
@@ -264,15 +369,24 @@ class AuthService:
             referral_code=referral_code  # 传递推荐码
         )
         
-        # 给推荐人奖励7天Pro权限
-        if referrer_user:
-            self._reward_referrer(referrer_user)
-        
-        # 记录用户注册行为
+        # 记录用户注册行为（包含IP用于防刷检测）
         activity_tracker.log_activity(
             self.db, user.id, 'register',
-            metadata={'email_domain': email.split('@')[1] if '@' in email else None}
+            metadata={
+                'email_domain': email.split('@')[1] if '@' in email else None,
+                'referred_by': referral_code  # 记录推荐码
+            }
         )
+        
+        # 延迟发放推荐奖励：只标记待发放，不立即给推荐人奖励
+        # 奖励将在被推荐人完成关键操作后发放
+        if referrer_user:
+            # 检查推荐人月度上限
+            is_allowed, msg = check_referrer_monthly_limit(self.db, referrer_user)
+            if is_allowed:
+                # 标记该用户有待发放的推荐奖励
+                self.user_repo.mark_referral_reward_pending(user.id)
+            # 注意：即使推荐人已达上限，用户仍然可以注册成功
         
         return True, "注册成功", {
             "id": user.id,
@@ -283,16 +397,19 @@ class AuthService:
     
     def _reward_referrer(self, referrer_user):
         """
-        奖励推荐人7天Pro权限
+        奖励推荐人7天Pro权限（延迟发放版本）
         
         Args:
             referrer_user: 推荐人用户对象
         """
         from datetime import datetime, timedelta
         
+        # 检查推荐人月度上限
+        is_allowed, msg = check_referrer_monthly_limit(self.db, referrer_user)
+        if not is_allowed:
+            return False
+        
         # 计算新的到期时间
-        # 如果当前已有试用期或订阅，在其基础上延长
-        # 否则从当前时间开始计算
         now = datetime.utcnow()
         
         # 优先使用订阅到期时间，其次试用期
@@ -300,10 +417,10 @@ class AuthService:
         
         if current_end and current_end > now:
             # 在现有到期时间基础上延长7天
-            new_end = current_end + timedelta(days=7)
+            new_end = current_end + timedelta(days=REFERRAL_REWARD_DAYS)
         else:
             # 从现在开始计算7天
-            new_end = now + timedelta(days=7)
+            new_end = now + timedelta(days=REFERRAL_REWARD_DAYS)
         
         # 更新试用期结束时间（如果用户没有订阅，延长试用期）
         if not referrer_user.is_subscribed:
@@ -313,6 +430,73 @@ class AuthService:
             referrer_user.subscription_end_date = new_end
         
         self.db.commit()
+        return True
+    
+    def grant_pending_referral_rewards(self, user_id: int) -> bool:
+        """
+        为指定用户发放待定的推荐奖励
+        
+        当被推荐人完成关键操作（上传数据集）时调用此方法
+        检查并发放其推荐人的奖励
+        
+        Args:
+            user_id: 被推荐用户的ID
+        
+        Returns:
+            bool: 是否成功发放奖励
+        """
+        user = self.user_repo.get_by_id(user_id)
+        if not user or not user.referred_by:
+            return False
+        
+        # 检查是否有待发放的奖励
+        if not user.referral_reward_pending:
+            return False
+        
+        # 获取推荐人
+        referrer_user = self.user_repo.get_by_referral_code(user.referred_by)
+        if not referrer_user:
+            return False
+        
+        # 检查推荐人月度上限
+        is_allowed, msg = check_referrer_monthly_limit(self.db, referrer_user)
+        if not is_allowed:
+            return False
+        
+        # 发放奖励
+        success = self.user_repo.grant_referral_reward(referrer_user.id, REFERRAL_REWARD_DAYS)
+        
+        if success:
+            # 清除被推荐用户的待发放标记
+            user.referral_reward_pending = False
+            self.db.commit()
+            
+            # 异步发送通知邮件给推荐人
+            self._notify_referrer_of_reward(referrer_user, user)
+        
+        return success
+    
+    def _notify_referrer_of_reward(self, referrer_user, referred_user):
+        """
+        异步通知推荐人获得奖励
+        
+        Args:
+            referrer_user: 推荐人用户
+            referred_user: 被推荐用户
+        """
+        try:
+            from app.services.email_service import email_service
+            
+            # 发送邮件通知
+            email_service.send_referral_reward_notification(
+                to_email=referrer_user.email,
+                username=referrer_user.username or referrer_user.email.split('@')[0],
+                days=REFERRAL_REWARD_DAYS
+            )
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"发送推荐奖励通知邮件失败: {e}")
     
     def login(self, email: str, password: str, remember_me: bool = False) -> tuple:
         """

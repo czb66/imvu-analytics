@@ -49,6 +49,23 @@ class AuthResponse(BaseModel):
 
 # ==================== API路由 ====================
 
+def get_client_ip(request: Request) -> str:
+    """
+    获取客户端真实IP地址
+    
+    优先从 X-Forwarded-For 头获取（反向代理场景），
+    否则使用 request.client.host
+    """
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        # X-Forwarded-For 可能包含多个IP，取第一个（最原始的）
+        return forwarded_for.split(",")[0].strip()
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip.strip()
+    return request.client.host if request.client else "unknown"
+
+
 @router.post("/register", response_model=AuthResponse)
 @limiter.limit("3/minute")  # 注册限制：3次/分钟
 async def register(request: Request, register_request: RegisterRequest, db: Session = Depends(get_db)):
@@ -61,6 +78,18 @@ async def register(request: Request, register_request: RegisterRequest, db: Sess
     - **referral_code**: 推荐码（可选）
     """
     try:
+        # 获取客户端IP
+        client_ip = get_client_ip(request)
+        
+        # 检查IP注册限制
+        from app.services.auth import check_ip_registration_limit
+        is_allowed, limit_msg = check_ip_registration_limit(db, client_ip)
+        if not is_allowed:
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"success": False, "message": limit_msg}
+            )
+        
         auth_service = AuthService(db)
         success, message, data = auth_service.register(
             email=register_request.email,
@@ -70,6 +99,12 @@ async def register(request: Request, register_request: RegisterRequest, db: Sess
         )
         
         if not success:
+            # 检查是否是因为推荐码问题
+            if "推荐码" in message and "暂停" in message:
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content={"success": False, "message": message}
+                )
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={"success": False, "message": message}

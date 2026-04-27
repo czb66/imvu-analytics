@@ -14,7 +14,8 @@ from app.services.parser import XMLParserService
 from app.database import get_db_context, ProductDataRepository, DatasetRepository
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
-from app.routers.dashboard import _clear_cache  # 导入缓存清除函数
+from app.routers.dashboard import _clear_user_cache  # 导入缓存清除函数
+from app.services.cache import get_cache
 from app.services.activity_tracker import activity_tracker
 
 logger = logging.getLogger(__name__)
@@ -102,6 +103,14 @@ async def upload_xml_file(
                 resource_id=dataset_id,
                 metadata={'record_count': count, 'dataset_name': dataset_name_display}
             )
+            
+            # 检查并发放推荐奖励（关键操作：上传第一个数据集）
+            from app.services.auth import AuthService
+            auth_service = AuthService(db)
+            reward_granted = auth_service.grant_pending_referral_rewards(current_user.get('id'))
+            
+            if reward_granted:
+                logger.info(f"用户 {current_user.get('email')} 完成关键操作，已向其推荐人发放奖励")
         
         # 清除仪表盘缓存，确保新数据立即可见
         _clear_cache()

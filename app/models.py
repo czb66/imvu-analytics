@@ -38,6 +38,11 @@ class User(Base):
     referral_code = Column(String(20), unique=True, index=True, nullable=True)  # 用户的推荐码
     referred_by = Column(String(20), nullable=True)  # 被谁推荐（推荐人的 referral_code）
     
+    # 防刷机制字段
+    referral_reward_pending = Column(Boolean, default=False)  # 推荐奖励待发放（被推荐人需完成关键操作）
+    referral_rewarded_at = Column(DateTime, nullable=True)  # 推荐奖励发放时间
+    referral_suspended = Column(Boolean, default=False)  # 推荐码是否被暂停（异常检测触发）
+    
     # Stripe订阅字段
     stripe_customer_id = Column(String(255), nullable=True, index=True)  # Stripe客户ID
     subscription_id = Column(String(255), nullable=True, index=True)  # 订阅ID
@@ -46,6 +51,17 @@ class User(Base):
     
     # 报告订阅设置
     report_preference = Column(String(20), default='weekly')  # daily/weekly/none, 新用户默认每周报告
+    
+    # 订阅到期提醒字段（防重复发送）
+    reminder_3day_sent = Column(Boolean, default=False)  # 3天提醒已发
+    reminder_1day_sent = Column(Boolean, default=False)  # 1天提醒已发
+    reminder_recall_sent = Column(Boolean, default=False)  # 召回邮件已发
+    last_reminder_sent = Column(DateTime, nullable=True)  # 最后提醒发送时间
+    
+    # 试用期到期提醒字段
+    trial_reminder_3day_sent = Column(Boolean, default=False)  # 试用期3天提醒已发
+    trial_reminder_1day_sent = Column(Boolean, default=False)  # 试用期1天提醒已发
+    trial_reminder_recall_sent = Column(Boolean, default=False)  # 试用期召回邮件已发
     
     # 关联数据
     datasets = relationship("Dataset", back_populates="owner", cascade="all, delete-orphan")
@@ -82,6 +98,11 @@ class User(Base):
     
     def __repr__(self):
         return f"<User {self.email}>"
+    
+    @property
+    def is_referral_available(self) -> bool:
+        """检查推荐码是否可用（未被暂停且未过期）"""
+        return not self.referral_suspended
 
 
 class Dataset(Base):

@@ -492,3 +492,66 @@ class AnalyticsService:
         except Exception as e:
             logger.error(f"get_avg_profit_margin 执行失败: {str(e)}")
             return 0.0
+
+
+# ==================== 缓存辅助函数 ====================
+
+def get_cached_analytics_result(user_id: int, metric_type: str, **kwargs):
+    """
+    获取缓存的分析结果
+    
+    Args:
+        user_id: 用户ID
+        metric_type: 分析类型 (summary, top_products, visibility, etc.)
+        **kwargs: 其他参数（如 limit, metric 等）
+        
+    Returns:
+        缓存的分析结果或 None
+    """
+    from app.services.cache import get_cache
+    
+    # 构建缓存键
+    cache_key_parts = [f"analytics:{metric_type}:user_{user_id}"]
+    for k, v in sorted(kwargs.items()):
+        cache_key_parts.append(f"{k}_{v}")
+    cache_key = ":".join(cache_key_parts)
+    
+    cache = get_cache()
+    return cache.get(cache_key)
+
+
+def set_cached_analytics_result(user_id: int, metric_type: str, result: Any, ttl: int = 600, **kwargs):
+    """
+    缓存分析结果
+    
+    Args:
+        user_id: 用户ID
+        metric_type: 分析类型
+        result: 分析结果
+        ttl: 缓存时间（秒），默认10分钟
+        **kwargs: 其他参数
+    """
+    from app.services.cache import get_cache
+    
+    # 构建缓存键
+    cache_key_parts = [f"analytics:{metric_type}:user_{user_id}"]
+    for k, v in sorted(kwargs.items()):
+        cache_key_parts.append(f"{k}_{v}")
+    cache_key = ":".join(cache_key_parts)
+    
+    cache = get_cache()
+    cache.set(cache_key, result, ttl=ttl)
+
+
+def invalidate_user_analytics_cache(user_id: int):
+    """
+    清除用户的所有分析缓存
+    
+    Args:
+        user_id: 用户ID
+    """
+    from app.services.cache import get_cache
+    
+    cache = get_cache()
+    cache.delete_pattern(f"analytics:*:user_{user_id}*")
+    logger.debug(f"已清除用户 {user_id} 的分析缓存")

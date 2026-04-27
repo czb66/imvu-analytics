@@ -147,14 +147,34 @@ def update_user_subscription(db: Session, user_id: int, subscription_data: dict)
     user = user_repo.get_by_id(user_id)
     
     if user:
+        subscription_renewed = False  # 标记是否是新订阅/续费
+        
         if "subscription_id" in subscription_data:
+            # 如果订阅ID变化（新订阅或续费），重置提醒标志
+            if user.subscription_id != subscription_data["subscription_id"]:
+                subscription_renewed = True
             user.subscription_id = subscription_data["subscription_id"]
         if "status" in subscription_data:
+            # 状态变为 active 视为续费成功
+            if subscription_data["status"] == "active" and user.subscription_status != "active":
+                subscription_renewed = True
             user.subscription_status = subscription_data["status"]
         if "end_date" in subscription_data:
+            # 到期时间延长视为续费成功
+            if user.subscription_end_date and subscription_data["end_date"]:
+                if subscription_data["end_date"] > user.subscription_end_date:
+                    subscription_renewed = True
             user.subscription_end_date = subscription_data["end_date"]
         if "customer_id" in subscription_data:
             user.stripe_customer_id = subscription_data["customer_id"]
+        
+        # 续费后重置提醒标志
+        if subscription_renewed:
+            user.reminder_3day_sent = False
+            user.reminder_1day_sent = False
+            user.reminder_recall_sent = False
+            user.last_reminder_sent = None
+            logger.info(f"用户 {user_id} 续费成功，已重置提醒标志")
         
         db.commit()
         logger.info(f"用户 {user_id} 订阅状态已更新: {subscription_data}")

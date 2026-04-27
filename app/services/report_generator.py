@@ -9,7 +9,7 @@ import logging
 from datetime import datetime, timedelta, date
 from typing import Dict, List, Optional, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import text
+from sqlalchemy import text, func
 
 import config
 from app.database import SessionLocal, get_db_context
@@ -159,6 +159,138 @@ REPORT_TEMPLATES = {
         'change_up': '↑ {pct}%',
         'change_down': '↓ {pct}%',
         'no_change': 'Stable',
+    }
+}
+
+
+# ==================== 到期提醒邮件模板 ====================
+
+EXPIRY_REMINDER_TEMPLATES = {
+    'zh': {
+        # 3天提醒
+        'sub_3day_subject': '⏰ {app_name} - 您的订阅将在3天后到期',
+        'sub_3day_title': '订阅到期提醒',
+        'sub_3day_greeting': '亲爱的 {username}，',
+        'sub_3day_body': '您的 {app_name} 订阅将在 <strong>3 天后</strong> 到期。为了不影响您继续使用我们的服务，请及时续费。',
+        'sub_3day_cta': '立即续费',
+        # 1天提醒
+        'sub_1day_subject': '⚠️ {app_name} - 您的订阅明天到期',
+        'sub_1day_title': '订阅到期提醒',
+        'sub_1day_greeting': '亲爱的 {username}，',
+        'sub_1day_body': '您的 {app_name} 订阅将在 <strong>明天</strong> 到期。续费即可继续享受不间断的服务！',
+        'sub_1day_cta': '立即续费',
+        # 召回邮件
+        'sub_recall_subject': '🎉 {app_name} - 欢迎回来，限时优惠等你拿',
+        'sub_recall_title': '欢迎回来',
+        'sub_recall_greeting': '亲爱的 {username}，',
+        'sub_recall_body': '您的 {app_name} 订阅已过期。为感谢您的支持，我们为您准备了 <strong>限时优惠</strong>，续费可享受特别折扣！',
+        'sub_recall_cta': '查看优惠',
+        # 试用期3天提醒
+        'trial_3day_subject': '⏰ {app_name} - 您的免费试用将在3天后结束',
+        'trial_3day_title': '试用期即将结束',
+        'trial_3day_greeting': '亲爱的 {username}，',
+        'trial_3day_body': '您的 {app_name} 免费试用将在 <strong>3 天后</strong> 结束。升级到付费版，解锁全部高级功能！',
+        'trial_3day_cta': '开始使用',
+        # 试用期1天提醒
+        'trial_1day_subject': '⚠️ {app_name} - 您的免费试用明天结束',
+        'trial_1day_title': '试用期即将结束',
+        'trial_1day_greeting': '亲爱的 {username}，',
+        'trial_1day_body': '您的 {app_name} 免费试用将在 <strong>明天</strong> 结束。立即升级，不错过任何数据洞察！',
+        'trial_1day_cta': '升级到Pro',
+        # 试用期召回邮件
+        'trial_recall_subject': '🎉 {app_name} - 试用期已结束，优惠继续有效',
+        'trial_recall_title': '欢迎体验 Pro',
+        'trial_recall_greeting': '亲爱的 {username}，',
+        'trial_recall_body': '您的 {app_name} 免费试用已结束。我们为您准备了 <strong>首次订阅优惠</strong>，让您以更优惠的价格享受完整服务。',
+        'trial_recall_cta': '获取优惠',
+        # 通用
+        'pricing_page': '定价方案',
+        'footer': '此邮件由 {app_name} 自动发送',
+        'manage_subscription': '管理订阅',
+    },
+    'en': {
+        # 3天提醒
+        'sub_3day_subject': '⏰ {app_name} - Your subscription expires in 3 days',
+        'sub_3day_title': 'Subscription Reminder',
+        'sub_3day_greeting': 'Dear {username},',
+        'sub_3day_body': 'Your {app_name} subscription will expire in <strong>3 days</strong>. Please renew to continue enjoying uninterrupted service.',
+        'sub_3day_cta': 'Renew Now',
+        # 1天提醒
+        'sub_1day_subject': '⚠️ {app_name} - Your subscription expires tomorrow',
+        'sub_1day_title': 'Subscription Reminder',
+        'sub_1day_greeting': 'Dear {username},',
+        'sub_1day_body': 'Your {app_name} subscription will expire <strong>tomorrow</strong>. Renew now to keep your service going!',
+        'sub_1day_cta': 'Renew Now',
+        # 召回邮件
+        'sub_recall_subject': '🎉 {app_name} - Welcome back! Special offer inside',
+        'sub_recall_title': 'Welcome Back',
+        'sub_recall_greeting': 'Dear {username},',
+        'sub_recall_body': 'Your {app_name} subscription has expired. As a valued member, we\'re offering you a <strong>limited-time discount</strong> to come back!',
+        'sub_recall_cta': 'View Offer',
+        # 试用期3天提醒
+        'trial_3day_subject': '⏰ {app_name} - Your free trial ends in 3 days',
+        'trial_3day_title': 'Trial Ending Soon',
+        'trial_3day_greeting': 'Dear {username},',
+        'trial_3day_body': 'Your {app_name} free trial will end in <strong>3 days</strong>. Upgrade to unlock all premium features!',
+        'trial_3day_cta': 'Get Started',
+        # 试用期1天提醒
+        'trial_1day_subject': '⚠️ {app_name} - Your free trial ends tomorrow',
+        'trial_1day_title': 'Trial Ending Soon',
+        'trial_1day_greeting': 'Dear {username},',
+        'trial_1day_body': 'Your {app_name} free trial will end <strong>tomorrow</strong>. Upgrade now to never miss a data insight!',
+        'trial_1day_cta': 'Upgrade to Pro',
+        # 试用期召回邮件
+        'trial_recall_subject': '🎉 {app_name} - Trial ended, special offer available',
+        'trial_recall_title': 'Welcome to Pro',
+        'trial_recall_greeting': 'Dear {username},',
+        'trial_recall_body': 'Your {app_name} free trial has ended. We have a <strong>special first-subscription discount</strong> just for you!',
+        'trial_recall_cta': 'Get Offer',
+        # 通用
+        'pricing_page': 'Pricing',
+        'footer': 'This email was sent automatically by {app_name}',
+        'manage_subscription': 'Manage Subscription',
+    },
+    'fr': {
+        # 3天提醒
+        'sub_3day_subject': '⏰ {app_name} - Votre abonnement expire dans 3 jours',
+        'sub_3day_title': 'Rappel d\'abonnement',
+        'sub_3day_greeting': 'Cher(e) {username},',
+        'sub_3day_body': 'Votre abonnement {app_name} expirera dans <strong>3 jours</strong>. Veuillez renouveler pour continuer à profiter de nos services.',
+        'sub_3day_cta': 'Renouveler',
+        # 1天提醒
+        'sub_1day_subject': '⚠️ {app_name} - Votre abonnement expire demain',
+        'sub_1day_title': 'Rappel d\'abonnement',
+        'sub_1day_greeting': 'Cher(e) {username},',
+        'sub_1day_body': 'Votre abonnement {app_name} expirera <strong>demain</strong>. Renouvelez maintenant pour continuer sans interruption!',
+        'sub_1day_cta': 'Renouveler',
+        # 召回邮件
+        'sub_recall_subject': '🎉 {app_name} - Bon retour! Offre spéciale',
+        'sub_recall_title': 'Bon Retour',
+        'sub_recall_greeting': 'Cher(e) {username},',
+        'sub_recall_body': 'Votre abonnement {app_name} a expiré. En tant que membre fidèle, nous vous proposons une <strong>remise limitée</strong> pour votre retour!',
+        'sub_recall_cta': 'Voir l\'Offre',
+        # 试用期3天提醒
+        'trial_3day_subject': '⏰ {app_name} - Votre essai gratuit se termine dans 3 jours',
+        'trial_3day_title': 'Fin d\'Essi',
+        'trial_3day_greeting': 'Cher(e) {username},',
+        'trial_3day_body': 'Votre essai gratuit {app_name} se terminera dans <strong>3 jours</strong>. Passez à la version payante pour débloquer toutes les fonctionnalités!',
+        'trial_3day_cta': 'Commencer',
+        # 试用期1天提醒
+        'trial_1day_subject': '⚠️ {app_name} - Votre essai gratuit se termine demain',
+        'trial_1day_title': 'Fin d\'Essi',
+        'trial_1day_greeting': 'Cher(e) {username},',
+        'trial_1day_body': 'Votre essai gratuit {app_name} se terminera <strong>demain</strong>. Passez à la version payante pour ne rien manquer!',
+        'trial_1day_cta': 'Passer à Pro',
+        # 试用期召回邮件
+        'trial_recall_subject': '🎉 {app_name} - Essai terminé, offre disponible',
+        'trial_recall_title': 'Bienvenue sur Pro',
+        'trial_recall_greeting': 'Cher(e) {username},',
+        'trial_recall_body': 'Votre essai gratuit {app_name} est terminé. Nous avons une <strong>remise spéciale</strong> pour votre première souscription!',
+        'trial_recall_cta': 'Obtenir l\'Offre',
+        # 通用
+        'pricing_page': 'Tarifs',
+        'footer': 'Cet email a été envoyé automatiquement par {app_name}',
+        'manage_subscription': 'Gérer l\'abonnement',
     }
 }
 
@@ -676,6 +808,154 @@ def trigger_weekly_report_for_user(user_id: int) -> bool:
 
 # ==================== 调度器管理 ====================
 
+# ==================== 异常推荐行为检测 ====================
+
+def check_suspicious_referral_activity():
+    """
+    检测异常推荐行为
+    
+    检测规则：
+    1. 同一推荐码7天内被使用超过5次 → 标记异常
+    2. 同一推荐码总使用超过20次 → 暂停该推荐码
+    3. 通知管理员
+    """
+    try:
+        with get_db_context() as db:
+            from app.models import User
+            from app.database import UserRepository
+            
+            user_repo = UserRepository(db)
+            suspicious_codes = []
+            suspended_codes = []
+            
+            # 获取所有有推荐人的用户
+            users_with_referrer = db.query(User).filter(
+                User.referred_by.isnot(None)
+            ).all()
+            
+            # 按推荐码分组统计
+            referral_stats = {}
+            for user in users_with_referrer:
+                if user.referred_by:
+                    if user.referred_by not in referral_stats:
+                        referral_stats[user.referred_by] = {
+                            'total': 0,
+                            'recent': 0,
+                            'referrer_id': None
+                        }
+                    referral_stats[user.referred_by]['total'] += 1
+                    
+                    # 统计7天内的使用
+                    if user.created_at >= datetime.utcnow() - timedelta(days=7):
+                        referral_stats[user.referred_by]['recent'] += 1
+                    
+                    referral_stats[user.referred_by]['referrer_id'] = user.referred_by
+            
+            # 检测异常
+            for code, stats in referral_stats.items():
+                referrer = user_repo.get_by_referral_code(code)
+                if not referrer:
+                    continue
+                
+                # 规则1: 7天内超过5次使用
+                if stats['recent'] > 5:
+                    suspicious_codes.append({
+                        'code': code,
+                        'referrer_email': referrer.email,
+                        'recent_uses': stats['recent'],
+                        'total_uses': stats['total'],
+                        'reason': f"7天内使用{stats['recent']}次，超过阈值5次"
+                    })
+                
+                # 规则2: 总使用超过20次
+                if stats['total'] > 20 and not referrer.referral_suspended:
+                    user_repo.suspend_referral_code(referrer.id, True)
+                    suspended_codes.append({
+                        'code': code,
+                        'referrer_email': referrer.email,
+                        'total_uses': stats['total'],
+                        'reason': f"总使用{stats['total']}次，超过阈值20次"
+                    })
+                    logger.warning(f"推荐码 {code} 因使用过多({stats['total']}次)已被自动暂停")
+            
+            # 发送管理员通知
+            if suspicious_codes or suspended_codes:
+                _send_antifraud_admin_alert(suspicious_codes, suspended_codes)
+            
+            logger.info(f"推荐系统异常检测完成: {len(suspicious_codes)}个可疑, {len(suspended_codes)}个已暂停")
+            return {
+                'suspicious': suspicious_codes,
+                'suspended': suspended_codes
+            }
+    
+    except Exception as e:
+        logger.error(f"异常推荐行为检测失败: {e}", exc_info=True)
+        return {'error': str(e)}
+
+
+def _send_antifraud_admin_alert(suspicious_codes: list, suspended_codes: list):
+    """
+    发送管理员防欺诈警报
+    
+    Args:
+        suspicious_codes: 可疑推荐码列表
+        suspended_codes: 已暂停的推荐码列表
+    """
+    try:
+        # 获取管理员邮箱列表
+        admin_emails = config.ADMIN_EMAIL
+        
+        if not admin_emails:
+            return
+        
+        if isinstance(admin_emails, str):
+            admin_emails = [admin_emails]
+        
+        # 构建邮件内容
+        subject = f"[IMVU Analytics] 推荐系统异常检测报告 - {len(suspicious_codes)}可疑, {len(suspended_codes)}暂停"
+        
+        body = f"""
+        <h2>推荐系统异常检测报告</h2>
+        <p>检测时间: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC</p>
+        
+        <h3>⚠️ 可疑推荐码 ({len(suspicious_codes)}个)</h3>
+        <ul>
+        """
+        for item in suspicious_codes:
+            body += f"<li><strong>{item['code']}</strong> ({item['referrer_email']}): {item['reason']}</li>"
+        body += "</ul>"
+        
+        if suspended_codes:
+            body += """
+            <h3>🔒 已暂停的推荐码 ({len(suspended_codes)}个)</h3>
+            <ul>
+            """
+            for item in suspended_codes:
+                body += f"<li><strong>{item['code']}</strong> ({item['referrer_email']}): {item['reason']}</li>"
+            body += "</ul>"
+        
+        body += f"""
+        <hr>
+        <p>请登录管理后台查看详情: {config.SITE_URL}/admin</p>
+        <p><small>此邮件由 {config.APP_NAME} 自动发送</small></p>
+        """
+        
+        # 发送邮件
+        from app.services.email_service import email_service
+        for admin_email in admin_emails:
+            try:
+                email_service.send_email(
+                    to_email=admin_email,
+                    subject=subject,
+                    html_content=body
+                )
+            except Exception as email_err:
+                logger.warning(f"发送管理员警报邮件失败: {email_err}")
+    
+    except Exception as e:
+        logger.error(f"发送防欺诈警报失败: {e}")
+
+
 def start_scheduler():
     """启动定时任务调度器"""
     try:
@@ -712,8 +992,36 @@ def start_scheduler():
             misfire_grace_time=7200,
         )
         
+        # 添加订阅到期提醒任务 - 每天 UTC 1:00 (北京时间 9:00)
+        scheduler.add_job(
+            func=check_subscription_expiry,
+            trigger=CronTrigger(
+                hour=1,  # UTC 1:00 = 北京时间 9:00
+                minute=0,
+            ),
+            id='subscription_expiry_check',
+            name='订阅到期提醒',
+            replace_existing=True,
+            max_instances=1,
+            misfire_grace_time=3600,
+        )
+        
+        # 添加推荐系统异常检测任务 - 每6小时检查一次
+        scheduler.add_job(
+            func=check_suspicious_referral_activity,
+            trigger=CronTrigger(
+                hour='*/6',  # 每6小时
+                minute=0,
+            ),
+            id='referral_antifraud_check',
+            name='推荐系统异常检测',
+            replace_existing=True,
+            max_instances=1,
+            misfire_grace_time=1800,
+        )
+        
         scheduler.start()
-        logger.info(f"✅ 定时任务调度器已启动: 每日报告({config.REPORT_CRON_HOUR}:{config.REPORT_CRON_MINUTE:02d} UTC), 每周报告(周一)")
+        logger.info(f"✅ 定时任务调度器已启动: 每日报告({config.REPORT_CRON_HOUR}:{config.REPORT_CRON_MINUTE:02d} UTC), 每周报告(周一), 到期提醒(09:00 北京时间), 推荐异常检测(每6小时)")
         
     except Exception as e:
         logger.error(f"❌ 启动定时任务调度器失败: {e}", exc_info=True)
@@ -725,3 +1033,524 @@ def stop_scheduler():
     if scheduler.running:
         scheduler.shutdown(wait=False)
         logger.info("定时任务调度器已停止")
+
+
+# ==================== 到期提醒邮件发送函数 ====================
+
+def _build_expiry_reminder_html(
+    tpl: dict,
+    reminder_type: str,  # 'sub_3day', 'sub_1day', 'sub_recall', 'trial_3day', 'trial_1day', 'trial_recall'
+    username: str,
+    lang: str = 'en'
+) -> str:
+    """构建到期提醒邮件HTML"""
+    pricing_url = f"{config.SITE_URL}/pricing"
+    manage_url = f"{config.SITE_URL}/profile"
+    
+    # 根据类型选择颜色主题
+    if 'recall' in reminder_type:
+        theme_color = '#28a745'  # 绿色-召回
+        theme_gradient = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)'
+    elif '1day' in reminder_type:
+        theme_color = '#ffc107'  # 黄色-紧急
+        theme_gradient = 'linear-gradient(135deg, #ffc107 0%, #fd7e14 100%)'
+    else:
+        theme_color = '#667eea'  # 蓝色-常规
+        theme_gradient = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    
+    html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.6; color: #333; background:#f5f7fa; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: {theme_gradient}; color: white; padding: 35px 20px; border-radius: 16px 16px 0 0; text-align: center; }}
+        .header h1 {{ margin: 0 0 8px 0; font-size: 26px; font-weight: 600; }}
+        .header .icon {{ font-size: 48px; margin-bottom: 10px; }}
+        .body {{ background: white; padding: 35px 30px; border-radius: 0 0 16px 16px; }}
+        .greeting {{ font-size: 17px; color: #333; margin-bottom: 20px; font-weight: 500; }}
+        .message {{ font-size: 16px; color: #555; margin-bottom: 30px; line-height: 1.8; }}
+        .highlight {{ color: {theme_color}; font-weight: 600; }}
+        .cta-container {{ text-align: center; margin: 30px 0; }}
+        .cta-button {{ display: inline-block; background: {theme_gradient}; color: white; padding: 16px 40px; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s; }}
+        .cta-button:hover {{ transform: translateY(-2px); }}
+        .features {{ background: #f8f9fa; border-radius: 12px; padding: 20px; margin: 25px 0; }}
+        .features h3 {{ margin: 0 0 15px 0; font-size: 15px; color: #555; }}
+        .feature-item {{ display: flex; align-items: center; margin: 10px 0; font-size: 14px; color: #666; }}
+        .feature-item span {{ margin-right: 10px; }} 
+        .footer {{ text-align: center; color: #999; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }}
+        .footer a {{ color: #667eea; text-decoration: none; }}
+        .footer-links {{ margin-top: 15px; }}
+        .footer-links a {{ margin: 0 10px; color: #888; }}
+        @media (max-width: 480px) {{
+            .container {{ padding: 10px; }}
+            .body {{ padding: 25px 20px; }}
+            .header {{ padding: 25px 15px; }}
+            .header h1 {{ font-size: 22px; }}
+            .cta-button {{ padding: 14px 30px; font-size: 15px; }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">{'🎉' if 'recall' in reminder_type else ('⚠️' if '1day' in reminder_type else '⏰')}</div>
+            <h1>{tpl.get(reminder_type + '_title', '')}</h1>
+        </div>
+        <div class="body">
+            <p class="greeting">{tpl.get(reminder_type + '_greeting', '').format(username=username)}</p>
+            <p class="message">{tpl.get(reminder_type + '_body', '').format(app_name=config.APP_NAME)}</p>
+            
+            <div class="cta-container">
+                <a href="{pricing_url}" class="cta-button">{tpl.get(reminder_type + '_cta', '')}</a>
+            </div>
+            
+            <div class="features">
+                <h3>{tpl.get('pricing_page', 'Pricing')}</h3>
+                <div class="feature-item"><span>✓</span> {'Unlimited reports & data exports' if lang == 'en' else ('无限制报告和数据导出' if lang == 'zh' else 'Rapports et export illimités')}</div>
+                <div class="feature-item"><span>✓</span> {'Advanced AI analytics & insights' if lang == 'en' else ('高级AI分析与洞察' if lang == 'zh' else 'Analyses IA avancées')}</div>
+                <div class="feature-item"><span>✓</span> {'Priority email support' if lang == 'en' else ('优先邮件支持' if lang == 'zh' else 'Support email prioritaire')}</div>
+            </div>
+            
+            <div class="footer">
+                <p>{tpl.get('footer', '').format(app_name=config.APP_NAME)}</p>
+                <div class="footer-links">
+                    <a href="{pricing_url}">{tpl.get('pricing_page', 'Pricing')}</a>
+                    <span>|</span>
+                    <a href="{manage_url}">{tpl.get('manage_subscription', 'Manage Subscription')}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+    """
+    return html
+
+
+def _send_expiry_reminder(
+    user: User,
+    reminder_type: str  # 'sub_3day', 'sub_1day', 'sub_recall', 'trial_3day', 'trial_1day', 'trial_recall'
+) -> bool:
+    """
+    发送到期提醒邮件给单个用户
+    Returns: 是否发送成功
+    """
+    lang = _get_user_language(user)
+    tpl = EXPIRY_REMINDER_TEMPLATES.get(lang, EXPIRY_REMINDER_TEMPLATES['en'])
+    
+    # 构建主题和内容
+    subject = tpl.get(reminder_type + '_subject', '').format(app_name=config.APP_NAME)
+    username_display = user.username or user.email.split('@')[0]
+    html_content = _build_expiry_reminder_html(tpl, reminder_type, username_display, lang)
+    
+    # 发送邮件
+    success, msg = email_service.send_report(
+        to_emails=[user.email],
+        subject=subject,
+        html_content=html_content
+    )
+    
+    if success:
+        logger.info(f"到期提醒({reminder_type})已发送给 {user.email}")
+    else:
+        logger.warning(f"到期提醒({reminder_type})发送失败 {user.email}: {msg}")
+    
+    return success
+
+
+def _reset_reminder_flags(user: User, is_trial: bool = False) -> None:
+    """重置提醒标志（在续费后调用）"""
+    if is_trial:
+        user.trial_reminder_3day_sent = False
+        user.trial_reminder_1day_sent = False
+        user.trial_reminder_recall_sent = False
+    else:
+        user.reminder_3day_sent = False
+        user.reminder_1day_sent = False
+        user.reminder_recall_sent = False
+
+
+# ==================== 到期提醒定时任务 ====================
+
+def check_subscription_expiry():
+    """
+    检查订阅到期情况并发送提醒
+    每天 UTC 1:00（北京9:00）执行
+    
+    检查逻辑：
+    1. 订阅到期前3天 -> 发送3天提醒
+    2. 订阅到期前1天 -> 发送1天提醒
+    3. 订阅过期后7天 -> 发送召回邮件
+    4. 试用期同样逻辑
+    """
+    logger.info(f"🕐 定时任务执行: 检查订阅到期提醒 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    try:
+        today = datetime.utcnow().date()
+        
+        with get_db_context() as db:
+            # ===== 付费订阅用户提醒 =====
+            
+            # 1. 订阅即将到期（3天）
+            expiring_3day = db.query(User).filter(
+                User.subscription_status == 'active',
+                User.is_active == True,
+                User.is_whitelisted == False,
+                User.reminder_3day_sent == False,
+                User.subscription_end_date != None,
+                # subscription_end_date 在今天+2天 到 今天+4天 之间（即3天后到期）
+                func.date(User.subscription_end_date) >= today + timedelta(days=2),
+                func.date(User.subscription_end_date) <= today + timedelta(days=4),
+            ).all()
+            
+            # 2. 订阅即将到期（1天）
+            expiring_1day = db.query(User).filter(
+                User.subscription_status == 'active',
+                User.is_active == True,
+                User.is_whitelisted == False,
+                User.reminder_1day_sent == False,
+                User.subscription_end_date != None,
+                # subscription_end_date 在今天 到 今天+1天 之间（即明天到期）
+                func.date(User.subscription_end_date) >= today,
+                func.date(User.subscription_end_date) <= today + timedelta(days=1),
+            ).all()
+            
+            # 3. 订阅已过期（7天内）
+            expired_7day = db.query(User).filter(
+                User.subscription_status.in_(['active', 'expired', 'canceled']),
+                User.is_active == True,
+                User.is_whitelisted == False,
+                User.reminder_recall_sent == False,
+                User.subscription_end_date != None,
+                # subscription_end_date 在今天-7天 到 今天-1天 之间（即过期1-7天）
+                func.date(User.subscription_end_date) >= today - timedelta(days=7),
+                func.date(User.subscription_end_date) <= today - timedelta(days=1),
+            ).all()
+            
+            # ===== 试用期用户提醒 =====
+            
+            # 4. 试用期即将到期（3天）
+            trial_expiring_3day = db.query(User).filter(
+                User.trial_end_date != None,
+                User.subscription_status == 'none',  # 试用期用户
+                User.is_active == True,
+                User.trial_reminder_3day_sent == False,
+                # trial_end_date 在今天+2天 到 今天+4天 之间
+                func.date(User.trial_end_date) >= today + timedelta(days=2),
+                func.date(User.trial_end_date) <= today + timedelta(days=4),
+            ).all()
+            
+            # 5. 试用期即将到期（1天）
+            trial_expiring_1day = db.query(User).filter(
+                User.trial_end_date != None,
+                User.subscription_status == 'none',
+                User.is_active == True,
+                User.trial_reminder_1day_sent == False,
+                # trial_end_date 在今天 到 今天+1天 之间
+                func.date(User.trial_end_date) >= today,
+                func.date(User.trial_end_date) <= today + timedelta(days=1),
+            ).all()
+            
+            # 6. 试用期已过期（7天内）
+            trial_expired_7day = db.query(User).filter(
+                User.trial_end_date != None,
+                User.subscription_status == 'none',
+                User.is_active == True,
+                User.trial_reminder_recall_sent == False,
+                # trial_end_date 在今天-7天 到 今天-1天 之间
+                func.date(User.trial_end_date) >= today - timedelta(days=7),
+                func.date(User.trial_end_date) <= today - timedelta(days=1),
+            ).all()
+        
+        # 统计发送结果
+        stats = {
+            'sub_3day': {'found': len(expiring_3day), 'sent': 0, 'failed': 0},
+            'sub_1day': {'found': len(expiring_1day), 'sent': 0, 'failed': 0},
+            'sub_recall': {'found': len(expired_7day), 'sent': 0, 'failed': 0},
+            'trial_3day': {'found': len(trial_expiring_3day), 'sent': 0, 'failed': 0},
+            'trial_1day': {'found': len(trial_expiring_1day), 'sent': 0, 'failed': 0},
+            'trial_recall': {'found': len(trial_expired_7day), 'sent': 0, 'failed': 0},
+        }
+        
+        # 发送邮件（付费订阅）
+        for user in expiring_3day:
+            try:
+                if _send_expiry_reminder(user, 'sub_3day'):
+                    stats['sub_3day']['sent'] += 1
+                    with get_db_context() as db:
+                        db_user = db.query(User).filter(User.id == user.id).first()
+                        if db_user:
+                            db_user.reminder_3day_sent = True
+                            db_user.last_reminder_sent = datetime.utcnow()
+                else:
+                    stats['sub_3day']['failed'] += 1
+            except Exception as e:
+                logger.error(f"发送订阅3天提醒给 {user.email} 失败: {e}")
+                stats['sub_3day']['failed'] += 1
+        
+        for user in expiring_1day:
+            try:
+                if _send_expiry_reminder(user, 'sub_1day'):
+                    stats['sub_1day']['sent'] += 1
+                    with get_db_context() as db:
+                        db_user = db.query(User).filter(User.id == user.id).first()
+                        if db_user:
+                            db_user.reminder_1day_sent = True
+                            db_user.last_reminder_sent = datetime.utcnow()
+                else:
+                    stats['sub_1day']['failed'] += 1
+            except Exception as e:
+                logger.error(f"发送订阅1天提醒给 {user.email} 失败: {e}")
+                stats['sub_1day']['failed'] += 1
+        
+        for user in expired_7day:
+            try:
+                if _send_expiry_reminder(user, 'sub_recall'):
+                    stats['sub_recall']['sent'] += 1
+                    with get_db_context() as db:
+                        db_user = db.query(User).filter(User.id == user.id).first()
+                        if db_user:
+                            db_user.reminder_recall_sent = True
+                            db_user.last_reminder_sent = datetime.utcnow()
+                else:
+                    stats['sub_recall']['failed'] += 1
+            except Exception as e:
+                logger.error(f"发送订阅召回邮件给 {user.email} 失败: {e}")
+                stats['sub_recall']['failed'] += 1
+        
+        # 发送邮件（试用期）
+        for user in trial_expiring_3day:
+            try:
+                if _send_expiry_reminder(user, 'trial_3day'):
+                    stats['trial_3day']['sent'] += 1
+                    with get_db_context() as db:
+                        db_user = db.query(User).filter(User.id == user.id).first()
+                        if db_user:
+                            db_user.trial_reminder_3day_sent = True
+                else:
+                    stats['trial_3day']['failed'] += 1
+            except Exception as e:
+                logger.error(f"发送试用期3天提醒给 {user.email} 失败: {e}")
+                stats['trial_3day']['failed'] += 1
+        
+        for user in trial_expiring_1day:
+            try:
+                if _send_expiry_reminder(user, 'trial_1day'):
+                    stats['trial_1day']['sent'] += 1
+                    with get_db_context() as db:
+                        db_user = db.query(User).filter(User.id == user.id).first()
+                        if db_user:
+                            db_user.trial_reminder_1day_sent = True
+                else:
+                    stats['trial_1day']['failed'] += 1
+            except Exception as e:
+                logger.error(f"发送试用期1天提醒给 {user.email} 失败: {e}")
+                stats['trial_1day']['failed'] += 1
+        
+        for user in trial_expired_7day:
+            try:
+                if _send_expiry_reminder(user, 'trial_recall'):
+                    stats['trial_recall']['sent'] += 1
+                    with get_db_context() as db:
+                        db_user = db.query(User).filter(User.id == user.id).first()
+                        if db_user:
+                            db_user.trial_reminder_recall_sent = True
+                else:
+                    stats['trial_recall']['failed'] += 1
+            except Exception as e:
+                logger.error(f"发送试用期召回邮件给 {user.email} 失败: {e}")
+                stats['trial_recall']['failed'] += 1
+        
+        # 汇总日志
+        total_found = sum(s['found'] for s in stats.values())
+        total_sent = sum(s['sent'] for s in stats.values())
+        total_failed = sum(s['failed'] for s in stats.values())
+        
+        logger.info(f"✅ 订阅到期提醒任务完成:")
+        logger.info(f"   付费订阅-3天提醒: 发现{stats['sub_3day']['found']}, 发送{stats['sub_3day']['sent']}, 失败{stats['sub_3day']['failed']}")
+        logger.info(f"   付费订阅-1天提醒: 发现{stats['sub_1day']['found']}, 发送{stats['sub_1day']['sent']}, 失败{stats['sub_1day']['failed']}")
+        logger.info(f"   付费订阅-召回邮件: 发现{stats['sub_recall']['found']}, 发送{stats['sub_recall']['sent']}, 失败{stats['sub_recall']['failed']}")
+        logger.info(f"   试用期-3天提醒: 发现{stats['trial_3day']['found']}, 发送{stats['trial_3day']['sent']}, 失败{stats['trial_3day']['failed']}")
+        logger.info(f"   试用期-1天提醒: 发现{stats['trial_1day']['found']}, 发送{stats['trial_1day']['sent']}, 失败{stats['trial_1day']['failed']}")
+        logger.info(f"   试用期-召回邮件: 发现{stats['trial_recall']['found']}, 发送{stats['trial_recall']['sent']}, 失败{stats['trial_recall']['failed']}")
+        logger.info(f"   合计: 发现{total_found}, 发送{total_sent}, 失败{total_failed}")
+        
+    except Exception as e:
+        logger.error(f"❌ 订阅到期提醒任务执行失败: {e}", exc_info=True)
+        pass
+
+
+# 在调度器中添加到期提醒任务（已在 start_scheduler 中添加）
+
+
+# ==================== 管理后台统计函数 ====================
+
+def get_reminder_stats() -> dict:
+    """
+    获取提醒发送统计（供管理后台使用）
+    Returns: 统计数据字典
+    """
+    try:
+        with get_db_context() as db:
+            # 统计各类型提醒的发送情况
+            total_users = db.query(User).filter(User.is_active == True).count()
+            
+            # 已发送各种提醒的用户数
+            sub_3day_sent = db.query(User).filter(User.reminder_3day_sent == True).count()
+            sub_1day_sent = db.query(User).filter(User.reminder_1day_sent == True).count()
+            sub_recall_sent = db.query(User).filter(User.reminder_recall_sent == True).count()
+            
+            trial_3day_sent = db.query(User).filter(User.trial_reminder_3day_sent == True).count()
+            trial_1day_sent = db.query(User).filter(User.trial_reminder_1day_sent == True).count()
+            trial_recall_sent = db.query(User).filter(User.trial_reminder_recall_sent == True).count()
+            
+            # 待发送提醒的用户（即将到期/已过期未发提醒）
+            today = datetime.utcnow().date()
+            
+            pending_sub_3day = db.query(User).filter(
+                User.subscription_status == 'active',
+                User.is_active == True,
+                User.is_whitelisted == False,
+                User.reminder_3day_sent == False,
+                User.subscription_end_date != None,
+                func.date(User.subscription_end_date) >= today + timedelta(days=2),
+                func.date(User.subscription_end_date) <= today + timedelta(days=4),
+            ).count()
+            
+            pending_sub_1day = db.query(User).filter(
+                User.subscription_status == 'active',
+                User.is_active == True,
+                User.is_whitelisted == False,
+                User.reminder_1day_sent == False,
+                User.subscription_end_date != None,
+                func.date(User.subscription_end_date) >= today,
+                func.date(User.subscription_end_date) <= today + timedelta(days=1),
+            ).count()
+            
+            pending_sub_recall = db.query(User).filter(
+                User.subscription_status.in_(['active', 'expired', 'canceled']),
+                User.is_active == True,
+                User.is_whitelisted == False,
+                User.reminder_recall_sent == False,
+                User.subscription_end_date != None,
+                func.date(User.subscription_end_date) >= today - timedelta(days=7),
+                func.date(User.subscription_end_date) <= today - timedelta(days=1),
+            ).count()
+            
+            pending_trial_3day = db.query(User).filter(
+                User.trial_end_date != None,
+                User.subscription_status == 'none',
+                User.is_active == True,
+                User.trial_reminder_3day_sent == False,
+                func.date(User.trial_end_date) >= today + timedelta(days=2),
+                func.date(User.trial_end_date) <= today + timedelta(days=4),
+            ).count()
+            
+            pending_trial_1day = db.query(User).filter(
+                User.trial_end_date != None,
+                User.subscription_status == 'none',
+                User.is_active == True,
+                User.trial_reminder_1day_sent == False,
+                func.date(User.trial_end_date) >= today,
+                func.date(User.trial_end_date) <= today + timedelta(days=1),
+            ).count()
+            
+            pending_trial_recall = db.query(User).filter(
+                User.trial_end_date != None,
+                User.subscription_status == 'none',
+                User.is_active == True,
+                User.trial_reminder_recall_sent == False,
+                func.date(User.trial_end_date) >= today - timedelta(days=7),
+                func.date(User.trial_end_date) <= today - timedelta(days=1),
+            ).count()
+            
+            return {
+                'total_users': total_users,
+                'sent': {
+                    'sub_3day': sub_3day_sent,
+                    'sub_1day': sub_1day_sent,
+                    'sub_recall': sub_recall_sent,
+                    'trial_3day': trial_3day_sent,
+                    'trial_1day': trial_1day_sent,
+                    'trial_recall': trial_recall_sent,
+                },
+                'pending': {
+                    'sub_3day': pending_sub_3day,
+                    'sub_1day': pending_sub_1day,
+                    'sub_recall': pending_sub_recall,
+                    'trial_3day': pending_trial_3day,
+                    'trial_1day': pending_trial_1day,
+                    'trial_recall': pending_trial_recall,
+                }
+            }
+    except Exception as e:
+        logger.error(f"获取提醒统计失败: {e}")
+        return {'error': str(e)}
+
+
+def reset_user_reminder_flags(user_id: int, is_trial: bool = False) -> tuple:
+    """
+    重置用户提醒标志（用于测试或在续费后调用）
+    
+    Args:
+        user_id: 用户ID
+        is_trial: 是否为试用期用户
+        
+    Returns:
+        (success, message)
+    """
+    try:
+        with get_db_context() as db:
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return False, "用户不存在"
+            
+            if is_trial:
+                user.trial_reminder_3day_sent = False
+                user.trial_reminder_1day_sent = False
+                user.trial_reminder_recall_sent = False
+            else:
+                user.reminder_3day_sent = False
+                user.reminder_1day_sent = False
+                user.reminder_recall_sent = False
+                user.last_reminder_sent = None
+            
+            return True, "提醒标志已重置"
+    except Exception as e:
+        logger.error(f"重置提醒标志失败: {e}")
+        return False, str(e)
+
+
+def test_reminder_email(user_id: int, reminder_type: str = 'sub_3day') -> tuple:
+    """
+    测试发送提醒邮件给指定用户（管理员功能）
+    
+    Args:
+        user_id: 用户ID
+        reminder_type: 提醒类型 (sub_3day, sub_1day, sub_recall, trial_3day, trial_1day, trial_recall)
+        
+    Returns:
+        (success, message)
+    """
+    valid_types = ['sub_3day', 'sub_1day', 'sub_recall', 'trial_3day', 'trial_1day', 'trial_recall']
+    if reminder_type not in valid_types:
+        return False, f"无效的提醒类型，可选: {valid_types}"
+    
+    try:
+        with get_db_context() as db:
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                return False, "用户不存在"
+        
+        success = _send_expiry_reminder(user, reminder_type)
+        if success:
+            return True, f"测试邮件已发送给 {user.email}"
+        else:
+            return False, "邮件发送失败，请检查邮件服务配置"
+    except Exception as e:
+        logger.error(f"发送测试邮件失败: {e}")
+        return False, str(e)

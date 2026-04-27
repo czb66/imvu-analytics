@@ -1,12 +1,12 @@
 """
 仪表盘路由 - 提供仪表盘数据
+使用统一的内存缓存服务提升性能
 """
 
-from fastapi import APIRouter, Query, HTTPException, Depends
+from fastapi import APIRouter, Query, HTTPException, Depends, Response
 from typing import Optional
 import logging
 import time
-from functools import lru_cache
 from datetime import datetime, timedelta, timezone
 
 from app.database import get_db_context, ProductDataRepository
@@ -14,12 +14,17 @@ from app.services.analytics import AnalyticsService
 from app.services.auth import get_current_user
 from app.services.subscription_check import require_subscription
 from app.services.activity_tracker import activity_tracker
+from app.services.cache import get_cache
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/dashboard", tags=["仪表盘"])
 
 # 北京时间 (UTC+8)
 BEIJING_TZ = timezone(timedelta(hours=8))
+
+# 仪表盘专用缓存 TTL（秒）
+PRODUCTS_CACHE_TTL = 300  # 5分钟
+REVENUE_CACHE_TTL = 300  # 5分钟
 
 def to_beijing_time(dt: datetime) -> datetime:
     """将 UTC 时间转换为北京时间"""
@@ -28,9 +33,6 @@ def to_beijing_time(dt: datetime) -> datetime:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
     return dt.astimezone(BEIJING_TZ)
-
-# 缓存相关（按用户ID隔离）
-_dashboard_cache = {}
 
 
 def _product_to_dict(p) -> dict:
@@ -52,62 +54,56 @@ def _product_to_dict(p) -> dict:
 
 
 def _get_cached_products(user_id: int = None):
-    """获取产品数据（带缓存，按用户隔离）"""
-    cache_key = str(user_id) if user_id else "anonymous"
-    current_time = time.time()
+    """获取产品数据（使用统一缓存服务，按用户隔离）"""
+    cache = get_cache()
+    cache_key = f"dashboard:products:user_{user_id}" if user_id else "dashboard:products:anonymous"
     
-    # 检查缓存是否有效
-    if cache_key in _dashboard_cache:
-        cache_entry = _dashboard_cache[cache_key]
-        if cache_entry["data"] is not None:
-            if current_time - cache_entry["timestamp"] < cache_entry["ttl"]:
-                logger.debug(f"用户 {cache_key} 使用缓存的产品数据")
-                return cache_entry["data"]
+    # 尝试从缓存获取
+    cached_data = cache.get(cache_key)
+    if cached_data is not None:
+        logger.debug(f"[Dashboard Cache HIT] 用户 {user_id or 'anonymous'} 使用缓存的产品数据")
+        return cached_data
     
     # 从数据库获取
-    logger.info(f"用户 {cache_key} 从数据库加载产品数据")
+    logger.info(f"[Dashboard Cache MISS] 用户 {user_id or 'anonymous'} 从数据库加载产品数据")
     with get_db_context() as db:
         repo = ProductDataRepository(db)
         products = repo.get_all(user_id=user_id)
         
         if not products:
-            _dashboard_cache[cache_key] = {
-                "data": [],
-                "timestamp": current_time,
-                "ttl": 60
-            }
+            # 缓存空结果，但使用较短TTL
+            cache.set(cache_key, [], ttl=60)
             return []
         
         product_dicts = [_product_to_dict(p) for p in products]
     
-    # 更新缓存
-    _dashboard_cache[cache_key] = {
-        "data": product_dicts,
-        "timestamp": current_time,
-        "ttl": 60
-    }
-    logger.info(f"用户 {cache_key} 已缓存 {len(product_dicts)} 个产品数据")
+    # 缓存结果
+    cache.set(cache_key, product_dicts, ttl=PRODUCTS_CACHE_TTL)
+    logger.info(f"[Dashboard Cache SET] 用户 {user_id or 'anonymous'} 已缓存 {len(product_dicts)} 个产品数据 (TTL={PRODUCTS_CACHE_TTL}s)")
     
     return product_dicts
 
 
 def _clear_cache():
-    """清除缓存（所有用户）"""
-    global _dashboard_cache
-    _dashboard_cache = {}
-    logger.debug("仪表盘所有缓存已清除")
+    """清除所有仪表盘缓存"""
+    cache = get_cache()
+    count = cache.delete_pattern("dashboard:*")
+    logger.info(f"[Dashboard Cache CLEAR] 清除了 {count} 条仪表盘缓存")
 
 
 def _clear_user_cache(user_id: int = None):
-    """清除指定用户的缓存"""
-    cache_key = str(user_id) if user_id else "anonymous"
-    if cache_key in _dashboard_cache:
-        del _dashboard_cache[cache_key]
-    logger.debug(f"用户 {cache_key} 的仪表盘缓存已清除")
+    """清除指定用户的仪表盘缓存"""
+    if user_id is None:
+        _clear_cache()
+        return
+    
+    cache = get_cache()
+    count = cache.delete_pattern(f"dashboard:*:user_{user_id}")
+    logger.info(f"[Dashboard Cache CLEAR] 用户 {user_id} 的 {count} 条仪表盘缓存已清除")
 
 
 @router.get("/summary")
-async def get_summary(current_user: dict = Depends(require_subscription)):
+async def get_summary(response: Response, current_user: dict = Depends(require_subscription)):
     """获取核心指标汇总"""
     start_time = time.time()
     user_id = current_user.get('id')
@@ -119,6 +115,7 @@ async def get_summary(current_user: dict = Depends(require_subscription)):
         if not product_dicts:
             elapsed = time.time() - start_time
             logger.info(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            response.headers["X-Cache"] = "MISS"
             return {
                 "success": True,
                 "data": {
@@ -143,6 +140,7 @@ async def get_summary(current_user: dict = Depends(require_subscription)):
         
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 成功 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "MISS"  # 汇总数据直接从产品数据计算
         
         return {
             "success": True,
@@ -168,6 +166,7 @@ async def get_summary(current_user: dict = Depends(require_subscription)):
 
 @router.get("/top-products")
 async def get_top_products(
+    response: Response,
     limit: int = Query(10, ge=1, le=100),
     metric: str = Query("profit", regex="^(profit|sales|price)$"),
     current_user: dict = Depends(require_subscription)
@@ -182,19 +181,35 @@ async def get_top_products(
     user_id = current_user.get('id')
     logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 limit={limit} metric={metric} - 开始")
     
+    # 尝试获取缓存的分析结果
+    cache = get_cache()
+    cache_key = f"dashboard:top_products:user_{user_id}:limit_{limit}:metric_{metric}"
+    cached_result = cache.get(cache_key)
+    
+    if cached_result is not None:
+        elapsed = time.time() - start_time
+        logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "HIT"
+        return {"success": True, "data": cached_result}
+    
     try:
         product_dicts = _get_cached_products(user_id=user_id)
         
         if not product_dicts:
             elapsed = time.time() - start_time
             logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            response.headers["X-Cache"] = "MISS"
             return {"success": True, "data": []}
         
         analytics = AnalyticsService(product_dicts)
         top_products = analytics.get_top_products(limit, metric)
         
+        # 缓存分析结果
+        cache.set(cache_key, top_products, ttl=PRODUCTS_CACHE_TTL)
+        
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 - 成功 返回:{len(top_products)} 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "MISS"
         
         return {
             "success": True,
@@ -207,11 +222,25 @@ async def get_top_products(
 
 
 @router.get("/visibility")
-async def get_visibility_analysis(current_user: dict = Depends(require_subscription)):
+async def get_visibility_analysis(
+    response: Response,
+    current_user: dict = Depends(require_subscription)
+):
     """获取可见性分析（可见 vs 不可见产品对比）"""
     start_time = time.time()
     user_id = current_user.get('id')
     logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 开始")
+    
+    # 尝试获取缓存
+    cache = get_cache()
+    cache_key = f"dashboard:visibility:user_{user_id}"
+    cached_result = cache.get(cache_key)
+    
+    if cached_result is not None:
+        elapsed = time.time() - start_time
+        logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "HIT"
+        return {"success": True, "data": cached_result}
     
     try:
         product_dicts = _get_cached_products(user_id=user_id)
@@ -219,13 +248,18 @@ async def get_visibility_analysis(current_user: dict = Depends(require_subscript
         if not product_dicts:
             elapsed = time.time() - start_time
             logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            response.headers["X-Cache"] = "MISS"
             return {"success": True, "data": {}}
         
         analytics = AnalyticsService(product_dicts)
         result = analytics.get_visibility_analysis()
         
+        # 缓存结果
+        cache.set(cache_key, result, ttl=PRODUCTS_CACHE_TTL)
+        
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 成功 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "MISS"
         
         return {
             "success": True,
@@ -238,11 +272,25 @@ async def get_visibility_analysis(current_user: dict = Depends(require_subscript
 
 
 @router.get("/traffic")
-async def get_traffic_analysis(current_user: dict = Depends(require_subscription)):
+async def get_traffic_analysis(
+    response: Response,
+    current_user: dict = Depends(require_subscription)
+):
     """获取流量分析（自然流量 vs 付费流量）"""
     start_time = time.time()
     user_id = current_user.get('id')
     logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 开始")
+    
+    # 尝试获取缓存
+    cache = get_cache()
+    cache_key = f"dashboard:traffic:user_{user_id}"
+    cached_result = cache.get(cache_key)
+    
+    if cached_result is not None:
+        elapsed = time.time() - start_time
+        logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "HIT"
+        return {"success": True, "data": cached_result}
     
     try:
         product_dicts = _get_cached_products(user_id=user_id)
@@ -250,13 +298,18 @@ async def get_traffic_analysis(current_user: dict = Depends(require_subscription
         if not product_dicts:
             elapsed = time.time() - start_time
             logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            response.headers["X-Cache"] = "MISS"
             return {"success": True, "data": {}}
         
         analytics = AnalyticsService(product_dicts)
         result = analytics.get_traffic_analysis()
         
+        # 缓存结果
+        cache.set(cache_key, result, ttl=PRODUCTS_CACHE_TTL)
+        
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 成功 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "MISS"
         
         return {
             "success": True,
@@ -270,6 +323,7 @@ async def get_traffic_analysis(current_user: dict = Depends(require_subscription
 
 @router.get("/products")
 async def get_products(
+    response: Response,
     visible: Optional[str] = Query(None, regex="^(Y|N)$"),
     product_id: Optional[str] = None,
     limit: int = Query(100, ge=1, le=500),
@@ -306,6 +360,7 @@ async def get_products(
         
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} 获取产品列表 - 成功 总数:{total} 返回:{len(products)} 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "MISS"  # 直接查询不缓存
         
         return {
             "success": True,
@@ -339,8 +394,10 @@ async def refresh_cache(current_user: dict = Depends(require_subscription)):
     logger.info(f"[API] 用户 {current_user.get('email')} 刷新仪表盘缓存 - 完成")
     return {"success": True, "message": "缓存已刷新"}
 
+
 @router.get("/revenue-trend")
 async def get_revenue_trend(
+    response: Response,
     days: int = Query(30, ge=7, le=90),
     current_user: dict = Depends(require_subscription)
 ):
@@ -353,25 +410,21 @@ async def get_revenue_trend(
     user_id = current_user.get('id')
     logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 days={days} - 开始")
     
-    # 检查缓存
-    cache_key = f"revenue_trend_{user_id}_{days}"
-    current_time = time.time()
-    if cache_key in _dashboard_cache:
-        cache_entry = _dashboard_cache[cache_key]
-        if current_time - cache_entry["timestamp"] < cache_entry.get("ttl", 60):
-            logger.info(f"[API] 用户 {current_user.get('email')} 使用缓存的收入趋势数据")
-            elapsed = time.time() - start_time
-            logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(缓存) 耗时: {elapsed:.3f}s")
-            return {
-                "success": True,
-                "data": cache_entry["data"]
-            }
+    # 尝试获取缓存
+    cache = get_cache()
+    cache_key = f"dashboard:revenue_trend:user_{user_id}:days_{days}"
+    cached_result = cache.get(cache_key)
+    
+    if cached_result is not None:
+        elapsed = time.time() - start_time
+        logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "HIT"
+        return {"success": True, "data": cached_result}
     
     try:
         with get_db_context() as db:
             from app.models import Dataset, ProductData
-            from sqlalchemy import func, extract
-            from datetime import datetime, timedelta
+            from sqlalchemy import func
             
             # 计算日期范围
             end_date = datetime.utcnow()
@@ -384,24 +437,21 @@ async def get_revenue_trend(
             ).order_by(Dataset.upload_time.asc()).all()
             
             if not datasets_query:
-                # 如果没有数据，返回空
                 elapsed = time.time() - start_time
                 logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(无数据) 耗时: {elapsed:.3f}s")
                 result = {
                     "labels": [],
                     "values": [],
                     "dates": [],
-                    "total_revenue": 0,
-                    "avg_daily_revenue": 0,
+                    "latest_revenue": 0,
+                    "avg_revenue": 0,
                     "trend": "neutral",
-                    "data_days": 0
+                    "upload_count": 0
                 }
-                return {
-                    "success": True,
-                    "data": result
-                }
+                response.headers["X-Cache"] = "MISS"
+                return {"success": True, "data": result}
             
-            # 按每个 Dataset 分别计算（不合并同一天的上传）
+            # 按每个 Dataset 分别计算
             upload_records = []
             
             for dataset in datasets_query:
@@ -432,35 +482,29 @@ async def get_revenue_trend(
                     "labels": [],
                     "values": [],
                     "dates": [],
-                    "total_revenue": 0,
-                    "avg_daily_revenue": 0,
+                    "latest_revenue": 0,
+                    "avg_revenue": 0,
                     "trend": "neutral",
-                    "data_days": 0
+                    "upload_count": 0
                 }
-                return {
-                    "success": True,
-                    "data": result
-                }
+                response.headers["X-Cache"] = "MISS"
+                return {"success": True, "data": result}
             
             # 按上传时间排序
             dates_list = sorted(upload_records, key=lambda x: x['upload_time'])
             
-            # 生成返回数据（显示上传时间 HH:MM 区分同一天的不同上传）
+            # 生成返回数据
             labels = [d['upload_time'].strftime('%Y-%m-%d %H:%M') for d in dates_list]
             values = [round(d['revenue'], 2) for d in dates_list]
             
             # 计算统计数据
-            # 最新一次上传的总收入（不是累加）
             latest_revenue = values[-1] if values else 0
             upload_count = len(dates_list)
             avg_revenue = sum(values) / upload_count if upload_count > 0 else 0
             
             # 计算趋势
             trend = "neutral"
-            if upload_count == 1:
-                trend = "neutral"
-            elif upload_count >= 2:
-                # 比较前半段和后半段的平均值
+            if upload_count >= 2:
                 mid = upload_count // 2
                 first_half_avg = sum(values[:mid]) / mid if mid > 0 else 0
                 second_half_avg = sum(values[mid:]) / (upload_count - mid) if (upload_count - mid) > 0 else 0
@@ -469,10 +513,8 @@ async def get_revenue_trend(
                     trend = "up"
                 elif second_half_avg < first_half_avg * 0.95:
                     trend = "down"
-                else:
-                    trend = "neutral"
             
-            # 计算每次上传的变化（与上次对比）
+            # 计算每次上传的变化
             dates_with_change = []
             for i, d in enumerate(dates_list):
                 change_from_last = None
@@ -484,7 +526,6 @@ async def get_revenue_trend(
                         change_from_last = round(d['revenue'] - prev_revenue, 2)
                         change_percent = round((d['revenue'] - prev_revenue) / prev_revenue * 100, 1)
                     elif d['revenue'] > 0:
-                        # 从 0 增长
                         change_from_last = round(d['revenue'], 2)
                         change_percent = 100.0
                 
@@ -507,15 +548,12 @@ async def get_revenue_trend(
                 "upload_count": upload_count
             }
             
-            # 更新缓存（缓存5分钟）
-            _dashboard_cache[cache_key] = {
-                "data": result,
-                "timestamp": current_time,
-                "ttl": 300
-            }
+            # 缓存结果
+            cache.set(cache_key, result, ttl=REVENUE_CACHE_TTL)
             
             elapsed = time.time() - start_time
-            logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 成功 数据天数:{data_days} 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 成功 耗时: {elapsed:.3f}s")
+            response.headers["X-Cache"] = "MISS"
             
             return {
                 "success": True,
@@ -531,16 +569,17 @@ async def get_revenue_trend(
                 "labels": [],
                 "values": [],
                 "dates": [],
-                "total_revenue": 0,
-                "avg_daily_revenue": 0,
+                "latest_revenue": 0,
+                "avg_revenue": 0,
                 "trend": "neutral",
-                "data_days": 0
+                "upload_count": 0
             }
         }
 
 
 @router.get("/products-detailed")
 async def get_products_detailed(
+    response: Response,
     limit: int = Query(5, ge=1, le=20),
     sort_by: str = Query("revenue", regex="^(revenue|sales)$"),
     current_user: dict = Depends(require_subscription)
@@ -555,12 +594,24 @@ async def get_products_detailed(
     user_id = current_user.get('id')
     logger.info(f"[API] 用户 {current_user.get('email')} 获取产品详情 limit={limit} sort_by={sort_by} - 开始")
     
+    # 尝试获取缓存
+    cache = get_cache()
+    cache_key = f"dashboard:products_detailed:user_{user_id}:limit_{limit}:sort_{sort_by}"
+    cached_result = cache.get(cache_key)
+    
+    if cached_result is not None:
+        elapsed = time.time() - start_time
+        logger.info(f"[API] 用户 {current_user.get('email')} 获取产品详情 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "HIT"
+        return {"success": True, "data": cached_result}
+    
     try:
         product_dicts = _get_cached_products(user_id=user_id)
         
         if not product_dicts:
             elapsed = time.time() - start_time
             logger.info(f"[API] 用户 {current_user.get('email')} 获取产品详情 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            response.headers["X-Cache"] = "MISS"
             return {"success": True, "data": []}
         
         # 计算每种产品的收入和销量
@@ -593,8 +644,12 @@ async def get_products_detailed(
         for i, product in enumerate(top_products):
             product['rank'] = i + 1
         
+        # 缓存结果
+        cache.set(cache_key, top_products, ttl=PRODUCTS_CACHE_TTL)
+        
         elapsed = time.time() - start_time
         logger.info(f"[API] 用户 {current_user.get('email')} 获取产品详情 - 成功 返回:{len(top_products)} 耗时: {elapsed:.3f}s")
+        response.headers["X-Cache"] = "MISS"
         
         return {
             "success": True,

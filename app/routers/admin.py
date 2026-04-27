@@ -881,3 +881,416 @@ async def get_recent_page_views(
     except Exception as e:
         logger.error(f"获取最近访问记录失败: {e}")
         raise HTTPException(status_code=500, detail=f"获取访问记录失败: {str(e)}")
+
+
+@router.get("/reminder/stats")
+async def get_reminder_stats(
+    current_user: dict = Depends(require_admin)
+):
+    """
+    获取订阅到期提醒发送统计
+    """
+    try:
+        from app.services.report_generator import get_reminder_stats as _get_stats
+        
+        stats = _get_stats()
+        
+        if 'error' in stats:
+            raise HTTPException(status_code=500, detail=stats['error'])
+        
+        return {
+            "success": True,
+            "data": stats
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"获取提醒统计失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+
+
+@router.post("/reminder/test")
+async def test_reminder_email(
+    user_id: int = Query(..., description="用户ID"),
+    reminder_type: str = Query("sub_3day", description="提醒类型: sub_3day, sub_1day, sub_recall, trial_3day, trial_1day, trial_recall"),
+    current_user: dict = Depends(require_admin)
+):
+    """
+    测试发送提醒邮件给指定用户
+    """
+    try:
+        from app.services.report_generator import test_reminder_email as _test_email
+        
+        success, message = _test_email(user_id, reminder_type)
+        
+        if success:
+            return {"success": True, "message": message}
+        else:
+            raise HTTPException(status_code=400, detail=message)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"测试提醒邮件失败: {e}")
+        raise HTTPException(status_code=500, detail=f"发送测试邮件失败: {str(e)}")
+
+
+@router.post("/reminder/reset")
+async def reset_user_reminders(
+    user_id: int = Query(..., description="用户ID"),
+    is_trial: bool = Query(False, description="是否为试用期用户"),
+    current_user: dict = Depends(require_admin)
+):
+    """
+    重置用户提醒标志（用于测试或在续费后调用）
+    """
+    try:
+        from app.services.report_generator import reset_user_reminder_flags as _reset_flags
+        
+        success, message = _reset_flags(user_id, is_trial)
+        
+        if success:
+            return {"success": True, "message": message}
+        else:
+            raise HTTPException(status_code=400, detail=message)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"重置提醒标志失败: {e}")
+        raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+
+
+@router.post("/reminder/trigger")
+async def trigger_reminder_check(
+    current_user: dict = Depends(require_admin)
+):
+    """
+    手动触发订阅到期提醒检查（管理员功能）
+    """
+    try:
+        from app.services.report_generator import check_subscription_expiry
+        
+        # 在后台异步执行
+        import asyncio
+        asyncio.create_task(asyncio.to_thread(check_subscription_expiry))
+        
+        return {"success": True, "message": "提醒检查任务已触发，将在后天执行"}
+    except Exception as e:
+        logger.error(f"触发提醒检查失败: {e}")
+        raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+
+
+# ==================== 推荐系统监控接口 ====================
+
+@router.get("/referral/stats")
+async def get_referral_stats(
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取推荐系统总览统计
+    """
+    try:
+        from app.models import User
+        from app.database import UserRepository
+        
+        user_repo = UserRepository(db)
+        
+        # 总注册用户数
+        total_users = db.query(User).count()
+        
+        # 有推荐人的用户数
+        users_with_referrer = db.query(User).filter(
+            User.referred_by.isnot(None)
+        ).count()
+        
+        # 有待发放奖励的用户数
+        pending_rewards = db.query(User).filter(
+            User.referral_reward_pending == True
+        ).count()
+        
+        # 已发放奖励的用户数
+        rewarded_users = db.query(User).filter(
+            User.referral_rewarded_at.isnot(None)
+        ).count()
+        
+        # 被暂停的推荐码数
+        suspended_codes = db.query(User).filter(
+            User.referral_suspended == True,
+            User.referral_code.isnot(None)
+        ).count()
+        
+        # 按推荐码统计使用次数（Top 10）
+        referral_usage = db.query(
+            User.referred_by,
+            func.count(User.id).label('usage_count')
+        ).filter(
+            User.referred_by.isnot(None)
+        ).group_by(User.referred_by).order_by(
+            desc('usage_count')
+        ).limit(10).all()
+        
+        # 补充推荐人信息
+        top_referrers = []
+        for code, count in referral_usage:
+            referrer = user_repo.get_by_referral_code(code)
+            if referrer:
+                monthly_rewards = user_repo.get_monthly_referral_rewards(referrer.id)
+                top_referrers.append({
+                    'referral_code': code,
+                    'referrer_email': referrer.email,
+                    'total_uses': count,
+                    'monthly_rewards': monthly_rewards,
+                    'monthly_limit': 5,
+                    'is_suspended': referrer.referral_suspended
+                })
+        
+        return {
+            "success": True,
+            "data": {
+                "total_users": total_users,
+                "users_with_referrer": users_with_referrer,
+                "pending_rewards": pending_rewards,
+                "rewarded_users": rewarded_users,
+                "suspended_codes": suspended_codes,
+                "conversion_rate": round(users_with_referrer / total_users * 100, 2) if total_users > 0 else 0,
+                "top_referrers": top_referrers
+            }
+        }
+    except Exception as e:
+        logger.error(f"获取推荐系统统计失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+
+
+@router.get("/referral/suspicious")
+async def get_suspicious_referrals(
+    days: int = Query(7, ge=1, le=30, description="统计天数范围"),
+    min_uses: int = Query(3, ge=1, le=20, description="最小使用次数"),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    获取可疑推荐列表
+    """
+    try:
+        from app.models import User
+        from app.database import UserRepository
+        from datetime import timedelta
+        
+        user_repo = UserRepository(db)
+        start_date = datetime.utcnow() - timedelta(days=days)
+        
+        # 获取指定时间内注册的用户（按推荐码分组）
+        recent_referrals = db.query(
+            User.referred_by,
+            func.count(User.id).label('recent_count')
+        ).filter(
+            User.referred_by.isnot(None),
+            User.created_at >= start_date
+        ).group_by(User.referred_by).having(
+            func.count(User.id) >= min_uses
+        ).order_by(desc('recent_count')).all()
+        
+        suspicious_list = []
+        for code, count in recent_referrals:
+            referrer = user_repo.get_by_referral_code(code)
+            if referrer:
+                total_count = user_repo.get_total_referral_usage(code)
+                suspicious_list.append({
+                    'referral_code': code,
+                    'referrer_email': referrer.email,
+                    'recent_uses': count,
+                    'total_uses': total_count,
+                    'is_suspended': referrer.referral_suspended,
+                })
+        
+        return {
+            "success": True,
+            "data": {
+                "query_days": days,
+                "min_uses": min_uses,
+                "suspicious_count": len(suspicious_list),
+                "suspicious_list": suspicious_list
+            }
+        }
+    except Exception as e:
+        logger.error(f"获取可疑推荐列表失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取列表失败: {str(e)}")
+
+
+@router.post("/referral/{user_id}/suspend")
+async def suspend_user_referral(
+    user_id: int,
+    suspend: bool = Query(True, description="是否暂停推荐码"),
+    current_user: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    暂停或恢复用户的推荐码
+    """
+    try:
+        from app.database import UserRepository
+        
+        user_repo = UserRepository(db)
+        user = user_repo.get_by_id(user_id)
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="用户不存在")
+        
+        if not user.referral_code:
+            raise HTTPException(status_code=400, detail="该用户没有推荐码")
+        
+        user_repo.suspend_referral_code(user_id, suspend)
+        
+        action = "暂停" if suspend else "恢复"
+        return {
+            "success": True,
+            "message": f"推荐码 {user.referral_code} 已{action}"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"操作推荐码失败: {e}")
+        raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+
+
+@router.post("/referral/check-now")
+async def trigger_referral_check(
+    current_user: dict = Depends(require_admin)
+):
+    """
+    手动触发推荐系统异常检测
+    """
+    try:
+        from app.services.report_generator import check_suspicious_referral_activity
+        
+        result = check_suspicious_referral_activity()
+        
+        return {
+            "success": True,
+            "message": "检测完成",
+            "data": result
+        }
+    except Exception as e:
+        logger.error(f"触发推荐检测失败: {e}")
+        raise HTTPException(status_code=500, detail=f"检测失败: {str(e)}")
+# ==================== 缓存管理API ====================
+
+@router.get("/cache/stats")
+async def get_cache_stats(
+    current_user: dict = Depends(require_admin)
+):
+    """
+    获取缓存统计信息
+    
+    返回缓存命中率、大小、内存使用等统计
+    """
+    try:
+        from app.services.cache import get_cache
+        
+        cache = get_cache()
+        stats = cache.get_stats()
+        
+        return {
+            "success": True,
+            "data": stats
+        }
+    except Exception as e:
+        logger.error(f"获取缓存统计失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取缓存统计失败: {str(e)}")
+
+
+@router.post("/cache/clear")
+async def clear_all_cache(
+    current_user: dict = Depends(require_admin)
+):
+    """
+    清空所有缓存
+    
+    谨慎使用！这会影响所有用户的缓存
+    """
+    try:
+        from app.services.cache import get_cache
+        
+        cache = get_cache()
+        stats_before = cache.get_stats()
+        cache.clear()
+        
+        logger.warning(f"[Admin] 用户 {current_user.get('email')} 清空了所有缓存 (清除了 {stats_before.get('size', 0)} 条)")
+        
+        return {
+            "success": True,
+            "message": "所有缓存已清空",
+            "cleared_entries": stats_before.get('size', 0)
+        }
+    except Exception as e:
+        logger.error(f"清空缓存失败: {e}")
+        raise HTTPException(status_code=500, detail=f"清空缓存失败: {str(e)}")
+
+
+@router.post("/cache/clear-user/{user_id}")
+async def clear_user_cache(
+    user_id: int,
+    current_user: dict = Depends(require_admin)
+):
+    """
+    清除指定用户的缓存
+    
+    Args:
+        user_id: 要清除缓存的用户ID
+    """
+    try:
+        from app.services.cache import get_cache
+        
+        cache = get_cache()
+        
+        # 清除该用户相关的所有缓存
+        patterns = [
+            f"dashboard:*:user_{user_id}*",
+            f"insights:*:user_{user_id}*",
+            f"user_{user_id}_*"
+        ]
+        
+        total_cleared = 0
+        for pattern in patterns:
+            count = cache.delete_pattern(pattern)
+            total_cleared += count
+        
+        logger.info(f"[Admin] 用户 {current_user.get('email')} 清除了用户 {user_id} 的 {total_cleared} 条缓存")
+        
+        return {
+            "success": True,
+            "message": f"已清除用户 {user_id} 的缓存",
+            "cleared_entries": total_cleared
+        }
+    except Exception as e:
+        logger.error(f"清除用户缓存失败: {e}")
+        raise HTTPException(status_code=500, detail=f"清除用户缓存失败: {str(e)}")
+
+
+@router.post("/cache/clear-pattern")
+async def clear_cache_by_pattern(
+    pattern: str = Query(..., description="缓存键模式，如 'dashboard:*' 或 '*user_123*'"),
+    current_user: dict = Depends(require_admin)
+):
+    """
+    按模式清除缓存
+    
+    Args:
+        pattern: 缓存键模式，支持通配符 * 和 ?
+    """
+    try:
+        from app.services.cache import get_cache
+        
+        cache = get_cache()
+        count = cache.delete_pattern(pattern)
+        
+        logger.info(f"[Admin] 用户 {current_user.get('email')} 按模式 '{pattern}' 清除了 {count} 条缓存")
+        
+        return {
+            "success": True,
+            "message": f"模式 '{pattern}' 匹配删除了 {count} 条缓存",
+            "cleared_entries": count
+        }
+    except Exception as e:
+        logger.error(f"按模式清除缓存失败: {e}")
+        raise HTTPException(status_code=500, detail=f"按模式清除缓存失败: {str(e)}")

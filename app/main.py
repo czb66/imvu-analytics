@@ -19,6 +19,7 @@ from app.database import init_db, engine
 from app.routers import upload, dashboard, diagnosis, report, compare, insights, auth, subscription, admin, contact, promo_card
 from app.services.email_service import email_service
 from app.services.report_generator import scheduler, start_scheduler, stop_scheduler
+from app.services.cache import init_cache, get_cache
 from app.core.limiter import limiter
 
 # 配置日志
@@ -74,6 +75,14 @@ app.include_router(promo_card.router)  # 推广卡片统计路由
 async def startup_event():
     """应用启动时执行"""
     logger.info(f"启动 {config.APP_NAME} v{config.APP_VERSION}")
+    
+    try:
+        # 初始化缓存服务
+        cache = init_cache(max_size=500, default_ttl=300)
+        app.state.cache = cache
+        logger.info("缓存服务初始化完成")
+    except Exception as e:
+        logger.warning(f"缓存服务初始化失败: {e}")
     
     try:
         # 初始化数据库
