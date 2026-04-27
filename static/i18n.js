@@ -358,12 +358,12 @@ const translations = {
             // 数据集命名
             datasetNamePlaceholder: 'Dataset name (optional, e.g. 2024-01)',
             datasetNameHint: 'Leave empty for default dataset'
-        
+        },
         
         // Onboarding
         onboarding: {
             title: 'Welcome to IMVU Analytics!',
-            subtitle: 'Let's get started with 3 simple steps',
+            subtitle: 'Let\'s get started with 3 simple steps',
             step1: {
                 title: 'Step 1: Upload Data',
                 desc: 'Start by uploading your IMVU product data. Download our sample data to explore, or upload your own XML file.',
@@ -375,7 +375,7 @@ const translations = {
                 title: 'Step 2: View Dashboard',
                 desc: 'Explore your analytics dashboard. View key metrics, top products, and sales trends at a glance.',
                 viewDashboard: 'Go to Dashboard',
-                done: 'I've Seen It'
+                done: 'I\'ve Seen It'
             },
             step3: {
                 title: 'Step 3: Unlock Pro Features',
@@ -390,13 +390,12 @@ const translations = {
             skipAll: 'Skip All',
             close: 'Close',
             completion: 'Setup Complete!',
-            completionDesc: 'You're all set. Enjoy exploring your IMVU analytics!'
+            completionDesc: 'You\'re all set. Enjoy exploring your IMVU analytics!'
         },
         
         // Onboarding prompt banner
         onboardingPrompt: 'Complete 3 steps to unlock all features →',
-        onboardingCompleted: 'All features unlocked!' 
-},
+        onboardingCompleted: 'All features unlocked!',
         
         // 深度诊断
         diagnosis: {
@@ -663,7 +662,63 @@ const translations = {
             referralCount: 'Referrals',
             referralHint: 'Share your referral code with friends! When they register with your code, you\'ll both get 7 days free Pro trial!',
             referralReward: '🎁 Reward: You get +7 days Pro for each successful referral!',
-            shareLink: 'Share Link'
+            shareLink: 'Share Link',
+            reportSubscription: 'Report Subscription',
+            reportSubscriptionHint: 'Subscribe to receive automated marketing data reports in your email.',
+            prefDaily: '📅 Daily Report',
+            prefDailyHint: 'Receive every day at 9:00 AM',
+            prefWeekly: '📊 Weekly Report',
+            prefWeeklyHint: 'Receive every Monday (Recommended)',
+            prefNone: '🚫 No Reports',
+            prefNoneHint: 'Unsubscribe from all reports',
+            currentPreference: 'Current:',
+            savePreference: 'Save Preference',
+            prefSaved: 'Report preference saved!',
+            quotas: 'API Quotas',
+            loadingQuotas: 'Loading quotas...',
+            upgradeToPro: 'Upgrade to Pro'
+        },
+        
+        // Benchmark page
+        benchmark: {
+            title: 'Benchmark Analysis',
+            avgRanking: 'Average Ranking',
+            categories: 'Categories',
+            totalProducts: 'Total Products',
+            insights: 'AI Insights',
+            category: {
+                title: 'Category Breakdown'
+            },
+            chart: {
+                title: 'Performance Distribution'
+            },
+            rankings: {
+                title: 'Your Rankings'
+            },
+            table: {
+                category: 'Category',
+                product: 'Product',
+                sales: 'Sales',
+                salesRank: 'Sales Rank',
+                profit: 'Profit',
+                profitRank: 'Profit Rank'
+            },
+            noData: {
+                title: 'No Data Available',
+                desc: 'Upload product data to see benchmark analysis'
+            },
+            noBenchmark: {
+                title: 'Benchmark Unavailable',
+                desc: 'Not enough data to generate industry benchmarks (minimum 5 users required)'
+            },
+            privacy: 'Benchmark Privacy Settings',
+            privacyHint: 'Control whether your data is included in industry benchmark calculations',
+            optOutLabel: 'Opt out of industry benchmark calculations',
+            optOutHint: 'When enabled, your product data will not be used for generating industry statistics',
+            savePreference: 'Save Settings',
+            insights: {
+                title: 'Competitive Insights'
+            }
         },
         
         // 语言切换
@@ -1554,7 +1609,7 @@ const translations = {
             // 数据集命名
             datasetNamePlaceholder: '数据集名称（可选，如 2024年1月）',
             datasetNameHint: '留空则使用默认数据集'
-        
+        },
         
         // Onboarding
         onboarding: {
@@ -1591,8 +1646,7 @@ const translations = {
         
         // Onboarding prompt banner
         onboardingPrompt: '完成3步设置，解锁全部功能 →',
-        onboardingCompleted: '全部功能已解锁！' 
-},
+        onboardingCompleted: '全部功能已解锁！',
         
         // 深度诊断
         diagnosis: {
@@ -1859,7 +1913,63 @@ const translations = {
             referralCount: '推荐人数',
             referralHint: '分享您的推荐码给朋友！当朋友使用您的推荐码注册时，您和对方都将获得7天免费Pro试用！',
             referralReward: '🎁 奖励：每成功推荐一位用户，您将获得+7天Pro权限！',
-            shareLink: '分享链接'
+            shareLink: '分享链接',
+            reportSubscription: '报告订阅',
+            reportSubscriptionHint: '订阅以接收自动化的营销数据报告，发送到您的邮箱。',
+            prefDaily: '📅 每日报告',
+            prefDailyHint: '每天早上9:00接收',
+            prefWeekly: '📊 每周报告',
+            prefWeeklyHint: '每周一接收（推荐）',
+            prefNone: '🚫 不接收报告',
+            prefNoneHint: '取消所有报告订阅',
+            currentPreference: '当前:',
+            savePreference: '保存偏好',
+            prefSaved: '报告偏好已保存！',
+            quotas: 'API 配额',
+            loadingQuotas: '加载配额中...',
+            upgradeToPro: '升级到 Pro'
+        },
+        
+        // 竞品分析页面
+        benchmark: {
+            title: '竞品分析',
+            avgRanking: '平均排名',
+            categories: '品类数',
+            totalProducts: '产品总数',
+            insights: 'AI 洞察',
+            category: {
+                title: '品类分布'
+            },
+            chart: {
+                title: '表现分布'
+            },
+            rankings: {
+                title: '你的排名'
+            },
+            table: {
+                category: '品类',
+                product: '产品',
+                sales: '销量',
+                salesRank: '销量排名',
+                profit: '利润',
+                profitRank: '利润排名'
+            },
+            noData: {
+                title: '暂无数据',
+                desc: '上传产品数据后即可查看竞品分析'
+            },
+            noBenchmark: {
+                title: '基准数据不足',
+                desc: '行业基准数据不足（至少需要5位用户的数据）'
+            },
+            privacy: '竞品分析隐私设置',
+            privacyHint: '控制您的数据是否纳入行业基准计算',
+            optOutLabel: '不参与行业基准计算',
+            optOutHint: '开启后您的产品数据不会被用于生成行业统计',
+            savePreference: '保存设置',
+            insights: {
+                title: '竞争洞察'
+            }
         },
         
         // 语言切换
@@ -2352,23 +2462,10 @@ const translations = {
         }
     },
     
-    // 个人中心 - 报告订阅
-    profile: {
-        reportSubscription: '报告订阅',
-        reportSubscriptionHint: '订阅以接收自动化的营销数据报告，发送到您的邮箱。',
-        prefDaily: '📅 每日报告',
-        prefDailyHint: '每天早上9:00接收',
-        prefWeekly: '📊 每周报告',
-        prefWeeklyHint: '每周一接收（推荐）',
-        prefNone: '🚫 不接收报告',
-        prefNoneHint: '取消所有报告订阅',
-        currentPreference: '当前:',
-        savePreference: '保存偏好',
-        prefSaved: '报告偏好已保存！'
-    },
+    
     
     fr: {
-        // Nom de l'application
+        // Nom de l\'application
         appName: 'Plateforme IMVU Analytics',
         
         // Navigation
@@ -2730,7 +2827,7 @@ const translations = {
             noLowConversionAlert: 'Aucune alerte de faible conversion',
             cartAdds: 'Ajouts au panier',
             conversionRate: 'Taux de conversion'
-        
+        },
         
         // Onboarding
         onboarding: {
@@ -2738,20 +2835,20 @@ const translations = {
             subtitle: 'Commencez en 3 étapes simples',
             step1: {
                 title: 'Étape 1 : Importer des données',
-                desc: 'Commencez par importer vos données de produits IMVU. Téléchargez nos données d'exemple pour explorer, ou importez votre propre fichier XML.',
-                downloadSample: 'Télécharger les données d'exemple',
+                desc: 'Commencez par importer vos données de produits IMVU. Téléchargez nos données d\'exemple pour explorer, ou importez votre propre fichier XML.',
+                downloadSample: 'Télécharger les données d\'exemple',
                 uploadOwn: 'Importer mes propres données',
                 skip: 'Passer'
             },
             step2: {
                 title: 'Étape 2 : Voir le tableau de bord',
-                desc: 'Explorez votre tableau de bord analytique. Visualisez les indicateurs clés, les produits vedettes et les tendances de ventes en un coup d'œil.',
+                desc: 'Explorez votre tableau de bord analytique. Visualisez les indicateurs clés, les produits vedettes et les tendances de ventes en un coup d\'œil.',
                 viewDashboard: 'Aller au tableau de bord',
-                done: 'Je l'ai vu'
+                done: 'Je l\'ai vu'
             },
             step3: {
                 title: 'Étape 3 : Débloquer les fonctionnalités Pro',
-                desc: 'Créez de superbes cartes promotionnelles ou obtenez des informations pilotées par l'IA pour optimiser votre boutique IMVU.',
+                desc: 'Créez de superbes cartes promotionnelles ou obtenez des informations pilotées par l\'IA pour optimiser votre boutique IMVU.',
                 tryAI: 'Essayer les insights IA',
                 createPromo: 'Créer une carte promo',
                 complete: 'Terminer la configuration'
@@ -2762,13 +2859,12 @@ const translations = {
             skipAll: 'Tout passer',
             close: 'Fermer',
             completion: 'Configuration terminée !',
-            completionDesc: 'Tout est prêt. Profitez de l'exploration de vos analyses IMVU !'
+            completionDesc: 'Tout est prêt. Profitez de l\'exploration de vos analyses IMVU !'
         },
         
         // Onboarding prompt banner
         onboardingPrompt: 'Complétez les 3 étapes pour débloquer toutes les fonctionnalités →',
-        onboardingCompleted: 'Toutes les fonctionnalités débloquées !' 
-},
+        onboardingCompleted: 'Toutes les fonctionnalités débloquées !',
         
         // Centre de rapports
         report: {
@@ -3333,7 +3429,7 @@ const translations = {
             th_views: 'Vues'
         },
         
-        // Page d'atterrissage
+        // Page d\'atterrissage
         landing: {
             nav: {
                 login: 'Connexion',

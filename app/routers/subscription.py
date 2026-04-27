@@ -726,11 +726,56 @@ async def create_customer_portal(
                 content={"success": False, "message": "未找到支付账户，请先订阅"}
             )
         
+        # 获取或创建支持订阅切换的门户配置
+        portal_config_id = None
+        try:
+            configurations = stripe.billing_portal.Configuration.list(limit=100)
+            for conf in configurations.data:
+                if conf.active and conf.features.get('subscription_update', {}).get('enabled'):
+                    portal_config_id = conf.id
+                    break
+        except Exception:
+            pass
+        
+        if not portal_config_id:
+            try:
+                portal_config = stripe.billing_portal.Configuration.create(
+                    business_profile={
+                        'headline': 'IMVU Analytics Subscription Management',
+                    },
+                    features={
+                        'customer_update': {
+                            'enabled': True,
+                            'allowed_updates': ['email', 'address']
+                        },
+                        'invoice_history': {'enabled': True},
+                        'payment_method_update': {'enabled': True},
+                        'subscription_cancel': {
+                            'enabled': True,
+                            'mode': 'at_period_end',
+                            'proration_behavior': 'none'
+                        },
+                        'subscription_update': {
+                            'enabled': True,
+                            'default_allowed_updates': ['price'],
+                            'proration_behavior': 'create_prorations'
+                        }
+                    }
+                )
+                portal_config_id = portal_config.id
+                logger.info(f"创建Stripe门户配置: {portal_config_id}")
+            except stripe.error.StripeError as e:
+                logger.warning(f"创建门户配置失败，使用默认配置: {e}")
+        
         # 创建客户门户会话
-        portal_session = stripe.billing_portal.Session.create(
-            customer=user.stripe_customer_id,
-            return_url=f"{config.APP_BASE_URL}/profile"
-        )
+        portal_params = {
+            'customer': user.stripe_customer_id,
+            'return_url': f"{config.APP_BASE_URL}/profile"
+        }
+        if portal_config_id:
+            portal_params['configuration'] = portal_config_id
+        
+        portal_session = stripe.billing_portal.Session.create(**portal_params)
         
         return {
             "success": True,
