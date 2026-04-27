@@ -214,7 +214,7 @@ async def generate_dashboard_insights(
         logger.error(f"[API] 用户 {current_user.get('email')} 生成仪表盘洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
-            "error": str(e),
+            "error": "操作失败，请稍后重试",
             "insight": "⚠️ 生成洞察时发生错误，请稍后重试",
             "is_offline": True
         }
@@ -495,7 +495,7 @@ async def generate_compare_insights(
         logger.error(f"[API] 用户 {current_user.get('email')} 生成对比洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
-            "error": str(e),
+            "error": "操作失败，请稍后重试",
             "insight": "⚠️ 生成洞察时发生错误，请稍后重试",
             "is_offline": True
         }
@@ -737,7 +737,7 @@ async def generate_seo_name_insights(
         logger.error(f"[API] 用户 {current_user.get('email')} SEO 名称分析失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
-            "error": str(e),
+            "error": "操作失败，请稍后重试",
             "insight": "⚠️ SEO 分析时发生错误，请稍后重试",
             "is_offline": True
         }

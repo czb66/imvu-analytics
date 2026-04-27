@@ -124,7 +124,7 @@ async def register(request: Request, register_request: RegisterRequest, db: Sess
         logger.error(f"注册失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": f"注册失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
 
 
@@ -482,7 +482,7 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
         
         # 即使用户不存在也返回成功，避免泄露用户信息
         if not user:
-            logger.info(f"密码重置请求：邮箱不存在 {request.email}")
+            logger.info(f"密码重置请求：邮箱 {request.email}")
             return {
                 "success": True,
                 "message": "如果该邮箱已注册，您将收到密码重置邮件"
@@ -551,7 +551,7 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
         )
         
         if success:
-            logger.info(f"密码重置邮件已发送: {user.email}")
+            logger.info(f"密码重置邮件已发送至用户ID: {user.id}")
         else:
             logger.error(f"密码重置邮件发送失败: {message}")
         
@@ -649,7 +649,7 @@ async def reset_password(request: ResetPasswordRequest, db: Session = Depends(ge
     user.reset_token_expires = None
     db.commit()
     
-    logger.info(f"密码重置成功: {user.email}")
+    logger.info(f"密码重置成功: 用户ID {user.id}")
     
     return {
         "success": True,
@@ -733,7 +733,7 @@ async def set_report_preference(
     user.report_preference = request.report_preference
     db.commit()
     
-    logger.info(f"用户 {user.email} 更新报告偏好为: {request.report_preference}")
+    logger.info(f"用户ID {user.id} 更新报告偏好为: {request.report_preference}")
     
     return {
         "success": True,
@@ -777,7 +777,7 @@ async def set_benchmark_preference(
     user.opt_out_benchmark = request.opt_out_benchmark
     db.commit()
     
-    logger.info(f"用户 {user.email} 更新竞品分析隐私设置为: opt_out_benchmark={request.opt_out_benchmark}")
+    logger.info(f"用户ID {user.id} 更新竞品分析隐私设置为: opt_out_benchmark={request.opt_out_benchmark}")
     
     return {
         "success": True,
@@ -935,7 +935,7 @@ async def set_referral_anonymous(
     user.referral_anonymous = request.anonymous
     db.commit()
     
-    logger.info(f"用户 {user.email} 设置推荐排行榜匿名为: {request.anonymous}")
+    logger.info(f"用户ID {user.id} 设置推荐排行榜匿名为: {request.anonymous}")
     
     return {
         "success": True,

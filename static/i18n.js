@@ -3383,7 +3383,72 @@ const translations = {
             passwordChangeSuccess: 'Mot de passe modifié avec succès !',
             passwordChangeFailed: 'Échec de la modification du mot de passe. Veuillez réessayer.',
             passwordMinLength: 'Le mot de passe doit comporter au moins 8 caractères.',
-            passwordMismatch: 'Les nouveaux mots de passe ne correspondent pas.'
+            passwordMismatch: 'Les nouveaux mots de passe ne correspondent pas.',
+            // Programme de parrainage
+            referralProgram: 'Programme de Parrainage',
+            yourReferralCode: 'Votre Code de Parrainage',
+            referralCount: 'Parrainages',
+            referralHint: 'Partagez votre code de parrainage avec vos amis ! Lorsqu\'ils s\'inscrivent avec votre code, vous recevez tous les deux 7 jours d\'essai Pro gratuit !',
+            referralReward: '🎁 Récompense : Vous recevez +7 jours Pro pour chaque parrainage réussi !',
+            shareLink: 'Partager le lien',
+            // Abonnement aux rapports
+            reportSubscription: 'Abonnement aux Rapports',
+            reportSubscriptionHint: 'Abonnez-vous pour recevoir des rapports marketing automatisés par email.',
+            prefDaily: '📅 Rapport Quotidien',
+            prefDailyHint: 'Reçu chaque jour à 9h00',
+            prefWeekly: '📊 Rapport Hebdomadaire',
+            prefWeeklyHint: 'Reçu chaque lundi (Recommandé)',
+            prefNone: '🚫 Aucun Rapport',
+            prefNoneHint: 'Se désabonner de tous les rapports',
+            currentPreference: 'Actuel:',
+            savePreference: 'Enregistrer',
+            prefSaved: 'Préférence enregistrée !',
+            // Quotas API
+            quotas: 'Quotas API',
+            loadingQuotas: 'Chargement des quotas...',
+            upgradeToPro: 'Passer à Pro'
+        },
+        
+        // Analyse comparative
+        benchmark: {
+            title: 'Analyse Comparative',
+            avgRanking: 'Classement Moyen',
+            categories: 'Catégories',
+            totalProducts: 'Total Produits',
+            insights: 'Insights IA',
+            category: {
+                title: 'Répartition par Catégorie'
+            },
+            chart: {
+                title: 'Distribution des Performances'
+            },
+            rankings: {
+                title: 'Vos Classements'
+            },
+            table: {
+                category: 'Catégorie',
+                product: 'Produit',
+                sales: 'Ventes',
+                salesRank: 'Classement Ventes',
+                profit: 'Profit',
+                profitRank: 'Classement Profit'
+            },
+            noData: {
+                title: 'Aucune Donnée',
+                desc: 'Téléchargez vos données produit pour voir l\'analyse comparative'
+            },
+            noBenchmark: {
+                title: 'Référence Indisponible',
+                desc: 'Données insuffisantes pour générer des références industrielles (minimum 5 utilisateurs requis)'
+            },
+            privacy: 'Paramètres de Confidentialité',
+            privacyHint: 'Contrôlez si vos données sont incluses dans les calculs de référence',
+            optOutLabel: 'Ne pas participer aux calculs de référence',
+            optOutHint: 'Si activé, vos données produit ne seront pas utilisées pour les statistiques',
+            savePreference: 'Enregistrer',
+            insights: {
+                title: 'Insights Concurrentiels'
+            }
         },
         
         // Changement de langue

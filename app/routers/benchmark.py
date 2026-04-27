@@ -67,8 +67,8 @@ async def get_category_overview(
         return result
         
     except Exception as e:
-        logger.error(f"获取行业概览失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"获取行业概览失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/product-ranking")
@@ -103,8 +103,8 @@ async def get_product_ranking(
         return result
         
     except Exception as e:
-        logger.error(f"获取产品排名失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"获取产品排名失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/product-rankings")
@@ -151,8 +151,8 @@ async def get_all_product_rankings(
         }
         
     except Exception as e:
-        logger.error(f"获取所有产品排名失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"获取所有产品排名失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/insights")
@@ -204,8 +204,8 @@ async def get_competitive_insights(
         }
         
     except Exception as e:
-        logger.error(f"获取竞争洞察失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"获取竞争洞察失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/calculate")
@@ -231,8 +231,8 @@ async def trigger_benchmark_calculation(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"手动触发基准计算失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"手动触发基准计算失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/categories")
@@ -264,5 +264,5 @@ async def get_available_categories(
         }
         
     except Exception as e:
-        logger.error(f"获取类别列表失败: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"获取类别列表失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")

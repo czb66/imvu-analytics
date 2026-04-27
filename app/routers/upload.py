@@ -137,7 +137,7 @@ async def upload_xml_file(
         
     except ValueError as e:
         logger.error(f"解析错误: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail="操作失败，请稍后重试")
     except Exception as e:
         logger.error(f"上传失败: {e}")
         raise HTTPException(status_code=500, detail=f"服务器错误: {str(e)}")

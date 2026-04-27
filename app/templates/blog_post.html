@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="{{ lang if lang else 'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ seo_title }}</title>
+    <meta name="description" content="{{ seo_desc }}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ seo_title }}">
+    <meta property="og:description" content="{{ seo_desc }}">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:site_name" content="IMVU Analytics">
+    {% if post.cover_image %}
+    <meta property="og:image" content="{{ post.cover_image }}">
+    {% endif %}
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ seo_title }}">
+    <meta name="twitter:description" content="{{ seo_desc }}">
+    {% if post.cover_image %}
+    <meta name="twitter:image" content="{{ post.cover_image }}">
+    {% endif %}
+    
+    <!-- Article Meta -->
+    <meta property="article:published_time" content="{{ post.published_at.isoformat() if post.published_at else post.created_at.isoformat() }}">
+    <meta property="article:modified_time" content="{{ post.updated_at.isoformat() }}">
+    <meta property="article:author" content="{{ post.author }}">
+    {% if post.category %}
+    <meta property="article:section" content="{{ post.category }}">
+    {% endif %}
+    
+    <!-- Canonical -->
+    <link rel="canonical" href="{{ request.url }}">
+    
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --secondary: #ec4899;
+        }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        /* Markdown Content Styles */
+        .prose-blog {
+            line-height: 1.8;
+            color: #374151;
+        }
+        .prose-blog h1 { font-size: 2rem; font-weight: 700; margin: 2rem 0 1rem; color: #111827; }
+        .prose-blog h2 { font-size: 1.5rem; font-weight: 600; margin: 1.75rem 0 1rem; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose-blog h3 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #111827; }
+        .prose-blog p { margin: 1rem 0; }
+        .prose-blog ul, .prose-blog ol { margin: 1rem 0; padding-left: 1.5rem; }
+        .prose-blog li { margin: 0.5rem 0; }
+        .prose-blog ul { list-style-type: disc; }
+        .prose-blog ol { list-style-type: decimal; }
+        .prose-blog blockquote {
+            border-left: 4px solid var(--primary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            background: #f3f4f6;
+            border-radius: 0 8px 8px 0;
+        }
+        .prose-blog code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #7c3aed;
+        }
+        .prose-blog pre {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+        .prose-blog pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        .prose-blog a { color: var(--primary); text-decoration: underline; }
+        .prose-blog a:hover { color: var(--primary-dark); }
+        .prose-blog img { max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0; }
+        .prose-blog table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .prose-blog th, .prose-blog td { border: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
+        .prose-blog th { background: #f9fafb; font-weight: 600; }
+        .prose-blog hr { border: none; border-top: 2px solid #e5e7eb; margin: 2rem 0; }
+        
+        .share-btn {
+            transition: all 0.3s;
+        }
+        .share-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {{ json_ld|safe }}
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    {% include 'header.html' %}
+
+    <!-- Article Header -->
+    <section class="gradient-bg text-white py-12">
+        <div class="container mx-auto px-4 max-w-4xl">
+            {% if post.category %}
+            <a href="/blog?category={{ post.category }}" class="inline-block bg-white bg-opacity-20 text-white text-sm px-3 py-1 rounded-full mb-4 hover:bg-opacity-30 transition-colors">
+                {{ post.category|capitalize }}
+            </a>
+            {% endif %}
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">{{ post.get_title(lang) }}</h1>
+            <div class="flex flex-wrap items-center gap-4 text-purple-100">
+                <span class="flex items-center">
+                    <i class="fas fa-user mr-2"></i>{{ post.author }}
+                </span>
+                <span class="flex items-center">
+                    <i class="fas fa-calendar mr-2"></i>
+                    {{ post.published_at.strftime('%Y-%m-%d') if post.published_at else post.created_at.strftime('%Y-%m-%d') }}
+                </span>
+                <span class="flex items-center">
+                    <i class="fas fa-clock mr-2"></i>{{ reading_time }} {% if lang == 'zh' %}分钟阅读{% elif lang == 'fr' %}min de lecture{% else %}min read{% endif %}
+                </span>
+                <span class="flex items-center">
+                    <i class="fas fa-eye mr-2"></i>{{ post.view_count }} {% if lang == 'zh' %}阅读{% elif lang == 'fr' %}lectures{% else %}views{% endif %}
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Main Content -->
+            <article class="flex-1 max-w-4xl">
+                <!-- Cover Image -->
+                {% if post.cover_image %}
+                <div class="mb-8 rounded-xl overflow-hidden">
+                    <img src="{{ post.cover_image }}" alt="{{ post.get_title(lang) }}" 
+                         class="w-full h-auto max-h-96 object-cover">
+                </div>
+                {% endif %}
+
+                <!-- Article Content -->
+                <div class="bg-white rounded-xl p-8 shadow-sm mb-8">
+                    <div id="article-content" class="prose-blog">
+                        <!-- Content will be rendered by marked.js -->
+                    </div>
+                    <script>
+                        document.getElementById('article-content').innerHTML = marked.parse(`{{ post.get_content(lang)|e }}`);
+                    </script>
+                </div>
+
+                <!-- Share Buttons -->
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-8">
+                    <h3 class="text-lg font-bold mb-4">
+                        {% if lang == 'zh' %}分享这篇文章{% elif lang == 'fr' %}Partager cet article{% else %}Share this article{% endif %}
+                    </h3>
+                    <div class="flex gap-3">
+                        <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ post.get_title(lang) }}" 
+                           target="_blank" rel="noopener noreferrer"
+                           class="share-btn w-12 h-12 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" 
+                           target="_blank" rel="noopener noreferrer"
+                           class="share-btn w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700">
+                            <i class="fab fa-facebook-f text-xl"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.url }}&title={{ post.get_title(lang) }}" 
+                           target="_blank" rel="noopener noreferrer"
+                           class="share-btn w-12 h-12 bg-blue-700 text-white rounded-full flex items-center justify-center hover:bg-blue-800">
+                            <i class="fab fa-linkedin-in text-xl"></i>
+                        </a>
+                        <button onclick="copyLink()" 
+                                class="share-btn w-12 h-12 bg-gray-600 text-white rounded-full flex items-center justify-center hover:bg-gray-700">
+                            <i class="fas fa-link text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Back to Blog -->
+                <a href="/blog" class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    {% if lang == 'zh' %}返回博客列表{% elif lang == 'fr' %}Retour au blog{% else %}Back to Blog{% endif %}
+                </a>
+            </article>
+
+            <!-- Sidebar -->
+            <aside class="lg:w-80">
+                <!-- Related Posts -->
+                {% if related_posts %}
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                    <h3 class="text-lg font-bold mb-4 flex items-center">
+                        <i class="fas fa-link text-purple-500 mr-2"></i>
+                        {% if lang == 'zh' %}相关文章{% elif lang == 'fr' %}Articles connexes{% else %}Related Posts{% endif %}
+                    </h3>
+                    <div class="space-y-4">
+                        {% for related in related_posts %}
+                        <a href="/blog/{{ related.slug }}" class="block group">
+                            {% if related.cover_image %}
+                            <img src="{{ related.cover_image }}" alt="{{ related.get_title(lang) }}" 
+                                 class="w-full h-32 object-cover rounded-lg mb-3 group-hover:opacity-80 transition-opacity">
+                            {% endif %}
+                            <h4 class="text-sm font-medium text-gray-900 group-hover:text-purple-600 line-clamp-2">
+                                {{ related.get_title(lang) }}
+                            </h4>
+                            <span class="text-xs text-gray-400">
+                                {{ related.published_at.strftime('%Y-%m-%d') if related.published_at else related.created_at.strftime('%Y-%m-%d') }}
+                            </span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Newsletter CTA -->
+                <div class="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl p-6 text-white">
+                    <h3 class="text-lg font-bold mb-2">
+                        {% if lang == 'zh' %}订阅更新{% elif lang == 'fr' %}S'abonner{% else %}Stay Updated{% endif %}
+                    </h3>
+                    <p class="text-sm text-purple-100 mb-4">
+                        {% if lang == 'zh' %}获取最新文章和技巧{% elif lang == 'fr' %}Recevez les derniers articles{% else %}Get the latest articles and tips{% endif %}
+                    </p>
+                    <a href="/register" class="block text-center bg-white text-purple-600 font-medium py-2 px-4 rounded-lg hover:bg-purple-50 transition-colors">
+                        {% if lang == 'zh' %}免费开始{% elif lang == 'fr' %}Commencer gratuitement{% else %}Get Started Free{% endif %}
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <script>
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('{% if lang == "zh" %}链接已复制！{% elif lang == "fr" %}Lien copié !{% else %}Link copied!{% endif %}');
+            });
+        }
+    </script>
+</body>
+</html>

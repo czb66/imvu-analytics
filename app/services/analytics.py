@@ -4,7 +4,7 @@
 
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 from datetime import datetime
 import logging
 import traceback
@@ -39,7 +39,7 @@ class AnalyticsService:
                         
                 logger.debug(f"AnalyticsService 初始化成功，共 {len(self.df)} 条数据")
         except Exception as e:
-            logger.error(f"AnalyticsService 初始化失败: {str(e)}")
+            logger.error(f"AnalyticsService 初始化失败: {str(e)}", exc_info=True)
             self.df = pd.DataFrame()
     
     def _calculate_total_sales(self):
@@ -490,7 +490,7 @@ class AnalyticsService:
             # 使用中位数避免极端值影响
             return round(margins.median(), 2)
         except Exception as e:
-            logger.error(f"get_avg_profit_margin 执行失败: {str(e)}")
+            logger.error(f"get_avg_profit_margin 执行失败: {str(e)}", exc_info=True)
             return 0.0
 
 

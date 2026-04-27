@@ -199,7 +199,7 @@ async def get_datasets(current_user: dict = Depends(require_subscription)):
             }
     except Exception as e:
         logger.error(f"获取数据集列表失败: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/")
@@ -338,7 +338,7 @@ async def compare_datasets(
         raise
     except Exception as e:
         logger.error(f"数据对比失败: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/trends")
@@ -416,7 +416,7 @@ async def get_trends(
             
     except Exception as e:
         logger.error(f"获取趋势数据失败: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.delete("/dataset/{dataset_id}")
@@ -455,4 +455,4 @@ async def delete_dataset(
         raise
     except Exception as e:
         logger.error(f"删除数据集失败: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")

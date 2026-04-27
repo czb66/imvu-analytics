@@ -120,7 +120,7 @@ async def get_promo_card_stats(
         }
     except Exception as e:
         logger.error(f"获取推广卡片统计失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/promo-cards/list")
@@ -167,7 +167,7 @@ async def get_promo_cards_list(
         }
     except Exception as e:
         logger.error(f"获取推广卡片列表失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取列表失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/promo-cards/{card_id}")
@@ -235,7 +235,7 @@ async def get_promo_card_detail(
         raise
     except Exception as e:
         logger.error(f"获取推广卡片详情失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取详情失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/stats")
@@ -296,7 +296,7 @@ async def get_admin_stats(
         }
     except Exception as e:
         logger.error(f"获取统计数据失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 # ==================== 用户行为分析API ====================
@@ -358,7 +358,7 @@ async def get_user_activity_stats(
         }
     except Exception as e:
         logger.error(f"获取用户活跃度统计失败: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/analytics/features")
@@ -416,7 +416,7 @@ async def get_feature_usage_stats(
         }
     except Exception as e:
         logger.error(f"获取功能使用统计失败: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/analytics/retention")
@@ -495,7 +495,7 @@ async def get_retention_stats(
         }
     except Exception as e:
         logger.error(f"获取留存率统计失败: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/analytics/funnel")
@@ -558,7 +558,7 @@ async def get_conversion_funnel_stats(
         }
     except Exception as e:
         logger.error(f"获取转化漏斗统计失败: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 def _get_step_name(step: str) -> str:
@@ -643,7 +643,7 @@ async def get_admin_users(
         }
     except Exception as e:
         logger.error(f"获取用户列表失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取用户列表失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/users/{user_id}/toggle-subscription")
@@ -691,7 +691,7 @@ async def toggle_user_subscription(
         raise
     except Exception as e:
         logger.error(f"切换订阅状态失败: {e}")
-        raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/users/{user_id}/toggle-admin")
@@ -729,7 +729,7 @@ async def toggle_user_admin(
         raise
     except Exception as e:
         logger.error(f"切换管理员权限失败: {e}")
-        raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/users/{user_id}/toggle-whitelist")
@@ -753,7 +753,7 @@ async def toggle_user_whitelist(
         user.is_whitelisted = not user.is_whitelisted
         db.commit()
         
-        logger.info(f"管理员 {current_user.get('email')} {'添加' if user.is_whitelisted else '移除'}用户 {user.email} 的白名单权限")
+        logger.info(f"管理员ID {current_user.get("id")} {'添加' if user.is_whitelisted else '移除'}用户 {user.email} 的白名单权限")
         
         return {
             "success": True,
@@ -768,7 +768,7 @@ async def toggle_user_whitelist(
         raise
     except Exception as e:
         logger.error(f"切换白名单权限失败: {e}")
-        raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 # =====================================================
 # 页面访问统计 API
@@ -848,7 +848,7 @@ async def get_page_view_stats(
         }
     except Exception as e:
         logger.error(f"获取页面访问统计失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/page-views/recent")
@@ -880,7 +880,7 @@ async def get_recent_page_views(
         }
     except Exception as e:
         logger.error(f"获取最近访问记录失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取访问记录失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/reminder/stats")
@@ -906,7 +906,7 @@ async def get_reminder_stats(
         raise
     except Exception as e:
         logger.error(f"获取提醒统计失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/reminder/test")
@@ -931,7 +931,7 @@ async def test_reminder_email(
         raise
     except Exception as e:
         logger.error(f"测试提醒邮件失败: {e}")
-        raise HTTPException(status_code=500, detail=f"发送测试邮件失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/reminder/reset")
@@ -956,7 +956,7 @@ async def reset_user_reminders(
         raise
     except Exception as e:
         logger.error(f"重置提醒标志失败: {e}")
-        raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/reminder/trigger")
@@ -976,7 +976,7 @@ async def trigger_reminder_check(
         return {"success": True, "message": "提醒检查任务已触发，将在后天执行"}
     except Exception as e:
         logger.error(f"触发提醒检查失败: {e}")
-        raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 # ==================== 推荐系统监控接口 ====================
@@ -1058,7 +1058,7 @@ async def get_referral_stats(
         }
     except Exception as e:
         logger.error(f"获取推荐系统统计失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取统计数据失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.get("/referral/suspicious")
@@ -1114,7 +1114,7 @@ async def get_suspicious_referrals(
         }
     except Exception as e:
         logger.error(f"获取可疑推荐列表失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取列表失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/referral/{user_id}/suspend")
@@ -1150,7 +1150,7 @@ async def suspend_user_referral(
         raise
     except Exception as e:
         logger.error(f"操作推荐码失败: {e}")
-        raise HTTPException(status_code=500, detail=f"操作失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/referral/check-now")
@@ -1172,7 +1172,7 @@ async def trigger_referral_check(
         }
     except Exception as e:
         logger.error(f"触发推荐检测失败: {e}")
-        raise HTTPException(status_code=500, detail=f"检测失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 # ==================== 缓存管理API ====================
 
 @router.get("/cache/stats")
@@ -1196,7 +1196,7 @@ async def get_cache_stats(
         }
     except Exception as e:
         logger.error(f"获取缓存统计失败: {e}")
-        raise HTTPException(status_code=500, detail=f"获取缓存统计失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/cache/clear")
@@ -1215,7 +1215,7 @@ async def clear_all_cache(
         stats_before = cache.get_stats()
         cache.clear()
         
-        logger.warning(f"[Admin] 用户 {current_user.get('email')} 清空了所有缓存 (清除了 {stats_before.get('size', 0)} 条)")
+        logger.warning(f"[Admin] 用户ID {current_user.get('id')} 清空了所有缓存 (清除了 {stats_before.get('size', 0)} 条)")
         
         return {
             "success": True,
@@ -1224,7 +1224,7 @@ async def clear_all_cache(
         }
     except Exception as e:
         logger.error(f"清空缓存失败: {e}")
-        raise HTTPException(status_code=500, detail=f"清空缓存失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/cache/clear-user/{user_id}")
@@ -1255,7 +1255,7 @@ async def clear_user_cache(
             count = cache.delete_pattern(pattern)
             total_cleared += count
         
-        logger.info(f"[Admin] 用户 {current_user.get('email')} 清除了用户 {user_id} 的 {total_cleared} 条缓存")
+        logger.info(f"[Admin] 用户ID {current_user.get('id')} 清除了用户 {user_id} 的 {total_cleared} 条缓存")
         
         return {
             "success": True,
@@ -1264,7 +1264,7 @@ async def clear_user_cache(
         }
     except Exception as e:
         logger.error(f"清除用户缓存失败: {e}")
-        raise HTTPException(status_code=500, detail=f"清除用户缓存失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")
 
 
 @router.post("/cache/clear-pattern")
@@ -1284,7 +1284,7 @@ async def clear_cache_by_pattern(
         cache = get_cache()
         count = cache.delete_pattern(pattern)
         
-        logger.info(f"[Admin] 用户 {current_user.get('email')} 按模式 '{pattern}' 清除了 {count} 条缓存")
+        logger.info(f"[Admin] 用户ID {current_user.get('id')} 按模式 '{pattern}' 清除了 {count} 条缓存")
         
         return {
             "success": True,
@@ -1293,4 +1293,4 @@ async def clear_cache_by_pattern(
         }
     except Exception as e:
         logger.error(f"按模式清除缓存失败: {e}")
-        raise HTTPException(status_code=500, detail=f"按模式清除缓存失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="操作失败，请稍后重试")

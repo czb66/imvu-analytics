@@ -141,7 +141,7 @@ async def save_stats(
         db.rollback()
         return {
             "success": False,
-            "error": str(e)
+            "error": "操作失败，请稍后重试"
         }
 
 
@@ -197,7 +197,7 @@ async def track_click(
     except Exception as e:
         logger.error(f"Track click error: {e}")
         db.rollback()
-        return {"success": False, "error": str(e)}
+        return {"success": False, "error": "操作失败，请稍后重试"}
 
 
 @router.get("/stats/{stat_id}")
@@ -245,7 +245,7 @@ async def get_stats(
         
     except Exception as e:
         logger.error(f"Get stats error: {e}")
-        return {"success": False, "error": str(e)}
+        return {"success": False, "error": "操作失败，请稍后重试"}
 
 
 @router.post("/stats-query")
@@ -290,7 +290,7 @@ async def query_stats(
         logger.error(f"查询推广卡片统计失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
-            content={"success": False, "message": f"获取统计失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
 
 
@@ -346,7 +346,7 @@ async def track_event(
         logger.error(f"追踪推广卡片事件失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
-            content={"success": False, "message": f"追踪失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
 
 

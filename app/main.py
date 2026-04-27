@@ -91,9 +91,6 @@ app.include_router(blog.router)  # 博客路由
 app.include_router(feedback.router)  # 反馈和NPS路由
 app.include_router(feedback.admin_router)  # 反馈管理路由
 
-# 配置博客路由的 templates
-blog.templates = templates
-
 
 @app.on_event("startup")
 async def startup_event():

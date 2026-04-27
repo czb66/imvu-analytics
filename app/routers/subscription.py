@@ -260,7 +260,7 @@ async def create_checkout_session(
                 logger.error(f"创建Stripe客户失败: {e}")
                 return JSONResponse(
                     status_code=500,
-                    content={"success": False, "message": f"创建支付客户失败: {str(e)}"}
+                    content={"success": False, "message": "操作失败，请稍后重试""}
                 )
         
         # 使用请求中的price_id或默认配置
@@ -306,13 +306,13 @@ async def create_checkout_session(
         logger.error(f"创建Checkout会话失败: {e}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": f"创建支付会话失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
     except Exception as e:
         logger.error(f"创建Checkout会话异常: {e}", exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": f"服务器错误: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
 
 
@@ -364,7 +364,7 @@ async def stripe_webhook(
         logger.error(f"解析Webhook事件失败: {e}")
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content={"received": False, "message": f"无效的请求: {str(e)}"}
+            content={"received": False, "message": "操作失败，请稍后重试""}
         )
     
     # 处理不同类型的事件
@@ -405,7 +405,7 @@ async def stripe_webhook(
         logger.error(f"处理Webhook事件失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"received": False, "message": f"处理失败: {str(e)}"}
+            content={"received": False, "message": "操作失败，请稍后重试""}
         )
 
 
@@ -605,7 +605,7 @@ async def get_subscription_status(
         logger.error(f"获取订阅状态失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": f"获取订阅状态失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
 
 
@@ -656,7 +656,7 @@ async def cancel_subscription(
         logger.error(f"取消订阅失败: {e}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": f"取消订阅失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
 
 
@@ -707,7 +707,7 @@ async def reactivate_subscription(
         logger.error(f"重新激活订阅失败: {e}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": f"重新激活订阅失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
 
 
@@ -801,7 +801,7 @@ async def create_customer_portal(
         logger.error(f"创建客户门户失败: {e}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": f"创建客户门户失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
 @router.get("/dunning-status")
 async def get_dunning_status(
@@ -828,5 +828,5 @@ async def get_dunning_status(
         logger.error(f"获取催款状态失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": f"获取催款状态失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )

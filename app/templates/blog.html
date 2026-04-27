@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="{{ lang if lang else 'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ seo_title or 'IMVU Creator Blog - Tips, Tutorials & Industry Insights' }}</title>
+    <meta name="description" content="{{ seo_desc or 'Stay updated with the latest IMVU creator tips, data analysis tutorials, and industry insights to boost your sales.' }}">
+    <meta name="keywords" content="IMVU, creator, tips, tutorials, analytics, sales optimization">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ seo_title }}">
+    <meta property="og:description" content="{{ seo_desc }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:site_name" content="IMVU Analytics">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ seo_title }}">
+    <meta name="twitter:description" content="{{ seo_desc }}">
+    
+    <!-- Canonical -->
+    <link rel="canonical" href="{{ request.url }}">
+    
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --secondary: #ec4899;
+        }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(124, 58, 237, 0.15);
+        }
+        .category-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        .featured-card {
+            background: linear-gradient(135deg, #1f1f3a 0%, #2d2d5a 100%);
+        }
+        .reading-time {
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+    </style>
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "IMVU Creator Blog",
+        "description": "Tips, tutorials and industry insights for IMVU creators",
+        "url": "{{ request.url }}",
+        "publisher": {
+            "@type": "Organization",
+            "name": "IMVU Analytics",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://imvucreators.com/static/logo.png"
+            }
+        }
+    }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    {% include 'header.html' %}
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">IMVU Creator Blog</h1>
+            <p class="text-xl text-purple-100 max-w-2xl mx-auto">
+                {% if lang == 'zh' %}
+                    获取最新的 IMVU 创作技巧、数据分析教程和行业洞察
+                {% elif lang == 'fr' %}
+                    Obtenez les derniers conseils, tutoriels et aperçus de l'industrie pour les créateurs IMVU
+                {% else %}
+                    Get the latest IMVU creator tips, data analysis tutorials, and industry insights
+                {% endif %}
+            </p>
+        </div>
+    </section>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Main Content -->
+            <div class="flex-1">
+                <!-- Featured Post -->
+                {% if featured_post %}
+                <section class="mb-12">
+                    <a href="/blog/{{ featured_post.slug }}" class="block featured-card rounded-2xl overflow-hidden card-hover">
+                        <div class="md:flex">
+                            {% if featured_post.cover_image %}
+                            <div class="md:w-1/2">
+                                <img src="{{ featured_post.cover_image }}" alt="{{ featured_post.get_title(lang) }}" 
+                                     class="w-full h-64 md:h-full object-cover">
+                            </div>
+                            {% endif %}
+                            <div class="p-8 md:w-1/2 flex flex-col justify-center">
+                                <span class="inline-block bg-purple-600 text-white text-xs px-3 py-1 rounded-full mb-4 w-fit">
+                                    {% if lang == 'zh' %}特色文章{% elif lang == 'fr' %}Article en vedette{% else %}Featured{% endif %}
+                                </span>
+                                <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">
+                                    {{ featured_post.get_title(lang) }}
+                                </h2>
+                                <p class="text-gray-300 mb-6 line-clamp-3">
+                                    {{ featured_post.get_excerpt(lang, 200) }}
+                                </p>
+                                <div class="flex items-center justify-between text-gray-400 text-sm">
+                                    <span><i class="fas fa-user mr-2"></i>{{ featured_post.author }}</span>
+                                    <span><i class="fas fa-calendar mr-2"></i>{{ featured_post.published_at.strftime('%Y-%m-%d') if featured_post.published_at else featured_post.created_at.strftime('%Y-%m-%d') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </section>
+                {% endif %}
+
+                <!-- Category Filter -->
+                <section class="mb-8">
+                    <div class="flex flex-wrap gap-2">
+                        <a href="/blog" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all {% if not current_category %}active{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                            {% if lang == 'zh' %}全部{% elif lang == 'fr' %}Tous{% else %}All{% endif %}
+                        </a>
+                        <a href="/blog?category=tutorials" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all {% if current_category == 'tutorials' %}active{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                            {% if lang == 'zh' %}教程{% elif lang == 'fr' %}Tutoriels{% else %}Tutorials{% endif %}
+                        </a>
+                        <a href="/blog?category=tips" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all {% if current_category == 'tips' %}active{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                            {% if lang == 'zh' %}技巧{% elif lang == 'fr' %}Astuces{% else %}Tips{% endif %}
+                        </a>
+                        <a href="/blog?category=updates" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all {% if current_category == 'updates' %}active{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                            {% if lang == 'zh' %}更新{% elif lang == 'fr' %}Mises à jour{% else %}Updates{% endif %}
+                        </a>
+                        <a href="/blog?category=industry" class="category-btn px-4 py-2 rounded-full text-sm font-medium transition-all {% if current_category == 'industry' %}active{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %}">
+                            {% if lang == 'zh' %}行业{% elif lang == 'fr' %}Industrie{% else %}Industry{% endif %}
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Posts Grid -->
+                <section class="grid md:grid-cols-2 gap-6">
+                    {% for post in posts %}
+                    <article class="bg-white rounded-xl overflow-hidden shadow-sm card-hover">
+                        {% if post.cover_image %}
+                        <a href="/blog/{{ post.slug }}">
+                            <img src="{{ post.cover_image }}" alt="{{ post.get_title(lang) }}" 
+                                 class="w-full h-48 object-cover">
+                        </a>
+                        {% endif %}
+                        <div class="p-6">
+                            <div class="flex items-center gap-3 mb-3">
+                                {% if post.category %}
+                                <span class="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded">
+                                    {{ post.category|capitalize }}
+                                </span>
+                                {% endif %}
+                                <span class="text-xs text-gray-400">
+                                    {{ post.published_at.strftime('%Y-%m-%d') if post.published_at else post.created_at.strftime('%Y-%m-%d') }}
+                                </span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-3">
+                                <a href="/blog/{{ post.slug }}" class="hover:text-purple-600 transition-colors">
+                                    {{ post.get_title(lang) }}
+                                </a>
+                            </h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                                {{ post.get_excerpt(lang, 150) }}
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">
+                                    <i class="fas fa-eye mr-1"></i>{{ post.view_count }}
+                                </span>
+                                <a href="/blog/{{ post.slug }}" class="text-purple-600 text-sm font-medium hover:text-purple-700">
+                                    {% if lang == 'zh' %}阅读更多{% elif lang == 'fr' %}Lire la suite{% else %}Read more{% endif %} →
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                    {% else %}
+                    <div class="col-span-2 text-center py-12">
+                        <i class="fas fa-newspaper text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">
+                            {% if lang == 'zh' %}暂无文章{% elif lang == 'fr' %}Aucun article{% else %}No posts yet{% endif %}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </section>
+
+                <!-- Pagination -->
+                {% if total_pages > 1 %}
+                <section class="mt-12 flex justify-center">
+                    <nav class="flex items-center gap-2">
+                        {% if current_page > 1 %}
+                        <a href="?page={{ current_page - 1 }}{% if current_category %}&category={{ current_category }}{% endif %}" 
+                           class="px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% for p in range(1, total_pages + 1) %}
+                            {% if p == current_page or p <= 2 or p > total_pages - 2 or (p > current_page - 2 and p < current_page + 2) %}
+                            <a href="?page={{ p }}{% if current_category %}&category={{ current_category }}{% endif %}"
+                               class="px-4 py-2 rounded-lg {% if p == current_page %}bg-purple-600 text-white{% else %}bg-white hover:bg-gray-50{% endif %} shadow">
+                                {{ p }}
+                            </a>
+                            {% elif p == 3 or p == total_pages - 1 %}
+                            <span class="px-2 text-gray-400">...</span>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if current_page < total_pages %}
+                        <a href="?page={{ current_page + 1 }}{% if current_category %}&category={{ current_category }}{% endif %}" 
+                           class="px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </section>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="lg:w-80">
+                <!-- Popular Posts -->
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                    <h3 class="text-lg font-bold mb-4 flex items-center">
+                        <i class="fas fa-fire text-orange-500 mr-2"></i>
+                        {% if lang == 'zh' %}热门文章{% elif lang == 'fr' %}Articles populaires{% else %}Popular Posts{% endif %}
+                    </h3>
+                    <div class="space-y-4">
+                        {% for pop_post in popular_posts %}
+                        <a href="/blog/{{ pop_post.slug }}" class="flex gap-3 group">
+                            <span class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center text-sm font-bold">
+                                {{ loop.index }}
+                            </span>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-medium text-gray-900 group-hover:text-purple-600 line-clamp-2">
+                                    {{ pop_post.get_title(lang) }}
+                                </h4>
+                                <span class="text-xs text-gray-400">{{ pop_post.view_count }} {% if lang == 'zh' %}阅读{% elif lang == 'fr' %}lectures{% else %}views{% endif %}</span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
+                    <h3 class="text-lg font-bold mb-4 flex items-center">
+                        <i class="fas fa-folder text-blue-500 mr-2"></i>
+                        {% if lang == 'zh' %}分类{% elif lang == 'fr' %}Catégories{% else %}Categories{% endif %}
+                    </h3>
+                    <div class="space-y-2">
+                        {% for cat in categories %}
+                        <a href="/blog?category={{ cat.name }}" 
+                           class="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                            <span class="text-sm">{{ cat.name|capitalize }}</span>
+                            <span class="text-xs bg-gray-100 px-2 py-1 rounded-full">{{ cat.count }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Newsletter CTA -->
+                <div class="bg-gradient-to-br from-purple-600 to-pink-500 rounded-xl p-6 text-white">
+                    <h3 class="text-lg font-bold mb-2">
+                        {% if lang == 'zh' %}订阅更新{% elif lang == 'fr' %}S'abonner{% else %}Stay Updated{% endif %}
+                    </h3>
+                    <p class="text-sm text-purple-100 mb-4">
+                        {% if lang == 'zh' %}获取最新文章和技巧{% elif lang == 'fr' %}Recevez les derniers articles{% else %}Get the latest articles and tips{% endif %}
+                    </p>
+                    <a href="/register" class="block text-center bg-white text-purple-600 font-medium py-2 px-4 rounded-lg hover:bg-purple-50 transition-colors">
+                        {% if lang == 'zh' %}免费开始{% elif lang == 'fr' %}Commencer gratuitement{% else %}Get Started Free{% endif %}
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <!-- Marked.js for Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</body>
+</html>

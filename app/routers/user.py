@@ -53,7 +53,7 @@ async def get_user_rate_limits(
         logger.error(f"获取用户配额失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
-            content={"success": False, "message": f"获取配额失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
 
 
@@ -106,7 +106,7 @@ async def get_user_tier_info(
         logger.error(f"获取用户等级失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
-            content={"success": False, "message": f"获取等级失败: {str(e)}"}
+            content={"success": False, "message": "操作失败，请稍后重试""}
         )
 
 

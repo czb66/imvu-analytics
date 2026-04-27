@@ -119,14 +119,14 @@ async def get_summary(
     
     start_time = time.time()
     user_id = current_user.get('id')
-    logger.info(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 开始")
+    logger.info(f"[API] 用户ID {current_user.get('id')} 获取汇总数据 - 开始")
     
     try:
         product_dicts = _get_cached_products(user_id=user_id)
         
         if not product_dicts:
             elapsed = time.time() - start_time
-            logger.info(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户ID {current_user.get('id')} 获取汇总数据 - 完成(无数据) 耗时: {elapsed:.3f}s")
             response.headers["X-Cache"] = "MISS"
             return {
                 "success": True,
@@ -151,7 +151,7 @@ async def get_summary(
         )
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 成功 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取汇总数据 - 成功 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "MISS"  # 汇总数据直接从产品数据计算
         
         return {
@@ -160,10 +160,10 @@ async def get_summary(
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 用户 {current_user.get('email')} 获取汇总数据 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户ID {current_user.get('id')} 获取汇总数据 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
-            "error": str(e),
+            "error": "操作失败，请稍后重试",
             "data": {
                 "total_sales": 0,
                 "total_profit": 0,
@@ -191,7 +191,7 @@ async def get_top_products(
     """
     start_time = time.time()
     user_id = current_user.get('id')
-    logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 limit={limit} metric={metric} - 开始")
+    logger.info(f"[API] 用户ID {current_user.get('id')} 获取Top产品 limit={limit} metric={metric} - 开始")
     
     # 尝试获取缓存的分析结果
     cache = get_cache()
@@ -200,7 +200,7 @@ async def get_top_products(
     
     if cached_result is not None:
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取Top产品 - 完成(缓存) 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "HIT"
         return {"success": True, "data": cached_result}
     
@@ -209,7 +209,7 @@ async def get_top_products(
         
         if not product_dicts:
             elapsed = time.time() - start_time
-            logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户ID {current_user.get('id')} 获取Top产品 - 完成(无数据) 耗时: {elapsed:.3f}s")
             response.headers["X-Cache"] = "MISS"
             return {"success": True, "data": []}
         
@@ -220,7 +220,7 @@ async def get_top_products(
         cache.set(cache_key, top_products, ttl=PRODUCTS_CACHE_TTL)
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取Top产品 - 成功 返回:{len(top_products)} 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取Top产品 - 成功 返回:{len(top_products)} 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "MISS"
         
         return {
@@ -229,8 +229,8 @@ async def get_top_products(
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 用户 {current_user.get('email')} 获取Top产品 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
-        return {"success": False, "error": str(e), "data": []}
+        logger.error(f"[API] 用户ID {current_user.get('id')} 获取Top产品 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        return {"success": False, "error": "操作失败，请稍后重试", "data": []}
 
 
 @router.get("/visibility")
@@ -241,7 +241,7 @@ async def get_visibility_analysis(
     """获取可见性分析（可见 vs 不可见产品对比）"""
     start_time = time.time()
     user_id = current_user.get('id')
-    logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 开始")
+    logger.info(f"[API] 用户ID {current_user.get('id')} 获取可见性分析 - 开始")
     
     # 尝试获取缓存
     cache = get_cache()
@@ -250,7 +250,7 @@ async def get_visibility_analysis(
     
     if cached_result is not None:
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取可见性分析 - 完成(缓存) 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "HIT"
         return {"success": True, "data": cached_result}
     
@@ -259,7 +259,7 @@ async def get_visibility_analysis(
         
         if not product_dicts:
             elapsed = time.time() - start_time
-            logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户ID {current_user.get('id')} 获取可见性分析 - 完成(无数据) 耗时: {elapsed:.3f}s")
             response.headers["X-Cache"] = "MISS"
             return {"success": True, "data": {}}
         
@@ -270,7 +270,7 @@ async def get_visibility_analysis(
         cache.set(cache_key, result, ttl=PRODUCTS_CACHE_TTL)
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 成功 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取可见性分析 - 成功 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "MISS"
         
         return {
@@ -279,8 +279,8 @@ async def get_visibility_analysis(
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 用户 {current_user.get('email')} 获取可见性分析 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
-        return {"success": False, "error": str(e), "data": {}}
+        logger.error(f"[API] 用户ID {current_user.get('id')} 获取可见性分析 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        return {"success": False, "error": "操作失败，请稍后重试", "data": {}}
 
 
 @router.get("/traffic")
@@ -291,7 +291,7 @@ async def get_traffic_analysis(
     """获取流量分析（自然流量 vs 付费流量）"""
     start_time = time.time()
     user_id = current_user.get('id')
-    logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 开始")
+    logger.info(f"[API] 用户ID {current_user.get('id')} 获取流量分析 - 开始")
     
     # 尝试获取缓存
     cache = get_cache()
@@ -300,7 +300,7 @@ async def get_traffic_analysis(
     
     if cached_result is not None:
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取流量分析 - 完成(缓存) 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "HIT"
         return {"success": True, "data": cached_result}
     
@@ -309,7 +309,7 @@ async def get_traffic_analysis(
         
         if not product_dicts:
             elapsed = time.time() - start_time
-            logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户ID {current_user.get('id')} 获取流量分析 - 完成(无数据) 耗时: {elapsed:.3f}s")
             response.headers["X-Cache"] = "MISS"
             return {"success": True, "data": {}}
         
@@ -320,7 +320,7 @@ async def get_traffic_analysis(
         cache.set(cache_key, result, ttl=PRODUCTS_CACHE_TTL)
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 成功 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取流量分析 - 成功 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "MISS"
         
         return {
@@ -329,8 +329,8 @@ async def get_traffic_analysis(
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 用户 {current_user.get('email')} 获取流量分析 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
-        return {"success": False, "error": str(e), "data": {}}
+        logger.error(f"[API] 用户ID {current_user.get('id')} 获取流量分析 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        return {"success": False, "error": "操作失败，请稍后重试", "data": {}}
 
 
 @router.get("/products")
@@ -352,7 +352,7 @@ async def get_products(
     """
     start_time = time.time()
     user_id = current_user.get('id')
-    logger.info(f"[API] 用户 {current_user.get('email')} 获取产品列表 visible={visible} product_id={product_id} limit={limit} offset={offset} - 开始")
+    logger.info(f"[API] 用户ID {current_user.get('id')} 获取产品列表 visible={visible} product_id={product_id} limit={limit} offset={offset} - 开始")
     
     try:
         with get_db_context() as db:
@@ -371,7 +371,7 @@ async def get_products(
         products = products[offset:offset + limit]
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取产品列表 - 成功 总数:{total} 返回:{len(products)} 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取产品列表 - 成功 总数:{total} 返回:{len(products)} 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "MISS"  # 直接查询不缓存
         
         return {
@@ -385,10 +385,10 @@ async def get_products(
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 用户 {current_user.get('email')} 获取产品列表 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户ID {current_user.get('id')} 获取产品列表 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
-            "error": str(e),
+            "error": "操作失败，请稍后重试",
             "data": {
                 "total": 0,
                 "limit": limit,
@@ -401,9 +401,9 @@ async def get_products(
 @router.post("/refresh")
 async def refresh_cache(current_user: dict = Depends(require_subscription)):
     """刷新仪表盘缓存"""
-    logger.info(f"[API] 用户 {current_user.get('email')} 刷新仪表盘缓存 - 开始")
+    logger.info(f"[API] 用户ID {current_user.get('id')} 刷新仪表盘缓存 - 开始")
     _clear_user_cache(user_id=current_user.get('id'))
-    logger.info(f"[API] 用户 {current_user.get('email')} 刷新仪表盘缓存 - 完成")
+    logger.info(f"[API] 用户ID {current_user.get('id')} 刷新仪表盘缓存 - 完成")
     return {"success": True, "message": "缓存已刷新"}
 
 
@@ -420,7 +420,7 @@ async def get_revenue_trend(
     """
     start_time = time.time()
     user_id = current_user.get('id')
-    logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 days={days} - 开始")
+    logger.info(f"[API] 用户ID {current_user.get('id')} 获取收入趋势 days={days} - 开始")
     
     # 尝试获取缓存
     cache = get_cache()
@@ -429,7 +429,7 @@ async def get_revenue_trend(
     
     if cached_result is not None:
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取收入趋势 - 完成(缓存) 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "HIT"
         return {"success": True, "data": cached_result}
     
@@ -450,7 +450,7 @@ async def get_revenue_trend(
             
             if not datasets_query:
                 elapsed = time.time() - start_time
-                logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(无数据) 耗时: {elapsed:.3f}s")
+                logger.info(f"[API] 用户ID {current_user.get('id')} 获取收入趋势 - 完成(无数据) 耗时: {elapsed:.3f}s")
                 result = {
                     "labels": [],
                     "values": [],
@@ -489,7 +489,7 @@ async def get_revenue_trend(
             
             if not upload_records:
                 elapsed = time.time() - start_time
-                logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 完成(无有效数据) 耗时: {elapsed:.3f}s")
+                logger.info(f"[API] 用户ID {current_user.get('id')} 获取收入趋势 - 完成(无有效数据) 耗时: {elapsed:.3f}s")
                 result = {
                     "labels": [],
                     "values": [],
@@ -564,7 +564,7 @@ async def get_revenue_trend(
             cache.set(cache_key, result, ttl=REVENUE_CACHE_TTL)
             
             elapsed = time.time() - start_time
-            logger.info(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 成功 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户ID {current_user.get('id')} 获取收入趋势 - 成功 耗时: {elapsed:.3f}s")
             response.headers["X-Cache"] = "MISS"
             
             return {
@@ -573,10 +573,10 @@ async def get_revenue_trend(
             }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 用户 {current_user.get('email')} 获取收入趋势 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户ID {current_user.get('id')} 获取收入趋势 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
-            "error": str(e),
+            "error": "操作失败，请稍后重试",
             "data": {
                 "labels": [],
                 "values": [],
@@ -604,7 +604,7 @@ async def get_products_detailed(
     """
     start_time = time.time()
     user_id = current_user.get('id')
-    logger.info(f"[API] 用户 {current_user.get('email')} 获取产品详情 limit={limit} sort_by={sort_by} - 开始")
+    logger.info(f"[API] 用户ID {current_user.get('id')} 获取产品详情 limit={limit} sort_by={sort_by} - 开始")
     
     # 尝试获取缓存
     cache = get_cache()
@@ -613,7 +613,7 @@ async def get_products_detailed(
     
     if cached_result is not None:
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取产品详情 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取产品详情 - 完成(缓存) 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "HIT"
         return {"success": True, "data": cached_result}
     
@@ -622,7 +622,7 @@ async def get_products_detailed(
         
         if not product_dicts:
             elapsed = time.time() - start_time
-            logger.info(f"[API] 用户 {current_user.get('email')} 获取产品详情 - 完成(无数据) 耗时: {elapsed:.3f}s")
+            logger.info(f"[API] 用户ID {current_user.get('id')} 获取产品详情 - 完成(无数据) 耗时: {elapsed:.3f}s")
             response.headers["X-Cache"] = "MISS"
             return {"success": True, "data": []}
         
@@ -660,7 +660,7 @@ async def get_products_detailed(
         cache.set(cache_key, top_products, ttl=PRODUCTS_CACHE_TTL)
         
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {current_user.get('email')} 获取产品详情 - 成功 返回:{len(top_products)} 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户ID {current_user.get('id')} 获取产品详情 - 成功 返回:{len(top_products)} 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "MISS"
         
         return {
@@ -669,5 +669,5 @@ async def get_products_detailed(
         }
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 用户 {current_user.get('email')} 获取产品详情 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
-        return {"success": False, "error": str(e), "data": []}
+        logger.error(f"[API] 用户ID {current_user.get('id')} 获取产品详情 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        return {"success": False, "error": "操作失败，请稍后重试", "data": []}

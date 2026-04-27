@@ -110,9 +110,9 @@ async def generate_report_html(
             return HTMLResponse(content=html, status_code=200)
     except Exception as e:
         import traceback
-        logger.error(f"生成报告失败: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"生成报告失败: {str(e)}\n{traceback.format_exc()}", exc_info=True)
         return HTMLResponse(
-            content=f"<html><body><h1>生成报告失败</h1><p>错误: {str(e)}</p><pre>{traceback.format_exc()}</pre></body></html>",
+            content="<html><body><h1>生成报告失败</h1><p>请稍后重试或联系支持</p></body></html>",
             status_code=500
         )
 
@@ -238,8 +238,8 @@ async def create_report(
         raise
     except Exception as e:
         import traceback
-        logger.error(f"创建报告失败: {str(e)}\n{traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"生成报告失败: {str(e)}")
+        logger.error(f"创建报告失败: {str(e)}\n{traceback.format_exc()}", exc_info=True)
+        raise HTTPException(status_code=500, detail="生成报告失败，请稍后重试")
 
 
 @router.get("/download/{filename}")
