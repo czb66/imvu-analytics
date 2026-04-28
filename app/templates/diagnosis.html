@@ -1202,7 +1202,7 @@
                     datasets: [{
                         label: t('diagnosis.productCount'),
                         data: data.map(d => d.count),
-                        backgroundColor: '#667eea'
+                        backgroundColor: '#2563eb'
                     }]
                 },
                 options: { responsive: true, plugins: { legend: { display: false } } }
@@ -1233,7 +1233,7 @@
                     labels: [t('dashboard.organicTraffic'), t('dashboard.paidTraffic')],
                     datasets: [{
                         data: [trafficData.organic?.total_impressions || 0, trafficData.paid?.total_impressions || 0],
-                        backgroundColor: ['#667eea', '#764ba2']
+                        backgroundColor: ['#2563eb', '#7c3aed']
                     }]
                 }
             });

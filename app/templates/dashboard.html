@@ -1936,7 +1936,7 @@
 
             topProductsChart = new Chart(document.getElementById('topProductsChart'), {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: t('dashboard.sales'), data: [], backgroundColor: '#667eea' }] },
+                data: { labels: [], datasets: [{ label: t('dashboard.sales'), data: [], backgroundColor: '#2563eb' }] },
                 options: { ...chartOptions }
             });
 
@@ -1948,7 +1948,7 @@
 
             trafficChart = new Chart(document.getElementById('trafficChart'), {
                 type: 'pie',
-                data: { labels: [t('dashboard.organicTraffic'), t('dashboard.paidTraffic')], datasets: [{ data: [0, 0], backgroundColor: ['#667eea', '#764ba2'] }] },
+                data: { labels: [t('dashboard.organicTraffic'), t('dashboard.paidTraffic')], datasets: [{ data: [0, 0], backgroundColor: ['#2563eb', '#7c3aed'] }] },
                 options: chartOptions
             });
 
@@ -1971,17 +1971,17 @@
                     datasets: [{
                         label: t('dashboard.revenue'),
                         data: [],
-                        borderColor: '#667eea',
+                        borderColor: '#2563eb',
                         backgroundColor: revenueGradient,
                         fill: true,
                         tension: 0.4,
                         borderWidth: 3,
-                        pointBackgroundColor: '#667eea',
+                        pointBackgroundColor: '#2563eb',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                         pointRadius: 5,
                         pointHoverRadius: 7,
-                        pointHoverBackgroundColor: '#764ba2',
+                        pointHoverBackgroundColor: '#7c3aed',
                         pointHoverBorderColor: '#fff',
                         pointHoverBorderWidth: 3
                     }]
@@ -2050,7 +2050,7 @@
                             backgroundColor: 'rgba(102, 126, 234, 0.95)',
                             titleColor: '#fff',
                             bodyColor: '#fff',
-                            borderColor: '#764ba2',
+                            borderColor: '#7c3aed',
                             borderWidth: 1,
                             cornerRadius: 8,
                             padding: 12,

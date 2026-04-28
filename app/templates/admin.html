@@ -1303,7 +1303,7 @@
                         {
                             label: 'PV',
                             data: pvData,
-                            borderColor: '#667eea',
+                            borderColor: '#2563eb',
                             backgroundColor: 'rgba(59, 130, 246, 0.15)',
                             tension: 0.4,
                             fill: true,
@@ -1866,8 +1866,8 @@
                             data: features.map(f => f.usage_count),
                             itemStyle: {
                                 color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-                                    { offset: 0, color: '#667eea' },
-                                    { offset: 1, color: '#764ba2' }
+                                    { offset: 0, color: '#2563eb' },
+                                    { offset: 1, color: '#7c3aed' }
                                 ]),
                                 borderRadius: [0, 4, 4, 0]
                             },
@@ -1958,7 +1958,7 @@
                                 data: retention.map(r => r.day1_retention),
                                 smooth: true,
                                 lineStyle: { width: 2 },
-                                itemStyle: { color: '#667eea' },
+                                itemStyle: { color: '#2563eb' },
                                 areaStyle: {
                                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                                         { offset: 0, color: 'rgba(102, 126, 234, 0.3)' },
@@ -2091,7 +2091,7 @@
 
         function getFunnelColor(index, total, position) {
             const colors = [
-                { start: '#667eea', end: '#764ba2' },  // Purple
+                { start: '#2563eb', end: '#7c3aed' },  // Purple
                 { start: '#eb2f96', end: '#f759ab' },  // Pink
                 { start: '#1890ff', end: '#69c0ff' },  // Blue
                 { start: '#52c41a', end: '#73d13d' },  // Green
