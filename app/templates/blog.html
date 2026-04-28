@@ -30,28 +30,47 @@
             --primary: #7c3aed;
             --primary-dark: #6d28d9;
             --secondary: #ec4899;
+            --dark: #1a1a2e;
+            --darker: #16213e;
         }
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #0f3460 100%) !important;
+        }
         .gradient-bg {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #0f3460 100%);
         }
         .card-hover {
             transition: transform 0.3s, box-shadow 0.3s;
         }
         .card-hover:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(124, 58, 237, 0.15);
-        }
-        .category-btn.active {
-            background: var(--primary);
-            color: white;
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15);
         }
         .featured-card {
-            background: linear-gradient(135deg, #1f1f3a 0%, #2d2d5a 100%);
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(22, 33, 62, 0.9)) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        
+        /* Blog card background */
+        .bg-white { background: rgba(26, 26, 46, 0.8) !important; }
+        .text-gray-900 { color: #fff !important; }
+        .text-gray-600 { color: rgba(255, 255, 255, 0.7) !important; }
+        .text-gray-400 { color: rgba(255, 255, 255, 0.5) !important; }
+        .text-gray-500 { color: rgba(255, 255, 255, 0.6) !important; }
+        .bg-gray-200 { background: rgba(255, 255, 255, 0.1) !important; color: rgba(255, 255, 255, 0.8) !important; }
+        .bg-purple-50 { background: rgba(102, 126, 234, 0.2) !important; }
+        .text-purple-600 { color: var(--primary) !important; }
+        .hover\:text-purple-600:hover { color: var(--primary) !important; }
+        .text-purple-100 { color: rgba(255, 255, 255, 0.7) !important; }
+        .text-orange-500 { color: #f97316 !important; }
+        .text-blue-500 { color: #3b82f6 !important; }
+        .border-gray-200 { border-color: rgba(255, 255, 255, 0.1) !important; }
+        .shadow-sm { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important; }
+        
         .reading-time {
             font-size: 0.85rem;
-            color: #9ca3af;
+            color: rgba(255, 255, 255, 0.5);
         }
     </style>
     

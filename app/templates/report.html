@@ -44,7 +44,49 @@
         :root {
             --primary: #667eea;
             --secondary: #764ba2;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+            --text-primary: #ffffff;
         }
+        
+        /* Global Dark Theme Override */
+        body {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #0f3460 100%) !important;
+            color: var(--text-primary) !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        /* Bootstrap Dark Overrides */
+        .card, .settings-card, .upload-card, .upload-zone, .loading-overlay {
+            background: rgba(26, 26, 46, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+        }
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+            color: #fff !important;
+        }
+        .form-control::placeholder { color: rgba(255,255,255,0.5) !important; }
+        .text-muted { color: rgba(255, 255, 255, 0.5) !important; }
+        .modal-content { background: rgba(26, 26, 46, 0.95) !important; color: #fff !important; }
+        .dropdown-menu { background: rgba(26, 26, 46, 0.95) !important; border-color: rgba(255, 255, 255, 0.1) !important; }
+        .dropdown-item { color: rgba(255, 255, 255, 0.75) !important; }
+        .dropdown-item:hover { background: rgba(255, 255, 255, 0.1) !important; }
+        .alert { border-color: rgba(255, 255, 255, 0.1) !important; }
+        
+        /* Sidebar - Dark Glass Effect */
+        .sidebar {
+            background: rgba(22, 33, 62, 0.95) !important;
+            backdrop-filter: blur(20px);
+        }
+        
+        /* Mobile Header - Dark */
+        .mobile-header {
+            background: rgba(22, 33, 62, 0.95) !important;
+            backdrop-filter: blur(20px);
+        }
+        
         body {
             background: #f5f7fa;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
