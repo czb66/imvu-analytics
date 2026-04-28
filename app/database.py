@@ -431,6 +431,21 @@ def _run_migrations(logger):
                 conn.commit()
                 logger.info("blog_posts 表创建成功")
             
+            # 迁移 15: 添加催款/支付失败挽回字段
+            dunning_columns = {
+                'dunning_status': 'VARCHAR(20) DEFAULT \'active\'',
+                'dunning_started_at': 'DATETIME',
+                'payment_failed_count': 'INTEGER DEFAULT 0',
+                'payment_retry_at': 'DATETIME',
+                'churn_risk_level': 'VARCHAR(10) DEFAULT \'low\''
+            }
+            for col_name, col_type in dunning_columns.items():
+                if col_name not in existing_columns:
+                    logger.info(f"正在添加 {col_name} 列到 users 表...")
+                    conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+            conn.commit()
+            logger.info("催款字段迁移完成")
+            
             logger.info("数据库迁移完成")
             
     except Exception as e:

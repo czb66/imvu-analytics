@@ -138,24 +138,31 @@ async def login(request: Request, login_request: LoginRequest, db: Session = Dep
     - **password**: 密码
     - **remember_me**: 记住我（延长Token有效期）
     """
-    auth_service = AuthService(db)
-    success, message, data = auth_service.login(
-        email=login_request.email,
-        password=login_request.password,
-        remember_me=login_request.remember_me
-    )
-    
-    if not success:
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content={"success": False, "message": message}
+    try:
+        auth_service = AuthService(db)
+        success, message, data = auth_service.login(
+            email=login_request.email,
+            password=login_request.password,
+            remember_me=login_request.remember_me
         )
-    
-    return {
-        "success": True,
-        "message": message,
-        "data": data
-    }
+        
+        if not success:
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={"success": False, "message": message}
+            )
+        
+        return {
+            "success": True,
+            "message": message,
+            "data": data
+        }
+    except Exception as e:
+        logger.error(f"登录异常: {e}", exc_info=True)
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"success": False, "message": "登录失败，请稍后重试"}
+        )
 
 
 @router.post("/logout")

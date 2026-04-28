@@ -75,6 +75,13 @@ class User(Base):
     onboarding_step = Column(Integer, default=0)  # 0=未开始, 1=步骤1完成, 2=步骤2完成, 3=全部完成
     onboarding_completed_at = Column(DateTime, nullable=True)  # 引导完成时间
     
+    # 催款/支付失败挽回字段
+    dunning_status = Column(String(20), default='active')  # active/past_due/canceled
+    dunning_started_at = Column(DateTime, nullable=True)
+    payment_failed_count = Column(Integer, default=0)
+    payment_retry_at = Column(DateTime, nullable=True)
+    churn_risk_level = Column(String(10), default='low')  # low/medium/high
+    
     # 关联数据
     datasets = relationship("Dataset", back_populates="owner", cascade="all, delete-orphan")
     
