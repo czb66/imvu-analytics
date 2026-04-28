@@ -163,7 +163,7 @@ async def login(request: Request, login_request: LoginRequest, db: Session = Dep
         logger.error(f"登录异常: {e}\n{error_detail}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": f"登录失败: {str(e)}", "debug": error_detail}
+            content={"success": False, "message": "登录失败，请稍后重试"}
         )
 
 

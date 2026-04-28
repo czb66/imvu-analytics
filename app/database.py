@@ -54,8 +54,44 @@ def init_db():
 
 
 def _run_migrations(logger):
-    """执行数据库迁移 - 添加缺失的列"""
+    """执行数据库迁移 - 添加缺失的列
+    
+    核心原则：每个迁移步骤独立 try/except，一个失败不影响后续迁移。
+    这是因为之前的单 try/except 导致某个迁移报错后，后续所有迁移全部跳过，
+    造成生产数据库大量列缺失。
+    """
     from sqlalchemy import text, inspect
+    
+    is_sqlite = "sqlite" in config.DATABASE_URL
+    
+    def _add_column(conn, table, col_name, col_type, existing_cols):
+        """安全添加列，已存在则跳过，失败则记录但不中断"""
+        if col_name in existing_cols:
+            return existing_cols
+        try:
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}"))
+            conn.commit()
+            logger.info(f"{table}.{col_name} 列添加成功")
+            # 刷新列列表
+            return existing_cols + [col_name]
+        except Exception as e:
+            logger.warning(f"添加 {table}.{col_name} 列失败: {e}")
+            conn.rollback()
+            return existing_cols
+    
+    def _create_table(conn, table_name, sqlite_ddl, postgres_ddl, table_names):
+        """安全创建表，已存在则跳过"""
+        if table_name in table_names:
+            return table_names
+        try:
+            conn.execute(text(sqlite_ddl if is_sqlite else postgres_ddl))
+            conn.commit()
+            logger.info(f"{table_name} 表创建成功")
+            return table_names + [table_name]
+        except Exception as e:
+            logger.warning(f"创建 {table_name} 表失败: {e}")
+            conn.rollback()
+            return table_names
     
     try:
         with engine.connect() as conn:
@@ -67,389 +103,310 @@ def _run_migrations(logger):
                 logger.info("users 表不存在，跳过迁移")
                 return
             
-            # 获取 users 表现有的列
+            # 获取 users 表现有的列（会在迁移过程中动态更新）
             existing_columns = [col['name'] for col in inspector.get_columns('users')]
+            logger.info(f"users 表当前有 {len(existing_columns)} 列: {existing_columns}")
             
-            # 迁移 1: 添加 is_whitelisted 列
-            if 'is_whitelisted' not in existing_columns:
-                logger.info("正在添加 is_whitelisted 列到 users 表...")
-                if "sqlite" in config.DATABASE_URL:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN is_whitelisted BOOLEAN DEFAULT 0"))
-                else:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN is_whitelisted BOOLEAN DEFAULT FALSE"))
-                conn.commit()
-                logger.info("is_whitelisted 列添加成功")
+            # ====== 迁移 1: 添加 is_whitelisted 列 ======
+            existing_columns = _add_column(conn, 'users', 'is_whitelisted',
+                'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE',
+                existing_columns)
             
-            # 迁移 2: 添加 trial_end_date 列（7天免费试用）
-            if 'trial_end_date' not in existing_columns:
-                logger.info("正在添加 trial_end_date 列到 users 表...")
-                conn.execute(text("ALTER TABLE users ADD COLUMN trial_end_date TIMESTAMP"))
-                conn.commit()
-                logger.info("trial_end_date 列添加成功")
+            # ====== 迁移 2: 添加 trial_end_date 列 ======
+            existing_columns = _add_column(conn, 'users', 'trial_end_date', 'TIMESTAMP', existing_columns)
             
-            # 迁移 3: 添加推荐系统字段
-            if 'referral_code' not in existing_columns:
-                logger.info("正在添加 referral_code 列到 users 表...")
-                conn.execute(text("ALTER TABLE users ADD COLUMN referral_code VARCHAR(20)"))
-                conn.commit()
-                logger.info("referral_code 列添加成功")
-            
-            if 'referred_by' not in existing_columns:
-                logger.info("正在添加 referred_by 列到 users 表...")
-                conn.execute(text("ALTER TABLE users ADD COLUMN referred_by VARCHAR(20)"))
-                conn.commit()
-                logger.info("referred_by 列添加成功")
+            # ====== 迁移 3: 添加推荐系统字段 ======
+            existing_columns = _add_column(conn, 'users', 'referral_code', 'VARCHAR(20)', existing_columns)
+            existing_columns = _add_column(conn, 'users', 'referred_by', 'VARCHAR(20)', existing_columns)
             
             # 为已有用户生成推荐码
-            logger.info("正在为已有用户生成推荐码...")
-            users = conn.execute(text("SELECT id, referral_code FROM users WHERE referral_code IS NULL")).fetchall()
-            if users:
-                import secrets
-                import string
-                chars = string.ascii_uppercase + string.digits
-                chars = chars.replace('O', '').replace('0', '').replace('I', '').replace('1', '').replace('L', '')
-                
-                for user_id, _ in users:
-                    # 生成唯一推荐码
-                    code = ''.join(secrets.choice(chars) for _ in range(8))
-                    # 检查是否已存在
-                    while conn.execute(text("SELECT id FROM users WHERE referral_code = :code"), {"code": code}).fetchone():
-                        code = ''.join(secrets.choice(chars) for _ in range(8))
-                    conn.execute(text("UPDATE users SET referral_code = :code WHERE id = :id"), {"code": code, "id": user_id})
+            try:
+                if 'referral_code' in existing_columns:
+                    users = conn.execute(text("SELECT id, referral_code FROM users WHERE referral_code IS NULL")).fetchall()
+                    if users:
+                        import secrets
+                        import string
+                        chars = string.ascii_uppercase + string.digits
+                        chars = chars.replace('O', '').replace('0', '').replace('I', '').replace('1', '').replace('L', '')
+                        for user_id, _ in users:
+                            code = ''.join(secrets.choice(chars) for _ in range(8))
+                            while conn.execute(text("SELECT id FROM users WHERE referral_code = :code"), {"code": code}).fetchone():
+                                code = ''.join(secrets.choice(chars) for _ in range(8))
+                            conn.execute(text("UPDATE users SET referral_code = :code WHERE id = :id"), {"code": code, "id": user_id})
+                        conn.commit()
+                        logger.info(f"已为 {len(users)} 个用户生成推荐码")
+            except Exception as e:
+                logger.warning(f"生成推荐码失败: {e}")
+                conn.rollback()
+            
+            # ====== 迁移 4: 检查 promo_card_stats 表 ======
+            try:
+                if 'promo_card_stats' in table_names:
+                    promo_card_columns = [col['name'] for col in inspector.get_columns('promo_card_stats')]
+                    columns_to_add = [
+                        ('card_title', 'VARCHAR(255)'), ('card_subtitle', 'VARCHAR(255)'),
+                        ('card_intro', 'TEXT'), ('card_footer', 'TEXT'),
+                        ('style', 'VARCHAR(50)'), ('color', 'VARCHAR(50)'),
+                        ('product_count', 'INTEGER DEFAULT 0'), ('products_json', 'TEXT'),
+                        ('total_clicks', 'INTEGER DEFAULT 0'), ('last_click_at', 'TIMESTAMP'),
+                        ('user_id', 'INTEGER'), ('session_id', 'VARCHAR(100)'),
+                        ('ip_address', 'VARCHAR(50)'),
+                        ('created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP'),
+                        ('updated_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP'),
+                    ]
+                    for col_name, col_type in columns_to_add:
+                        promo_card_columns = _add_column(conn, 'promo_card_stats', col_name, col_type, promo_card_columns)
+            except Exception as e:
+                logger.warning(f"promo_card_stats 迁移失败: {e}")
+                conn.rollback()
+            
+            # ====== 迁移 5: 创建 user_activities 表 ======
+            table_names = _create_table(conn, 'user_activities',
+                """CREATE TABLE user_activities (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    action VARCHAR(50) NOT NULL,
+                    resource_type VARCHAR(50),
+                    resource_id INTEGER,
+                    extra_data TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
+                )""",
+                """CREATE TABLE user_activities (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER REFERENCES users(id),
+                    action VARCHAR(50) NOT NULL,
+                    resource_type VARCHAR(50),
+                    resource_id INTEGER,
+                    extra_data JSONB,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )""",
+                table_names)
+            # 索引
+            try:
+                for idx in ['ix_user_activities_user_id', 'ix_user_activities_action', 'ix_user_activities_created_at']:
+                    conn.execute(text(f"CREATE INDEX IF NOT EXISTS {idx} ON user_activities ({idx.replace('ix_user_activities_', '')})"))
                 conn.commit()
-                logger.info(f"已为 {len(users)} 个用户生成推荐码")
+            except Exception as e:
+                logger.warning(f"user_activities 索引创建失败（可能已存在）: {e}")
+                conn.rollback()
             
-            # 迁移 4: 检查 promo_card_stats 表
-            if 'promo_card_stats' in table_names:
-                promo_card_columns = [col['name'] for col in inspector.get_columns('promo_card_stats')]
-                
-                # 所有可能缺失的列
-                columns_to_add = [
-                    ('card_title', 'VARCHAR(255)'),
-                    ('card_subtitle', 'VARCHAR(255)'),
-                    ('card_intro', 'TEXT'),
-                    ('card_footer', 'TEXT'),
-                    ('style', 'VARCHAR(50)'),
-                    ('color', 'VARCHAR(50)'),
-                    ('product_count', 'INTEGER DEFAULT 0'),
-                    ('products_json', 'TEXT'),
-                    ('total_clicks', 'INTEGER DEFAULT 0'),
-                    ('last_click_at', 'TIMESTAMP'),
-                    ('user_id', 'INTEGER'),
-                    ('session_id', 'VARCHAR(100)'),
-                    ('ip_address', 'VARCHAR(50)'),
-                    ('created_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP'),
-                    ('updated_at', 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP'),
-                ]
-                
-                for col_name, col_type in columns_to_add:
-                    if col_name not in promo_card_columns:
-                        logger.info(f"正在添加 {col_name} 列到 promo_card_stats 表...")
-                        try:
-                            conn.execute(text(f"ALTER TABLE promo_card_stats ADD COLUMN {col_name} {col_type}"))
-                            conn.commit()
-                            logger.info(f"{col_name} 列添加成功")
-                        except Exception as col_err:
-                            logger.warning(f"添加 {col_name} 列失败（可能已存在）: {col_err}")
+            # ====== 迁移 6: 添加 report_preference 字段 ======
+            existing_columns = _add_column(conn, 'users', 'report_preference', "VARCHAR(20) DEFAULT 'weekly'", existing_columns)
             
-            # 迁移 3: 检查 promo_card_clicks 表
-            if 'promo_card_clicks' not in table_names:
-                logger.info("promo_card_clicks 表不存在，将由 create_all 创建")
-            
-            # 迁移 4: 创建 user_activities 表（用户行为追踪）
-            if 'user_activities' not in table_names:
-                logger.info("正在创建 user_activities 表...")
-                if "sqlite" in config.DATABASE_URL:
-                    conn.execute(text("""
-                        CREATE TABLE user_activities (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            user_id INTEGER,
-                            action VARCHAR(50) NOT NULL,
-                            resource_type VARCHAR(50),
-                            resource_id INTEGER,
-                            extra_data TEXT,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            FOREIGN KEY (user_id) REFERENCES users (id)
-                        )
-                    """))
-                    # SQLite 需要单独创建索引
-                    conn.execute(text("CREATE INDEX ix_user_activities_user_id ON user_activities (user_id)"))
-                    conn.execute(text("CREATE INDEX ix_user_activities_action ON user_activities (action)"))
-                    conn.execute(text("CREATE INDEX ix_user_activities_created_at ON user_activities (created_at)"))
-                else:
-                    conn.execute(text("""
-                        CREATE TABLE user_activities (
-                            id SERIAL PRIMARY KEY,
-                            user_id INTEGER REFERENCES users(id),
-                            action VARCHAR(50) NOT NULL,
-                            resource_type VARCHAR(50),
-                            resource_id INTEGER,
-                            extra_data JSONB,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )
-                    """))
-                    conn.execute(text("CREATE INDEX ix_user_activities_user_id ON user_activities (user_id)"))
-                    conn.execute(text("CREATE INDEX ix_user_activities_action ON user_activities (action)"))
-                    conn.execute(text("CREATE INDEX ix_user_activities_created_at ON user_activities (created_at)"))
-                conn.commit()
-                logger.info("user_activities 表创建成功")
-            
-            # 迁移 5: 添加 report_preference 字段
-            if 'report_preference' not in existing_columns:
-                logger.info("正在添加 report_preference 列到 users 表...")
-                if "sqlite" in config.DATABASE_URL:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN report_preference VARCHAR(20) DEFAULT 'weekly'"))
-                else:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN report_preference VARCHAR(20) DEFAULT 'weekly'"))
-                conn.commit()
-                logger.info("report_preference 列添加成功")
-            
-            # 迁移 6: 添加订阅到期提醒字段
+            # ====== 迁移 7: 添加订阅到期提醒字段 ======
             reminder_fields = [
-                ('reminder_3day_sent', 'BOOLEAN DEFAULT 0'),
-                ('reminder_1day_sent', 'BOOLEAN DEFAULT 0'),
-                ('reminder_recall_sent', 'BOOLEAN DEFAULT 0'),
-                ('trial_reminder_3day_sent', 'BOOLEAN DEFAULT 0'),
-                ('trial_reminder_1day_sent', 'BOOLEAN DEFAULT 0'),
-                ('trial_reminder_recall_sent', 'BOOLEAN DEFAULT 0'),
+                ('reminder_3day_sent', 'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE'),
+                ('reminder_1day_sent', 'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE'),
+                ('reminder_recall_sent', 'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE'),
+                ('trial_reminder_3day_sent', 'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE'),
+                ('trial_reminder_1day_sent', 'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE'),
+                ('trial_reminder_recall_sent', 'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE'),
             ]
-            
             for col_name, col_type in reminder_fields:
-                if col_name not in existing_columns:
-                    logger.info(f"正在添加 {col_name} 列到 users 表...")
-                    if "sqlite" in config.DATABASE_URL:
-                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} BOOLEAN DEFAULT 0"))
-                    else:
-                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} BOOLEAN DEFAULT FALSE"))
-                    conn.commit()
-                    logger.info(f"{col_name} 列添加成功")
+                existing_columns = _add_column(conn, 'users', col_name, col_type, existing_columns)
             
-            # 迁移 7: 添加 last_reminder_sent 字段
-            if 'last_reminder_sent' not in existing_columns:
-                logger.info("正在添加 last_reminder_sent 列到 users 表...")
-                conn.execute(text("ALTER TABLE users ADD COLUMN last_reminder_sent TIMESTAMP"))
-                conn.commit()
-                logger.info("last_reminder_sent 列添加成功")
+            # ====== 迁移 8: 添加 last_reminder_sent 字段 ======
+            existing_columns = _add_column(conn, 'users', 'last_reminder_sent', 'TIMESTAMP', existing_columns)
             
-            # 迁移 8: 添加防刷机制字段
+            # ====== 迁移 9: 添加防刷机制字段 ======
             antifraud_fields = [
-                ('referral_reward_pending', 'BOOLEAN DEFAULT 0'),
+                ('referral_reward_pending', 'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE'),
                 ('referral_rewarded_at', 'TIMESTAMP'),
-                ('referral_suspended', 'BOOLEAN DEFAULT 0'),
+                ('referral_suspended', 'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE'),
             ]
-            
             for col_name, col_type in antifraud_fields:
-                if col_name not in existing_columns:
-                    logger.info(f"正在添加 {col_name} 列到 users 表...")
-                    if "sqlite" in config.DATABASE_URL:
-                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
-                    else:
-                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
-                    conn.commit()
-                    logger.info(f"{col_name} 列添加成功")
+                existing_columns = _add_column(conn, 'users', col_name, col_type, existing_columns)
             
-            # 迁移 9: 添加 opt_out_benchmark 字段
-            if 'opt_out_benchmark' not in existing_columns:
-                logger.info("正在添加 opt_out_benchmark 列到 users 表...")
-                if "sqlite" in config.DATABASE_URL:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN opt_out_benchmark BOOLEAN DEFAULT 0"))
-                else:
-                    conn.execute(text("ALTER TABLE users ADD COLUMN opt_out_benchmark BOOLEAN DEFAULT FALSE"))
+            # ====== 迁移 10: 添加 opt_out_benchmark 字段 ======
+            existing_columns = _add_column(conn, 'users', 'opt_out_benchmark',
+                'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE',
+                existing_columns)
+            
+            # ====== 迁移 11: 创建 industry_benchmarks 表 ======
+            table_names = _create_table(conn, 'industry_benchmarks',
+                """CREATE TABLE industry_benchmarks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    category VARCHAR(100) NOT NULL,
+                    metric VARCHAR(50) NOT NULL,
+                    value FLOAT NOT NULL,
+                    percentile_25 FLOAT,
+                    percentile_50 FLOAT,
+                    percentile_75 FLOAT,
+                    percentile_90 FLOAT,
+                    sample_size INTEGER DEFAULT 0,
+                    is_sufficient BOOLEAN DEFAULT 0,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )""",
+                """CREATE TABLE industry_benchmarks (
+                    id SERIAL PRIMARY KEY,
+                    category VARCHAR(100) NOT NULL,
+                    metric VARCHAR(50) NOT NULL,
+                    value FLOAT NOT NULL,
+                    percentile_25 FLOAT,
+                    percentile_50 FLOAT,
+                    percentile_75 FLOAT,
+                    percentile_90 FLOAT,
+                    sample_size INTEGER DEFAULT 0,
+                    is_sufficient BOOLEAN DEFAULT FALSE,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )""",
+                table_names)
+            try:
+                conn.execute(text("CREATE INDEX IF NOT EXISTS ix_industry_benchmarks_category ON industry_benchmarks (category)"))
                 conn.commit()
-                logger.info("opt_out_benchmark 列添加成功")
+            except Exception as e:
+                logger.warning(f"industry_benchmarks 索引创建失败: {e}")
+                conn.rollback()
             
-            # 迁移 10: 创建 industry_benchmarks 表
-            if 'industry_benchmarks' not in table_names:
-                logger.info("正在创建 industry_benchmarks 表...")
-                if "sqlite" in config.DATABASE_URL:
-                    conn.execute(text("""
-                        CREATE TABLE industry_benchmarks (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            category VARCHAR(100) NOT NULL,
-                            metric VARCHAR(50) NOT NULL,
-                            value FLOAT NOT NULL,
-                            percentile_25 FLOAT,
-                            percentile_50 FLOAT,
-                            percentile_75 FLOAT,
-                            percentile_90 FLOAT,
-                            sample_size INTEGER DEFAULT 0,
-                            is_sufficient BOOLEAN DEFAULT 0,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )
-                    """))
-                    conn.execute(text("CREATE INDEX ix_industry_benchmarks_category ON industry_benchmarks (category)"))
-                else:
-                    conn.execute(text("""
-                        CREATE TABLE industry_benchmarks (
-                            id SERIAL PRIMARY KEY,
-                            category VARCHAR(100) NOT NULL,
-                            metric VARCHAR(50) NOT NULL,
-                            value FLOAT NOT NULL,
-                            percentile_25 FLOAT,
-                            percentile_50 FLOAT,
-                            percentile_75 FLOAT,
-                            percentile_90 FLOAT,
-                            sample_size INTEGER DEFAULT 0,
-                            is_sufficient BOOLEAN DEFAULT FALSE,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )
-                    """))
-                    conn.execute(text("CREATE INDEX ix_industry_benchmarks_category ON industry_benchmarks (category)"))
-                conn.commit()
-                logger.info("industry_benchmarks 表创建成功")
-            
-            # 迁移 11: 添加 onboarding 引导流程字段
+            # ====== 迁移 12: 添加 onboarding 引导流程字段 ======
             onboarding_fields = [
                 ('onboarding_step', 'INTEGER DEFAULT 0'),
                 ('onboarding_completed_at', 'TIMESTAMP'),
             ]
-            
             for col_name, col_type in onboarding_fields:
-                if col_name not in existing_columns:
-                    logger.info(f"正在添加 {col_name} 列到 users 表...")
-                    conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
-                    conn.commit()
-                    logger.info(f"{col_name} 列添加成功")
+                existing_columns = _add_column(conn, 'users', col_name, col_type, existing_columns)
             
-            # 迁移 12: 添加推荐里程碑字段
+            # ====== 迁移 13: 添加推荐里程碑字段 ======
             milestone_fields = [
                 ('referral_milestone', 'INTEGER DEFAULT 0'),
-                ('referral_milestone_claimed', 'BOOLEAN DEFAULT 0'),
-                ('referral_anonymous', 'BOOLEAN DEFAULT 0'),
+                ('referral_milestone_claimed', 'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE'),
+                ('referral_anonymous', 'BOOLEAN DEFAULT 0' if is_sqlite else 'BOOLEAN DEFAULT FALSE'),
             ]
-            
             for col_name, col_type in milestone_fields:
-                if col_name not in existing_columns:
-                    logger.info(f"正在添加 {col_name} 列到 users 表...")
-                    if "sqlite" in config.DATABASE_URL:
-                        default_val = "0" if "DEFAULT" not in col_type else ""
-                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
-                    else:
-                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
-                    conn.commit()
-                    logger.info(f"{col_name} 列添加成功")
+                existing_columns = _add_column(conn, 'users', col_name, col_type, existing_columns)
             
-            # 迁移 13: 创建 user_feedback 表（NPS和反馈）
-            if 'user_feedback' not in table_names:
-                logger.info("正在创建 user_feedback 表...")
-                if "sqlite" in config.DATABASE_URL:
-                    conn.execute(text("""
-                        CREATE TABLE user_feedback (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            user_id INTEGER NOT NULL,
-                            nps_score INTEGER,
-                            feedback_type VARCHAR(20),
-                            content TEXT,
-                            page_url VARCHAR(500),
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )
-                    """))
-                    conn.execute(text("CREATE INDEX ix_user_feedback_user_id ON user_feedback (user_id)"))
-                    conn.execute(text("CREATE INDEX ix_user_feedback_created_at ON user_feedback (created_at)"))
-                else:
-                    conn.execute(text("""
-                        CREATE TABLE user_feedback (
-                            id SERIAL PRIMARY KEY,
-                            user_id INTEGER NOT NULL REFERENCES users(id),
-                            nps_score INTEGER,
-                            feedback_type VARCHAR(20),
-                            content TEXT,
-                            page_url VARCHAR(500),
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )
-                    """))
-                    conn.execute(text("CREATE INDEX ix_user_feedback_user_id ON user_feedback (user_id)"))
-                    conn.execute(text("CREATE INDEX ix_user_feedback_created_at ON user_feedback (created_at)"))
+            # ====== 迁移 14: 创建 user_feedback 表 ======
+            table_names = _create_table(conn, 'user_feedback',
+                """CREATE TABLE user_feedback (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    nps_score INTEGER,
+                    feedback_type VARCHAR(20),
+                    content TEXT,
+                    page_url VARCHAR(500),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )""",
+                """CREATE TABLE user_feedback (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    nps_score INTEGER,
+                    feedback_type VARCHAR(20),
+                    content TEXT,
+                    page_url VARCHAR(500),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )""",
+                table_names)
+            try:
+                for idx in ['ix_user_feedback_user_id', 'ix_user_feedback_created_at']:
+                    conn.execute(text(f"CREATE INDEX IF NOT EXISTS {idx} ON user_feedback ({idx.replace('ix_user_feedback_', '')})"))
                 conn.commit()
-                logger.info("user_feedback 表创建成功")
+            except Exception as e:
+                logger.warning(f"user_feedback 索引创建失败: {e}")
+                conn.rollback()
             
-            # 迁移 14: 创建 blog_posts 表（博客系统）
-            if 'blog_posts' not in table_names:
-                logger.info("正在创建 blog_posts 表...")
-                if "sqlite" in config.DATABASE_URL:
-                    conn.execute(text("""
-                        CREATE TABLE blog_posts (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            slug VARCHAR(200) UNIQUE NOT NULL,
-                            title_en VARCHAR(200) NOT NULL,
-                            title_zh VARCHAR(200),
-                            title_fr VARCHAR(200),
-                            content_en TEXT NOT NULL,
-                            content_zh TEXT,
-                            content_fr TEXT,
-                            excerpt_en VARCHAR(500),
-                            excerpt_zh VARCHAR(500),
-                            excerpt_fr VARCHAR(500),
-                            category VARCHAR(50),
-                            cover_image VARCHAR(500),
-                            meta_title VARCHAR(200),
-                            meta_description VARCHAR(500),
-                            is_published BOOLEAN DEFAULT 0,
-                            published_at TIMESTAMP,
-                            author VARCHAR(100) DEFAULT 'IMVU Analytics Team',
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            view_count INTEGER DEFAULT 0,
-                            is_featured BOOLEAN DEFAULT 0
-                        )
-                    """))
-                    conn.execute(text("CREATE INDEX ix_blog_posts_slug ON blog_posts (slug)"))
-                    conn.execute(text("CREATE INDEX ix_blog_posts_category ON blog_posts (category)"))
-                    conn.execute(text("CREATE INDEX ix_blog_posts_published ON blog_posts (is_published)"))
-                    conn.execute(text("CREATE INDEX ix_blog_posts_view_count ON blog_posts (view_count)"))
-                else:
-                    conn.execute(text("""
-                        CREATE TABLE blog_posts (
-                            id SERIAL PRIMARY KEY,
-                            slug VARCHAR(200) UNIQUE NOT NULL,
-                            title_en VARCHAR(200) NOT NULL,
-                            title_zh VARCHAR(200),
-                            title_fr VARCHAR(200),
-                            content_en TEXT NOT NULL,
-                            content_zh TEXT,
-                            content_fr TEXT,
-                            excerpt_en VARCHAR(500),
-                            excerpt_zh VARCHAR(500),
-                            excerpt_fr VARCHAR(500),
-                            category VARCHAR(50),
-                            cover_image VARCHAR(500),
-                            meta_title VARCHAR(200),
-                            meta_description VARCHAR(500),
-                            is_published BOOLEAN DEFAULT FALSE,
-                            published_at TIMESTAMP,
-                            author VARCHAR(100) DEFAULT 'IMVU Analytics Team',
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            view_count INTEGER DEFAULT 0,
-                            is_featured BOOLEAN DEFAULT FALSE
-                        )
-                    """))
-                    conn.execute(text("CREATE INDEX ix_blog_posts_slug ON blog_posts (slug)"))
-                    conn.execute(text("CREATE INDEX ix_blog_posts_category ON blog_posts (category)"))
-                    conn.execute(text("CREATE INDEX ix_blog_posts_published ON blog_posts (is_published)"))
-                    conn.execute(text("CREATE INDEX ix_blog_posts_view_count ON blog_posts (view_count)"))
+            # ====== 迁移 15: 创建 blog_posts 表 ======
+            table_names = _create_table(conn, 'blog_posts',
+                """CREATE TABLE blog_posts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    slug VARCHAR(200) UNIQUE NOT NULL,
+                    title_en VARCHAR(200) NOT NULL,
+                    title_zh VARCHAR(200),
+                    title_fr VARCHAR(200),
+                    content_en TEXT NOT NULL,
+                    content_zh TEXT,
+                    content_fr TEXT,
+                    excerpt_en VARCHAR(500),
+                    excerpt_zh VARCHAR(500),
+                    excerpt_fr VARCHAR(500),
+                    category VARCHAR(50),
+                    cover_image VARCHAR(500),
+                    meta_title VARCHAR(200),
+                    meta_description VARCHAR(500),
+                    is_published BOOLEAN DEFAULT 0,
+                    published_at TIMESTAMP,
+                    author VARCHAR(100) DEFAULT 'IMVU Analytics Team',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    view_count INTEGER DEFAULT 0,
+                    is_featured BOOLEAN DEFAULT 0
+                )""",
+                """CREATE TABLE blog_posts (
+                    id SERIAL PRIMARY KEY,
+                    slug VARCHAR(200) UNIQUE NOT NULL,
+                    title_en VARCHAR(200) NOT NULL,
+                    title_zh VARCHAR(200),
+                    title_fr VARCHAR(200),
+                    content_en TEXT NOT NULL,
+                    content_zh TEXT,
+                    content_fr TEXT,
+                    excerpt_en VARCHAR(500),
+                    excerpt_zh VARCHAR(500),
+                    excerpt_fr VARCHAR(500),
+                    category VARCHAR(50),
+                    cover_image VARCHAR(500),
+                    meta_title VARCHAR(200),
+                    meta_description VARCHAR(500),
+                    is_published BOOLEAN DEFAULT FALSE,
+                    published_at TIMESTAMP,
+                    author VARCHAR(100) DEFAULT 'IMVU Analytics Team',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    view_count INTEGER DEFAULT 0,
+                    is_featured BOOLEAN DEFAULT FALSE
+                )""",
+                table_names)
+            try:
+                for col in ['slug', 'category', 'is_published', 'view_count']:
+                    conn.execute(text(f"CREATE INDEX IF NOT EXISTS ix_blog_posts_{col} ON blog_posts ({col})"))
                 conn.commit()
-                logger.info("blog_posts 表创建成功")
+            except Exception as e:
+                logger.warning(f"blog_posts 索引创建失败: {e}")
+                conn.rollback()
             
-            # 迁移 15: 添加催款/支付失败挽回字段
-            dunning_columns = {
-                'dunning_status': 'VARCHAR(20) DEFAULT \'active\'',
-                'dunning_started_at': 'DATETIME',
-                'payment_failed_count': 'INTEGER DEFAULT 0',
-                'payment_retry_at': 'DATETIME',
-                'churn_risk_level': 'VARCHAR(10) DEFAULT \'low\''
-            }
-            for col_name, col_type in dunning_columns.items():
-                if col_name not in existing_columns:
-                    logger.info(f"正在添加 {col_name} 列到 users 表...")
-                    conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
-            conn.commit()
-            logger.info("催款字段迁移完成")
+            # ====== 迁移 16: 添加催款/支付失败挽回字段 ======
+            dunning_columns = [
+                ('dunning_status', "VARCHAR(20) DEFAULT 'active'"),
+                ('dunning_started_at', 'TIMESTAMP'),
+                ('payment_failed_count', 'INTEGER DEFAULT 0'),
+                ('payment_retry_at', 'TIMESTAMP'),
+                ('churn_risk_level', "VARCHAR(10) DEFAULT 'low'"),
+            ]
+            for col_name, col_type in dunning_columns:
+                existing_columns = _add_column(conn, 'users', col_name, col_type, existing_columns)
             
-            logger.info("数据库迁移完成")
+            # ====== 最终验证：检查User模型定义的所有列是否都在数据库中 ======
+            from app.models import User as UserModel
+            model_columns = [c.name for c in UserModel.__table__.columns]
+            missing_columns = [c for c in model_columns if c not in existing_columns]
+            if missing_columns:
+                logger.error(f"迁移完成后仍有缺失列: {missing_columns}，尝试逐个添加...")
+                for col in missing_columns:
+                    col_obj = UserModel.__table__.columns[col]
+                    col_type_str = str(col_obj.type)
+                    default_val = None
+                    if col_obj.default is not None:
+                        default_val = col_obj.default.arg
+                    col_ddl = f"{col_type_str}"
+                    if default_val is not None:
+                        if isinstance(default_val, str):
+                            col_ddl += f" DEFAULT '{default_val}'"
+                        elif isinstance(default_val, bool):
+                            col_ddl += f" DEFAULT {'1' if is_sqlite else 'TRUE' if default_val else '0' if is_sqlite else 'FALSE'}"
+                        elif isinstance(default_val, int):
+                            col_ddl += f" DEFAULT {default_val}"
+                    try:
+                        conn.execute(text(f"ALTER TABLE users ADD COLUMN {col} {col_ddl}"))
+                        conn.commit()
+                        logger.info(f"补充添加缺失列 {col} 成功")
+                    except Exception as e:
+                        logger.error(f"补充添加缺失列 {col} 失败: {e}")
+                        conn.rollback()
+            else:
+                logger.info(f"数据库迁移完成，users 表共 {len(model_columns)} 列全部就绪")
             
     except Exception as e:
-        logger.warning(f"数据库迁移失败（可能已存在）: {e}")
+        logger.error(f"数据库迁移外层异常: {e}")
 
 
 def get_db() -> Generator[Session, None, None]:
