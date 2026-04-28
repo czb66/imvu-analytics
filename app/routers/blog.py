@@ -13,13 +13,18 @@ import logging
 import math
 
 from app.database import get_db
-from app.services.auth import get_current_user, get_optional_user
+from app.services.auth import get_current_user
 from app.services.admin import require_admin
 import config
-from app.main import templates
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/blog", tags=["博客"])
+
+
+def _get_templates():
+    """延迟导入templates避免循环依赖"""
+    from app.main import templates
+    return templates
 
 
 # ==================== Pydantic 模型 ====================
@@ -174,7 +179,7 @@ async def blog_home(
         seo_title = "IMVU Creator Blog - Tips, Tutorials & Industry Insights"
         seo_desc = "Stay updated with the latest IMVU creator tips, data analysis tutorials, and industry insights to boost your sales."
         
-        return templates.TemplateResponse("blog.html", {
+        return _get_templates().TemplateResponse("blog.html", {
             "request": request,
             "posts": posts,
             "featured_post": featured_post,
@@ -190,7 +195,7 @@ async def blog_home(
         })
     except Exception as e:
         logger.error(f"获取博客列表失败: {e}", exc_info=True)
-        return templates.TemplateResponse("blog.html", {
+        return _get_templates().TemplateResponse("blog.html", {
             "request": request,
             "posts": [],
             "featured_post": None,
@@ -269,7 +274,7 @@ async def blog_post(request: Request, slug: str, db: Session = Depends(get_db)):
             }
         }
         
-        return templates.TemplateResponse("blog_post.html", {
+        return _get_templates().TemplateResponse("blog_post.html", {
             "request": request,
             "post": post,
             "related_posts": related_posts,
