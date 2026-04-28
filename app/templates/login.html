@@ -67,10 +67,10 @@
     <script src="/static/i18n.js?v=20260428"></script>
     <style>
         :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --dark: #1a1a2e;
-            --darker: #16213e;
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --dark: #0f172a;
+            --darker: #1e293b;
         }
         
         * {
@@ -81,7 +81,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #0f3460 100%) !important;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #1e40af 100%) !important;
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
@@ -99,7 +99,7 @@
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
                 radial-gradient(circle at 90% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
             pointer-events: none;
             z-index: 0;
         }
@@ -163,7 +163,7 @@
         /* Guide Card - Special */
         .guide-card {
             grid-column: span 2;
-            background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.1) 100%);
+            background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(59, 130, 246, 0.2) 100%);
             border: 2px solid rgba(255, 255, 255, 0.3);
             cursor: pointer;
             text-decoration: none;
@@ -237,7 +237,7 @@
             align-items: center;
             justify-content: center;
             font-size: 26px;
-            color: var(--primary);
+            color: #2563eb;
             margin-bottom: 18px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
@@ -299,7 +299,7 @@
         }
         
         .input-group-custom .form-control {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(59, 130, 246, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 14px;
             height: 56px;
@@ -330,7 +330,7 @@
             border-radius: 14px;
             padding: 16px;
             font-weight: 700;
-            color: var(--primary);
+            color: #2563eb;
             width: 100%;
             font-size: 17px;
             transition: all 0.3s ease;
@@ -684,7 +684,7 @@
         }
         
         .lang-select option {
-            background: var(--primary);
+            background: #2563eb;
             color: white;
             padding: 8px;
         }

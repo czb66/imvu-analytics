@@ -45,29 +45,29 @@
     <script src="/static/i18n.js?v=20260428"></script>
     <style>
         :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --dark: #1a1a2e;
-            --darker: #16213e;
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --dark: #0f172a;
+            --darker: #1e293b;
             --text-primary: #ffffff;
         }
         
         /* Global Dark Theme Override */
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #0f3460 100%) !important;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #1e40af 100%) !important;
             color: var(--text-primary) !important;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
         /* Bootstrap Dark Overrides */
         .card, .pricing-card, .navbar {
-            background: rgba(26, 26, 46, 0.8) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            background: rgba(30, 58, 138, 0.5) !important;
+            border: 1px solid rgba(59, 130, 246, 0.2) !important;
             color: #fff !important;
         }
         .text-muted { color: rgba(255, 255, 255, 0.6) !important; }
         .form-control, .form-select {
-            background: rgba(255, 255, 255, 0.1) !important;
+            background: rgba(59, 130, 246, 0.2) !important;
             border-color: rgba(255, 255, 255, 0.2) !important;
             color: #fff !important;
         }
@@ -84,7 +84,7 @@
         }
         .navbar-brand {
             font-weight: bold;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -94,7 +94,7 @@
         }
         .pricing-header h1 {
             font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-size: 2.5rem;
@@ -110,7 +110,7 @@
         .price-tag {
             font-size: 3.5rem;
             font-weight: 700;
-            color: var(--primary);
+            color: #2563eb;
         }
         .price-tag small {
             font-size: 1.2rem;
@@ -128,7 +128,7 @@
             border-bottom: none;
         }
         .btn-subscribe {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
             border: none;
             padding: 15px 50px;
             border-radius: 50px;
@@ -149,8 +149,8 @@
         }
         .btn-secondary-custom {
             background: white;
-            border: 2px solid var(--primary);
-            color: var(--primary);
+            border: 2px solid #2563eb;
+            color: #2563eb;
             padding: 12px 30px;
             border-radius: 50px;
             font-weight: 600;
@@ -158,7 +158,7 @@
             transition: all 0.3s;
         }
         .btn-secondary-custom:hover {
-            background: var(--primary);
+            background: #2563eb;
             color: white;
         }
         .loading-overlay {
@@ -179,7 +179,7 @@
         }
         .current-plan-badge {
             display: inline-block;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
             color: white;
             padding: 10px 30px;
             border-radius: 50px;
@@ -216,8 +216,8 @@
             transition: all 0.2s;
         }
         .billing-toggle-label.active {
-            background: rgba(102, 126, 234, 0.1);
-            color: var(--primary);
+            background: rgba(59, 130, 246, 0.15);
+            color: #2563eb;
             font-weight: 600;
         }
         .billing-toggle-switch {
@@ -242,7 +242,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .billing-toggle-switch.yearly {
-            background: var(--primary);
+            background: #2563eb;
         }
         .billing-toggle-switch.yearly::after {
             transform: translateX(24px);
@@ -271,8 +271,8 @@
             display: block;
         }
         .yearly-highlight {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            border: 2px solid var(--primary);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(124, 58, 237, 0.15));
+            border: 2px solid #2563eb;
             position: relative;
         }
         .recommended-tag {
@@ -280,7 +280,7 @@
             top: -12px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
             color: white;
             padding: 4px 16px;
             border-radius: 12px;
@@ -301,7 +301,7 @@
         }
         
         .subscribe-btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white;
             border: none;
             padding: 6px 16px;
@@ -343,7 +343,7 @@
         .lang-select:focus {
             outline: none;
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
-            border-color: var(--primary);
+            border-color: #2563eb;
         }
         
         .lang-select option {
@@ -397,7 +397,7 @@
         <div class="pricing-header">
             <h1 data-i18n="pricing.title">Simple, Transparent Pricing</h1>
             <p class="text-muted" data-i18n="pricing.subtitle">One plan, all features, no hidden fees</p>
-            <div class="trial-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; border-radius: 50px; display: inline-block; margin-top: 20px; font-weight: 600;">
+            <div class="trial-banner" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); color: white; padding: 15px 30px; border-radius: 50px; display: inline-block; margin-top: 20px; font-weight: 600;">
                 <i class="bi bi-gift me-2"></i>
                 <span data-i18n="pricing.trial_banner">🎁 New users get 7 days FREE Pro trial!</span>
             </div>
@@ -480,25 +480,25 @@
                     <div class="row g-3" style="text-align: left;">
                         <div class="col-md-6">
                             <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                                <h6 style="color: var(--primary);"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq1_q">试用期结束后会自动扣费吗？</span></h6>
+                                <h6 style="color: #2563eb;"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq1_q">试用期结束后会自动扣费吗？</span></h6>
                                 <p style="font-size: 13px; color: #666; margin: 0;" data-i18n="pricing.faq1_a">不会。试用期结束后如不订阅，不会产生任何费用。</p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                                <h6 style="color: var(--primary);"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq2_q">可以随时取消订阅吗？</span></h6>
+                                <h6 style="color: #2563eb;"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq2_q">可以随时取消订阅吗？</span></h6>
                                 <p style="font-size: 13px; color: #666; margin: 0;" data-i18n="pricing.faq2_a">可以。取消后您仍可使用已付费期间的服务。</p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                                <h6 style="color: var(--primary);"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq3_q">年付可以切换到月付吗？</span></h6>
+                                <h6 style="color: #2563eb;"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq3_q">年付可以切换到月付吗？</span></h6>
                                 <p style="font-size: 13px; color: #666; margin: 0;" data-i18n="pricing.faq3_a">可以。在客户门户中可随时切换计费周期。</p>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                                <h6 style="color: var(--primary);"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq4_q">如何获取发票？</span></h6>
+                                <h6 style="color: #2563eb;"><i class="bi bi-question-circle me-2"></i><span data-i18n="pricing.faq4_q">如何获取发票？</span></h6>
                                 <p style="font-size: 13px; color: #666; margin: 0;" data-i18n="pricing.faq4_a">在客户门户中可下载PDF格式的发票。</p>
                             </div>
                         </div>

@@ -11,14 +11,14 @@
     <script src="/static/auth.js"></script>
     <style>
         :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
+            --primary: #2563eb;
+            --secondary: #7c3aed;
             --success: #52c41a;
             --danger: #ff4d4f;
             --warning: #faad14;
         }
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #0f3460 100%);
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #1e40af 100%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         .sidebar {
@@ -66,7 +66,7 @@
         }
         
         .subscribe-btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white;
             border: none;
             padding: 6px 16px;
@@ -108,7 +108,7 @@
         .lang-select:focus {
             outline: none;
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
-            border-color: var(--primary);
+            border-color: #2563eb;
         }
         
         .lang-select option {
@@ -165,7 +165,7 @@
             color: #666;
         }
         .badge-admin {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
         }
         /* Search Box */
         .search-box {
@@ -188,16 +188,16 @@
             margin-top: 20px;
         }
         .page-link {
-            color: var(--primary);
+            color: #2563eb;
             border-color: #e8e8e8;
         }
         .page-link:hover {
-            color: var(--secondary);
+            color: #7c3aed;
             background: #f5f5f5;
         }
         .page-item.active .page-link {
-            background: var(--primary);
-            border-color: var(--primary);
+            background: #2563eb;
+            border-color: #2563eb;
         }
         /* Loading */
         .loading-overlay {
@@ -214,7 +214,7 @@
             width: 50px;
             height: 50px;
             border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
+            border-top: 4px solid #2563eb;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -245,7 +245,7 @@
             left: 0;
             right: 0;
             height: 56px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white;
             padding: 0 15px;
             align-items: center;
@@ -353,12 +353,12 @@
             transition: all 0.3s;
         }
         .nav-tabs-custom .nav-link:hover {
-            color: var(--primary);
+            color: #2563eb;
             border-color: transparent;
         }
         .nav-tabs-custom .nav-link.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
+            color: #2563eb;
+            border-bottom-color: #2563eb;
             background: transparent;
         }
         .tab-content-custom {
@@ -410,11 +410,11 @@
             color: #666;
         }
         .time-range-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
+            border-color: #2563eb;
+            color: #2563eb;
         }
         .time-range-btn.active {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white;
             border-color: transparent;
         }
@@ -427,7 +427,7 @@
         }
         .funnel-bar {
             height: 40px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             border-radius: 6px;
             display: flex;
             align-items: center;
@@ -504,12 +504,12 @@
     </div>
 
     <!-- Login Prompt (shown when not logged in) -->
-    <div id="loginPrompt" style="display: none; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div id="loginPrompt" style="display: none; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);">
         <div class="text-center" style="background: white; padding: 40px 60px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-            <i class="bi bi-shield-lock" style="font-size: 64px; color: #667eea;"></i>
+            <i class="bi bi-shield-lock" style="font-size: 64px; color: #2563eb;"></i>
             <h2 style="margin: 20px 0 10px; color: #333;">Admin Dashboard</h2>
             <p style="color: #666; margin-bottom: 25px;">请登录以访问管理后台</p>
-            <a href="/login?redirect=/admin" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px 40px;">
+            <a href="/login?redirect=/admin" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); border: none; padding: 12px 40px;">
                 <i class="bi bi-box-arrow-in-right me-2"></i>登录
             </a>
         </div>
@@ -590,15 +590,15 @@
             <div class="row mb-4">
             <!-- Basic User Stats Card -->
             <div class="col-lg-6 mb-3">
-                <div class="stat-card h-100" style="border-left: 4px solid #667eea; background: linear-gradient(135deg, #f0f4ff 0%, #f5f7ff 100%);">
+                <div class="stat-card h-100" style="border-left: 4px solid #2563eb; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);">
                     <h5 class="mb-3 pb-2" style="border-bottom: 1px solid #e0e6ff;">
-                        <i class="bi bi-people me-2" style="color: #667eea;"></i>
+                        <i class="bi bi-people me-2" style="color: #2563eb;"></i>
                         <span data-i18n="basic_user_stats">Basic User Statistics</span>
                     </h5>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="text-center p-2">
-                                <div class="stat-icon mx-auto mb-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 45px; height: 45px; font-size: 20px;">
+                                <div class="stat-icon mx-auto mb-2" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); color: white; width: 45px; height: 45px; font-size: 20px;">
                                     <i class="bi bi-people"></i>
                                 </div>
                                 <div class="stat-value" id="totalUsers">-</div>
@@ -629,7 +629,7 @@
             
             <!-- Active Users Stats Card -->
             <div class="col-lg-6 mb-3">
-                <div class="stat-card h-100" style="border-left: 4px solid #eb2f96; background: linear-gradient(135deg, #fff0f6 0%, #fff5f8 100%);">
+                <div class="stat-card h-100" style="border-left: 4px solid #ec4899; background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);">
                     <h5 class="mb-3 pb-2" style="border-bottom: 1px solid #ffe0ed;">
                         <i class="bi bi-activity me-2" style="color: #eb2f96;"></i>
                         <span data-i18n="active_users_stats">Active Users Statistics</span>
@@ -817,7 +817,7 @@
             <div class="row mb-4" id="analyticsOverviewCards">
                 <div class="col-md-4">
                     <div class="overview-card">
-                        <div class="icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <div class="icon" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); color: white;">
                             <i class="bi bi-people"></i>
                         </div>
                         <div class="value" id="analytics-dau">-</div>
@@ -1304,7 +1304,7 @@
                             label: 'PV',
                             data: pvData,
                             borderColor: '#667eea',
-                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.15)',
                             tension: 0.4,
                             fill: true,
                             yAxisID: 'y'
@@ -1430,7 +1430,7 @@
             <!-- Blog Stats -->
             <div class="row mb-4">
                 <div class="col-md-3 mb-3">
-                    <div class="stat-card h-100" style="border-left: 4px solid #667eea;">
+                    <div class="stat-card h-100" style="border-left: 4px solid #2563eb;">
                         <div class="stat-value" id="blogTotalPosts">-</div>
                         <div class="stat-label" data-i18n="admin.totalPosts">Total Posts</div>
                     </div>
@@ -1448,7 +1448,7 @@
                     </div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <div class="stat-card h-100" style="border-left: 4px solid #eb2f96;">
+                    <div class="stat-card h-100" style="border-left: 4px solid #ec4899;">
                         <div class="stat-value" id="blogTotalViews">-</div>
                         <div class="stat-label" data-i18n="admin.totalViews">Total Views</div>
                     </div>
@@ -1561,7 +1561,7 @@
                     <div class="col-md-3 mb-3">
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body text-center">
-                                <h3 class="mb-1" style="color: #667eea;">${summary.total_responses || 0}</h3>
+                                <h3 class="mb-1" style="color: #2563eb;">${summary.total_responses || 0}</h3>
                                 <small class="text-muted">${isZh ? '总反馈数' : 'Total Responses'}</small>
                             </div>
                         </div>
@@ -1962,7 +1962,7 @@
                                 areaStyle: {
                                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                                         { offset: 0, color: 'rgba(102, 126, 234, 0.3)' },
-                                        { offset: 1, color: 'rgba(102, 126, 234, 0.05)' }
+                                        { offset: 1, color: 'rgba(59, 130, 246, 0.1)' }
                                     ])
                                 }
                             },

@@ -44,13 +44,13 @@
     <script src="/static/auth.js"></script>
     <style>
         :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --dark: #1a1a2e;
-            --darker: #16213e;
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --dark: #0f172a;
+            --darker: #1e293b;
         }
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #0f3460 100%) !important;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #1e40af 100%) !important;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -101,7 +101,7 @@
             text-align: left;
         }
         .info-card h4 {
-            color: var(--primary);
+            color: #2563eb;
             margin-bottom: 15px;
             font-size: 1rem;
         }
@@ -112,11 +112,11 @@
             color: #555;
         }
         .info-item i {
-            color: var(--primary);
+            color: #2563eb;
             margin-right: 10px;
         }
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
             border: none;
             border-radius: 12px;
             padding: 15px 40px;
@@ -164,7 +164,7 @@
         }
         
         .subscribe-btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
             color: white;
             border: none;
             padding: 6px 16px;
@@ -206,7 +206,7 @@
         .lang-select:focus {
             outline: none;
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
-            border-color: var(--primary);
+            border-color: #2563eb;
         }
         
         .lang-select option {
@@ -236,7 +236,7 @@
         <p class="subtitle" data-i18n="cancel.subtitle">No worries, you can subscribe anytime when you're ready</p>
         
         <div class="info-card">
-            <h4><i class="bi bi-info-circle me-2" style="color: var(--primary);"></i><span data-i18n="cancel.stillAvailable">Features Still Available</span></h4>
+            <h4><i class="bi bi-info-circle me-2" style="color: #2563eb;"></i><span data-i18n="cancel.stillAvailable">Features Still Available</span></h4>
             <div class="info-item">
                 <i class="bi bi-check-circle-fill"></i>
                 <span data-i18n="cancel.available1">Basic analytics dashboard</span>
