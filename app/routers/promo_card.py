@@ -15,6 +15,7 @@ import logging
 from app.database import get_db
 from app.models import PromoCardStat, PromoCardClick, User
 from app.core.rate_limiter import check_tiered_rate_limit, tiered_limiter, get_user_tier
+from app.core.limiter import limiter
 from app.services.activity_tracker import activity_tracker
 
 router = APIRouter(
