@@ -42,11 +42,11 @@
     <script src="/static/i18n.js?v=20260416po"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --secondary: #7c3aed;
-            --success: #52c41a;
-            --danger: #ff4d4f;
-            --warning: #faad14;
+            --primary: #3b82f6;
+            --secondary: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
         
         /* Top 5 产品卡片样式 */
@@ -71,7 +71,7 @@
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             display: flex;
             align-items: center;
@@ -133,7 +133,7 @@
         }
         .revenue-summary-item {
             flex: 1;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(124, 58, 237, 0.15));
+            background: linear-gradient(135deg, #ffffff, rgba(124, 58, 237, 0.15));
             border-radius: 8px;
             padding: 12px 15px;
         }
@@ -145,7 +145,7 @@
         .revenue-summary-value {
             font-size: 18px;
             font-weight: bold;
-            color: #2563eb;
+            color: #3b82f6;
         }
         .revenue-trend-hint {
             font-size: 12px;
@@ -160,7 +160,7 @@
             gap: 6px;
         }
         .revenue-trend-hint i {
-            color: #faad14;
+            color: #f59e0b;
         }
         .revenue-comparison-table {
             width: 100%;
@@ -215,10 +215,10 @@
             transition: all 0.2s;
         }
         .time-toggle-btn:hover {
-            border-color: #2563eb;
+            border-color: #3b82f6;
         }
         .time-toggle-btn.active {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border-color: transparent;
         }
@@ -254,12 +254,12 @@
             gap: 4px;
         }
         .sort-btn:hover {
-            border-color: #2563eb;
+            border-color: #3b82f6;
         }
         .sort-btn.active {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: #2563eb;
-            color: #2563eb;
+            background: #ffffff;
+            border-color: #3b82f6;
+            color: #3b82f6;
         }
         .pagination-controls {
             display: flex;
@@ -285,15 +285,15 @@
             transition: all 0.2s;
         }
         .page-btn:hover:not(:disabled) {
-            border-color: #2563eb;
-            color: #2563eb;
+            border-color: #3b82f6;
+            color: #3b82f6;
         }
         .page-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
         .page-btn.active {
-            background: #2563eb;
+            background: #3b82f6;
             color: white;
         }
         
@@ -309,15 +309,15 @@
             flex-wrap: wrap;
         }
         .trial-banner-dashboard.trial-active {
-            background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+            background: linear-gradient(135deg, #10b981 0%, #389e0d 100%);
             color: white;
         }
         .trial-banner-dashboard.trial-warning {
-            background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
+            background: linear-gradient(135deg, #f59e0b 0%, #d48806 100%);
             color: white;
         }
         .trial-banner-dashboard.trial-urgent {
-            background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #cf1322 100%);
             color: white;
         }
         .trial-banner-dashboard.trial-expired {
@@ -325,7 +325,7 @@
             color: white;
         }
         .trial-banner-dashboard.subscribed {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
         }
         .trial-banner-content {
@@ -392,7 +392,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
@@ -403,7 +403,7 @@
             font-size: 16px;
         }
         .discount-badge {
-            background: #ff4d4f;
+            background: #ef4444;
             color: white;
             padding: 3px 8px;
             border-radius: 10px;
@@ -411,7 +411,7 @@
             font-weight: 600;
             margin-left: 8px;
         }
-            border-color: #2563eb;
+            border-color: #3b82f6;
         }
         
         /* 图表loading状态 */
@@ -432,12 +432,12 @@
             width: 30px;
             height: 30px;
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #2563eb;
+            border-top: 3px solid #3b82f6;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #1e40af 100%);
+            background: #f1f5f9;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         .sidebar {
@@ -446,7 +446,7 @@
             left: 0;
             height: 100vh;
             width: 250px;
-            background: rgba(22, 33, 62, 0.95);
+            background: #ffffff;
             backdrop-filter: blur(20px);
             padding: 20px 0;
             color: white;
@@ -474,7 +474,7 @@
         .sidebar a {
             display: block;
             padding: 12px 20px;
-            color: rgba(255,255,255,0.85);
+            color: #64748b;
             text-decoration: none;
             transition: all 0.3s;
         }
@@ -499,7 +499,7 @@
         .metric-value {
             font-size: 28px;
             font-weight: bold;
-            color: #2563eb;
+            color: #3b82f6;
         }
         .metric-label {
             color: #888;
@@ -535,7 +535,7 @@
             width: 50px;
             height: 50px;
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #2563eb;
+            border-top: 4px solid #3b82f6;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -545,7 +545,7 @@
         }
         /* 错误状态 */
         .error-retry-btn {
-            background: #2563eb;
+            background: #3b82f6;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -554,7 +554,7 @@
             margin-top: 15px;
         }
         .error-retry-btn:hover {
-            background: #7c3aed;
+            background: #6366f1;
         }
         /* 图表加载状态 */
         .chart-loading {
@@ -597,11 +597,11 @@
             background: white;
         }
         .upload-zone:hover {
-            border-color: #2563eb;
+            border-color: #3b82f6;
             background: #f8f9ff;
         }
         .upload-zone.dragover {
-            border-color: #2563eb;
+            border-color: #3b82f6;
             background: #e6efff;
         }
         .header-title {
@@ -612,7 +612,7 @@
         }
         /* AI Insights Card */
         .insight-card {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border-radius: 12px;
             padding: 20px;
@@ -658,7 +658,7 @@
             align-items: center;
             justify-content: center;
             padding: 30px;
-            color: rgba(255,255,255,0.8);
+            color: #64748b;
         }
         .insight-loading .spinner {
             width: 24px;
@@ -677,7 +677,7 @@
             margin-left: 10px;
         }
         .insight-config-hint {
-            background: rgba(59, 130, 246, 0.2);
+            background: #e2e8f0;
             border-radius: 8px;
             padding: 15px;
             margin-top: 10px;
@@ -699,7 +699,7 @@
             left: 0;
             right: 0;
             height: 56px;
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             padding: 0 15px;
             align-items: center;
@@ -833,7 +833,7 @@
         }
         
         .subscribe-btn {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border: none;
             padding: 6px 16px;
@@ -875,7 +875,7 @@
         .lang-select:focus {
             outline: none;
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
-            border-color: #2563eb;
+            border-color: #3b82f6;
         }
         
         .lang-select option {
@@ -919,7 +919,7 @@
             transform: scale(1);
         }
         .onboarding-header {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             padding: 25px 30px;
             text-align: center;
@@ -961,7 +961,7 @@
             transition: all 0.3s;
         }
         .onboarding-progress-step.active .onboarding-progress-dot {
-            background: #2563eb;
+            background: #3b82f6;
             color: white;
             transform: scale(1.1);
         }
@@ -974,7 +974,7 @@
             color: #666;
         }
         .onboarding-progress-step.active .onboarding-progress-label {
-            color: #2563eb;
+            color: #3b82f6;
             font-weight: 600;
         }
         .onboarding-body {
@@ -990,7 +990,7 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(124, 58, 237, 0.15));
+            background: linear-gradient(135deg, #ffffff, rgba(124, 58, 237, 0.15));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1029,7 +1029,7 @@
             gap: 10px;
         }
         .onboarding-btn-primary {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border: none;
         }
@@ -1039,8 +1039,8 @@
         }
         .onboarding-btn-secondary {
             background: white;
-            color: #2563eb;
-            border: 2px solid #2563eb;
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
         }
         .onboarding-btn-secondary:hover {
             background: rgba(59, 130, 246, 0.1);
@@ -1093,7 +1093,7 @@
             background: #ddd;
         }
         .onboarding-nav-btn.next {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border: none;
         }
@@ -1103,7 +1103,7 @@
         
         /* Onboarding Prompt Banner */
         .onboarding-prompt-banner {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(124, 58, 237, 0.15));
+            background: linear-gradient(135deg, #ffffff, rgba(124, 58, 237, 0.15));
             border: 1px solid rgba(59, 130, 246, 0.25);
             border-radius: 10px;
             padding: 15px 20px;
@@ -1121,7 +1121,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #2563eb;
+            color: #3b82f6;
             font-size: 14px;
             font-weight: 500;
         }
@@ -1129,7 +1129,7 @@
             color: var(--success);
         }
         .onboarding-prompt-btn {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border: none;
             padding: 8px 16px;
@@ -1213,7 +1213,7 @@
         </a>
         <a href="/blog"><i class="bi bi-journal-text me-2"></i><span data-i18n="nav.blog">Blog</span></a>
         <a href="/contact"><i class="bi bi-envelope me-2"></i><span data-i18n="nav.contact">Contact Us</span></a>
-        <a href="#" onclick="logout(); return false;" style="border-top: 1px solid rgba(59, 130, 246, 0.2); margin-top: 10px; padding-top: 15px; color: rgba(255,255,255,0.7);"><i class="bi bi-box-arrow-right me-2"></i><span data-i18n="nav.logout">Logout</span></a>
+        <a href="#" onclick="logout(); return false;" style="border-top: 1px solid #e2e8f0; margin-top: 10px; padding-top: 15px; color: #64748b;"><i class="bi bi-box-arrow-right me-2"></i><span data-i18n="nav.logout">Logout</span></a>
     </nav>
 
     <!-- 加载状态 -->
@@ -1353,7 +1353,7 @@
             </div>
             <div class="col-md-4 col-lg-3">
                 <div class="metric-card">
-                    <div class="metric-value" style="color: #2563eb;" id="totalSales">-</div>
+                    <div class="metric-value" style="color: #3b82f6;" id="totalSales">-</div>
                     <div class="metric-label"><i class="bi bi-bag-check"></i> <span data-i18n="dashboard.totalSales">Total Sales</span></div>
                 </div>
             </div>
@@ -1722,7 +1722,7 @@
         function showError(message) {
             const overlay = document.getElementById('loadingOverlay');
             overlay.innerHTML = `
-                <i class="bi bi-exclamation-triangle" style="font-size: 48px; color: #ff4d4f;"></i>
+                <i class="bi bi-exclamation-triangle" style="font-size: 48px; color: #ef4444;"></i>
                 <p style="margin-top: 20px; color: #666;">${message}</p>
                 <button class="error-retry-btn" onclick="retryLoad()">
                     <i class="bi bi-arrow-clockwise"></i> <span data-i18n="dashboard.retry">Retry</span>
@@ -1936,25 +1936,25 @@
 
             topProductsChart = new Chart(document.getElementById('topProductsChart'), {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: t('dashboard.sales'), data: [], backgroundColor: '#2563eb' }] },
+                data: { labels: [], datasets: [{ label: t('dashboard.sales'), data: [], backgroundColor: '#3b82f6' }] },
                 options: { ...chartOptions }
             });
 
             visibilityChart = new Chart(document.getElementById('visibilityChart'), {
                 type: 'doughnut',
-                data: { labels: [t('dashboard.visibleLabel'), t('dashboard.hiddenLabel')], datasets: [{ data: [0, 0], backgroundColor: ['#52c41a', '#ff4d4f'] }] },
+                data: { labels: [t('dashboard.visibleLabel'), t('dashboard.hiddenLabel')], datasets: [{ data: [0, 0], backgroundColor: ['#10b981', '#ef4444'] }] },
                 options: chartOptions
             });
 
             trafficChart = new Chart(document.getElementById('trafficChart'), {
                 type: 'pie',
-                data: { labels: [t('dashboard.organicTraffic'), t('dashboard.paidTraffic')], datasets: [{ data: [0, 0], backgroundColor: ['#2563eb', '#7c3aed'] }] },
+                data: { labels: [t('dashboard.organicTraffic'), t('dashboard.paidTraffic')], datasets: [{ data: [0, 0], backgroundColor: ['#3b82f6', '#6366f1'] }] },
                 options: chartOptions
             });
 
             priceRangeChart = new Chart(document.getElementById('priceRangeChart'), {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: t('diagnosis.productCount'), data: [], backgroundColor: '#faad14' }] },
+                data: { labels: [], datasets: [{ label: t('diagnosis.productCount'), data: [], backgroundColor: '#f59e0b' }] },
                 options: chartOptions
             });
 
@@ -1971,17 +1971,17 @@
                     datasets: [{
                         label: t('dashboard.revenue'),
                         data: [],
-                        borderColor: '#2563eb',
+                        borderColor: '#3b82f6',
                         backgroundColor: revenueGradient,
                         fill: true,
                         tension: 0.4,
                         borderWidth: 3,
-                        pointBackgroundColor: '#2563eb',
+                        pointBackgroundColor: '#3b82f6',
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                         pointRadius: 5,
                         pointHoverRadius: 7,
-                        pointHoverBackgroundColor: '#7c3aed',
+                        pointHoverBackgroundColor: '#6366f1',
                         pointHoverBorderColor: '#fff',
                         pointHoverBorderWidth: 3
                     }]
@@ -2050,7 +2050,7 @@
                             backgroundColor: 'rgba(102, 126, 234, 0.95)',
                             titleColor: '#fff',
                             bodyColor: '#fff',
-                            borderColor: '#7c3aed',
+                            borderColor: '#6366f1',
                             borderWidth: 1,
                             cornerRadius: 8,
                             padding: 12,

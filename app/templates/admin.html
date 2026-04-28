@@ -11,14 +11,14 @@
     <script src="/static/auth.js"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --secondary: #7c3aed;
-            --success: #52c41a;
-            --danger: #ff4d4f;
-            --warning: #faad14;
+            --primary: #3b82f6;
+            --secondary: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #1e40af 100%);
+            background: #f1f5f9;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         .sidebar {
@@ -27,7 +27,7 @@
             left: 0;
             height: 100vh;
             width: 250px;
-            background: rgba(22, 33, 62, 0.95);
+            background: #ffffff;
             backdrop-filter: blur(20px);
             padding: 20px 0;
             color: white;
@@ -42,7 +42,7 @@
         .sidebar a {
             display: block;
             padding: 12px 20px;
-            color: rgba(255,255,255,0.85);
+            color: #64748b;
             text-decoration: none;
             transition: all 0.3s;
         }
@@ -66,7 +66,7 @@
         }
         
         .subscribe-btn {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border: none;
             padding: 6px 16px;
@@ -108,7 +108,7 @@
         .lang-select:focus {
             outline: none;
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
-            border-color: #2563eb;
+            border-color: #3b82f6;
         }
         
         .lang-select option {
@@ -165,7 +165,7 @@
             color: #666;
         }
         .badge-admin {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
         }
         /* Search Box */
         .search-box {
@@ -188,16 +188,16 @@
             margin-top: 20px;
         }
         .page-link {
-            color: #2563eb;
+            color: #3b82f6;
             border-color: #e8e8e8;
         }
         .page-link:hover {
-            color: #7c3aed;
+            color: #6366f1;
             background: #f5f5f5;
         }
         .page-item.active .page-link {
-            background: #2563eb;
-            border-color: #2563eb;
+            background: #3b82f6;
+            border-color: #3b82f6;
         }
         /* Loading */
         .loading-overlay {
@@ -214,7 +214,7 @@
             width: 50px;
             height: 50px;
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #2563eb;
+            border-top: 4px solid #3b82f6;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -245,7 +245,7 @@
             left: 0;
             right: 0;
             height: 56px;
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             padding: 0 15px;
             align-items: center;
@@ -353,12 +353,12 @@
             transition: all 0.3s;
         }
         .nav-tabs-custom .nav-link:hover {
-            color: #2563eb;
+            color: #3b82f6;
             border-color: transparent;
         }
         .nav-tabs-custom .nav-link.active {
-            color: #2563eb;
-            border-bottom-color: #2563eb;
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
             background: transparent;
         }
         .tab-content-custom {
@@ -410,11 +410,11 @@
             color: #666;
         }
         .time-range-btn:hover {
-            border-color: #2563eb;
-            color: #2563eb;
+            border-color: #3b82f6;
+            color: #3b82f6;
         }
         .time-range-btn.active {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border-color: transparent;
         }
@@ -427,7 +427,7 @@
         }
         .funnel-bar {
             height: 40px;
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             border-radius: 6px;
             display: flex;
             align-items: center;
@@ -504,12 +504,12 @@
     </div>
 
     <!-- Login Prompt (shown when not logged in) -->
-    <div id="loginPrompt" style="display: none; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);">
+    <div id="loginPrompt" style="display: none; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #3b82f6, #6366f1);">
         <div class="text-center" style="background: white; padding: 40px 60px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-            <i class="bi bi-shield-lock" style="font-size: 64px; color: #2563eb;"></i>
+            <i class="bi bi-shield-lock" style="font-size: 64px; color: #3b82f6;"></i>
             <h2 style="margin: 20px 0 10px; color: #333;">Admin Dashboard</h2>
             <p style="color: #666; margin-bottom: 25px;">请登录以访问管理后台</p>
-            <a href="/login?redirect=/admin" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); border: none; padding: 12px 40px;">
+            <a href="/login?redirect=/admin" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, #3b82f6, #6366f1); border: none; padding: 12px 40px;">
                 <i class="bi bi-box-arrow-in-right me-2"></i>登录
             </a>
         </div>
@@ -521,18 +521,18 @@
     <nav class="sidebar" id="sidebar">
         <h4><i class="bi bi-speedometer2 me-2"></i><span data-i18n="app_name">IMVU Analytics</span></h4>
         
-        <div style="padding: 10px 20px 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5);">Main</div>
+        <div style="padding: 10px 20px 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Main</div>
         <a href="/dashboard"><i class="bi bi-house me-2"></i><span data-i18n="nav_dashboard">Dashboard</span></a>
         <a href="/upload"><i class="bi bi-cloud-upload me-2"></i><span data-i18n="nav_upload">Upload</span></a>
         <a href="/report"><i class="bi bi-file-earmark-text me-2"></i><span data-i18n="nav_report">Report</span></a>
         <a href="/insights"><i class="bi bi-lightbulb me-2"></i><span data-i18n="nav_insights">AI Insights</span></a>
         
-        <div style="padding: 10px 20px 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); margin-top: 15px;">Admin</div>
+        <div style="padding: 10px 20px 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-top: 15px;">Admin</div>
         <a href="/admin" class="active" data-tab="overview"><i class="bi bi-speedometer me-2"></i>Overview</a>
         <a href="#" onclick="switchTab('analytics'); return false;" data-tab="analytics"><i class="bi bi-bar-chart-line me-2"></i>Data Analytics</a>
         <a href="/admin/promo-cards"><i class="bi bi-card-image me-2"></i>Promo Cards</a>
         
-        <div style="padding: 10px 20px 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); margin-top: 15px;">Account</div>
+        <div style="padding: 10px 20px 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-top: 15px;">Account</div>
         <a href="/settings"><i class="bi bi-gear me-2"></i><span data-i18n="nav_settings">Settings</span></a>
         <a href="/profile"><i class="bi bi-person me-2"></i><span data-i18n="nav_profile">Profile</span></a>
         
@@ -590,15 +590,15 @@
             <div class="row mb-4">
             <!-- Basic User Stats Card -->
             <div class="col-lg-6 mb-3">
-                <div class="stat-card h-100" style="border-left: 4px solid #2563eb; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);">
+                <div class="stat-card h-100" style="border-left: 4px solid #3b82f6; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);">
                     <h5 class="mb-3 pb-2" style="border-bottom: 1px solid #e0e6ff;">
-                        <i class="bi bi-people me-2" style="color: #2563eb;"></i>
+                        <i class="bi bi-people me-2" style="color: #3b82f6;"></i>
                         <span data-i18n="basic_user_stats">Basic User Statistics</span>
                     </h5>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="text-center p-2">
-                                <div class="stat-icon mx-auto mb-2" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); color: white; width: 45px; height: 45px; font-size: 20px;">
+                                <div class="stat-icon mx-auto mb-2" style="background: linear-gradient(135deg, #3b82f6, #6366f1); color: white; width: 45px; height: 45px; font-size: 20px;">
                                     <i class="bi bi-people"></i>
                                 </div>
                                 <div class="stat-value" id="totalUsers">-</div>
@@ -607,7 +607,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="text-center p-2">
-                                <div class="stat-icon mx-auto mb-2" style="background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%); color: white; width: 45px; height: 45px; font-size: 20px;">
+                                <div class="stat-icon mx-auto mb-2" style="background: linear-gradient(135deg, #10b981 0%, #73d13d 100%); color: white; width: 45px; height: 45px; font-size: 20px;">
                                     <i class="bi bi-star"></i>
                                 </div>
                                 <div class="stat-value" id="subscribedUsers">-</div>
@@ -616,7 +616,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="text-center p-2">
-                                <div class="stat-icon mx-auto mb-2" style="background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%); color: white; width: 45px; height: 45px; font-size: 20px;">
+                                <div class="stat-icon mx-auto mb-2" style="background: linear-gradient(135deg, #f59e0b 0%, #ffc53d 100%); color: white; width: 45px; height: 45px; font-size: 20px;">
                                     <i class="bi bi-person-plus"></i>
                                 </div>
                                 <div class="stat-value" id="weeklyNewUsers">-</div>
@@ -817,7 +817,7 @@
             <div class="row mb-4" id="analyticsOverviewCards">
                 <div class="col-md-4">
                     <div class="overview-card">
-                        <div class="icon" style="background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); color: white;">
+                        <div class="icon" style="background: linear-gradient(135deg, #3b82f6, #6366f1); color: white;">
                             <i class="bi bi-people"></i>
                         </div>
                         <div class="value" id="analytics-dau">-</div>
@@ -826,7 +826,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="overview-card">
-                        <div class="icon" style="background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%); color: white;">
+                        <div class="icon" style="background: linear-gradient(135deg, #10b981 0%, #73d13d 100%); color: white;">
                             <i class="bi bi-person-check-fill"></i>
                         </div>
                         <div class="value" id="analytics-mau">-</div>
@@ -835,7 +835,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="overview-card">
-                        <div class="icon" style="background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%); color: white;">
+                        <div class="icon" style="background: linear-gradient(135deg, #f59e0b 0%, #ffc53d 100%); color: white;">
                             <i class="bi bi-graph-up-arrow"></i>
                         </div>
                         <div class="value" id="analytics-ratio">-</div>
@@ -1303,8 +1303,8 @@
                         {
                             label: 'PV',
                             data: pvData,
-                            borderColor: '#2563eb',
-                            backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                            borderColor: '#3b82f6',
+                            backgroundColor: '#ffffff',
                             tension: 0.4,
                             fill: true,
                             yAxisID: 'y'
@@ -1312,7 +1312,7 @@
                         {
                             label: 'UV',
                             data: uvData,
-                            borderColor: '#52c41a',
+                            borderColor: '#10b981',
                             backgroundColor: 'rgba(82, 196, 26, 0.1)',
                             tension: 0.4,
                             fill: true,
@@ -1430,19 +1430,19 @@
             <!-- Blog Stats -->
             <div class="row mb-4">
                 <div class="col-md-3 mb-3">
-                    <div class="stat-card h-100" style="border-left: 4px solid #2563eb;">
+                    <div class="stat-card h-100" style="border-left: 4px solid #3b82f6;">
                         <div class="stat-value" id="blogTotalPosts">-</div>
                         <div class="stat-label" data-i18n="admin.totalPosts">Total Posts</div>
                     </div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <div class="stat-card h-100" style="border-left: 4px solid #52c41a;">
+                    <div class="stat-card h-100" style="border-left: 4px solid #10b981;">
                         <div class="stat-value" id="blogPublishedPosts">-</div>
                         <div class="stat-label" data-i18n="admin.publishedPosts">Published</div>
                     </div>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <div class="stat-card h-100" style="border-left: 4px solid #faad14;">
+                    <div class="stat-card h-100" style="border-left: 4px solid #f59e0b;">
                         <div class="stat-value" id="blogDraftPosts">-</div>
                         <div class="stat-label" data-i18n="admin.draftPosts">Drafts</div>
                     </div>
@@ -1561,7 +1561,7 @@
                     <div class="col-md-3 mb-3">
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body text-center">
-                                <h3 class="mb-1" style="color: #2563eb;">${summary.total_responses || 0}</h3>
+                                <h3 class="mb-1" style="color: #3b82f6;">${summary.total_responses || 0}</h3>
                                 <small class="text-muted">${isZh ? '总反馈数' : 'Total Responses'}</small>
                             </div>
                         </div>
@@ -1569,7 +1569,7 @@
                     <div class="col-md-3 mb-3">
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body text-center">
-                                <h3 class="mb-1" style="color: #52c41a;">${summary.average_score || 0}</h3>
+                                <h3 class="mb-1" style="color: #10b981;">${summary.average_score || 0}</h3>
                                 <small class="text-muted">${isZh ? '平均分' : 'Avg Score'}</small>
                             </div>
                         </div>
@@ -1577,7 +1577,7 @@
                     <div class="col-md-3 mb-3">
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body text-center">
-                                <h3 class="mb-1" style="color: #faad14;">${summary.nps_score || 0}</h3>
+                                <h3 class="mb-1" style="color: #f59e0b;">${summary.nps_score || 0}</h3>
                                 <small class="text-muted">${isZh ? 'NPS分数' : 'NPS Score'}</small>
                             </div>
                         </div>
@@ -1866,8 +1866,8 @@
                             data: features.map(f => f.usage_count),
                             itemStyle: {
                                 color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-                                    { offset: 0, color: '#2563eb' },
-                                    { offset: 1, color: '#7c3aed' }
+                                    { offset: 0, color: '#3b82f6' },
+                                    { offset: 1, color: '#6366f1' }
                                 ]),
                                 borderRadius: [0, 4, 4, 0]
                             },
@@ -1958,7 +1958,7 @@
                                 data: retention.map(r => r.day1_retention),
                                 smooth: true,
                                 lineStyle: { width: 2 },
-                                itemStyle: { color: '#2563eb' },
+                                itemStyle: { color: '#3b82f6' },
                                 areaStyle: {
                                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                                         { offset: 0, color: 'rgba(102, 126, 234, 0.3)' },
@@ -1972,7 +1972,7 @@
                                 data: retention.map(r => r.day7_retention),
                                 smooth: true,
                                 lineStyle: { width: 2 },
-                                itemStyle: { color: '#52c41a' },
+                                itemStyle: { color: '#10b981' },
                                 areaStyle: {
                                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                                         { offset: 0, color: 'rgba(82, 196, 26, 0.3)' },
@@ -2091,11 +2091,11 @@
 
         function getFunnelColor(index, total, position) {
             const colors = [
-                { start: '#2563eb', end: '#7c3aed' },  // Purple
+                { start: '#3b82f6', end: '#6366f1' },  // Purple
                 { start: '#eb2f96', end: '#f759ab' },  // Pink
                 { start: '#1890ff', end: '#69c0ff' },  // Blue
-                { start: '#52c41a', end: '#73d13d' },  // Green
-                { start: '#faad14', end: '#ffc53d' }   // Orange
+                { start: '#10b981', end: '#73d13d' },  // Green
+                { start: '#f59e0b', end: '#ffc53d' }   // Orange
             ];
             return colors[index % colors.length][position];
         }

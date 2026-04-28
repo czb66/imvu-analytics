@@ -43,14 +43,14 @@
     <script src="/static/i18n.js?v=20260428"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --secondary: #7c3aed;
-            --success: #52c41a;
-            --danger: #ff4d4f;
-            --warning: #faad14;
+            --primary: #3b82f6;
+            --secondary: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #1e40af 100%);
+            background: #f1f5f9;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         .sidebar {
@@ -59,7 +59,7 @@
             left: 0;
             height: 100vh;
             width: 250px;
-            background: rgba(22, 33, 62, 0.95);
+            background: #ffffff;
             backdrop-filter: blur(20px);
             padding: 20px 0;
             color: white;
@@ -74,7 +74,7 @@
         .sidebar a {
             display: block;
             padding: 12px 20px;
-            color: rgba(255,255,255,0.85);
+            color: #64748b;
             text-decoration: none;
             transition: all 0.3s;
         }
@@ -98,7 +98,7 @@
             display: flex;
             align-items: center;
             padding: 12px 15px;
-            background: rgba(59, 130, 246, 0.2);
+            background: #e2e8f0;
             border-radius: 10px;
             color: rgba(255,255,255,0.9);
             cursor: pointer;
@@ -169,7 +169,7 @@
         }
         .user-dropdown a:hover {
             background: #f5f7fa;
-            color: #2563eb;
+            color: #3b82f6;
         }
         .user-dropdown a i {
             margin-right: 10px;
@@ -182,11 +182,11 @@
             margin: 5px 0;
         }
         .user-dropdown .logout-item {
-            color: #ff4d4f;
+            color: #ef4444;
         }
         .user-dropdown .logout-item:hover {
             background: #fff2f0;
-            color: #ff4d4f;
+            color: #ef4444;
         }
         .main-content {
             margin-left: 250px;
@@ -204,7 +204,7 @@
         }
         
         .subscribe-btn {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border: none;
             padding: 6px 16px;
@@ -257,7 +257,7 @@
             text-align: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             margin-top: 15px;
-            border: 2px solid #2563eb;
+            border: 2px solid #3b82f6;
         }
         .paywall-icon {
             font-size: 48px;
@@ -275,7 +275,7 @@
             margin-bottom: 15px;
         }
         .paywall-btn {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -325,7 +325,7 @@
             margin-right: 10px;
         }
         .diagnosis-pro-badge {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             padding: 4px 12px;
             border-radius: 12px;
@@ -336,7 +336,7 @@
         .lang-select:focus {
             outline: none;
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
-            border-color: #2563eb;
+            border-color: #3b82f6;
         }
         
         .lang-select option {
@@ -360,20 +360,20 @@
             border-bottom: 2px solid var(--primary);
         }
         .metric-box {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border-radius: 10px;
             padding: 20px;
             text-align: center;
         }
         .metric-box.success {
-            background: linear-gradient(135deg, #52c41a, #389e0d);
+            background: linear-gradient(135deg, #10b981, #389e0d);
         }
         .metric-box.warning {
-            background: linear-gradient(135deg, #faad14, #d48806);
+            background: linear-gradient(135deg, #f59e0b, #d48806);
         }
         .metric-box.danger {
-            background: linear-gradient(135deg, #ff4d4f, #cf1322);
+            background: linear-gradient(135deg, #ef4444, #cf1322);
         }
         .metric-number {
             font-size: 28px;
@@ -388,7 +388,7 @@
             align-items: center;
             justify-content: center;
             padding: 15px 25px;
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border-radius: 8px;
             margin: 5px;
@@ -439,7 +439,7 @@
         }
         /* AI Insights Card */
         .insight-card {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border-radius: 12px;
             padding: 20px;
@@ -485,7 +485,7 @@
             align-items: center;
             justify-content: center;
             padding: 30px;
-            color: rgba(255,255,255,0.8);
+            color: #64748b;
         }
         .insight-loading .spinner {
             width: 24px;
@@ -504,7 +504,7 @@
             margin-left: 10px;
         }
         .insight-config-hint {
-            background: rgba(59, 130, 246, 0.2);
+            background: #e2e8f0;
             border-radius: 8px;
             padding: 15px;
             margin-top: 10px;
@@ -526,7 +526,7 @@
             left: 0;
             right: 0;
             height: 56px;
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             padding: 0 15px;
             align-items: center;
@@ -1202,7 +1202,7 @@
                     datasets: [{
                         label: t('diagnosis.productCount'),
                         data: data.map(d => d.count),
-                        backgroundColor: '#2563eb'
+                        backgroundColor: '#3b82f6'
                     }]
                 },
                 options: { responsive: true, plugins: { legend: { display: false } } }
@@ -1233,7 +1233,7 @@
                     labels: [t('dashboard.organicTraffic'), t('dashboard.paidTraffic')],
                     datasets: [{
                         data: [trafficData.organic?.total_impressions || 0, trafficData.paid?.total_impressions || 0],
-                        backgroundColor: ['#2563eb', '#7c3aed']
+                        backgroundColor: ['#3b82f6', '#6366f1']
                     }]
                 }
             });

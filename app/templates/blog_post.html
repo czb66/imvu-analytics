@@ -40,7 +40,7 @@
     
     <style>
         :root {
-            --primary: #7c3aed;
+            --primary: #6366f1;
             --primary-dark: #6d28d9;
             --secondary: #ec4899;
             --dark: #0f172a;
@@ -48,14 +48,14 @@
         }
         body { 
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #1e40af 100%) !important;
+            background: #f1f5f9 !important;
         }
         .gradient-bg {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #1e40af 100%);
+            background: #f1f5f9;
         }
         
         /* Dark theme overrides */
-        .bg-white { background: rgba(30, 58, 138, 0.5) !important; }
+        .bg-white { background: #ffffff !important; }
         .text-gray-900 { color: #fff !important; }
         .text-purple-100 { color: rgba(255, 255, 255, 0.7) !important; }
         .hover\:text-purple-700:hover { color: rgba(255, 255, 255, 0.8) !important; }
@@ -66,7 +66,7 @@
             color: rgba(255, 255, 255, 0.85);
         }
         .prose-blog h1 { font-size: 2rem; font-weight: 700; margin: 2rem 0 1rem; color: #fff; }
-        .prose-blog h2 { font-size: 1.5rem; font-weight: 600; margin: 1.75rem 0 1rem; color: #fff; border-bottom: 2px solid rgba(59, 130, 246, 0.2); padding-bottom: 0.5rem; }
+        .prose-blog h2 { font-size: 1.5rem; font-weight: 600; margin: 1.75rem 0 1rem; color: #fff; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; }
         .prose-blog h3 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #fff; }
         .prose-blog p { margin: 1rem 0; }
         .prose-blog ul, .prose-blog ol { margin: 1rem 0; padding-left: 1.5rem; }
@@ -74,21 +74,21 @@
         .prose-blog ul { list-style-type: disc; }
         .prose-blog ol { list-style-type: decimal; }
         .prose-blog blockquote {
-            border-left: 4px solid #2563eb;
+            border-left: 4px solid #3b82f6;
             padding: 1rem 1.5rem;
             margin: 1.5rem 0;
-            background: rgba(30, 58, 138, 0.5);
+            background: #ffffff;
             border-radius: 0 8px 8px 0;
         }
         .prose-blog code {
-            background: rgba(30, 58, 138, 0.5);
+            background: #ffffff;
             padding: 0.2rem 0.4rem;
             border-radius: 4px;
             font-size: 0.9em;
-            color: #2563eb;
+            color: #3b82f6;
         }
         .prose-blog pre {
-            background: rgba(15, 23, 42, 0.8);
+            background: #ffffff;
             color: #f3f4f6;
             padding: 1rem;
             border-radius: 8px;
@@ -100,13 +100,13 @@
             color: inherit;
             padding: 0;
         }
-        .prose-blog a { color: #2563eb; text-decoration: underline; }
-        .prose-blog a:hover { color: #7c3aed; }
+        .prose-blog a { color: #3b82f6; text-decoration: underline; }
+        .prose-blog a:hover { color: #6366f1; }
         .prose-blog img { max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0; }
         .prose-blog table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
-        .prose-blog th, .prose-blog td { border: 1px solid rgba(59, 130, 246, 0.2); padding: 0.75rem; text-align: left; }
-        .prose-blog th { background: rgba(30, 58, 138, 0.5); font-weight: 600; }
-        .prose-blog hr { border: none; border-top: 2px solid rgba(59, 130, 246, 0.2); margin: 2rem 0; }
+        .prose-blog th, .prose-blog td { border: 1px solid #e2e8f0; padding: 0.75rem; text-align: left; }
+        .prose-blog th { background: #ffffff; font-weight: 600; }
+        .prose-blog hr { border: none; border-top: 2px solid #e2e8f0; margin: 2rem 0; }
         
         .share-btn {
             transition: all 0.3s;

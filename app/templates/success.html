@@ -44,13 +44,13 @@
     <script src="/static/auth.js"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --secondary: #7c3aed;
+            --primary: #3b82f6;
+            --secondary: #6366f1;
             --dark: #0f172a;
             --darker: #1e293b;
         }
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #1e40af 100%) !important;
+            background: #f1f5f9 !important;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -65,7 +65,7 @@
         .success-icon {
             width: 120px;
             height: 120px;
-            background: linear-gradient(135deg, #52c41a, #237804);
+            background: linear-gradient(135deg, #10b981, #237804);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -101,7 +101,7 @@
             text-align: left;
         }
         .features-preview h4 {
-            color: #2563eb;
+            color: #3b82f6;
             margin-bottom: 15px;
             font-size: 1rem;
         }
@@ -112,11 +112,11 @@
             color: #555;
         }
         .feature-item i {
-            color: #52c41a;
+            color: #10b981;
             margin-right: 10px;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             border: none;
             border-radius: 12px;
             padding: 15px 40px;
@@ -139,7 +139,7 @@
             position: fixed;
             width: 10px;
             height: 10px;
-            background: #52c41a;
+            background: #10b981;
             animation: fall 3s linear forwards;
         }
         @keyframes fall {
@@ -162,7 +162,7 @@
         }
         
         .subscribe-btn {
-            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
             color: white;
             border: none;
             padding: 6px 16px;
@@ -204,7 +204,7 @@
         .lang-select:focus {
             outline: none;
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
-            border-color: #2563eb;
+            border-color: #3b82f6;
         }
         
         .lang-select option {
@@ -234,7 +234,7 @@
         <p class="subtitle" data-i18n="success.subtitle">Thank you for subscribing to IMVU Analytics Pro</p>
         
         <div class="features-preview">
-            <h4><i class="bi bi-star-fill me-2" style="color: #2563eb;"></i><span data-i18n="success.yourAccess">Your New Access</span></h4>
+            <h4><i class="bi bi-star-fill me-2" style="color: #3b82f6;"></i><span data-i18n="success.yourAccess">Your New Access</span></h4>
             <div class="feature-item">
                 <i class="bi bi-check-circle-fill"></i>
                 <span data-i18n="success.feature1">Unlimited data uploads</span>
@@ -317,7 +317,7 @@
 
         // 创建彩带效果
         function createConfetti() {
-            const colors = ['#52c41a', '#2563eb', '#7c3aed', '#f5222d', '#faad14'];
+            const colors = ['#10b981', '#3b82f6', '#6366f1', '#f5222d', '#f59e0b'];
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
                     const confetti = document.createElement('div');
