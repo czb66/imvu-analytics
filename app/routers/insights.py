@@ -18,6 +18,7 @@ from app.services.subscription_check import require_subscription, is_whitelisted
 from app.services.activity_tracker import activity_tracker
 from app.services.cache import get_cache
 from app.core.rate_limiter import check_tiered_rate_limit
+from app.core.limiter import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/insights", tags=["AI洞察"])
