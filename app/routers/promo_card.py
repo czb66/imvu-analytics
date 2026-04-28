@@ -178,7 +178,7 @@ async def track_click(
         db.add(click)
         db.commit()
         
-        logger.info(f"推广卡片点击 - 用户: {user_info['email'] if user_info else '匿名'}, stat: {stat_id}, product: {product_index}")
+        logger.info(f"推广卡片点击 - 用户: {user_info.get('id', 'anonymous') if user_info else '匿名'}, stat: {stat_id}, product: {product_index}")
         
         # 重定向到产品页面
         stat = db.query(PromoCardStat).filter(PromoCardStat.id == stat_id).first()
@@ -290,7 +290,7 @@ async def query_stats(
         logger.error(f"查询推广卡片统计失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
-            content={"success": False, "message": "操作失败，请稍后重试""}
+            content={"success": False, "message": "操作失败，请稍后重试"}
         )
 
 
@@ -346,7 +346,7 @@ async def track_event(
         logger.error(f"追踪推广卡片事件失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=500,
-            content={"success": False, "message": "操作失败，请稍后重试""}
+            content={"success": False, "message": "操作失败，请稍后重试"}
         )
 
 

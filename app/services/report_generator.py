@@ -665,7 +665,7 @@ def _generate_report_for_user(
         subject = tpl.get('weekly_subject', app_name=config.APP_NAME, date=date_str)
     
     if not products:
-        logger.info(f"用户 {user.email} 没有产品数据，跳过{report_type}报告")
+        logger.info(f"用户 {user.id} 没有产品数据，跳过{report_type}报告")
         return False
     
     # 分析数据
@@ -690,9 +690,9 @@ def _generate_report_for_user(
     )
     
     if success:
-        logger.info(f"{report_type.capitalize()}报告已发送给 {user.email}: {msg}")
+        logger.info(f"{report_type.capitalize()}报告已发送给 {user.id}: {msg}")
     else:
-        logger.warning(f"{report_type.capitalize()}报告发送失败 {user.email}: {msg}")
+        logger.warning(f"{report_type.capitalize()}报告发送失败 {user.id}: {msg}")
     
     return success
 
@@ -724,7 +724,7 @@ def generate_daily_report():
                 else:
                     fail_count += 1
             except Exception as user_err:
-                logger.error(f"为用户 {user.email} 生成每日报告失败: {user_err}", exc_info=True)
+                logger.error(f"为用户 {user.id} 生成每日报告失败: {user_err}", exc_info=True)
                 fail_count += 1
         
         logger.info(f"✅ 每日报告任务完成: 共 {total} 位订阅用户, 成功 {success_count}, 失败 {fail_count}")
@@ -768,7 +768,7 @@ def generate_weekly_report():
                 else:
                     fail_count += 1
             except Exception as user_err:
-                logger.error(f"为用户 {user.email} 生成每周报告失败: {user_err}", exc_info=True)
+                logger.error(f"为用户 {user.id} 生成每周报告失败: {user_err}", exc_info=True)
                 fail_count += 1
         
         logger.info(f"✅ 每周报告任务完成: 共 {total} 位订阅用户, 成功 {success_count}, 失败 {fail_count}")
@@ -1246,7 +1246,7 @@ def _send_expiry_reminder(
     if success:
         logger.info(f"到期提醒({reminder_type})已发送给 {user.email}")
     else:
-        logger.warning(f"到期提醒({reminder_type})发送失败 {user.email}: {msg}")
+        logger.warning(f"到期提醒({reminder_type})发送失败 {user.id}: {msg}")
     
     return success
 

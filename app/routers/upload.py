@@ -122,7 +122,7 @@ async def upload_xml_file(
         # 清除仪表盘缓存，确保新数据立即可见
         _clear_cache()
         
-        logger.info(f"用户 {current_user.get('email')} 成功上传 {count} 条产品数据到数据集 '{dataset_name_display}'")
+        logger.info(f"用户 {current_user.get('id')} 成功上传 {count} 条产品数据到数据集 '{dataset_name_display}'")
         
         return {
             "success": True,

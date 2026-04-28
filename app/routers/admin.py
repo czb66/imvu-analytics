@@ -753,7 +753,7 @@ async def toggle_user_whitelist(
         user.is_whitelisted = not user.is_whitelisted
         db.commit()
         
-        logger.info(f"管理员ID {current_user.get("id")} {'添加' if user.is_whitelisted else '移除'}用户 {user.email} 的白名单权限")
+        logger.info(f"管理员ID {current_user.get('id')} {'添加' if user.is_whitelisted else '移除'}用户ID {user.id} 的白名单权限")
         
         return {
             "success": True,

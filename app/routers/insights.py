@@ -157,7 +157,7 @@ async def generate_dashboard_insights(
         response.headers["X-Cache"] = "HIT"
         return cached_result
     
-    logger.info(f"[API] 用户 {user_email} 生成仪表盘洞察 - 开始")
+    logger.info(f"[API] 用户 {user_id} 生成仪表盘洞察 - 开始")
     
     # 记录查看洞察行为（异步模式，不阻塞主流程）
     activity_tracker.log_activity(
@@ -264,11 +264,11 @@ async def generate_diagnosis_insights(
     cached_result = cache.get(cache_key)
     if cached_result is not None:
         elapsed = time.time() - start_time
-        logger.info(f"[API] 用户 {user_email} 生成诊断洞察 - 完成(缓存) 耗时: {elapsed:.3f}s")
+        logger.info(f"[API] 用户 {user_id} 生成诊断洞察 - 完成(缓存) 耗时: {elapsed:.3f}s")
         response.headers["X-Cache"] = "HIT"
         return cached_result
     
-    logger.info(f"[API] 用户 {user_email} 生成诊断洞察 - 开始")
+    logger.info(f"[API] 用户 {user_id} 生成诊断洞察 - 开始")
     
     try:
         # 获取产品数据
@@ -492,7 +492,7 @@ async def generate_compare_insights(
         
     except Exception as e:
         elapsed = time.time() - start_time
-        logger.error(f"[API] 用户 {current_user.get('email')} 生成对比洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
+        logger.error(f"[API] 用户 {current_user.get('id')} 生成对比洞察 - 失败 耗时: {elapsed:.3f}s 错误: {str(e)}", exc_info=True)
         return {
             "success": False,
             "error": "操作失败，请稍后重试",
@@ -513,7 +513,7 @@ async def clear_insights_cache(
     # 清除该用户的所有洞察缓存
     count = cache.delete_pattern(f"insights:*:user_{user_id}*")
     
-    logger.info(f"[API] 用户 {current_user.get('email')} 清除洞察缓存 - 删除了 {count} 条")
+    logger.info(f"[API] 用户 {current_user.get('id')} 清除洞察缓存 - 删除了 {count} 条")
     response.headers["X-Cache"] = "MISS"
     
     return {
