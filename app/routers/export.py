@@ -142,7 +142,7 @@ async def export_dashboard(
         logger.error(f"导出仪表盘数据失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": "操作失败，请稍后重试""}
+            content={"success": False, "message": "操作失败，请稍后重试"}
         )
     finally:
         # 增加导出计数
@@ -220,7 +220,7 @@ async def export_products(
         logger.error(f"导出产品数据失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": "操作失败，请稍后重试""}
+            content={"success": False, "message": "操作失败，请稍后重试"}
         )
     finally:
         # 增加导出计数

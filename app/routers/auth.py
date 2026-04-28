@@ -124,7 +124,7 @@ async def register(request: Request, register_request: RegisterRequest, db: Sess
         logger.error(f"注册失败: {e}", exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": "操作失败，请稍后重试""}
+            content={"success": False, "message": "操作失败，请稍后重试"}
         )
 
 
