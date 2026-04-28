@@ -106,7 +106,7 @@ def get_or_create_stripe_customer(user_email: str, user_id: int, existing_custom
         logger.error(f"创建Stripe客户失败: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"创建支付客户失败: {str(e)}"
+            detail="创建支付客户失败，请稍后重试"
         )
 
 

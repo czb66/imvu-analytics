@@ -162,7 +162,7 @@ async def db_health_check():
             conn.execute(text("SELECT 1"))
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
-        return {"status": "unhealthy", "error": str(e)}
+        return {"status": "unhealthy", "error": "Database connection failed"}
 
 
 

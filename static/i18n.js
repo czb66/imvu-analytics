@@ -1358,6 +1358,23 @@ const translations = {
                 api: 'API Status',
                 support: 'Support',
                 rights: 'All rights reserved.'
+            },
+            blog: {
+                title: 'Blog',
+                readMore: 'Read more',
+                all: 'All',
+                tutorials: 'Tutorials',
+                tips: 'Tips',
+                updates: 'Updates',
+                industry: 'Industry',
+                featured: 'Featured',
+                noPosts: 'No posts yet',
+                loading: 'Loading...',
+                minRead: 'min read',
+                relatedPosts: 'Related Posts',
+                views: 'Views',
+                publishedOn: 'Published on',
+                backToBlog: 'Back to Blog'
             }
         }
     },
@@ -2746,6 +2763,23 @@ const translations = {
                 api: 'API状态',
                 support: '支持',
                 rights: '保留所有权利。'
+            },
+            blog: {
+                title: '博客',
+                readMore: '阅读更多',
+                all: '全部',
+                tutorials: '教程',
+                tips: '技巧',
+                updates: '更新',
+                industry: '行业',
+                featured: '特色',
+                noPosts: '暂无文章',
+                loading: '加载中...',
+                minRead: '分钟阅读',
+                relatedPosts: '相关文章',
+                views: '浏览',
+                publishedOn: '发布于',
+                backToBlog: '返回博客'
             }
         }
     },
@@ -3919,8 +3953,23 @@ const translations = {
                 api: 'Statut API',
                 support: 'Support',
                 rights: 'Tous droits réservés.'
-            }
-        },
+            },
+            blog: {
+                readMore: 'Lire la suite',
+                all: 'Tous',
+                tutorials: 'Tutoriels',
+                tips: 'Astuces',
+                updates: 'Mises à jour',
+                industry: 'Industrie',
+                featured: 'En vedette',
+                noPosts: 'Aucun article',
+                loading: 'Chargement...',
+                minRead: 'min de lecture',
+                relatedPosts: 'Articles connexes',
+                views: 'Vues',
+                publishedOn: 'Publié le',
+                backToBlog: 'Retour au blog'
+            }        },
         
         
     }

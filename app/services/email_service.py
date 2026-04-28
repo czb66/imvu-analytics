@@ -101,7 +101,7 @@ class EmailService:
             return False, "邮件服务配置错误"
         except Exception as e:
             logger.error(f"Resend 邮件发送失败: {e}")
-            return False, f"邮件发送失败: {str(e)}"
+            return False, "邮件发送失败，请稍后重试"
     
     def _send_via_smtp(
         self,
@@ -419,4 +419,4 @@ def send_referral_reward_notification(
         import logging
         logger = logging.getLogger(__name__)
         logger.error(f"发送推荐奖励通知邮件失败: {e}")
-        return False, str(e)
+        return False, "邮件发送失败，请稍后重试"

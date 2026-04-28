@@ -140,7 +140,7 @@ async def upload_xml_file(
         raise HTTPException(status_code=400, detail="操作失败，请稍后重试")
     except Exception as e:
         logger.error(f"上传失败: {e}")
-        raise HTTPException(status_code=500, detail=f"服务器错误: {str(e)}")
+        raise HTTPException(status_code=500, detail="服务器内部错误，请稍后重试")
 
 
 @router.post("/validate")
@@ -266,7 +266,7 @@ async def clear_all_data(current_user: dict = Depends(require_subscription)):
             
     except Exception as e:
         logger.error(f"[API] 清空数据失败: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to clear data: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to clear data. Please try again later.")
 
 
 @router.get("/sample")

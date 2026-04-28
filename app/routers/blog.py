@@ -526,6 +526,7 @@ async def get_admin_blog_posts(
     per_page: int = Query(20, ge=1, le=100),
     category: Optional[str] = Query(None),
     status_filter: Optional[str] = Query(None, alias="status", description="published/draft/all"),
+    search: Optional[str] = Query(None, description="Search in title and content"),
     db: Session = Depends(get_db),
     current_user: dict = Depends(require_admin)
 ):
@@ -544,6 +545,19 @@ async def get_admin_blog_posts(
         
         if category:
             query = query.filter(BlogPost.category == category)
+        
+        # 搜索功能
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter(
+                (BlogPost.title_en.ilike(search_term)) |
+                (BlogPost.title_zh.ilike(search_term)) |
+                (BlogPost.title_fr.ilike(search_term)) |
+                (BlogPost.content_en.ilike(search_term)) |
+                (BlogPost.content_zh.ilike(search_term)) |
+                (BlogPost.content_fr.ilike(search_term)) |
+                (BlogPost.slug.ilike(search_term))
+            )
         
         total = query.count()
         total_pages = math.ceil(total / per_page) if total > 0 else 1

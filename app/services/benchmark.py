@@ -240,7 +240,7 @@ class BenchmarkService:
         except Exception as e:
             logger.error(f"计算行业基准失败: {str(e)}\n{traceback.format_exc()}")
             db.rollback()
-            return {'status': 'error', 'message': str(e)}
+            return {'status': 'error', 'message': '计算行业基准失败，请稍后重试'}
     
     def get_category_overview(self, db: Session, category: str = None) -> Dict[str, Any]:
         """
@@ -301,7 +301,7 @@ class BenchmarkService:
             
         except Exception as e:
             logger.error(f"获取类别概览失败: {str(e)}\n{traceback.format_exc()}")
-            return {'success': False, 'message': str(e)}
+            return {'success': False, 'message': '获取类别概览失败，请稍后重试'}
     
     def _get_sample_phrase(self, sample_size: int) -> str:
         """生成样本数描述短语（不暴露具体数字）"""
@@ -382,7 +382,7 @@ class BenchmarkService:
             
         except Exception as e:
             logger.error(f"获取产品排名失败: {str(e)}\n{traceback.format_exc()}")
-            return {'success': False, 'message': str(e)}
+            return {'success': False, 'message': '获取产品排名失败，请稍后重试'}
     
     def _classify_product_from_data(self, product_data: Dict) -> str:
         """根据产品数据分类"""
@@ -549,7 +549,7 @@ class BenchmarkService:
             
         except Exception as e:
             logger.error(f"生成竞争洞察失败: {str(e)}\n{traceback.format_exc()}")
-            return [{'title': 'Error', 'description': str(e), 'type': 'error'}]
+            return [{'title': 'Error', 'description': '生成竞争洞察失败，请稍后重试', 'type': 'error'}]
 
 
 # 全局服务实例

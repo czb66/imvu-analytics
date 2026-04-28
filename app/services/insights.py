@@ -648,7 +648,7 @@ Please use the following format:
             return "🔌 无法连接API服务，请检查网络"
         except Exception as e:
             logger.error(f"DeepSeek API异常: {str(e)}", exc_info=True)
-            return f"⚠️ 发生错误: {str(e)}"
+            return "⚠️ 发生错误，请稍后重试"
     
     def _clean_response(self, content: str) -> str:
         """清理AI响应"""

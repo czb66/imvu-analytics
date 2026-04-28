@@ -890,7 +890,7 @@ def check_suspicious_referral_activity():
     
     except Exception as e:
         logger.error(f"异常推荐行为检测失败: {e}", exc_info=True)
-        return {'error': str(e)}
+        return {'error': '检测失败，请稍后重试'}
 
 
 def _send_antifraud_admin_alert(suspicious_codes: list, suspended_codes: list):
